@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — LeaveDesk{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card animate-in">
+            <div class="card-body p-5">
+                <div class="d-flex align-items-center gap-4 mb-4">
+                    <div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#05BFDB,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.8rem;">
+                        {{ employee.user.first_name|first|upper }}
+                    </div>
+                    <div>
+                        <h2 class="mb-1">{{ employee.get_full_name }}</h2>
+                        <div class="text-muted">{{ employee.position|default:"Staff" }}</div>
+                        <span class="badge bg-{{ employee.get_role_display_badge }} mt-1">{{ employee.get_role_display }}</span>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Employee ID</div>
+                        <div class="fw-bold font-monospace">{{ employee.employee_id }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Department</div>
+                        <div class="fw-bold">{{ employee.department|default:"—" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Email</div>
+                        <div>{{ employee.user.email|default:"—" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Phone</div>
+                        <div>{{ employee.phone|default:"—" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Line Manager</div>
+                        <div>{{ employee.supervisor.get_full_name|default:"—" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Joined Hospital</div>
+                        <div>{{ employee.date_joined_company|default:"—" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

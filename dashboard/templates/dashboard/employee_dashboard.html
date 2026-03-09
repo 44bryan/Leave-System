@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard — LeaveDesk{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
+{% block page_subtitle %}Welcome back, {{ employee.user.first_name }}{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block content %}
+{% if on_leave %}
+<div class="alert alert-info d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-airplane-fill fs-5"></i>
+    <span>You are currently on <strong>{{ on_leave.leave_type }}</strong> leave. You return on <strong>{{ on_leave.end_date }}</strong>.</span>
+</div>
+{% endif %}
+
+<!-- Balance Card Row -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4 animate-in">
+        <div class="card" style="background: linear-gradient(135deg, #0A4D68, #088395); color: white; border: none;">
+            <div class="card-body p-4">
+                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.75; margin-bottom: 8px;">
+                    Annual Entitlement {{ today.year }}
+                </div>
+                <div style="font-size: 3rem; font-weight: 800; line-height: 1;">{{ balance.total_entitlement }}</div>
+                <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 4px;">Total days</div>
+                <hr style="border-color: rgba(255,255,255,0.2); margin: 16px 0;">
+                <div class="row text-center">
+                    <div class="col">
+                        <div style="font-size: 1.5rem; font-weight: 700;">{{ balance.used_days }}</div>
+                        <div style="font-size: 0.7rem; opacity: 0.75;">Used</div>
+                    </div>
+                    <div class="col" style="border-left: 1px solid rgba(255,255,255,0.2);">
+                        <div style="font-size: 1.5rem; font-weight: 700;">{{ balance.remaining_days }}</div>
+                        <div style="font-size: 0.7rem; opacity: 0.75;">Remaining</div>
+                    </div>
+                </div>
+                <div class="progress mt-3" style="height: 6px; background: rgba(255,255,255,0.2);">
+                    <div class="progress-bar" style="width: {{ balance.usage_percentage }}%; background: white;"></div>
+                </div>
+                <div style="font-size: 0.7rem; opacity: 0.65; margin-top: 6px;">{{ balance.usage_percentage }}% used</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 animate-in delay-1">
+        <div class="stat-card h-100">
+            <div class="stat-icon" style="background: #fff8e1; color: #f57f17;">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="stat-value">{{ pending_count }}</div>
+            <div class="stat-label">Pending Requests</div>
+            {% if pending_count > 0 %}
+            <a href="{% url 'leaves:my_requests' %}" class="btn btn-sm btn-outline-warning mt-3 w-100">View Pending</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-4 animate-in delay-2">
+        <div class="card h-100" style="background: #f0fdf4; border: 1.5px dashed #4ade80;">
+            <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center">
+                <i class="bi bi-plus-circle-fill fs-1 mb-3" style="color: #0A4D68;"></i>
+                <h6 class="fw-bold mb-1">Apply for Leave</h6>
+                <p class="text-muted small mb-3">Submit a new leave request</p>
+                <a href="{% url 'leaves:submit' %}" class="btn btn-primary w-100">
+                    <i class="bi bi-send me-1"></i>New Request
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Requests -->
+<div class="card animate-in delay-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-journal-text me-2"></i>Recent Leave Requests</span>
+        <a href="{% url 'leaves:my_requests' %}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Leave Type</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Days</th>
+                    <th>Status</th>
+                    <th>Applied</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in recent_requests %}
+                <tr>
+                    <td><strong>{{ req.leave_type }}</strong></td>
+                    <td>{{ req.start_date }}</td>
+                    <td>{{ req.end_date }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ req.total_days }}d</span></td>
+                    <td>
+                        <span class="badge bg-{{ req.get_status_badge }}">
+                            <i class="bi bi-{{ req.get_status_icon }} me-1"></i>
+                            {{ req.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="font-size: 0.8rem; color: #6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                        No leave requests yet. <a href="{% url 'leaves:submit' %}">Apply now</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

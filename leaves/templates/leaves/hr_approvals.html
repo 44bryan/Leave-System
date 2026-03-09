@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}HR Approvals — LeaveDesk{% endblock %}
+{% block page_title %}HR Final Approvals{% endblock %}
+{% block page_subtitle %}Manager-approved requests awaiting final HR sign-off{% endblock %}
+{% block nav_hr_approvals %}active{% endblock %}
+
+{% block content %}
+{% if pending_requests %}
+<div class="alert alert-info d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-info-circle-fill fs-5"></i>
+    <span><strong>{{ pending_requests|length }}</strong> request(s) have been approved by their line manager and need your final approval.</span>
+</div>
+{% endif %}
+
+<div class="card animate-in">
+    <div class="card-header">
+        <i class="bi bi-clipboard2-check me-2" style="color:#088395;"></i>Manager-Approved — Awaiting HR Final Decision
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Leave Type</th>
+                    <th>Period</th>
+                    <th>Days</th>
+                    <th>Manager Approved By</th>
+                    <th>Manager Date</th>
+                    <th>Document</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in pending_requests %}
+                <tr>
+                    <td>
+                        <div style="font-weight:600;">{{ req.employee.get_full_name }}</div>
+                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.employee_id }}</div>
+                    </td>
+                    <td>{{ req.employee.department|default:"—" }}</td>
+                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                    <td style="font-size:0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
+                    <td><strong>{{ req.total_days }}d</strong></td>
+                    <td style="font-size:0.82rem;">
+                        {% if req.manager_action_by %}{{ req.manager_action_by.get_full_name }}{% else %}—{% endif %}
+                    </td>
+                    <td style="font-size:0.78rem;color:#6b7a8d;">
+                        {% if req.manager_action_date %}{{ req.manager_action_date|date:"M d, Y" }}{% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if req.supporting_document %}
+                        <a href="{{ req.supporting_document.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-paperclip"></i>
+                        </a>
+                        {% else %}
+                        <span class="text-muted small">None</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-success">
+                            <i class="bi bi-check2-all me-1"></i>Final Review
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-5">
+                        <i class="bi bi-clipboard2-check fs-2 d-block mb-2 text-success"></i>
+                        No requests awaiting HR approval.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

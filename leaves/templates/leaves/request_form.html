@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Apply for Leave — LeaveDesk{% endblock %}
+{% block page_title %}Apply for Leave{% endblock %}
+{% block page_subtitle %}Submit a new leave request{% endblock %}
+{% block nav_submit %}active{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card animate-in">
+            <div class="card-header">
+                <i class="bi bi-send me-2" style="color: #088395;"></i>Leave Application Form
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label">Leave Type <span class="text-danger">*</span></label>
+                        {{ form.leave_type }}
+                        {% if form.leave_type.errors %}
+                        <div class="text-danger small mt-1">{{ form.leave_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Date <span class="text-danger">*</span></label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="days-preview" style="display:none;">
+                        <div class="alert alert-info py-2">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <strong id="days-count">0</strong> working day(s) selected
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Reason for Leave <span class="text-danger">*</span></label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}
+                        <div class="text-danger small mt-1">{{ form.reason.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Supporting Document <span class="text-muted small">(optional)</span></label>
+                        {{ form.supporting_document }}
+                        <div class="form-text">Upload a medical certificate, marriage certificate, etc. if applicable.</div>
+                        {% if form.supporting_document.errors %}
+                        <div class="text-danger small mt-1">{{ form.supporting_document.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-send-check me-2"></i>Submit Request
+                        </button>
+                        <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Info -->
+    <div class="col-lg-5">
+        <!-- Balance Card -->
+        <div class="card animate-in delay-1 mb-4">
+            <div class="card-header"><i class="bi bi-pie-chart me-2"></i>Your Leave Balance {{ balance.year }}</div>
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Used</span>
+                    <strong>{{ balance.used_days }} days</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted small">Remaining</span>
+                    <strong style="color: {% if balance.remaining_days <= 3 %}#e53e3e{% else %}#0d6832{% endif %};">
+                        {{ balance.remaining_days }} days
+                    </strong>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar {% if balance.usage_percentage > 80 %}bg-danger{% elif balance.usage_percentage > 50 %}bg-warning{% else %}bg-primary{% endif %}"
+                         style="width: {{ balance.usage_percentage }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted" style="font-size:0.72rem;">0</span>
+                    <span class="text-muted" style="font-size:0.72rem;">{{ balance.total_entitlement }} days total</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Guide -->
+        <div class="card animate-in delay-2">
+            <div class="card-header"><i class="bi bi-diagram-3 me-2"></i>Approval Workflow</div>
+            <div class="card-body p-4">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: #f57f17;"></div>
+                        <div style="font-size: 0.85rem; font-weight: 600;">You Submit</div>
+                        <div style="font-size: 0.75rem; color: #6b7a8d;">Status: Pending</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: #0A4D68;"></div>
+                        <div style="font-size: 0.85rem; font-weight: 600;">Line Manager Reviews</div>
+                        <div style="font-size: 0.75rem; color: #6b7a8d;">Approves or Rejects</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: #088395;"></div>
+                        <div style="font-size: 0.85rem; font-weight: 600;">HR Admin Final Approval</div>
+                        <div style="font-size: 0.75rem; color: #6b7a8d;">Only if manager approved</div>
+                    </div>
+                    <div class="timeline-item" style="margin-bottom: 0;">
+                        <div class="timeline-dot" style="background: #0d6832;"></div>
+                        <div style="font-size: 0.85rem; font-weight: 600;">Fully Approved ✓</div>
+                        <div style="font-size: 0.75rem; color: #6b7a8d;">Balance deducted automatically</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const startEl = document.querySelector('[name="start_date"]');
+const endEl = document.querySelector('[name="end_date"]');
+const preview = document.getElementById('days-preview');
+const count = document.getElementById('days-count');
+
+function updateDays() {
+    const s = new Date(startEl.value);
+    const e = new Date(endEl.value);
+    if (startEl.value && endEl.value && e >= s) {
+        const diff = Math.round((e - s) / (1000*60*60*24)) + 1;
+        count.textContent = diff;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+}
+startEl.addEventListener('change', updateDays);
+endEl.addEventListener('change', updateDays);
+</script>
+{% endblock %}

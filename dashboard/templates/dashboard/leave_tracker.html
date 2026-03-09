@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Leave Tracker — LeaveDesk{% endblock %}
+{% block page_title %}Leave Balance Tracker{% endblock %}
+{% block page_subtitle %}Annual entitlement overview for all employees{% endblock %}
+{% block nav_tracker %}active{% endblock %}
+
+{% block content %}
+<!-- Filter -->
+<div class="card mb-4 animate-in">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Year</label>
+                <select name="year" class="form-select">
+                    {% for y in years %}
+                    <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Department</label>
+                <select name="dept" class="form-select">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.pk }}" {% if dept.pk|stringformat:"s" == dept_filter %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card animate-in delay-1">
+    <div class="card-header">
+        <i class="bi bi-bar-chart-line me-2"></i>Leave Balances — {{ year }}
+        <span class="badge bg-primary ms-2">{{ balances|length }} employees</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Total Days</th>
+                    <th>Used</th>
+                    <th>Remaining</th>
+                    <th>Usage</th>
+                    <th>Balance Bar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in balances %}
+                {% with b=item.balance e=item.employee %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#05BFDB,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.7rem;flex-shrink:0;">
+                                {{ e.user.first_name|first|upper }}
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:.875rem;">{{ e.get_full_name }}</div>
+                                <div style="font-size:.7rem;color:#6b7a8d;">{{ e.employee_id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:.82rem;">{{ e.department|default:"—" }}</td>
+                    <td style="font-size:.82rem;color:#6b7a8d;">{{ e.position|default:"—" }}</td>
+                    <td><strong>{{ b.total_entitlement }}</strong></td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ b.used_days }}</span>
+                    </td>
+                    <td>
+                        <span class="badge {% if b.remaining_days == 0 %}bg-danger{% elif b.remaining_days <= 3 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                            {{ b.remaining_days }}
+                        </span>
+                    </td>
+                    <td style="font-weight:600;color:{% if b.usage_percentage > 80 %}#e53e3e{% elif b.usage_percentage > 60 %}#f57f17{% else %}#0d6832{% endif %};">
+                        {{ b.usage_percentage }}%
+                    </td>
+                    <td style="min-width:120px;">
+                        <div class="progress">
+                            <div class="progress-bar {% if b.usage_percentage > 80 %}bg-danger{% elif b.usage_percentage > 60 %}bg-warning{% else %}bg-primary{% endif %}"
+                                 style="width:{{ b.usage_percentage }}%;"
+                                 title="{{ b.used_days }}/{{ b.total_entitlement }} days">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">No employees found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex gap-3 mt-3" style="font-size:.78rem;">
+    <span><span class="badge bg-success me-1">■</span> Healthy (>40% left)</span>
+    <span><span class="badge bg-warning text-dark me-1">■</span> Low (≤40%)</span>
+    <span><span class="badge bg-danger me-1">■</span> Critical (≤3 days)</span>
+</div>
+{% endblock %}

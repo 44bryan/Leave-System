@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}My Leave Requests — LeaveDesk{% endblock %}
+{% block page_title %}My Leave Requests{% endblock %}
+{% block page_subtitle %}Your leave history and status{% endblock %}
+{% block nav_my_requests %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'leaves:submit' %}" class="btn btn-outline-primary btn-sm me-1">
+    <i class="bi bi-plus-lg me-1"></i>New Request
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Balance Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3 animate-in">
+        <div class="card text-center p-3">
+            <div style="font-size:1.8rem;font-weight:800;color:#0A4D68;">{{ balance.total_entitlement }}</div>
+            <div style="font-size:0.75rem;color:#6b7a8d;font-weight:600;">Total Days</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-1">
+        <div class="card text-center p-3">
+            <div style="font-size:1.8rem;font-weight:800;color:#e53e3e;">{{ balance.used_days }}</div>
+            <div style="font-size:0.75rem;color:#6b7a8d;font-weight:600;">Used</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-2">
+        <div class="card text-center p-3">
+            <div style="font-size:1.8rem;font-weight:800;color:#0d6832;">{{ balance.remaining_days }}</div>
+            <div style="font-size:0.75rem;color:#6b7a8d;font-weight:600;">Remaining</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 animate-in delay-3">
+        <div class="card text-center p-3">
+            <div style="font-size:1.8rem;font-weight:800;color:#088395;">{{ balance.usage_percentage }}%</div>
+            <div style="font-size:0.75rem;color:#6b7a8d;font-weight:600;">Used %</div>
+        </div>
+    </div>
+</div>
+
+<div class="card animate-in delay-2">
+    <div class="card-header"><i class="bi bi-journal-text me-2"></i>All Leave Requests</div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Leave Type</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Days</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Applied On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in leave_requests %}
+                <tr>
+                    <td style="color:#6b7a8d;font-size:0.78rem;">#{{ req.pk }}</td>
+                    <td><strong>{{ req.leave_type }}</strong></td>
+                    <td>{{ req.start_date }}</td>
+                    <td>{{ req.end_date }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ req.total_days }}d</span></td>
+                    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.82rem;">
+                        {{ req.reason|truncatechars:40 }}
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ req.get_status_badge }}">
+                            <i class="bi bi-{{ req.get_status_icon }} me-1"></i>{{ req.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="font-size:0.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-sm btn-outline-secondary" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if req.can_cancel %}
+                            <form method="post" action="{% url 'leaves:cancel' req.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Cancel this leave request?')" title="Cancel">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                        No leave requests yet.
+                        <a href="{% url 'leaves:submit' %}">Apply for leave</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

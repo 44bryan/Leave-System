@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Departments — LeaveDesk{% endblock %}
+{% block page_title %}Departments{% endblock %}
+{% block nav_depts %}active{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card animate-in">
+            <div class="card-header"><i class="bi bi-building me-2"></i>All Departments</div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Name</th><th>Code</th><th>Staff Count</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in departments %}
+                        <tr>
+                            <td><strong>{{ dept.name }}</strong></td>
+                            <td><span class="badge bg-light text-dark border font-monospace">{{ dept.code }}</span></td>
+                            <td>{{ dept.employee_set.count }}</td>
+                            <td>
+                                <form method="post" action="{% url 'accounts:department_delete' dept.pk %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Delete {{ dept.name }}?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No departments yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card animate-in delay-1">
+            <div class="card-header"><i class="bi bi-plus-circle me-2"></i>Add Department</div>
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Department Name *</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Code *</label>
+                        {{ form.code }}
+                        <div class="form-text">Short code e.g. OPH, HR, ADMIN</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-lg me-1"></i>Add Department
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

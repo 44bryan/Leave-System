@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Leave Request #{{ leave.pk }} — LeaveDesk{% endblock %}
+{% block page_title %}Leave Request #{{ leave.pk }}{% endblock %}
+{% block page_subtitle %}{{ leave.leave_type }} · {{ leave.employee.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card animate-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-file-text me-2"></i>Request Details</span>
+                <span class="badge bg-{{ leave.get_status_badge }} fs-6">
+                    <i class="bi bi-{{ leave.get_status_icon }} me-1"></i>{{ leave.get_status_display }}
+                </span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Employee</div>
+                        <div class="fw-bold">{{ leave.employee.get_full_name }}</div>
+                        <div class="text-muted small">{{ leave.employee.employee_id }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Leave Type</div>
+                        <span class="badge bg-info text-dark">{{ leave.leave_type }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Start Date</div>
+                        <div class="fw-bold">{{ leave.start_date }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">End Date</div>
+                        <div class="fw-bold">{{ leave.end_date }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Total Days</div>
+                        <div class="fw-bold fs-4">{{ leave.total_days }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Reason</div>
+                        <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;line-height:1.6;">{{ leave.reason }}</div>
+                    </div>
+                    {% if leave.supporting_document %}
+                    <div class="col-12">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Document</div>
+                        <a href="{{ leave.supporting_document.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-paperclip me-1"></i>View Document
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Approval Timeline -->
+                <h6 class="fw-bold mb-3">Approval History</h6>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background:#088395;"></div>
+                        <div class="fw-semibold" style="font-size:.85rem;">Request Submitted</div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ leave.created_at|date:"M d, Y H:i" }} · by {{ leave.employee.get_full_name }}</div>
+                    </div>
+
+                    {% if leave.manager_action_by %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background:{% if 'rejected_manager' == leave.status %}#e53e3e{% else %}#0d6832{% endif %};"></div>
+                        <div class="fw-semibold" style="font-size:.85rem;">
+                            Manager {% if leave.status == 'rejected_manager' %}Rejected{% else %}Approved{% endif %}
+                        </div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ leave.manager_action_date|date:"M d, Y H:i" }} · by {{ leave.manager_action_by.get_full_name }}</div>
+                        {% if leave.manager_remarks %}
+                        <div style="font-size:.78rem;background:#f8fafc;border-radius:8px;padding:8px 10px;margin-top:4px;color:#6b7a8d;">{{ leave.manager_remarks }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if leave.hr_action_by %}
+                    <div class="timeline-item" style="margin-bottom:0;">
+                        <div class="timeline-dot" style="background:{% if leave.status == 'rejected_hr' %}#e53e3e{% else %}#0d6832{% endif %};"></div>
+                        <div class="fw-semibold" style="font-size:.85rem;">
+                            HR {% if leave.status == 'rejected_hr' %}Rejected{% else %}Approved{% endif %}
+                        </div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ leave.hr_action_date|date:"M d, Y H:i" }} · by {{ leave.hr_action_by.get_full_name }}</div>
+                        {% if leave.hr_remarks %}
+                        <div style="font-size:.78rem;background:#f8fafc;border-radius:8px;padding:8px 10px;margin-top:4px;color:#6b7a8d;">{{ leave.hr_remarks }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card animate-in delay-1">
+            <div class="card-header"><i class="bi bi-arrow-left-circle me-2"></i>Actions</div>
+            <div class="card-body p-4">
+                <a href="javascript:history.back()" class="btn btn-outline-secondary w-100 mb-2">
+                    <i class="bi bi-arrow-left me-1"></i>Go Back
+                </a>
+                {% if leave.can_cancel and leave.employee == request.user.employee %}
+                <form method="post" action="{% url 'leaves:cancel' leave.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger w-100"
+                        onclick="return confirm('Cancel this request?')">
+                        <i class="bi bi-x-circle me-1"></i>Cancel Request
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

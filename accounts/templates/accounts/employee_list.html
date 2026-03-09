@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Employees — LeaveDesk{% endblock %}
+{% block page_title %}Employee Management{% endblock %}
+{% block page_subtitle %}Manage all hospital staff{% endblock %}
+{% block nav_employees %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'accounts:employee_create' %}" class="btn btn-primary btn-sm me-1">
+    <i class="bi bi-person-plus me-1"></i>Add Employee
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card animate-in">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-people me-2"></i>All Employees <span class="badge bg-primary ms-1">{{ employees|length }}</span></span>
+        <a href="{% url 'accounts:employee_create' %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Add New
+        </a>
+    </div>
+    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="table mb-0" style="min-width: 900px; white-space: nowrap;">
+            <thead>
+                <tr>
+                    <th style="min-width:200px;">Employee</th>
+                    <th style="min-width:110px;">ID</th>
+                    <th style="min-width:140px;">Department</th>
+                    <th style="min-width:150px;">Position</th>
+                    <th style="min-width:110px;">Role</th>
+                    <th style="min-width:160px;">Supervisor</th>
+                    <th style="min-width:90px;">Status</th>
+                    <th style="min-width:100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#05BFDB,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.75rem;flex-shrink:0;">
+                                {{ emp.user.first_name|first|upper }}
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:.875rem;">{{ emp.get_full_name }}</div>
+                                <div style="font-size:.72rem;color:#6b7a8d;">{{ emp.user.email|default:"no email" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:.82rem;font-family:monospace;color:#6b7a8d;">{{ emp.employee_id }}</td>
+                    <td style="font-size:.82rem;">{{ emp.department|default:"—" }}</td>
+                    <td style="font-size:.82rem;">{{ emp.position|default:"—" }}</td>
+                    <td>
+                        <span class="badge bg-{{ emp.get_role_display_badge }}">{{ emp.get_role_display }}</span>
+                    </td>
+                    <td style="font-size:.82rem;">{{ emp.supervisor.get_full_name|default:"—" }}</td>
+                    <td>
+                        {% if emp.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'accounts:employee_edit' emp.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'accounts:employee_delete' emp.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i class="bi bi-people fs-2 d-block mb-2"></i>
+                        No employees yet. <a href="{% url 'accounts:employee_create' %}">Add the first one</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

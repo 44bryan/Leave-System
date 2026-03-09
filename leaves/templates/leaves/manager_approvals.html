@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Manager Approvals — LeaveDesk{% endblock %}
+{% block page_title %}Pending Approvals{% endblock %}
+{% block page_subtitle %}Leave requests awaiting your review{% endblock %}
+{% block nav_manager %}active{% endblock %}
+
+{% block content %}
+{% if pending_requests %}
+<div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-exclamation-circle-fill fs-5"></i>
+    <strong>{{ pending_requests|length }}</strong> request(s) awaiting your approval.
+</div>
+{% endif %}
+
+<div class="card animate-in">
+    <div class="card-header">
+        <i class="bi bi-person-check me-2"></i>Pending Leave Requests — Your Team
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Leave Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Days</th>
+                    <th>Reason</th>
+                    <th>Submitted</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in pending_requests %}
+                <tr>
+                    <td>
+                        <div style="font-weight:600;">{{ req.employee.get_full_name }}</div>
+                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.employee_id }}</div>
+                    </td>
+                    <td>{{ req.employee.department|default:"—" }}</td>
+                    <td><span class="badge bg-warning text-dark">{{ req.leave_type }}</span></td>
+                    <td>{{ req.start_date }}</td>
+                    <td>{{ req.end_date }}</td>
+                    <td><strong>{{ req.total_days }}d</strong></td>
+                    <td style="max-width:160px;font-size:0.82rem;">{{ req.reason|truncatechars:50 }}</td>
+                    <td style="font-size:0.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'leaves:manager_action' req.pk %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-check2-square me-1"></i>Review
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-5">
+                        <i class="bi bi-check2-circle fs-2 d-block mb-2 text-success"></i>
+                        No pending approvals. All caught up!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

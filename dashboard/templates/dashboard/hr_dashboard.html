@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% block title %}HR Dashboard — LeaveDesk{% endblock %}
+{% block page_title %}HR Dashboard{% endblock %}
+{% block page_subtitle %}{{ year }} Overview · Eye Hospital{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block extra_css %}
+.metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.pending-pulse {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: #e53e3e;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+    margin-right: 6px;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+}
+.employee-on-leave {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f4f8;
+}
+.emp-avatar-sm {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #05BFDB, #088395);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 0.75rem;
+    flex-shrink: 0;
+}
+{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="metric-row mb-4 animate-in">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #e3f2fd; color: #0A4D68;">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="stat-value">{{ total_employees }}</div>
+        <div class="stat-label">Active Employees</div>
+    </div>
+    <div class="stat-card delay-1">
+        <div class="stat-icon" style="background: #fff8e1; color: #f57f17;">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="stat-value">{{ pending_manager }}</div>
+        <div class="stat-label">Awaiting Manager</div>
+    </div>
+    <div class="stat-card delay-2">
+        <div class="stat-icon" style="background: #e8f5e9; color: #2e7d32;">
+            <i class="bi bi-clipboard2-check-fill"></i>
+        </div>
+        <div class="stat-value">{{ pending_hr }}</div>
+        <div class="stat-label">Awaiting HR Approval</div>
+    </div>
+    <div class="stat-card delay-3">
+        <div class="stat-icon" style="background: #e0f7fa; color: #088395;">
+            <i class="bi bi-check2-all"></i>
+        </div>
+        <div class="stat-value">{{ approved_year }}</div>
+        <div class="stat-label">Approved This Year</div>
+    </div>
+    <div class="stat-card delay-4">
+        <div class="stat-icon" style="background: #fce4ec; color: #c62828;">
+            <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <div class="stat-value">{{ rejected_year }}</div>
+        <div class="stat-label">Rejected This Year</div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Monthly Chart -->
+    <div class="col-lg-8 animate-in delay-2">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Leave Approvals — {{ year }}</span>
+            </div>
+            <div class="card-body p-4">
+                <canvas id="monthlyChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Currently On Leave -->
+    <div class="col-lg-4 animate-in delay-3">
+        <div class="card h-100">
+            <div class="card-header">
+                <span class="pending-pulse"></span>
+                On Leave Today
+                <span class="badge bg-danger ms-2">{{ on_leave_now|length }}</span>
+            </div>
+            <div class="card-body p-3" style="max-height: 320px; overflow-y: auto;">
+                {% if on_leave_now %}
+                {% for req in on_leave_now %}
+                <div class="employee-on-leave">
+                    <div class="emp-avatar-sm">{{ req.employee.user.first_name|first|upper }}</div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div style="font-size: 0.85rem; font-weight: 600;">{{ req.employee.get_full_name }}</div>
+                        <div style="font-size: 0.72rem; color: #6b7a8d;">{{ req.leave_type }} · Back {{ req.end_date }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-check-circle fs-2 d-block mb-2"></i>
+                    <small>All staff are in today</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending HR Approvals -->
+    <div class="col-12 animate-in delay-2">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clipboard2-check me-2" style="color: #088395;"></i>Pending HR Approvals</span>
+                <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Leave Type</th>
+                            <th>Period</th>
+                            <th>Days</th>
+                            <th>Manager Approved</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in recent_requests %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600; font-size: 0.875rem;">{{ req.employee.get_full_name }}</div>
+                                <div style="font-size: 0.72rem; color: #6b7a8d;">{{ req.employee.employee_id }}</div>
+                            </td>
+                            <td><span style="font-size: 0.82rem;">{{ req.employee.department|default:"—" }}</span></td>
+                            <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                            <td style="font-size: 0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
+                            <td><strong>{{ req.total_days }}d</strong></td>
+                            <td style="font-size: 0.78rem; color: #6b7a8d;">
+                                {% if req.manager_action_by %}{{ req.manager_action_by.get_full_name }}{% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-check2-circle me-1"></i>Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center text-muted py-4">No pending approvals</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Stats & Low Balance -->
+    <div class="col-lg-6 animate-in delay-3">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-building me-2"></i>Department Leave Activity</div>
+            <div class="card-body p-3">
+                {% for dept in dept_stats %}
+                {% if dept.total_requests > 0 %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span style="font-size: 0.85rem; font-weight: 600;">{{ dept.name }}</span>
+                        <span style="font-size: 0.78rem; color: #6b7a8d;">{{ dept.approved_requests }}/{{ dept.total_requests }}</span>
+                    </div>
+                    <div class="progress">
+                        {% if dept.total_requests > 0 %}
+                        <div class="progress-bar bg-primary" style="width: {% widthratio dept.approved_requests dept.total_requests 100 %}%"></div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div class="text-center text-muted py-3"><small>No department data yet</small></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Balance Warning -->
+    <div class="col-lg-6 animate-in delay-4">
+        <div class="card h-100">
+            <div class="card-header" style="color: #e53e3e;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Low Leave Balance (≤3 days)
+            </div>
+            <div class="card-body p-3" style="max-height: 320px; overflow-y: auto;">
+                {% if low_balance %}
+                {% for b in low_balance %}
+                <div class="d-flex align-items-center gap-2 py-2 border-bottom">
+                    <div class="emp-avatar-sm">{{ b.employee.user.first_name|first|upper }}</div>
+                    <div class="flex-grow-1">
+                        <div style="font-size: 0.85rem; font-weight: 600;">{{ b.employee.get_full_name }}</div>
+                        <div style="font-size: 0.72rem; color: #6b7a8d;">{{ b.employee.department|default:"No dept" }}</div>
+                    </div>
+                    <span class="badge bg-danger">{{ b.remaining_days }}d left</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-emoji-smile fs-2 d-block mb-2"></i>
+                    <small>All employees have healthy leave balances</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ month_labels|safe }},
+        datasets: [{
+            label: 'Approved Leaves',
+            data: {{ monthly_data|safe }},
+            backgroundColor: 'rgba(8, 131, 149, 0.15)',
+            borderColor: '#088395',
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => ` ${ctx.parsed.y} approved leaves`
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans' } },
+                grid: { color: '#f0f4f8' }
+            },
+            x: {
+                ticks: { font: { family: 'Plus Jakarta Sans' } },
+                grid: { display: false }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

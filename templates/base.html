@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LeaveDesk — Eye Hospital HR{% endblock %}</title>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0A4D68;
+            --primary-light: #088395;
+            --accent: #05BFDB;
+            --accent-soft: #e0f7fa;
+            --success: #0d6832;
+            --warning-soft: #fff8e1;
+            --danger-soft: #fce4ec;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --sidebar-bg: #061a2e;
+            --sidebar-text: #b8cfe0;
+            --sidebar-active: #05BFDB;
+            --text-primary: #0d1b2a;
+            --text-muted: #6b7a8d;
+            --border: #dce5ef;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: 260px;
+            background: var(--sidebar-bg);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, var(--accent), var(--primary-light));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .brand-text {
+            line-height: 1.2;
+        }
+
+        .brand-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            color: white;
+            font-weight: 400;
+        }
+
+        .brand-sub {
+            font-size: 0.65rem;
+            color: var(--sidebar-text);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .sidebar-section {
+            padding: 20px 12px 8px;
+        }
+
+        .sidebar-section-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(184,207,224,0.4);
+            padding: 0 8px;
+            margin-bottom: 6px;
+        }
+
+        .nav-item-sidebar {
+            list-style: none;
+            margin-bottom: 2px;
+        }
+
+        .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-link-sidebar:hover {
+            background: rgba(255,255,255,0.07);
+            color: white;
+        }
+
+        .nav-link-sidebar.active {
+            background: linear-gradient(135deg, rgba(5,191,219,0.2), rgba(8,131,149,0.15));
+            color: var(--sidebar-active);
+            border: 1px solid rgba(5,191,219,0.2);
+        }
+
+        .nav-link-sidebar .bi {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: #e53e3e;
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 12px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .user-avatar {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--primary-light));
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .user-info { flex: 1; min-width: 0; }
+        .user-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            font-size: 0.65rem;
+            color: var(--sidebar-text);
+            text-transform: capitalize;
+        }
+
+        /* ─── MAIN CONTENT ─── */
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ─── TOPBAR ─── */
+        .topbar {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .topbar-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+        /* ─── PAGE CONTENT ─── */
+        .page-content {
+            padding: 28px;
+            flex: 1;
+        }
+
+        /* ─── CARDS ─── */
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            background: white;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* ─── STAT CARDS ─── */
+        .stat-card {
+            border-radius: 16px;
+            padding: 22px;
+            background: white;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .stat-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 14px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* ─── BADGES ─── */
+        .badge {
+            font-weight: 600;
+            font-size: 0.72rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        /* ─── TABLE ─── */
+        .table th {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            padding: 12px 16px;
+            background: #fafbfc;
+        }
+
+        .table td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            font-size: 0.875rem;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .table-responsive { border-radius: 12px; overflow: hidden; }
+
+        /* ─── BUTTONS ─── */
+        .btn {
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            padding: 8px 18px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(10,77,104,0.3);
+        }
+
+        .btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+
+        /* ─── PROGRESS BARS ─── */
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background: #edf2f7;
+        }
+
+        .progress-bar { border-radius: 10px; }
+
+        /* ─── ALERTS ─── */
+        .alert { border-radius: 12px; font-size: 0.875rem; }
+
+        /* ─── FORMS ─── */
+        .form-control, .form-select {
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            padding: 10px 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(8,131,149,0.12);
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        /* ─── TIMELINE ─── */
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 9px; top: 0; bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -26px; top: 4px;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        /* ─── MOBILE ─── */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .sidebar-toggle { display: block; }
+            .sidebar-overlay {
+                display: none;
+                position: fixed; inset: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            .sidebar-overlay.show { display: block; }
+        }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in { animation: fadeInUp 0.4s ease forwards; }
+        .delay-1 { animation-delay: 0.05s; }
+        .delay-2 { animation-delay: 0.1s; }
+        .delay-3 { animation-delay: 0.15s; }
+        .delay-4 { animation-delay: 0.2s; }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<!-- Sidebar Overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- ─── SIDEBAR ─── -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <a href="{% url 'dashboard:home' %}" class="brand-logo">
+            <div class="brand-icon">👁</div>
+            <div class="brand-text">
+                <div class="brand-title">LeaveDesk</div>
+                <div class="brand-sub">Eye Hospital · HR System</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">Main</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:home' %}" class="nav-link-sidebar {% block nav_dashboard %}{% endblock %}">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:submit' %}" class="nav-link-sidebar {% block nav_submit %}{% endblock %}">
+                    <i class="bi bi-plus-circle"></i> Apply for Leave
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:my_requests' %}" class="nav-link-sidebar {% block nav_my_requests %}{% endblock %}">
+                    <i class="bi bi-journal-text"></i> My Requests
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% if user.employee.is_manager %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">Approvals</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:manager_approvals' %}" class="nav-link-sidebar {% block nav_manager %}{% endblock %}">
+                    <i class="bi bi-person-check"></i> Manager Queue
+                    {% with count=user.employee.subordinates.all|length %}
+                    {% endwith %}
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if user.employee.is_hr %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">HR Admin</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:hr_approvals' %}" class="nav-link-sidebar {% block nav_hr_approvals %}{% endblock %}">
+                    <i class="bi bi-clipboard2-check"></i> HR Approvals
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar {% block nav_all_leaves %}{% endblock %}">
+                    <i class="bi bi-list-ul"></i> All Requests
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar {% block nav_tracker %}{% endblock %}">
+                    <i class="bi bi-bar-chart-line"></i> Leave Tracker
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if user.is_superuser %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">Admin</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:employee_list' %}" class="nav-link-sidebar {% block nav_employees %}{% endblock %}">
+                    <i class="bi bi-people"></i> Employees
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:department_list' %}" class="nav-link-sidebar {% block nav_depts %}{% endblock %}">
+                    <i class="bi bi-building"></i> Departments
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="sidebar-footer">
+        <div class="user-card mb-2">
+            <div class="user-avatar">
+                {{ user.first_name|first|default:user.username|first|upper }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="user-role">
+                    {% if user.is_superuser %}Administrator{% elif user.employee %}{{ user.employee.get_role_display }}{% else %}Staff{% endif %}
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'accounts:profile' %}" class="nav-link-sidebar">
+            <i class="bi bi-person-circle"></i> Profile
+        </a>
+        <a href="{% url 'accounts:logout' %}" class="nav-link-sidebar text-danger">
+            <i class="bi bi-box-arrow-left"></i> Sign Out
+        </a>
+    </div>
+</aside>
+
+<!-- ─── MAIN ─── -->
+<div class="main-content">
+    <div class="topbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+                <div class="topbar-subtitle">{% block page_subtitle %}{% endblock %}</div>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            {% block topbar_actions %}{% endblock %}
+            <a href="{% url 'leaves:submit' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Apply Leave
+            </a>
+        </div>
+    </div>
+
+    <div class="page-content">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-3" role="alert">
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+{% else %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('show');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
