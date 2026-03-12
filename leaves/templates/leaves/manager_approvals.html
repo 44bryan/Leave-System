@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}Manager Approvals — LeaveDesk{% endblock %}
-{% block page_title %}Pending Approvals{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Manager Approvals" %} — LeaveDesk{% endblock %}
+{% block page_title %}{% trans "Pending Approvals" %}{% endblock %}
 {% block page_subtitle %}Leave requests awaiting your review{% endblock %}
 {% block nav_manager %}active{% endblock %}
 
@@ -14,21 +15,21 @@
 
 <div class="card animate-in">
     <div class="card-header">
-        <i class="bi bi-person-check me-2"></i>Pending Leave Requests — Your Team
+        <i class="bi bi-person-check me-2"></i>{% trans "Pending Leave Requests — Your Team" %}
     </div>
     <div class="table-responsive">
         <table class="table mb-0">
             <thead>
                 <tr>
-                    <th>Employee</th>
-                    <th>Department</th>
-                    <th>Leave Type</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Days</th>
-                    <th>Reason</th>
-                    <th>Submitted</th>
-                    <th>Action</th>
+                    <th>{% trans "Employee" %}</th>
+                    <th>{% trans "Department" %}</th>
+                    <th>{% trans "Leave Type" %}</th>
+                    <th>{% trans "From" %}</th>
+                    <th>{% trans "To" %}</th>
+                    <th>{% trans "Days" %}</th>
+                    <th>{% trans "Reason" %}</th>
+                    <th>{% trans "Submitted" %}</th>
+                    <th>{% trans "Action" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,7 +48,7 @@
                     <td style="font-size:0.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
                     <td>
                         <a href="{% url 'leaves:manager_action' req.pk %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-check2-square me-1"></i>Review
+                            <i class="bi bi-check2-square me-1"></i>{% trans "Review" %}
                         </a>
                     </td>
                 </tr>
@@ -55,7 +56,7 @@
                 <tr>
                     <td colspan="9" class="text-center text-muted py-5">
                         <i class="bi bi-check2-circle fs-2 d-block mb-2 text-success"></i>
-                        No pending approvals. All caught up!
+                        {% trans "No pending approvals. All caught up!" %}
                     </td>
                 </tr>
                 {% endfor %}

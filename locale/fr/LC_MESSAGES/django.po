@@ -1,0 +1,612 @@
+# French translations for LeaveDesk HR System
+# Magrabi ICO Cameroon Eye Institute
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# base.html
+msgid "LeaveDesk — Magrabi ICO"
+msgstr "LeaveDesk — Magrabi ICO"
+
+msgid "My Profile"
+msgstr "Mon Profil"
+
+msgid "Sign Out"
+msgstr "Se Déconnecter"
+
+msgid "Main"
+msgstr "Principal"
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Apply for Leave"
+msgstr "Demander un congé"
+
+msgid "My Requests"
+msgstr "Mes Demandes"
+
+msgid "Approvals"
+msgstr "Approbations"
+
+msgid "Manager Queue"
+msgstr "File du Responsable"
+
+msgid "HR Admin"
+msgstr "RH Admin"
+
+msgid "HR Approvals"
+msgstr "Approbations RH"
+
+msgid "All Requests"
+msgstr "Toutes les Demandes"
+
+msgid "Leave Tracker"
+msgstr "Suivi des Congés"
+
+msgid "Admin"
+msgstr "Administration"
+
+msgid "Employees"
+msgstr "Employés"
+
+msgid "Departments"
+msgstr "Départements"
+
+msgid "Director"
+msgstr "Directeur"
+
+msgid "Director Queue"
+msgstr "File du Directeur"
+
+msgid "HR Admin Reviews"
+msgstr "Révision par les RH"
+
+msgid "Director Final Approval"
+msgstr "Approbation Finale du Directeur"
+
+msgid "Administration Director signs off"
+msgstr "Le Directeur Administratif valide"
+
+msgid "Director Approvals"
+msgstr "Approbations du Directeur"
+
+msgid "Director Final Approvals"
+msgstr "Approbations Finales — Directeur"
+
+msgid "HR-Approved — Awaiting Administration Director Final Decision"
+msgstr "Approuvé par les RH — En attente de décision finale du Directeur"
+
+msgid "Manager"
+msgstr "Responsable"
+
+msgid "HR Admin"
+msgstr "Admin RH"
+
+msgid "HR Approved By"
+msgstr "Approuvé par les RH"
+
+msgid "HR Date"
+msgstr "Date RH"
+
+msgid "No requests awaiting Director approval."
+msgstr "Aucune demande en attente d'approbation du Directeur."
+
+msgid "Final Decision"
+msgstr "Décision Finale"
+
+msgid "Prior Approvals"
+msgstr "Approbations Précédentes"
+
+# login.html
+msgid "Staff Leave Management Portal"
+msgstr "Portail de Gestion des Congés du Personnel"
+
+msgid "Streamlined HR administration for our teams."
+msgstr "Administration RH simplifiée pour nos équipes."
+
+msgid "Submit leave requests digitally"
+msgstr "Soumettre les demandes de congé en ligne"
+
+msgid "Two-stage approval workflow"
+msgstr "Processus d'approbation en deux étapes"
+
+msgid "Real-time leave balance tracking"
+msgstr "Suivi du solde de congés en temps réel"
+
+msgid "Secure role-based access"
+msgstr "Accès sécurisé basé sur les rôles"
+
+msgid "Welcome back"
+msgstr "Bon retour"
+
+msgid "Sign in to access your HR portal"
+msgstr "Connectez-vous pour accéder à votre portail RH"
+
+msgid "Invalid credentials. Please check and try again."
+msgstr "Identifiants invalides. Veuillez vérifier et réessayer."
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Show password"
+msgstr "Afficher le mot de passe"
+
+msgid "Sign In"
+msgstr "Se Connecter"
+
+msgid "Contact HR Admin if you need access or forgot your password."
+msgstr "Contactez l'administrateur RH si vous avez besoin d'accès ou avez oublié votre mot de passe."
+
+# employee_dashboard.html
+msgid "My Dashboard"
+msgstr "Mon Tableau de bord"
+
+msgid "Annual Entitlement"
+msgstr "Droit Annuel"
+
+msgid "Total days"
+msgstr "Jours total"
+
+msgid "Used"
+msgstr "Utilisés"
+
+msgid "Remaining"
+msgstr "Restants"
+
+msgid "Pending Requests"
+msgstr "Demandes en Attente"
+
+msgid "View Pending"
+msgstr "Voir les Demandes en Attente"
+
+msgid "Submit a new leave request"
+msgstr "Soumettre une nouvelle demande de congé"
+
+msgid "New Request"
+msgstr "Nouvelle Demande"
+
+msgid "Recent Leave Requests"
+msgstr "Demandes de Congé Récentes"
+
+msgid "View All"
+msgstr "Voir Tout"
+
+msgid "Leave Type"
+msgstr "Type de Congé"
+
+msgid "Start"
+msgstr "Début"
+
+msgid "End"
+msgstr "Fin"
+
+msgid "Days"
+msgstr "Jours"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Applied"
+msgstr "Soumis"
+
+msgid "No leave requests yet."
+msgstr "Aucune demande de congé pour l'instant."
+
+msgid "Apply now"
+msgstr "Demander maintenant"
+
+# my_requests.html
+msgid "My Leave Requests"
+msgstr "Mes Demandes de Congé"
+
+msgid "Total Days"
+msgstr "Jours Totaux"
+
+msgid "Used %"
+msgstr "Utilisés %"
+
+msgid "All Leave Requests"
+msgstr "Toutes les Demandes de Congé"
+
+msgid "Start Date"
+msgstr "Date de Début"
+
+msgid "End Date"
+msgstr "Date de Fin"
+
+msgid "Reason"
+msgstr "Motif"
+
+msgid "Applied On"
+msgstr "Soumis le"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Apply for leave"
+msgstr "Demander un congé"
+
+# request_form.html
+msgid "Leave Application Form"
+msgstr "Formulaire de Demande de Congé"
+
+msgid "Leave Type"
+msgstr "Type de Congé"
+
+msgid "Start Date"
+msgstr "Date de Début"
+
+msgid "End Date"
+msgstr "Date de Fin"
+
+msgid "working day(s) selected"
+msgstr "jour(s) ouvrable(s) sélectionné(s)"
+
+msgid "Reason for Leave"
+msgstr "Motif du Congé"
+
+msgid "Supporting Document"
+msgstr "Document Justificatif"
+
+msgid "optional"
+msgstr "facultatif"
+
+msgid "Upload a medical certificate, marriage certificate, etc. if applicable."
+msgstr "Téléchargez un certificat médical, acte de mariage, etc. si applicable."
+
+msgid "Submit Request"
+msgstr "Soumettre la Demande"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Your Leave Balance"
+msgstr "Votre Solde de Congés"
+
+msgid "Approval Workflow"
+msgstr "Processus d'Approbation"
+
+msgid "You Submit"
+msgstr "Vous Soumettez"
+
+msgid "Status: Pending"
+msgstr "Statut : En attente"
+
+msgid "Line Manager Reviews"
+msgstr "Examen par le Responsable Hiérarchique"
+
+msgid "Approves or Rejects"
+msgstr "Approuve ou Rejette"
+
+msgid "HR Admin Final Approval"
+msgstr "Approbation Finale de l'Admin RH"
+
+msgid "Only if manager approved"
+msgstr "Uniquement si le responsable a approuvé"
+
+msgid "Fully Approved"
+msgstr "Entièrement Approuvé"
+
+msgid "Balance deducted automatically"
+msgstr "Solde déduit automatiquement"
+
+# leave_detail.html
+msgid "Leave Request"
+msgstr "Demande de Congé"
+
+msgid "Request Details"
+msgstr "Détails de la Demande"
+
+msgid "Employee"
+msgstr "Employé"
+
+msgid "Total Days"
+msgstr "Jours Totaux"
+
+msgid "Document"
+msgstr "Document"
+
+msgid "View Document"
+msgstr "Voir le Document"
+
+msgid "Approval History"
+msgstr "Historique des Approbations"
+
+msgid "Request Submitted"
+msgstr "Demande Soumise"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Go Back"
+msgstr "Retour"
+
+msgid "Print Approval Letter"
+msgstr "Imprimer la Lettre d'Approbation"
+
+msgid "Cancel Request"
+msgstr "Annuler la Demande"
+
+# employee_list.html
+msgid "Employee Management"
+msgstr "Gestion des Employés"
+
+msgid "Add Employee"
+msgstr "Ajouter un Employé"
+
+msgid "Add New"
+msgstr "Ajouter Nouveau"
+
+msgid "ID"
+msgstr "Identifiant"
+
+msgid "Department"
+msgstr "Département"
+
+msgid "Position"
+msgstr "Poste"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Supervisor"
+msgstr "Superviseur"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+msgid "No employees yet."
+msgstr "Aucun employé pour l'instant."
+
+msgid "Add the first one"
+msgstr "Ajouter le premier"
+
+# employee_form.html
+msgid "First Name"
+msgstr "Prénom"
+
+msgid "Last Name"
+msgstr "Nom de Famille"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Employee ID"
+msgstr "Matricule"
+
+msgid "Line Manager / Supervisor"
+msgstr "Responsable Hiérarchique / Superviseur"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Date Joined Hospital"
+msgstr "Date d'Entrée à l'Hôpital"
+
+msgid "Uncheck to deactivate"
+msgstr "Décocher pour désactiver"
+
+msgid "Please fix the errors below:"
+msgstr "Veuillez corriger les erreurs ci-dessous :"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+# profile.html
+msgid "My Profile"
+msgstr "Mon Profil"
+
+msgid "Line Manager"
+msgstr "Responsable Hiérarchique"
+
+msgid "Joined Hospital"
+msgstr "Entrée à l'Hôpital"
+
+# hr_dashboard.html
+msgid "HR Dashboard"
+msgstr "Tableau de bord RH"
+
+msgid "Active Employees"
+msgstr "Employés Actifs"
+
+msgid "Awaiting Manager"
+msgstr "En Attente du Responsable"
+
+msgid "Awaiting HR Approval"
+msgstr "En Attente d'Approbation RH"
+
+msgid "Approved This Year"
+msgstr "Approuvés Cette Année"
+
+msgid "Rejected This Year"
+msgstr "Rejetés Cette Année"
+
+msgid "Monthly Leave Approvals"
+msgstr "Approbations de Congés Mensuelles"
+
+msgid "On Leave Today"
+msgstr "En Congé Aujourd'hui"
+
+msgid "All staff are in today"
+msgstr "Tout le personnel est présent aujourd'hui"
+
+msgid "Pending HR Approvals"
+msgstr "Approbations RH en Attente"
+
+msgid "Period"
+msgstr "Période"
+
+msgid "Manager Approved"
+msgstr "Approuvé par le Responsable"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Review"
+msgstr "Examiner"
+
+msgid "No pending approvals"
+msgstr "Aucune approbation en attente"
+
+msgid "Department Leave Activity"
+msgstr "Activité des Congés par Département"
+
+msgid "No department data yet"
+msgstr "Pas encore de données par département"
+
+msgid "Low Leave Balance (≤3 days)"
+msgstr "Solde de Congés Faible (≤3 jours)"
+
+msgid "All employees have healthy leave balances"
+msgstr "Tous les employés ont des soldes de congés satisfaisants"
+
+# manager_dashboard.html
+msgid "Manager Dashboard"
+msgstr "Tableau de bord du Responsable"
+
+msgid "Awaiting Your Approval"
+msgstr "En Attente de Votre Approbation"
+
+msgid "Your Team Members"
+msgstr "Membres de Votre Équipe"
+
+msgid "Team On Leave Today"
+msgstr "Équipe en Congé Aujourd'hui"
+
+msgid "My Leave Balance"
+msgstr "Mon Solde de Congés"
+
+msgid "Pending Approvals"
+msgstr "Approbations en Attente"
+
+msgid "Full team present today"
+msgstr "Toute l'équipe est présente aujourd'hui"
+
+# manager_approvals.html
+msgid "Manager Approvals"
+msgstr "Approbations du Responsable"
+
+msgid "Pending Leave Requests — Your Team"
+msgstr "Demandes de Congé en Attente — Votre Équipe"
+
+msgid "From"
+msgstr "Du"
+
+msgid "To"
+msgstr "Au"
+
+msgid "Submitted"
+msgstr "Soumis le"
+
+msgid "No pending approvals. All caught up!"
+msgstr "Aucune approbation en attente. Tout est à jour !"
+
+# hr_approvals.html
+msgid "HR Final Approvals"
+msgstr "Approbations Finales RH"
+
+msgid "Manager-Approved — Awaiting HR Final Decision"
+msgstr "Approuvé par le Responsable — En Attente de la Décision Finale RH"
+
+msgid "Manager Approved By"
+msgstr "Approuvé par le Responsable"
+
+msgid "Manager Date"
+msgstr "Date du Responsable"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Final Review"
+msgstr "Examen Final"
+
+msgid "No requests awaiting HR approval."
+msgstr "Aucune demande en attente d'approbation RH."
+
+# action_form.html
+msgid "Leave Request Details"
+msgstr "Détails de la Demande de Congé"
+
+msgid "Duration"
+msgstr "Durée"
+
+msgid "day(s)"
+msgstr "jour(s)"
+
+msgid "View Attached Document"
+msgstr "Voir le Document Joint"
+
+msgid "Manager Remarks"
+msgstr "Observations du Responsable"
+
+msgid "Your Decision"
+msgstr "Votre Décision"
+
+msgid "Decision"
+msgstr "Décision"
+
+msgid "Approve"
+msgstr "Approuver"
+
+msgid "Reject"
+msgstr "Rejeter"
+
+msgid "Remarks"
+msgstr "Observations"
+
+msgid "Submit Decision"
+msgstr "Soumettre la Décision"
+
+msgid "Employee Info"
+msgstr "Informations sur l'Employé"
+
+msgid "Leave Balance"
+msgstr "Solde de Congés"
+
+# all_leaves.html
+msgid "All Leave Requests"
+msgstr "Toutes les Demandes de Congé"
+
+msgid "Year"
+msgstr "Année"
+
+msgid "All Statuses"
+msgstr "Tous les Statuts"
+
+msgid "All Departments"
+msgstr "Tous les Départements"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Dept"
+msgstr "Dép."
+
+msgid "View"
+msgstr "Voir"
+
+msgid "No records match your filters."
+msgstr "Aucun enregistrement ne correspond à vos filtres."
+
+# blocktrans strings
+msgid "%(days)s days"
+msgstr "%(days)s jours"
+
+msgid "%(total)s days total"
+msgstr "%(total)s jours au total"
+
+msgid "%(days)s days remaining"
+msgstr "%(days)s jours restants"

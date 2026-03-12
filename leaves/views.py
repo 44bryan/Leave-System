@@ -34,14 +34,14 @@ def submit_leave(request):
         leave = form.save(commit=False)
         leave.employee = employee
 
-        # Validate balance
-        if leave.total_days > balance.remaining_days:
+        # Validate balance (only for deductible leave types)
+        if leave.leave_type.is_deductible and leave.total_days > balance.remaining_days:
             messages.error(request, f"Insufficient leave balance. You have {balance.remaining_days} days remaining.")
         else:
             # Check for overlapping requests
             overlapping = LeaveRequest.objects.filter(
                 employee=employee,
-                status__in=['pending', 'manager_approved', 'approved'],
+                status__in=['pending', 'manager_approved', 'hr_approved', 'approved'],
                 start_date__lte=leave.end_date,
                 end_date__gte=leave.start_date,
             )
@@ -52,9 +52,14 @@ def submit_leave(request):
                 messages.success(request, f"Leave request submitted successfully for {leave.total_days} day(s). Awaiting manager approval.")
                 return redirect('leaves:my_requests')
 
+    import json
+    leave_types = LeaveType.objects.filter(is_active=True).values('id', 'is_deductible')
+    deductible_map = json.dumps({str(lt['id']): lt['is_deductible'] for lt in leave_types})
+
     return render(request, 'leaves/request_form.html', {
         'form': form,
         'balance': balance,
+        'deductible_map': deductible_map,
     })
 
 
@@ -115,10 +120,24 @@ def manager_approvals(request):
 def manager_action(request, pk):
     employee = get_employee(request)
     if not employee or not employee.is_manager():
-        messages.error(request, "Access denied.")
+        messages.error(request, "Access denied. Manager role required.")
         return redirect('dashboard:home')
 
-    leave = get_object_or_404(LeaveRequest, pk=pk, status=LeaveRequest.STATUS_PENDING, employee__supervisor=employee)
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    # Check supervisor authority (superuser bypasses this)
+    if not request.user.is_superuser and leave.employee.supervisor != employee:
+        messages.error(request, "You are not the supervisor for this employee.")
+        return redirect('leaves:manager_approvals')
+
+    # If already actioned, show a clear message instead of crashing
+    if leave.status != LeaveRequest.STATUS_PENDING:
+        messages.warning(
+            request,
+            f"Leave request #{pk} is no longer pending "
+            f"(current status: {leave.get_status_display()}). No action taken."
+        )
+        return redirect('leaves:manager_approvals')
 
     if request.method == 'POST':
         form = ApprovalForm(request.POST)
@@ -130,10 +149,10 @@ def manager_action(request, pk):
             leave.manager_remarks = remarks
             if action == 'approve':
                 leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
-                messages.success(request, f"Leave request approved. Forwarded to HR for final approval.")
+                messages.success(request, "Leave request approved. Forwarded to HR for review.")
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_MANAGER
-                messages.warning(request, "Leave request rejected.")
+                messages.warning(request, f"Leave request #{pk} has been rejected.")
             leave.save()
             return redirect('leaves:manager_approvals')
     else:
@@ -167,10 +186,18 @@ def hr_approvals(request):
 def hr_action(request, pk):
     employee = get_employee(request)
     if not employee or not employee.is_hr():
-        messages.error(request, "Access denied.")
+        messages.error(request, "Access denied. HR Admin role required.")
         return redirect('dashboard:home')
 
-    leave = get_object_or_404(LeaveRequest, pk=pk, status=LeaveRequest.STATUS_MANAGER_APPROVED)
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    if leave.status != LeaveRequest.STATUS_MANAGER_APPROVED:
+        messages.warning(
+            request,
+            f"Leave request #{pk} is not awaiting HR approval "
+            f"(current status: {leave.get_status_display()}). No action taken."
+        )
+        return redirect('leaves:hr_approvals')
 
     if request.method == 'POST':
         form = ApprovalForm(request.POST)
@@ -181,11 +208,11 @@ def hr_action(request, pk):
             leave.hr_action_date = timezone.now()
             leave.hr_remarks = remarks
             if action == 'approve':
-                leave.status = LeaveRequest.STATUS_APPROVED
-                messages.success(request, "Leave request FULLY APPROVED.")
+                leave.status = LeaveRequest.STATUS_HR_APPROVED
+                messages.success(request, "Leave request approved by HR. Forwarded to Administration Director.")
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_HR
-                messages.warning(request, "Leave request rejected by HR.")
+                messages.warning(request, f"Leave request #{pk} has been rejected by HR.")
             leave.save()
             return redirect('leaves:hr_approvals')
     else:
@@ -200,14 +227,76 @@ def hr_action(request, pk):
 
 
 @login_required
+def director_approvals(request):
+    employee = get_employee(request)
+    if not employee or not employee.is_director():
+        messages.error(request, "Access denied. Administration Director only.")
+        return redirect('dashboard:home')
+
+    pending = LeaveRequest.objects.filter(
+        status=LeaveRequest.STATUS_HR_APPROVED
+    ).select_related('employee__user', 'employee__department', 'leave_type', 'manager_action_by__user', 'hr_action_by__user')
+
+    return render(request, 'leaves/director_approvals.html', {
+        'pending_requests': pending,
+    })
+
+
+@login_required
+def director_action(request, pk):
+    employee = get_employee(request)
+    if not employee or not employee.is_director():
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    if leave.status != LeaveRequest.STATUS_HR_APPROVED:
+        messages.warning(
+            request,
+            f"Leave request #{pk} is not awaiting Director approval "
+            f"(current status: {leave.get_status_display()}). No action taken."
+        )
+        return redirect('leaves:director_approvals')
+
+    if request.method == 'POST':
+        form = ApprovalForm(request.POST)
+        if form.is_valid():
+            action = form.cleaned_data['action']
+            remarks = form.cleaned_data['remarks']
+            leave.director_action_by = employee
+            leave.director_action_date = timezone.now()
+            leave.director_remarks = remarks
+            if action == 'approve':
+                leave.status = LeaveRequest.STATUS_APPROVED
+                messages.success(request, "Leave request FULLY APPROVED by Administration Director.")
+            else:
+                leave.status = LeaveRequest.STATUS_REJECTED_DIRECTOR
+                messages.warning(request, f"Leave request #{pk} has been rejected by Administration Director.")
+            leave.save()
+            return redirect('leaves:director_approvals')
+    else:
+        form = ApprovalForm()
+
+    return render(request, 'leaves/action_form.html', {
+        'leave': leave,
+        'form': form,
+        'action_title': 'Administration Director — Final Review',
+        'action_type': 'director',
+    })
+
+
+@login_required
 def leave_detail(request, pk):
     employee = get_employee(request)
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
-    # Only owner, their manager, or HR can view
+    # Only owner, their manager, HR, or Director can view
     can_view = (
         leave.employee == employee or
+        request.user.is_superuser or
         (employee and employee.is_hr()) or
+        (employee and employee.is_director()) or
         (employee and employee.is_manager() and leave.employee.supervisor == employee)
     )
     if not can_view:
@@ -218,10 +307,32 @@ def leave_detail(request, pk):
 
 
 @login_required
-def all_leaves_hr(request):
-    """HR view of all leave requests"""
+def print_leave(request, pk):
     employee = get_employee(request)
-    if not employee or not employee.is_hr():
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    if leave.status != LeaveRequest.STATUS_APPROVED:
+        messages.error(request, "Only fully approved leave requests can be printed.")
+        return redirect('leaves:detail', pk=pk)
+
+    can_view = (
+        leave.employee == employee or
+        request.user.is_superuser or
+        (employee and employee.is_hr()) or
+        (employee and employee.is_director())
+    )
+    if not can_view:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    return render(request, 'leaves/leave_print.html', {'leave': leave})
+
+
+@login_required
+def all_leaves_hr(request):
+    """HR/Director view of all leave requests"""
+    employee = get_employee(request)
+    if not employee or (not employee.is_hr() and not employee.is_director()):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
 
@@ -250,3 +361,244 @@ def all_leaves_hr(request):
         'status_choices': LeaveRequest.STATUS_CHOICES,
         'years': range(2023, date.today().year + 2),
     })
+
+
+@login_required
+def employee_leave_summary(request, pk):
+    """Full leave summary for a specific employee — accessible to HR, Director, and the employee themselves."""
+    from accounts.models import Employee as EmpModel
+    viewer = get_employee(request)
+    target = get_object_or_404(EmpModel, pk=pk)
+
+    # Access: HR, Director, superuser, or the employee viewing their own summary
+    if not (request.user.is_superuser or
+            (viewer and (viewer.is_hr() or viewer.is_director())) or
+            (viewer and viewer.pk == target.pk)):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    year = int(request.GET.get('year', date.today().year))
+    balance, _ = LeaveBalance.objects.get_or_create(
+        employee=target, year=year,
+        defaults={'total_entitlement': 18}
+    )
+
+    all_requests = LeaveRequest.objects.filter(
+        employee=target, start_date__year=year
+    ).select_related('leave_type').order_by('-start_date')
+
+    return render(request, 'leaves/employee_leave_summary.html', {
+        'target': target,
+        'balance': balance,
+        'all_requests': all_requests,
+        'year': year,
+        'years': range(2023, date.today().year + 2),
+    })
+
+
+@login_required
+def admin_override_leave(request, pk):
+    """Superuser-only: cancel or revert any leave request back to pending."""
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if request.method != 'POST':
+        return redirect('leaves:detail', pk=pk)
+
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+    action = request.POST.get('admin_action')
+    reason = request.POST.get('admin_reason', '').strip()
+
+    if action == 'cancel':
+        leave.status = LeaveRequest.STATUS_CANCELLED
+        leave.director_remarks = f"[Admin cancelled] {reason}"
+        leave.save()
+        messages.success(request, f"Leave request #{pk} cancelled by admin. Balance restored automatically.")
+
+    elif action == 'revert':
+        # Send back to pending — clears all approval chain
+        leave.status = LeaveRequest.STATUS_PENDING
+        leave.manager_action_by = None
+        leave.manager_action_date = None
+        leave.manager_remarks = ''
+        leave.hr_action_by = None
+        leave.hr_action_date = None
+        leave.hr_remarks = ''
+        leave.director_action_by = None
+        leave.director_action_date = None
+        leave.director_remarks = f"[Admin reverted to pending] {reason}"
+        leave.save()
+        messages.success(request, f"Leave request #{pk} reverted to Pending. It must go through approval again.")
+
+    return redirect('leaves:detail', pk=pk)
+
+
+@login_required
+def admin_edit_leave(request, pk):
+    """Superuser-only: correct total_days, status, and add a note on any leave request."""
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if request.method != 'POST':
+        return redirect('leaves:detail', pk=pk)
+
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    try:
+        new_days = int(request.POST.get('corrected_days', '').strip())
+        if new_days < 0:
+            raise ValueError
+    except (ValueError, AttributeError):
+        messages.error(request, "Invalid day count. Please enter a whole number ≥ 0.")
+        return redirect('leaves:detail', pk=pk)
+
+    new_status = request.POST.get('corrected_status', '').strip()
+    admin_note = request.POST.get('correction_note', '').strip()
+
+    valid_statuses = dict(LeaveRequest.STATUS_CHOICES).keys()
+    update_fields = {'total_days': new_days}
+
+    if new_status and new_status in valid_statuses:
+        update_fields['status'] = new_status
+
+    if admin_note:
+        existing = leave.director_remarks or ''
+        separator = '\n' if existing else ''
+        update_fields['director_remarks'] = f"{existing}{separator}[Admin correction] {admin_note}"
+
+    # Use queryset .update() to bypass save() so total_days is NOT recalculated from dates
+    LeaveRequest.objects.filter(pk=pk).update(**update_fields)
+
+    messages.success(
+        request,
+        f"Leave #{pk} corrected: {new_days} days"
+        + (f", status → {new_status}" if 'status' in update_fields else "")
+        + "."
+    )
+    return redirect('leaves:detail', pk=pk)
+
+
+# ── Leave Type Management (superuser only) ──────────────────────────────────
+
+DEFAULT_LEAVE_TYPES = [
+    {'name': 'Annual Leave',               'is_deductible': True,  'color': 'primary',   'requires_document': False},
+    {'name': 'Permission',                 'is_deductible': True,  'color': 'warning',   'requires_document': False},
+    {'name': 'Permission for School Leave','is_deductible': True,  'color': 'info',      'requires_document': True},
+    {'name': 'Sick Leave',                 'is_deductible': False, 'color': 'danger',    'requires_document': True},
+    {'name': 'Maternity Leave',            'is_deductible': False, 'color': 'success',   'requires_document': True},
+    {'name': 'Paternity Leave',            'is_deductible': False, 'color': 'success',   'requires_document': True},
+    {'name': 'Marriage Leave',             'is_deductible': False, 'color': 'secondary', 'requires_document': False},
+    {'name': 'Compassionate Leave',        'is_deductible': False, 'color': 'dark',      'requires_document': False},
+    {'name': 'Study Leave',               'is_deductible': False, 'color': 'secondary', 'requires_document': False},
+]
+
+
+def seed_default_leave_types():
+    """Create the default leave types if they don't already exist."""
+    for lt in DEFAULT_LEAVE_TYPES:
+        LeaveType.objects.get_or_create(name=lt['name'], defaults={
+            'is_deductible':      lt['is_deductible'],
+            'color':              lt['color'],
+            'requires_document':  lt['requires_document'],
+            'is_active':          True,
+        })
+
+
+@login_required
+def leave_type_list(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    leave_types = LeaveType.objects.all()
+    return render(request, 'leaves/leave_type_list.html', {'leave_types': leave_types})
+
+
+@login_required
+def leave_type_create(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        is_deductible = request.POST.get('is_deductible') == '1'
+        requires_document = request.POST.get('requires_document') == '1'
+        color = request.POST.get('color', 'primary').strip()
+        is_active = request.POST.get('is_active') == '1'
+        if not name:
+            messages.error(request, "Leave type name is required.")
+        elif LeaveType.objects.filter(name__iexact=name).exists():
+            messages.error(request, f"A leave type named '{name}' already exists.")
+        else:
+            LeaveType.objects.create(
+                name=name,
+                is_deductible=is_deductible,
+                requires_document=requires_document,
+                color=color,
+                is_active=is_active,
+            )
+            messages.success(request, f"Leave type '{name}' created.")
+            return redirect('leaves:leave_type_list')
+    _colors = [
+        ('primary','Primary'),('secondary','Secondary'),('success','Success'),
+        ('danger','Danger'),('warning','Warning'),('info','Info'),('dark','Dark'),
+    ]
+    return render(request, 'leaves/leave_type_form.html', {'action': 'Create', 'lt': None, 'colors': _colors})
+
+
+@login_required
+def leave_type_edit(request, pk):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    lt = get_object_or_404(LeaveType, pk=pk)
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        is_deductible = request.POST.get('is_deductible') == '1'
+        requires_document = request.POST.get('requires_document') == '1'
+        color = request.POST.get('color', 'primary').strip()
+        is_active = request.POST.get('is_active') == '1'
+        if not name:
+            messages.error(request, "Leave type name is required.")
+        elif LeaveType.objects.filter(name__iexact=name).exclude(pk=pk).exists():
+            messages.error(request, f"A leave type named '{name}' already exists.")
+        else:
+            lt.name = name
+            lt.is_deductible = is_deductible
+            lt.requires_document = requires_document
+            lt.color = color
+            lt.is_active = is_active
+            lt.save()
+            messages.success(request, f"Leave type '{name}' updated.")
+            return redirect('leaves:leave_type_list')
+    _colors = [
+        ('primary','Primary'),('secondary','Secondary'),('success','Success'),
+        ('danger','Danger'),('warning','Warning'),('info','Info'),('dark','Dark'),
+    ]
+    return render(request, 'leaves/leave_type_form.html', {'action': 'Edit', 'lt': lt, 'colors': _colors})
+
+
+@login_required
+def leave_type_delete(request, pk):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    lt = get_object_or_404(LeaveType, pk=pk)
+    if request.method == 'POST':
+        name = lt.name
+        try:
+            lt.delete()
+            messages.success(request, f"Leave type '{name}' deleted.")
+        except Exception:
+            messages.error(request, f"Cannot delete '{name}' — it is referenced by existing leave requests.")
+    return redirect('leaves:leave_type_list')
+
+
+@login_required
+def restore_default_leave_types(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if request.method == 'POST':
+        seed_default_leave_types()
+        messages.success(request, "Default leave types restored (existing ones were not changed).")
+    return redirect('leaves:leave_type_list')

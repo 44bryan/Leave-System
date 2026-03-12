@@ -9,6 +9,10 @@ class LeaveType(models.Model):
     requires_document = models.BooleanField(default=False)
     color = models.CharField(max_length=20, default='primary')
     is_active = models.BooleanField(default=True)
+    is_deductible = models.BooleanField(
+        default=True,
+        help_text="If checked, approved days are subtracted from annual leave balance."
+    )
 
     class Meta:
         ordering = ['name']
@@ -20,17 +24,21 @@ class LeaveType(models.Model):
 class LeaveRequest(models.Model):
     STATUS_PENDING = 'pending'
     STATUS_MANAGER_APPROVED = 'manager_approved'
+    STATUS_HR_APPROVED = 'hr_approved'
     STATUS_APPROVED = 'approved'
     STATUS_REJECTED_MANAGER = 'rejected_manager'
     STATUS_REJECTED_HR = 'rejected_hr'
+    STATUS_REJECTED_DIRECTOR = 'rejected_director'
     STATUS_CANCELLED = 'cancelled'
 
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Pending Manager Approval'),
         (STATUS_MANAGER_APPROVED, 'Pending HR Approval'),
+        (STATUS_HR_APPROVED, 'Pending Director Approval'),
         (STATUS_APPROVED, 'Approved'),
         (STATUS_REJECTED_MANAGER, 'Rejected by Manager'),
         (STATUS_REJECTED_HR, 'Rejected by HR'),
+        (STATUS_REJECTED_DIRECTOR, 'Rejected by Director'),
         (STATUS_CANCELLED, 'Cancelled'),
     ]
 
@@ -59,6 +67,14 @@ class LeaveRequest(models.Model):
     hr_action_date = models.DateTimeField(null=True, blank=True)
     hr_remarks = models.TextField(blank=True)
 
+    # Administration Director action (final approval)
+    director_action_by = models.ForeignKey(
+        Employee, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='director_actions'
+    )
+    director_action_date = models.DateTimeField(null=True, blank=True)
+    director_remarks = models.TextField(blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -70,17 +86,30 @@ class LeaveRequest(models.Model):
 
     def save(self, *args, **kwargs):
         if self.start_date and self.end_date:
-            delta = self.end_date - self.start_date
-            self.total_days = delta.days + 1
+            self.total_days = self._count_working_days(self.start_date, self.end_date)
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def _count_working_days(start, end):
+        """Count Mon–Sat (exclude Sunday) between start and end inclusive."""
+        from datetime import timedelta
+        count = 0
+        current = start
+        while current <= end:
+            if current.weekday() != 6:  # 6 = Sunday
+                count += 1
+            current += timedelta(days=1)
+        return count
 
     def get_status_badge(self):
         badges = {
             'pending': 'warning',
             'manager_approved': 'info',
+            'hr_approved': 'primary',
             'approved': 'success',
             'rejected_manager': 'danger',
             'rejected_hr': 'danger',
+            'rejected_director': 'danger',
             'cancelled': 'secondary',
         }
         return badges.get(self.status, 'secondary')
@@ -89,15 +118,17 @@ class LeaveRequest(models.Model):
         icons = {
             'pending': 'clock',
             'manager_approved': 'hourglass-split',
+            'hr_approved': 'hourglass-split',
             'approved': 'check-circle',
             'rejected_manager': 'x-circle',
             'rejected_hr': 'x-circle',
+            'rejected_director': 'x-circle',
             'cancelled': 'slash-circle',
         }
         return icons.get(self.status, 'circle')
 
     def can_cancel(self):
-        return self.status in (self.STATUS_PENDING, self.STATUS_MANAGER_APPROVED)
+        return self.status in (self.STATUS_PENDING, self.STATUS_MANAGER_APPROVED, self.STATUS_HR_APPROVED)
 
     def is_active(self):
         from datetime import date
@@ -120,7 +151,8 @@ class LeaveBalance(models.Model):
     def used_days(self):
         approved = self.employee.leave_requests.filter(
             status='approved',
-            start_date__year=self.year
+            start_date__year=self.year,
+            leave_type__is_deductible=True
         ).aggregate(total=models.Sum('total_days'))['total'] or 0
         return approved
 
@@ -133,3 +165,23 @@ class LeaveBalance(models.Model):
         if self.total_entitlement == 0:
             return 0
         return round((self.used_days / self.total_entitlement) * 100)
+
+    def non_deductible_by_type(self):
+        """Returns list of {name, days} for approved non-deductible leaves this year."""
+        from django.db.models import Sum
+        rows = (
+            self.employee.leave_requests
+            .filter(status='approved', start_date__year=self.year, leave_type__is_deductible=False)
+            .values('leave_type__name')
+            .annotate(days=Sum('total_days'))
+            .order_by('leave_type__name')
+        )
+        return [{'name': r['leave_type__name'], 'days': r['days']} for r in rows]
+
+    def non_deductible_total(self):
+        from django.db.models import Sum
+        return (
+            self.employee.leave_requests
+            .filter(status='approved', start_date__year=self.year, leave_type__is_deductible=False)
+            .aggregate(total=Sum('total_days'))['total'] or 0
+        )

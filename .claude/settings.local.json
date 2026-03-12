@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source venv/Scripts/activate)",
+      "Bash(python manage.py shell -c \"from leaves.models import LeaveType; [print\\(lt.id, repr\\(lt.name\\), lt.is_deductible\\) for lt in LeaveType.objects.all\\(\\)]\")"
+    ]
+  }
+}

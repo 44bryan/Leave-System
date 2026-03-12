@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
 from .models import Employee, Department
 
 
@@ -91,6 +92,90 @@ class EmployeeEditForm(forms.ModelForm):
             employee.user.save()
             employee.save()
         return employee
+
+
+class ChangePasswordForm(forms.Form):
+    current_password = forms.CharField(
+        label="Current Password",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter your current password'})
+    )
+    new_password = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'At least 8 characters'}),
+        min_length=8,
+    )
+    confirm_password = forms.CharField(
+        label="Confirm New Password",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Repeat new password'})
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_current_password(self):
+        pw = self.cleaned_data.get('current_password')
+        if not self.user.check_password(pw):
+            raise ValidationError("Incorrect current password.")
+        return pw
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('new_password')
+        p2 = cleaned.get('confirm_password')
+        if p1 and p2 and p1 != p2:
+            self.add_error('confirm_password', "Passwords do not match.")
+        return cleaned
+
+    def save(self):
+        self.user.set_password(self.cleaned_data['new_password'])
+        self.user.save()
+
+
+class AdminResetCredentialsForm(forms.Form):
+    username = forms.CharField(
+        label="Username",
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    new_password = forms.CharField(
+        label="New Password",
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Leave blank to keep current password'}),
+        min_length=8,
+    )
+    confirm_password = forms.CharField(
+        label="Confirm Password",
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Repeat new password'})
+    )
+
+    def __init__(self, target_user, *args, **kwargs):
+        self.target_user = target_user
+        super().__init__(*args, **kwargs)
+        self.fields['username'].initial = target_user.username
+
+    def clean_username(self):
+        uname = self.cleaned_data.get('username', '').strip()
+        if User.objects.filter(username=uname).exclude(pk=self.target_user.pk).exists():
+            raise ValidationError("This username is already taken by another user.")
+        return uname
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('new_password')
+        p2 = cleaned.get('confirm_password')
+        if p1 and p1 != p2:
+            self.add_error('confirm_password', "Passwords do not match.")
+        if p1 and len(p1) < 8:
+            self.add_error('new_password', "Password must be at least 8 characters.")
+        return cleaned
+
+    def save(self):
+        self.target_user.username = self.cleaned_data['username']
+        if self.cleaned_data.get('new_password'):
+            self.target_user.set_password(self.cleaned_data['new_password'])
+        self.target_user.save()
 
 
 class DepartmentForm(forms.ModelForm):

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}{{ title }} — LeaveDesk{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
 {% block nav_employees %}active{% endblock %}
@@ -15,23 +16,23 @@
                     {% if not employee %}
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">First Name *</label>
+                            <label class="form-label">{% trans "First Name" %} *</label>
                             {{ form.first_name }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Last Name *</label>
+                            <label class="form-label">{% trans "Last Name" %} *</label>
                             {{ form.last_name }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">{% trans "Email" %}</label>
                             {{ form.email }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Username *</label>
+                            <label class="form-label">{% trans "Username" %} *</label>
                             {{ form.username }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Password</label>
+                            <label class="form-label">{% trans "Password" %}</label>
                             <div style="position:relative;">
                                 {{ form.password }}
                                 <button type="button" tabindex="-1" onclick="togglePassword(this)"
@@ -46,15 +47,15 @@
                     {% else %}
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">First Name</label>
+                            <label class="form-label">{% trans "First Name" %}</label>
                             {{ form.first_name }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Last Name</label>
+                            <label class="form-label">{% trans "Last Name" %}</label>
                             {{ form.last_name }}
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">{% trans "Email" %}</label>
                             {{ form.email }}
                         </div>
                     </div>
@@ -63,39 +64,39 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Employee ID *</label>
+                            <label class="form-label">{% trans "Employee ID" %} *</label>
                             {{ form.employee_id }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Position</label>
+                            <label class="form-label">{% trans "Position" %}</label>
                             {{ form.position }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Department</label>
+                            <label class="form-label">{% trans "Department" %}</label>
                             {{ form.department }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Role</label>
+                            <label class="form-label">{% trans "Role" %}</label>
                             {{ form.role }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Line Manager / Supervisor</label>
+                            <label class="form-label">{% trans "Line Manager / Supervisor" %}</label>
                             {{ form.supervisor }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">{% trans "Phone" %}</label>
                             {{ form.phone }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Date Joined Hospital</label>
+                            <label class="form-label">{% trans "Date Joined Hospital" %}</label>
                             {{ form.date_joined_company }}
                         </div>
                         {% if employee %}
                         <div class="col-md-6">
-                            <label class="form-label">Active</label>
+                            <label class="form-label">{% trans "Active" %}</label>
                             <div class="d-flex align-items-center gap-2 mt-2">
                                 {{ form.is_active }}
-                                <span class="form-text">Uncheck to deactivate</span>
+                                <span class="form-text">{% trans "Uncheck to deactivate" %}</span>
                             </div>
                         </div>
                         {% endif %}
@@ -103,7 +104,7 @@
 
                     {% if form.errors %}
                     <div class="alert alert-danger mt-3">
-                        Please fix the errors below:
+                        {% trans "Please fix the errors below:" %}
                         {% for field in form %}
                             {% for error in field.errors %}
                             <div>{{ field.label }}: {{ error }}</div>
@@ -114,9 +115,9 @@
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-save me-1"></i>Save
+                            <i class="bi bi-save me-1"></i>{% trans "Save" %}
                         </button>
-                        <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                        <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary px-4">{% trans "Cancel" %}</a>
                     </div>
                 </form>
             </div>

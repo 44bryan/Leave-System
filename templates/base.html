@@ -1,9 +1,10 @@
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}LeaveDesk — Eye Hospital HR{% endblock %}</title>
+    <title>{% block title %}{% trans "LeaveDesk — Magrabi ICO" %}{% endblock %}</title>
     
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,21 +15,21 @@
     
     <style>
         :root {
-            --primary: #0A4D68;
-            --primary-light: #088395;
-            --accent: #05BFDB;
+            --primary: #0891a8;
+            --primary-light: #0da8c0;
+            --accent: #17c3d9;
             --accent-soft: #e0f7fa;
             --success: #0d6832;
             --warning-soft: #fff8e1;
             --danger-soft: #fce4ec;
-            --bg: #f0f4f8;
+            --bg: #e8f6f9;
             --card-bg: #ffffff;
-            --sidebar-bg: #061a2e;
-            --sidebar-text: #b8cfe0;
-            --sidebar-active: #05BFDB;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #4a6b7c;
+            --sidebar-active: #0891a8;
             --text-primary: #0d1b2a;
             --text-muted: #6b7a8d;
-            --border: #dce5ef;
+            --border: #cde8ef;
         }
 
         * { box-sizing: border-box; }
@@ -40,12 +41,153 @@
             min-height: 100vh;
         }
 
+        /* ─── LOGO BAR (always visible, full width) ─── */
+        .logo-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 76px;
+            background: white;
+            border-bottom: 2px solid #cde8ef;
+            box-shadow: 0 2px 12px rgba(8,145,168,0.10);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+        }
+        .logo-bar a { text-decoration: none; display: flex; align-items: center; }
+        .logo-bar img { height: 56px; width: auto; display: block; }
+
+        .logo-bar-right { display: flex; align-items: center; gap: 10px; }
+
+        /* Search bar */
+        .topbar-search {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .topbar-search-input {
+            height: 40px;
+            width: 260px;
+            border: 1.5px solid #cde8ef;
+            border-radius: 10px;
+            padding: 0 14px 0 38px;
+            font-size: 0.82rem;
+            font-family: inherit;
+            color: #0d1b2a;
+            background: #f8fbfc;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s, width 0.25s;
+        }
+        .topbar-search-input::placeholder { color: #9ab4c0; }
+        .topbar-search-input:focus {
+            border-color: #0891a8;
+            box-shadow: 0 0 0 3px rgba(8,145,168,0.1);
+            background: white;
+            width: 320px;
+        }
+        .topbar-search-icon {
+            position: absolute;
+            left: 11px;
+            color: #9ab4c0;
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        /* Language dropdown */
+        .lang-dropdown-btn {
+            height: 40px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1.5px solid #cde8ef;
+            background: white;
+            color: #4a6b7c;
+            font-size: 0.82rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.18s;
+            white-space: nowrap;
+        }
+        .lang-dropdown-btn:hover, .lang-dropdown-btn.show {
+            border-color: #0891a8;
+            color: #0891a8;
+            background: #f0fafc;
+        }
+        .lang-dropdown-btn::after { display: none; }
+        .lang-dropdown-btn .lang-flag {
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .lang-dropdown-btn .lang-chevron {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-left: 2px;
+        }
+
+        /* Logged-in user chip */
+        .user-chip {
+            height: 40px;
+            padding: 0 14px 0 8px;
+            border-radius: 10px;
+            border: 1.5px solid #cde8ef;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            cursor: default;
+        }
+        .user-chip-avatar {
+            width: 26px; height: 26px;
+            border-radius: 7px;
+            background: linear-gradient(135deg, #0891a8, #0da8c0);
+            color: white;
+            font-weight: 800;
+            font-size: 0.7rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .user-chip-name {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #0d1b2a;
+            max-width: 130px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Settings button */
+        .settings-btn {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            border: 1.5px solid #cde8ef;
+            background: white;
+            color: #4a6b7c;
+            font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.18s;
+            padding: 0;
+        }
+        .settings-btn:hover, .settings-btn.show {
+            border-color: #0891a8;
+            color: #0891a8;
+            background: #f0fafc;
+        }
+        .settings-btn::after { display: none; }
+
         /* ─── SIDEBAR ─── */
         .sidebar {
             position: fixed;
-            left: 0; top: 0; bottom: 0;
+            left: 0; top: 76px; bottom: 0;
             width: 260px;
-            background: var(--sidebar-bg);
+            background: #ffffff;
+            border-right: 1px solid #cde8ef;
+            box-shadow: 2px 0 12px rgba(8,145,168,0.07);
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -53,45 +195,7 @@
             overflow-y: auto;
         }
 
-        .sidebar-brand {
-            padding: 24px 20px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-        }
-
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-
-        .brand-icon {
-            width: 42px; height: 42px;
-            background: linear-gradient(135deg, var(--accent), var(--primary-light));
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .brand-text {
-            line-height: 1.2;
-        }
-
-        .brand-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.1rem;
-            color: white;
-            font-weight: 400;
-        }
-
-        .brand-sub {
-            font-size: 0.65rem;
-            color: var(--sidebar-text);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
+        .sidebar-brand { display: none; }
 
         .sidebar-section {
             padding: 20px 12px 8px;
@@ -101,7 +205,7 @@
             font-size: 0.6rem;
             text-transform: uppercase;
             letter-spacing: 0.12em;
-            color: rgba(184,207,224,0.4);
+            color: #9ab4c0;
             padding: 0 8px;
             margin-bottom: 6px;
         }
@@ -117,7 +221,7 @@
             gap: 10px;
             padding: 10px 12px;
             border-radius: 10px;
-            color: var(--sidebar-text);
+            color: #4a6b7c;
             text-decoration: none;
             font-size: 0.875rem;
             font-weight: 500;
@@ -126,14 +230,15 @@
         }
 
         .nav-link-sidebar:hover {
-            background: rgba(255,255,255,0.07);
-            color: white;
+            background: #e0f5f8;
+            color: #0891a8;
         }
 
         .nav-link-sidebar.active {
-            background: linear-gradient(135deg, rgba(5,191,219,0.2), rgba(8,131,149,0.15));
-            color: var(--sidebar-active);
-            border: 1px solid rgba(5,191,219,0.2);
+            background: linear-gradient(135deg, #d0eff5, #c5eaf2);
+            color: #0891a8;
+            border: 1px solid #a8dce8;
+            font-weight: 600;
         }
 
         .nav-link-sidebar .bi {
@@ -155,7 +260,7 @@
         .sidebar-footer {
             margin-top: auto;
             padding: 16px 12px;
-            border-top: 1px solid rgba(255,255,255,0.07);
+            border-top: 1px solid #cde8ef;
         }
 
         .user-card {
@@ -164,13 +269,13 @@
             gap: 10px;
             padding: 10px;
             border-radius: 10px;
-            background: rgba(255,255,255,0.05);
+            background: #e8f6f9;
         }
 
         .user-avatar {
             width: 36px; height: 36px;
             border-radius: 10px;
-            background: linear-gradient(135deg, var(--accent), var(--primary-light));
+            background: linear-gradient(135deg, #17c3d9, #0da8c0);
             display: flex; align-items: center; justify-content: center;
             color: white;
             font-weight: 700;
@@ -182,7 +287,7 @@
         .user-name {
             font-size: 0.8rem;
             font-weight: 600;
-            color: white;
+            color: #0d1b2a;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -190,23 +295,25 @@
 
         .user-role {
             font-size: 0.65rem;
-            color: var(--sidebar-text);
+            color: #4a6b7c;
             text-transform: capitalize;
         }
 
         /* ─── MAIN CONTENT ─── */
         .main-content {
             margin-left: 260px;
-            min-height: 100vh;
+            margin-top: 76px;
+            min-height: calc(100vh - 76px);
             display: flex;
             flex-direction: column;
         }
 
         /* ─── TOPBAR ─── */
         .topbar {
-            background: white;
-            border-bottom: 1px solid var(--border);
-            padding: 14px 28px;
+            background: #0891a8;
+            border-bottom: none;
+            box-shadow: 0 2px 16px rgba(8,145,168,0.28);
+            padding: 12px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -216,17 +323,81 @@
         }
 
         .topbar-title {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: white;
         }
 
-        .topbar-subtitle {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
+        .topbar-subtitle { display: none; }
+
+        .sidebar-toggle { color: white !important; }
 
         .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+        /* Topbar buttons adapt to teal background */
+        .topbar .btn-primary {
+            background: white;
+            color: #0A4D68;
+            border-color: white;
+            font-weight: 700;
+        }
+        .topbar .btn-primary:hover {
+            background: #e0f7fa;
+            border-color: #e0f7fa;
+            color: #0A4D68;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+        }
+        .topbar .btn-outline-primary, .topbar .btn-outline-secondary {
+            border-color: rgba(255,255,255,0.65);
+            color: white;
+            background: transparent;
+        }
+        .topbar .btn-outline-primary:hover, .topbar .btn-outline-secondary:hover {
+            background: rgba(255,255,255,0.18);
+            border-color: white;
+            color: white;
+        }
+
+        /* ─── SHARED DROPDOWN PANEL ─── */
+        .topbar-dropdown {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(10,77,104,0.18);
+            padding: 6px;
+            min-width: 220px;
+            margin-top: 6px !important;
+        }
+        .topbar-dropdown-header {
+            padding: 10px 12px 8px;
+        }
+        .topbar-dropdown-header .td-name {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #0d1b2a;
+        }
+        .topbar-dropdown-header .td-email {
+            font-size: 0.72rem;
+            color: #6b7a8d;
+        }
+        .topbar-dropdown .dropdown-item {
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #0d1b2a;
+            transition: background 0.15s;
+        }
+        .topbar-dropdown .dropdown-item:hover {
+            background: #e8f6f9;
+        }
+        .topbar-dropdown .dropdown-item.text-danger:hover {
+            background: #fce4ec;
+        }
+        .topbar-dropdown .dropdown-divider {
+            margin: 4px 8px;
+            border-color: #e8f0f5;
+        }
 
         /* ─── PAGE CONTENT ─── */
         .page-content {
@@ -398,27 +569,116 @@
             border: 2px solid white;
         }
 
-        /* ─── MOBILE ─── */
+        /* ─── SIDEBAR TOGGLE ─── */
         .sidebar-toggle {
-            display: none;
             background: none;
             border: none;
             font-size: 1.4rem;
-            color: var(--text-primary);
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        /* Collapsed state */
+        .sidebar-collapsed .sidebar {
+            transform: translateX(-100%);
+        }
+        .sidebar-collapsed .main-content {
+            margin-left: 0;
+        }
+
+        /* ─── MOBILE ─── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
         }
 
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.show { transform: translateX(0); }
             .main-content { margin-left: 0; }
-            .sidebar-toggle { display: block; }
-            .sidebar-overlay {
-                display: none;
-                position: fixed; inset: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 999;
-            }
             .sidebar-overlay.show { display: block; }
+        }
+
+        @media (min-width: 993px) {
+            .main-content { transition: margin-left 0.3s ease; }
+        }
+
+        /* ─── SEARCH DROPDOWN ─── */
+        .search-results-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(10,77,104,0.18);
+            z-index: 2000;
+            overflow: hidden;
+            display: none;
+            min-width: 380px;
+        }
+        .search-results-dropdown.show { display: block; }
+        .search-result-group-label {
+            padding: 8px 14px 4px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #9ab4c0;
+            font-weight: 700;
+            background: #fafbfc;
+            border-bottom: 1px solid #f0f4f8;
+        }
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: #f0fafc; color: inherit; }
+        .search-result-avatar {
+            width: 32px; height: 32px; flex-shrink: 0;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #0891a8, #0da8c0);
+            color: white; font-weight: 700; font-size: 0.72rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .search-result-icon {
+            width: 32px; height: 32px; flex-shrink: 0;
+            border-radius: 9px;
+            background: #e8f6f9;
+            color: #0891a8; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .search-result-title {
+            font-size: 0.84rem; font-weight: 600; color: #0d1b2a;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .search-result-sub {
+            font-size: 0.72rem; color: #6b7a8d;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .search-empty {
+            padding: 24px 14px;
+            text-align: center;
+            font-size: 0.82rem;
+            color: #9ab4c0;
+        }
+        .search-spinner {
+            padding: 16px 14px;
+            text-align: center;
+            font-size: 0.82rem;
+            color: #9ab4c0;
         }
 
         /* ─── ANIMATIONS ─── */
@@ -439,37 +699,125 @@
 <body>
 
 {% if user.is_authenticated %}
+
+<!-- ─── LOGO BAR ─── -->
+<div class="logo-bar">
+    <a href="{% url 'dashboard:home' %}">
+        <img src="{% static 'LOGO.png' %}" alt="Magrabi ICO Cameroon Eye Institute">
+    </a>
+
+    <div class="logo-bar-right">
+
+        <!-- Search bar -->
+        <div class="topbar-search" id="searchWrapper">
+            <i class="bi bi-search topbar-search-icon"></i>
+            <input type="text" class="topbar-search-input" placeholder="{% trans 'Search users, events and more...' %}" id="topbarSearch" autocomplete="off">
+            <div class="search-results-dropdown" id="searchDropdown"></div>
+        </div>
+
+        <!-- Language dropdown -->
+        {% get_current_language as CURRENT_LANG %}
+        <div class="dropdown">
+            <button class="lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-globe2"></i>
+                {% if CURRENT_LANG == 'fr' %}Français{% else %}English{% endif %}
+                <i class="bi bi-chevron-down lang-chevron"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end topbar-dropdown" style="min-width:170px;">
+                <li>
+                    <div style="padding:8px 12px 4px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#9ab4c0; font-weight:700;">{% trans "Language" %}</div>
+                </li>
+                <li>
+                    <form method="post" action="{% url 'set_language' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" value="en">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'en' %}fw-bold text-primary{% endif %}">
+                            <i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'en' %}invisible{% endif %}"></i>English
+                        </button>
+                    </form>
+                </li>
+                <li>
+                    <form method="post" action="{% url 'set_language' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" value="fr">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'fr' %}fw-bold text-primary{% endif %}">
+                            <i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'fr' %}invisible{% endif %}"></i>Français
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Logged-in user chip (display only) -->
+        <div class="user-chip">
+            <div class="user-chip-avatar">
+                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+            </div>
+            <span class="user-chip-name">{{ user.get_full_name|default:user.username }}</span>
+        </div>
+
+        <!-- Settings dropdown -->
+        <div class="dropdown">
+            <button class="settings-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="{% trans 'Settings' %}">
+                <i class="bi bi-gear-fill"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end topbar-dropdown">
+                <li>
+                    <div class="topbar-dropdown-header">
+                        <div class="td-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="td-email">{{ user.email|default:"no email" }}</div>
+                    </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                        <i class="bi bi-person-circle me-2"></i>{% trans "My Profile" %}
+                    </a>
+                </li>
+                {% if user.is_superuser %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}">
+                        <i class="bi bi-sliders me-2" style="color:#0891a8;"></i>System Settings
+                    </a>
+                </li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                        <i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
 <!-- Sidebar Overlay (mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <!-- ─── SIDEBAR ─── -->
 <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-        <a href="{% url 'dashboard:home' %}" class="brand-logo">
-            <div class="brand-icon">👁</div>
-            <div class="brand-text">
-                <div class="brand-title">LeaveDesk</div>
-                <div class="brand-sub">Eye Hospital · HR System</div>
-            </div>
-        </a>
-    </div>
 
     <div class="sidebar-section">
-        <div class="sidebar-section-label">Main</div>
+        <div class="sidebar-section-label">{% trans "Main" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:home' %}" class="nav-link-sidebar {% block nav_dashboard %}{% endblock %}">
-                    <i class="bi bi-grid-1x2"></i> Dashboard
+                    <i class="bi bi-grid-1x2"></i> {% trans "Dashboard" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:submit' %}" class="nav-link-sidebar {% block nav_submit %}{% endblock %}">
-                    <i class="bi bi-plus-circle"></i> Apply for Leave
+                    <i class="bi bi-plus-circle"></i> {% trans "Apply for Leave" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:my_requests' %}" class="nav-link-sidebar {% block nav_my_requests %}{% endblock %}">
-                    <i class="bi bi-journal-text"></i> My Requests
+                    <i class="bi bi-journal-text"></i> {% trans "My Requests" %}
                 </a>
             </li>
         </ul>
@@ -477,11 +825,11 @@
 
     {% if user.employee.is_manager %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">Approvals</div>
+        <div class="sidebar-section-label">{% trans "Approvals" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:manager_approvals' %}" class="nav-link-sidebar {% block nav_manager %}{% endblock %}">
-                    <i class="bi bi-person-check"></i> Manager Queue
+                    <i class="bi bi-person-check"></i> {% trans "Manager Queue" %}
                     {% with count=user.employee.subordinates.all|length %}
                     {% endwith %}
                 </a>
@@ -492,21 +840,44 @@
 
     {% if user.employee.is_hr %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">HR Admin</div>
+        <div class="sidebar-section-label">{% trans "HR Admin" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:hr_approvals' %}" class="nav-link-sidebar {% block nav_hr_approvals %}{% endblock %}">
-                    <i class="bi bi-clipboard2-check"></i> HR Approvals
+                    <i class="bi bi-clipboard2-check"></i> {% trans "HR Approvals" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar {% block nav_all_leaves %}{% endblock %}">
-                    <i class="bi bi-list-ul"></i> All Requests
+                    <i class="bi bi-list-ul"></i> {% trans "All Requests" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar {% block nav_tracker %}{% endblock %}">
-                    <i class="bi bi-bar-chart-line"></i> Leave Tracker
+                    <i class="bi bi-bar-chart-line"></i> {% trans "Leave Tracker" %}
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if user.employee.is_director %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">{% trans "Director" %}</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:director_approvals' %}" class="nav-link-sidebar {% block nav_director %}{% endblock %}">
+                    <i class="bi bi-shield-check"></i> {% trans "Director Queue" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar {% block nav_all_leaves_dir %}{% endblock %}">
+                    <i class="bi bi-list-ul"></i> {% trans "All Requests" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar {% block nav_tracker_dir %}{% endblock %}">
+                    <i class="bi bi-bar-chart-line"></i> {% trans "Leave Tracker" %}
                 </a>
             </li>
         </ul>
@@ -515,41 +886,32 @@
 
     {% if user.is_superuser %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">Admin</div>
+        <div class="sidebar-section-label">{% trans "Admin" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:employee_list' %}" class="nav-link-sidebar {% block nav_employees %}{% endblock %}">
-                    <i class="bi bi-people"></i> Employees
+                    <i class="bi bi-people"></i> {% trans "Employees" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:department_list' %}" class="nav-link-sidebar {% block nav_depts %}{% endblock %}">
-                    <i class="bi bi-building"></i> Departments
+                    <i class="bi bi-building"></i> {% trans "Departments" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:leave_type_list' %}" class="nav-link-sidebar {% block nav_leave_types %}{% endblock %}">
+                    <i class="bi bi-tags"></i> {% trans "Leave Types" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:admin_settings' %}" class="nav-link-sidebar {% block nav_settings %}{% endblock %}">
+                    <i class="bi bi-sliders"></i> {% trans "System Settings" %}
                 </a>
             </li>
         </ul>
     </div>
     {% endif %}
 
-    <div class="sidebar-footer">
-        <div class="user-card mb-2">
-            <div class="user-avatar">
-                {{ user.first_name|first|default:user.username|first|upper }}
-            </div>
-            <div class="user-info">
-                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
-                <div class="user-role">
-                    {% if user.is_superuser %}Administrator{% elif user.employee %}{{ user.employee.get_role_display }}{% else %}Staff{% endif %}
-                </div>
-            </div>
-        </div>
-        <a href="{% url 'accounts:profile' %}" class="nav-link-sidebar">
-            <i class="bi bi-person-circle"></i> Profile
-        </a>
-        <a href="{% url 'accounts:logout' %}" class="nav-link-sidebar text-danger">
-            <i class="bi bi-box-arrow-left"></i> Sign Out
-        </a>
-    </div>
 </aside>
 
 <!-- ─── MAIN ─── -->
@@ -559,16 +921,10 @@
             <button class="sidebar-toggle" onclick="toggleSidebar()">
                 <i class="bi bi-list"></i>
             </button>
-            <div>
-                <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
-                <div class="topbar-subtitle">{% block page_subtitle %}{% endblock %}</div>
-            </div>
+            <div class="topbar-title">{% block page_title %}{% trans "Dashboard" %}{% endblock %}</div>
         </div>
         <div class="topbar-actions">
             {% block topbar_actions %}{% endblock %}
-            <a href="{% url 'leaves:submit' %}" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg me-1"></i> Apply Leave
-            </a>
         </div>
     </div>
 
@@ -594,9 +950,102 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('show');
-    document.getElementById('sidebarOverlay').classList.toggle('show');
+    if (window.innerWidth <= 992) {
+        document.getElementById('sidebar').classList.toggle('show');
+        document.getElementById('sidebarOverlay').classList.toggle('show');
+    } else {
+        document.body.classList.toggle('sidebar-collapsed');
+    }
 }
+
+// ─── Live Search ───────────────────────────────────────────────────────────
+(function () {
+    const input = document.getElementById('topbarSearch');
+    const dropdown = document.getElementById('searchDropdown');
+    if (!input || !dropdown) return;
+
+    let debounceTimer = null;
+    const SEARCH_URL = '{% url "dashboard:search" %}';
+
+    const typeIcons = {
+        employee: 'person',
+        leave: 'calendar-check',
+        department: 'building',
+    };
+    const typeLabels = { employee: 'Employees', leave: 'Leave Requests', department: 'Departments' };
+
+    function getCookie(name) {
+        const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+        return v ? v[2] : null;
+    }
+
+    function renderResults(data) {
+        if (!data.results || data.results.length === 0) {
+            dropdown.innerHTML = '<div class="search-empty"><i class="bi bi-search d-block mb-2" style="font-size:1.4rem;"></i>No results for <strong>"' + escHtml(data.query || '') + '"</strong></div>';
+            dropdown.classList.add('show');
+            return;
+        }
+
+        // Group by type
+        const groups = {};
+        data.results.forEach(r => {
+            if (!groups[r.type]) groups[r.type] = [];
+            groups[r.type].push(r);
+        });
+
+        let html = '';
+        Object.keys(groups).forEach(type => {
+            html += '<div class="search-result-group-label">' + escHtml(typeLabels[type] || type) + '</div>';
+            groups[type].forEach(r => {
+                const thumb = r.initials
+                    ? '<div class="search-result-avatar">' + escHtml(r.initials) + '</div>'
+                    : '<div class="search-result-icon"><i class="bi bi-' + escHtml(r.icon) + '"></i></div>';
+                html += '<a class="search-result-item" href="' + escHtml(r.url) + '">'
+                    + thumb
+                    + '<div class="min-w-0 flex-grow-1" style="min-width:0;">'
+                    + '<div class="search-result-title">' + escHtml(r.title) + '</div>'
+                    + '<div class="search-result-sub">' + escHtml(r.subtitle) + '</div>'
+                    + '</div></a>';
+            });
+        });
+
+        dropdown.innerHTML = html;
+        dropdown.classList.add('show');
+    }
+
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function doSearch(q) {
+        dropdown.innerHTML = '<div class="search-spinner"><span class="spinner-border spinner-border-sm me-2" style="color:#0891a8;"></span>Searching…</div>';
+        dropdown.classList.add('show');
+        fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(renderResults)
+        .catch(() => { dropdown.classList.remove('show'); });
+    }
+
+    input.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        const q = this.value.trim();
+        if (q.length < 2) { dropdown.classList.remove('show'); return; }
+        debounceTimer = setTimeout(() => doSearch(q), 280);
+    });
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { dropdown.classList.remove('show'); this.blur(); }
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function (e) {
+        if (!document.getElementById('searchWrapper').contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+})();
 </script>
 {% block extra_js %}{% endblock %}
 </body>

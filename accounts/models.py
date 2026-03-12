@@ -18,6 +18,7 @@ class Employee(models.Model):
         ('employee', 'Employee'),
         ('manager', 'Line Manager'),
         ('hr', 'HR Admin'),
+        ('admin_director', 'Administration Director'),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee')
@@ -46,12 +47,16 @@ class Employee(models.Model):
         return self.role == 'hr'
 
     def is_manager(self):
-        return self.role in ('manager', 'hr')
+        return self.role == 'manager'
+
+    def is_director(self):
+        return self.role == 'admin_director'
 
     def get_role_display_badge(self):
         badges = {
             'employee': 'secondary',
             'manager': 'primary',
             'hr': 'success',
+            'admin_director': 'danger',
         }
         return badges.get(self.role, 'secondary')

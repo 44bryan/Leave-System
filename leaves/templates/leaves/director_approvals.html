@@ -1,21 +1,20 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans "HR Approvals" %} — LeaveDesk{% endblock %}
-{% block page_title %}{% trans "HR Final Approvals" %}{% endblock %}
-{% block page_subtitle %}Manager-approved requests awaiting final HR sign-off{% endblock %}
-{% block nav_hr_approvals %}active{% endblock %}
+{% block title %}{% trans "Director Approvals" %} — LeaveDesk{% endblock %}
+{% block page_title %}{% trans "Director Final Approvals" %}{% endblock %}
+{% block nav_director %}active{% endblock %}
 
 {% block content %}
 {% if pending_requests %}
-<div class="alert alert-info d-flex align-items-center gap-2 mb-4">
+<div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
     <i class="bi bi-info-circle-fill fs-5"></i>
-    <span><strong>{{ pending_requests|length }}</strong> request(s) have been approved by their line manager and need your final approval.</span>
+    <span><strong>{{ pending_requests|length }}</strong> request(s) have been approved by HR and are awaiting your final authorization.</span>
 </div>
 {% endif %}
 
 <div class="card animate-in">
     <div class="card-header">
-        <i class="bi bi-clipboard2-check me-2" style="color:#088395;"></i>{% trans "Manager-Approved — Awaiting HR Final Decision" %}
+        <i class="bi bi-shield-check me-2" style="color:#0A4D68;"></i>{% trans "HR-Approved — Awaiting Administration Director Final Decision" %}
     </div>
     <div class="table-responsive">
         <table class="table mb-0">
@@ -26,8 +25,9 @@
                     <th>{% trans "Leave Type" %}</th>
                     <th>{% trans "Period" %}</th>
                     <th>{% trans "Days" %}</th>
-                    <th>{% trans "Manager Approved By" %}</th>
-                    <th>{% trans "Manager Date" %}</th>
+                    <th>{% trans "Manager" %}</th>
+                    <th>{% trans "HR Approved By" %}</th>
+                    <th>{% trans "HR Date" %}</th>
                     <th>{% trans "Document" %}</th>
                     <th>{% trans "Action" %}</th>
                 </tr>
@@ -46,8 +46,11 @@
                     <td style="font-size:0.82rem;">
                         {% if req.manager_action_by %}{{ req.manager_action_by.get_full_name }}{% else %}—{% endif %}
                     </td>
+                    <td style="font-size:0.82rem;">
+                        {% if req.hr_action_by %}{{ req.hr_action_by.get_full_name }}{% else %}—{% endif %}
+                    </td>
                     <td style="font-size:0.78rem;color:#6b7a8d;">
-                        {% if req.manager_action_date %}{{ req.manager_action_date|date:"M d, Y" }}{% else %}—{% endif %}
+                        {% if req.hr_action_date %}{{ req.hr_action_date|date:"M d, Y" }}{% else %}—{% endif %}
                     </td>
                     <td>
                         {% if req.supporting_document %}
@@ -59,16 +62,16 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-success">
-                            <i class="bi bi-check2-all me-1"></i>{% trans "Final Review" %}
+                        <a href="{% url 'leaves:director_action' req.pk %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-shield-check me-1"></i>{% trans "Final Decision" %}
                         </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="9" class="text-center text-muted py-5">
-                        <i class="bi bi-clipboard2-check fs-2 d-block mb-2 text-success"></i>
-                        {% trans "No requests awaiting HR approval." %}
+                    <td colspan="10" class="text-center text-muted py-5">
+                        <i class="bi bi-shield-check fs-2 d-block mb-2 text-success"></i>
+                        {% trans "No requests awaiting Director approval." %}
                     </td>
                 </tr>
                 {% endfor %}

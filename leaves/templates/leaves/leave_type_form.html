@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ action }} Leave Type — LeaveDesk{% endblock %}
+{% block page_title %}{{ action }} Leave Type{% endblock %}
+{% block page_subtitle %}{% if lt %}Editing: {{ lt.name }}{% else %}Create a new leave category{% endif %}{% endblock %}
+{% block nav_leave_types %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-7">
+<div class="card animate-in">
+    <div class="card-header">
+        <i class="bi bi-tag me-2"></i>{{ action }} Leave Type
+    </div>
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Name -->
+            <div class="mb-4">
+                <label class="form-label">Leave Type Name <span class="text-danger">*</span></label>
+                <input type="text" name="name" class="form-control"
+                       value="{{ lt.name|default:'' }}"
+                       placeholder="e.g. Annual Leave, Sick Leave…" required>
+            </div>
+
+            <!-- Deductible / Non-deductible -->
+            <div class="mb-4">
+                <label class="form-label">Deductibility <span class="text-danger">*</span></label>
+                <div class="d-flex gap-3">
+                    <div class="flex-fill">
+                        <input type="radio" class="btn-check" name="is_deductible" id="ded_yes" value="1"
+                               {% if lt == None or lt.is_deductible %}checked{% endif %}>
+                        <label class="btn btn-outline-warning w-100 p-3 text-center" for="ded_yes" style="border-radius:12px;">
+                            <i class="bi bi-dash-circle-fill d-block fs-3 mb-1" style="color:#b45309;"></i>
+                            <strong>Deductible</strong>
+                            <div style="font-size:.72rem;color:#92400e;margin-top:4px;">Subtracts from annual balance</div>
+                        </label>
+                    </div>
+                    <div class="flex-fill">
+                        <input type="radio" class="btn-check" name="is_deductible" id="ded_no" value="0"
+                               {% if lt and not lt.is_deductible %}checked{% endif %}>
+                        <label class="btn btn-outline-success w-100 p-3 text-center" for="ded_no" style="border-radius:12px;">
+                            <i class="bi bi-shield-check-fill d-block fs-3 mb-1" style="color:#15803d;"></i>
+                            <strong>Non-Deductible</strong>
+                            <div style="font-size:.72rem;color:#166534;margin-top:4px;">Does not affect balance</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badge colour -->
+            <div class="mb-4">
+                <label class="form-label">Badge Colour</label>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for color_val, color_label in colors %}
+                    <div>
+                        <input type="radio" class="btn-check" name="color" id="color_{{ color_val }}" value="{{ color_val }}"
+                               {% if lt.color == color_val or not lt and color_val == 'primary' %}checked{% endif %}>
+                        <label class="btn btn-{{ color_val }} btn-sm px-3" for="color_{{ color_val }}"
+                               style="border-radius:20px;font-size:.78rem;">{{ color_label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Requires document -->
+            <div class="mb-4">
+                <label class="form-label">Supporting Document Required?</label>
+                <div class="d-flex gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="requires_document" id="doc_yes" value="1"
+                               {% if lt and lt.requires_document %}checked{% endif %}>
+                        <label class="form-check-label" for="doc_yes">Yes — employee must attach a document</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="requires_document" id="doc_no" value="0"
+                               {% if not lt or not lt.requires_document %}checked{% endif %}>
+                        <label class="form-check-label" for="doc_no">No — document is optional</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active -->
+            <div class="mb-4">
+                <label class="form-label">Status</label>
+                <div class="d-flex gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="is_active" id="active_yes" value="1"
+                               {% if not lt or lt.is_active %}checked{% endif %}>
+                        <label class="form-check-label" for="active_yes">
+                            <span class="badge bg-success me-1">Active</span> — visible to employees
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="is_active" id="active_no" value="0"
+                               {% if lt and not lt.is_active %}checked{% endif %}>
+                        <label class="form-check-label" for="active_no">
+                            <span class="badge bg-secondary me-1">Inactive</span> — hidden from apply form
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i>{{ action }} Leave Type
+                </button>
+                <a href="{% url 'leaves:leave_type_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,419 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Approval Letter — {{ leave.employee.get_full_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px 60px;
+        }
+
+        /* ─── Print actions bar (hidden when printing) ─── */
+        .print-bar {
+            width: 100%;
+            max-width: 780px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #0A4D68, #0891a8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-print:hover { background: linear-gradient(135deg, #0c5a7a, #0da8c0); transform: translateY(-1px); }
+
+        .btn-back {
+            background: white;
+            color: #0A4D68;
+            border: 1.5px solid #cde8ef;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: #e8f6f9; color: #0A4D68; }
+
+        /* ─── Document ─── */
+        .document {
+            width: 100%;
+            max-width: 780px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+            overflow: hidden;
+        }
+
+        /* Header band */
+        .doc-header {
+            background: white;
+            border-bottom: 3px solid #0891a8;
+            padding: 28px 40px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .doc-logo-box {
+            flex-shrink: 0;
+        }
+        .doc-logo-box img {
+            height: 56px;
+            width: auto;
+            display: block;
+        }
+
+        .doc-header-text { flex: 1; text-align: right; }
+        .doc-header-text h1 {
+            color: #0A4D68;
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+        .doc-header-text p {
+            color: #6b7a8d;
+            font-size: 0.78rem;
+            margin-top: 2px;
+        }
+
+        /* Title banner */
+        .doc-title-band {
+            background: #e0f7fa;
+            border-top: 3px solid #0891a8;
+            border-bottom: 1px solid #cde8ef;
+            padding: 16px 40px;
+            text-align: center;
+        }
+        .doc-title-band h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0A4D68;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .doc-title-band p {
+            font-size: 0.78rem;
+            color: #5a7a8d;
+            margin-top: 2px;
+        }
+
+        /* Body */
+        .doc-body { padding: 36px 40px; }
+
+        .ref-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #6b7a8d;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed #cde8ef;
+        }
+        .ref-line strong { color: #0d1b2a; }
+
+        .salutation {
+            font-size: 0.95rem;
+            color: #0d1b2a;
+            margin-bottom: 14px;
+        }
+
+        .letter-body {
+            font-size: 0.9rem;
+            color: #2d3a4a;
+            line-height: 1.8;
+            margin-bottom: 28px;
+        }
+
+        /* Details table */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 28px;
+            font-size: 0.875rem;
+        }
+        .detail-table th {
+            background: #f0f8fb;
+            color: #0A4D68;
+            font-weight: 700;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 10px 16px;
+            border: 1px solid #cde8ef;
+            text-align: left;
+        }
+        .detail-table td {
+            padding: 10px 16px;
+            border: 1px solid #cde8ef;
+            color: #2d3a4a;
+        }
+        .detail-table tr:nth-child(even) td { background: #fafeff; }
+
+        .closing { font-size: 0.9rem; color: #2d3a4a; line-height: 1.7; margin-bottom: 36px; }
+
+        /* Signature section */
+        .sig-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .sig-block { flex: 1; }
+        .sig-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6b7a8d;
+            margin-bottom: 40px;
+        }
+        .sig-line {
+            border-top: 1.5px solid #0891a8;
+            padding-top: 8px;
+        }
+        .sig-name { font-weight: 700; font-size: 0.875rem; color: #0d1b2a; }
+        .sig-title { font-size: 0.75rem; color: #6b7a8d; }
+        .sig-date { font-size: 0.72rem; color: #6b7a8d; margin-top: 2px; }
+
+        /* Stamp / approved badge */
+        .approved-stamp {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 28px;
+        }
+        .stamp-box {
+            border: 3px solid #0d6832;
+            border-radius: 8px;
+            padding: 10px 28px;
+            text-align: center;
+            transform: rotate(-3deg);
+            display: inline-block;
+        }
+        .stamp-box .stamp-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0d6832;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        .stamp-box .stamp-sub {
+            font-size: 0.65rem;
+            color: #0d6832;
+            letter-spacing: 0.1em;
+        }
+
+        /* Footer */
+        .doc-footer {
+            background: #f5fbfc;
+            border-top: 1px solid #cde8ef;
+            padding: 14px 40px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #9ab4c0;
+        }
+
+        /* ─── PRINT MEDIA ─── */
+        @media print {
+            body { background: white; padding: 0; }
+            .print-bar { display: none; }
+            .document {
+                box-shadow: none;
+                border-radius: 0;
+                max-width: 100%;
+            }
+            @page { margin: 1.5cm; size: A4; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Action bar (screen only) -->
+<div class="print-bar">
+    <a href="javascript:history.back()" class="btn-back">
+        &#8592; Back to Request
+    </a>
+    <button class="btn-print" onclick="window.print()">
+        &#128438; Print / Save as PDF
+    </button>
+</div>
+
+<!-- Official Document -->
+<div class="document">
+
+    <!-- Header -->
+    <div class="doc-header">
+        <div class="doc-logo-box">
+            <img src="{% static 'LOGO.png' %}" alt="Magrabi ICO Cameroon Eye Institute">
+        </div>
+        <div class="doc-header-text">
+            <h1>Magrabi ICO Cameroon Eye Institute</h1>
+            <p>Human Resources Department · Staff Leave Management</p>
+        </div>
+    </div>
+
+    <!-- Title Band -->
+    <div class="doc-title-band">
+        <h2>Leave Approval Notice</h2>
+        <p>Official document confirming approved staff leave</p>
+    </div>
+
+    <!-- Body -->
+    <div class="doc-body">
+
+        <!-- Reference and date -->
+        <div class="ref-line">
+            <span>Ref: <strong>LV-{{ leave.pk|stringformat:"05d" }}</strong></span>
+            <span>Date Issued: <strong>{{ leave.hr_action_date|date:"F d, Y" }}</strong></span>
+        </div>
+
+        <!-- Approved stamp -->
+        <div class="approved-stamp">
+            <div class="stamp-box">
+                <div class="stamp-text">APPROVED</div>
+                <div class="stamp-sub">Human Resources</div>
+            </div>
+        </div>
+
+        <p class="salutation">Dear <strong>{{ leave.employee.get_full_name }}</strong>,</p>
+
+        <p class="letter-body">
+            We are pleased to inform you that your leave request has been reviewed and <strong>fully approved</strong>
+            by the Human Resources Department. Please find the details of your approved leave below.
+            Kindly ensure that all pending duties are handed over to the appropriate colleague before
+            the commencement of your leave.
+        </p>
+
+        <!-- Leave details table -->
+        <table class="detail-table">
+            <tr>
+                <th>Employee Name</th>
+                <td><strong>{{ leave.employee.get_full_name }}</strong></td>
+                <th>Employee ID</th>
+                <td>{{ leave.employee.employee_id }}</td>
+            </tr>
+            <tr>
+                <th>Department</th>
+                <td>{{ leave.employee.department|default:"—" }}</td>
+                <th>Position</th>
+                <td>{{ leave.employee.position|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Leave Type</th>
+                <td>{{ leave.leave_type }}</td>
+                <th>Total Days</th>
+                <td><strong>{{ leave.total_days }} day{{ leave.total_days|pluralize }}</strong></td>
+            </tr>
+            <tr>
+                <th>Start Date</th>
+                <td><strong>{{ leave.start_date|date:"F d, Y" }}</strong></td>
+                <th>End Date</th>
+                <td><strong>{{ leave.end_date|date:"F d, Y" }}</strong></td>
+            </tr>
+            {% if leave.manager_action_by %}
+            <tr>
+                <th>Manager Approval</th>
+                <td>{{ leave.manager_action_by.get_full_name }}</td>
+                <th>Manager Approval Date</th>
+                <td>{{ leave.manager_action_date|date:"F d, Y" }}</td>
+            </tr>
+            {% endif %}
+            {% if leave.hr_action_by %}
+            <tr>
+                <th>HR Approval</th>
+                <td>{{ leave.hr_action_by.get_full_name }}</td>
+                <th>HR Approval Date</th>
+                <td>{{ leave.hr_action_date|date:"F d, Y" }}</td>
+            </tr>
+            {% endif %}
+            {% if leave.director_action_by %}
+            <tr>
+                <th>Director Approval</th>
+                <td>{{ leave.director_action_by.get_full_name }}</td>
+                <th>Director Approval Date</th>
+                <td>{{ leave.director_action_date|date:"F d, Y" }}</td>
+            </tr>
+            {% endif %}
+            {% if leave.reason %}
+            <tr>
+                <th>Reason</th>
+                <td colspan="3">{{ leave.reason }}</td>
+            </tr>
+            {% endif %}
+        </table>
+
+        <p class="closing">
+            This letter serves as official confirmation of your approved leave. Please retain a copy
+            for your personal records. Should you need to return before your scheduled date, kindly
+            inform Human Resources immediately.<br><br>
+            We wish you a restful and pleasant leave.
+        </p>
+
+        <!-- Signatures -->
+        <div class="sig-section">
+            <div class="sig-block">
+                <div class="sig-label">Approved by — Line Manager</div>
+                <div class="sig-line">
+                    <div class="sig-name">{{ leave.manager_action_by.get_full_name|default:"N/A" }}</div>
+                    <div class="sig-title">Line Manager</div>
+                    <div class="sig-date">{{ leave.manager_action_date|date:"d M Y" }}</div>
+                </div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-label">Approved by — Human Resources</div>
+                <div class="sig-line">
+                    <div class="sig-name">{{ leave.hr_action_by.get_full_name|default:"N/A" }}</div>
+                    <div class="sig-title">HR Administrator</div>
+                    <div class="sig-date">{{ leave.hr_action_date|date:"d M Y" }}</div>
+                </div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-label">Final Approval — Administration Director</div>
+                <div class="sig-line">
+                    <div class="sig-name">{{ leave.director_action_by.get_full_name|default:"N/A" }}</div>
+                    <div class="sig-title">Administration Director</div>
+                    <div class="sig-date">{{ leave.director_action_date|date:"d M Y" }}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="doc-footer">
+        Magrabi ICO Cameroon Eye Institute &mdash; Human Resources Department &mdash; Confidential Document
+        &nbsp;&bull;&nbsp; Generated by LeaveDesk HR System
+    </div>
+
+</div>
+
+</body>
+</html>

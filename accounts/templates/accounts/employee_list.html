@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
-{% block title %}Employees — LeaveDesk{% endblock %}
-{% block page_title %}Employee Management{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Employees" %} — LeaveDesk{% endblock %}
+{% block page_title %}{% trans "Employee Management" %}{% endblock %}
 {% block page_subtitle %}Manage all hospital staff{% endblock %}
 {% block nav_employees %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'accounts:employee_create' %}" class="btn btn-primary btn-sm me-1">
-    <i class="bi bi-person-plus me-1"></i>Add Employee
+    <i class="bi bi-person-plus me-1"></i>{% trans "Add Employee" %}
 </a>
 {% endblock %}
 
@@ -15,21 +16,21 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-people me-2"></i>All Employees <span class="badge bg-primary ms-1">{{ employees|length }}</span></span>
         <a href="{% url 'accounts:employee_create' %}" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus-lg me-1"></i>Add New
+            <i class="bi bi-plus-lg me-1"></i>{% trans "Add New" %}
         </a>
     </div>
     <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
         <table class="table mb-0" style="min-width: 900px; white-space: nowrap;">
             <thead>
                 <tr>
-                    <th style="min-width:200px;">Employee</th>
-                    <th style="min-width:110px;">ID</th>
-                    <th style="min-width:140px;">Department</th>
-                    <th style="min-width:150px;">Position</th>
-                    <th style="min-width:110px;">Role</th>
-                    <th style="min-width:160px;">Supervisor</th>
-                    <th style="min-width:90px;">Status</th>
-                    <th style="min-width:100px;">Actions</th>
+                    <th style="min-width:200px;">{% trans "Employee" %}</th>
+                    <th style="min-width:110px;">{% trans "ID" %}</th>
+                    <th style="min-width:140px;">{% trans "Department" %}</th>
+                    <th style="min-width:150px;">{% trans "Position" %}</th>
+                    <th style="min-width:110px;">{% trans "Role" %}</th>
+                    <th style="min-width:160px;">{% trans "Supervisor" %}</th>
+                    <th style="min-width:90px;">{% trans "Status" %}</th>
+                    <th style="min-width:100px;">{% trans "Actions" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,15 +56,18 @@
                     <td style="font-size:.82rem;">{{ emp.supervisor.get_full_name|default:"—" }}</td>
                     <td>
                         {% if emp.is_active %}
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge bg-success">{% trans "Active" %}</span>
                         {% else %}
-                        <span class="badge bg-secondary">Inactive</span>
+                        <span class="badge bg-secondary">{% trans "Inactive" %}</span>
                         {% endif %}
                     </td>
                     <td>
                         <div class="d-flex gap-1">
                             <a href="{% url 'accounts:employee_edit' emp.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
                                 <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'accounts:reset_credentials' emp.pk %}" class="btn btn-sm btn-outline-warning" title="Reset Password / Username">
+                                <i class="bi bi-key"></i>
                             </a>
                             <a href="{% url 'accounts:employee_delete' emp.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
                                 <i class="bi bi-trash"></i>
@@ -75,7 +79,7 @@
                 <tr>
                     <td colspan="8" class="text-center text-muted py-5">
                         <i class="bi bi-people fs-2 d-block mb-2"></i>
-                        No employees yet. <a href="{% url 'accounts:employee_create' %}">Add the first one</a>
+                        {% trans "No employees yet." %} <a href="{% url 'accounts:employee_create' %}">{% trans "Add the first one" %}</a>
                     </td>
                 </tr>
                 {% endfor %}

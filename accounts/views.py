@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from .models import Employee, Department
-from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm
+from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm
 
 
 def login_view(request):
@@ -31,7 +31,8 @@ def profile_view(request):
     except Employee.DoesNotExist:
         messages.error(request, "No employee profile found.")
         return redirect('dashboard:home')
-    return render(request, 'accounts/profile.html', {'employee': employee})
+    change_form = ChangePasswordForm(request.user)
+    return render(request, 'accounts/profile.html', {'employee': employee, 'change_form': change_form})
 
 
 def hr_required(view_func):
@@ -124,3 +125,31 @@ def department_delete(request, pk):
         dept.delete()
         messages.success(request, "Department deleted.")
     return redirect('accounts:department_list')
+
+
+@login_required
+def change_password(request):
+    """Allows any logged-in user to change their own password."""
+    from django.contrib.auth import update_session_auth_hash
+    form = ChangePasswordForm(request.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        update_session_auth_hash(request, request.user)  # keep user logged in
+        messages.success(request, "Password changed successfully.")
+        return redirect('accounts:profile')
+    return render(request, 'accounts/change_password.html', {'form': form})
+
+
+@superuser_required
+def admin_reset_credentials(request, pk):
+    """Allows superuser to reset any employee's username and/or password."""
+    employee = get_object_or_404(Employee, pk=pk)
+    form = AdminResetCredentialsForm(employee.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, f"Credentials updated for {employee.get_full_name()}.")
+        return redirect('accounts:employee_list')
+    return render(request, 'accounts/admin_reset_credentials.html', {
+        'form': form,
+        'employee': employee,
+    })

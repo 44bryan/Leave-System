@@ -13,4 +13,6 @@ urlpatterns = [
     path('employees/<int:pk>/delete/', views.employee_delete, name='employee_delete'),
     path('departments/', views.department_list, name='department_list'),
     path('departments/<int:pk>/delete/', views.department_delete, name='department_delete'),
+    path('profile/change-password/', views.change_password, name='change_password'),
+    path('employees/<int:pk>/reset-credentials/', views.admin_reset_credentials, name='reset_credentials'),
 ]

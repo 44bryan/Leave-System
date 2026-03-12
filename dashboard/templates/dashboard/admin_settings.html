@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}System Settings — LeaveDesk{% endblock %}
+{% block page_title %}System Settings{% endblock %}
+{% block nav_dashboard %}{% endblock %}
+
+{% block topbar_actions %}
+<form method="get" class="d-flex align-items-center gap-2">
+    <select name="year" class="form-select form-select-sm" style="width:100px;" onchange="this.form.submit()">
+        {% for y in years %}
+        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+    </select>
+</form>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+    <!-- ── Reset Leave Balances ───────────────────────────── -->
+    <div class="col-lg-6">
+        <div class="card animate-in">
+            <div class="card-header" style="background:#fff8e1;border-color:#fcd34d;">
+                <i class="bi bi-arrow-counterclockwise me-2" style="color:#b45309;"></i>
+                <strong>Reset Leave Balances</strong>
+            </div>
+            <div class="card-body p-4">
+                <p style="font-size:.875rem;color:#4a6b7c;">
+                    This will reset every active employee's <strong>annual entitlement back to 18 days</strong> for the selected year.
+                    Leave request history is <strong>not deleted</strong> — only the entitlement ceiling is restored.
+                </p>
+                <div class="alert" style="background:#fff3cd;border-color:#ffc107;border-left:4px solid #f57f17;font-size:.82rem;border-radius:10px;">
+                    <i class="bi bi-exclamation-triangle me-2" style="color:#b45309;"></i>
+                    Affects <strong>{{ balances|length }} employees</strong> for year <strong>{{ year }}</strong>.
+                    This cannot be undone.
+                </div>
+                <form method="post" action="{% url 'dashboard:reset_balances' %}"
+                      onsubmit="return confirm('Reset all leave balances to 18 days for {{ year }}?  This cannot be undone.');">
+                    {% csrf_token %}
+                    <input type="hidden" name="year" value="{{ year }}">
+                    <button type="submit" class="btn btn-warning px-4">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>Reset All Balances — {{ year }}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current balances preview -->
+        <div class="card animate-in delay-1 mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-table me-2"></i>Current Balances — {{ year }}</span>
+                <span class="badge bg-primary">{{ balances|length }}</span>
+            </div>
+            <div style="max-height:320px;overflow-y:auto;">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th class="text-center">Entitlement</th>
+                            <th class="text-center">Used</th>
+                            <th class="text-center">Remaining</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in balances %}
+                        <tr>
+                            <td style="font-size:.8rem;">
+                                <strong>{{ item.employee.get_full_name }}</strong>
+                                <div style="font-size:.68rem;color:#6b7a8d;">{{ item.employee.employee_id }}</div>
+                            </td>
+                            <td class="text-center"><span class="badge bg-primary">{{ item.balance.total_entitlement }}</span></td>
+                            <td class="text-center"><span class="badge bg-light text-dark border">{{ item.balance.used_days }}</span></td>
+                            <td class="text-center">
+                                <span class="badge {% if item.balance.remaining_days == 0 %}bg-danger{% elif item.balance.remaining_days <= 3 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                    {{ item.balance.remaining_days }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex gap-1 justify-content-center align-items-center flex-wrap">
+                                    <!-- Reset to 18 -->
+                                    <form method="post" action="{% url 'dashboard:reset_single_balance' item.employee.pk %}"
+                                          onsubmit="return confirm('Reset {{ item.employee.get_full_name }} to 18 days for {{ year }}?');"
+                                          style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="year" value="{{ year }}">
+                                        <button type="submit" class="btn btn-xs btn-warning"
+                                                style="font-size:.7rem;padding:2px 8px;" title="Reset to 18 days">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                        </button>
+                                    </form>
+                                    <!-- Adjust entitlement -->
+                                    <button class="btn btn-xs btn-outline-primary"
+                                            style="font-size:.7rem;padding:2px 8px;"
+                                            title="Set custom entitlement"
+                                            onclick="openAdjust({{ item.employee.pk }}, '{{ item.employee.get_full_name|escapejs }}', {{ item.balance.total_entitlement }})">
+                                        <i class="bi bi-pencil"></i> Adjust
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-muted py-3">No employees found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Backup & Restore ──────────────────────────────── -->
+    <div class="col-lg-6">
+
+        <!-- Export -->
+        <div class="card animate-in delay-2 mb-4">
+            <div class="card-header" style="background:#e8f5e9;border-color:#86efac;">
+                <i class="bi bi-cloud-download me-2" style="color:#2e7d32;"></i>
+                <strong>Export / Backup</strong>
+            </div>
+            <div class="card-body p-4">
+                <p style="font-size:.875rem;color:#4a6b7c;">
+                    Download a complete JSON backup of the system including all employees, departments,
+                    leave types, balances, and leave requests.
+                </p>
+                <div class="d-flex gap-2 flex-wrap mb-3">
+                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">
+                        <i class="bi bi-people me-1"></i>Employees
+                    </div>
+                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">
+                        <i class="bi bi-building me-1"></i>Departments
+                    </div>
+                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">
+                        <i class="bi bi-calendar-check me-1"></i>Leave Requests
+                    </div>
+                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">
+                        <i class="bi bi-bar-chart me-1"></i>Balances
+                    </div>
+                </div>
+                <a href="{% url 'dashboard:export_data' %}" class="btn px-4" style="background:#2e7d32;color:white;border:none;">
+                    <i class="bi bi-download me-2"></i>Download Backup (.json)
+                </a>
+            </div>
+        </div>
+
+        <!-- Import -->
+        <div class="card animate-in delay-3">
+            <div class="card-header" style="background:#fff3e0;border-color:#ffcc80;">
+                <i class="bi bi-cloud-upload me-2" style="color:#e65100;"></i>
+                <strong>Import / Restore</strong>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert" style="background:#fce4ec;border-color:#f48fb1;border-left:4px solid #e53e3e;font-size:.82rem;border-radius:10px;margin-bottom:16px;">
+                    <i class="bi bi-exclamation-triangle me-2" style="color:#c62828;"></i>
+                    <strong>Warning:</strong> Importing will overwrite existing records with matching IDs.
+                    Only import a backup file generated by this system. Create a fresh backup first.
+                </div>
+                <form method="post" action="{% url 'dashboard:import_data' %}" enctype="multipart/form-data"
+                      onsubmit="return confirm('Import this backup? Existing data with matching IDs will be overwritten.');">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600;">Select Backup File (.json)</label>
+                        <input type="file" name="backup_file" accept=".json" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="bi bi-upload me-2"></i>Import Backup
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Danger Zone ─────────────────────────────────────── -->
+<div class="row g-4 mt-1">
+    <div class="col-12">
+        <div class="card" style="border:2px solid #dc2626;">
+            <div class="card-header" style="background:#fef2f2;border-color:#dc2626;">
+                <i class="bi bi-exclamation-octagon-fill me-2" style="color:#dc2626;"></i>
+                <strong style="color:#dc2626;">Danger Zone — Factory Reset</strong>
+            </div>
+            <div class="card-body p-4">
+                <p style="font-size:.85rem;color:#4a6b7c;margin-bottom:20px;">
+                    These actions are <strong>irreversible</strong>. Create a backup first.
+                    Both options require you to type a confirmation phrase exactly before proceeding.
+                </p>
+                <div class="row g-4">
+
+                    <!-- Soft Reset -->
+                    <div class="col-lg-6">
+                        <div style="border:1px solid #fca5a5;border-radius:12px;padding:20px;background:#fff8f8;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-eraser-fill fs-5" style="color:#b91c1c;"></i>
+                                <strong style="color:#b91c1c;">Soft Reset — Clear Leave Data</strong>
+                            </div>
+                            <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
+                                Deletes all <strong>leave requests</strong>, <strong>leave balances</strong>,
+                                and <strong>leave types</strong>.<br>
+                                <span style="color:#059669;font-weight:600;">Keeps:</span>
+                                all user accounts, employee profiles, and departments.
+                            </p>
+                            <form method="post" action="{% url 'dashboard:factory_reset_soft' %}"
+                                  onsubmit="return validateReset(this, 'RESET LEAVE DATA');">
+                                {% csrf_token %}
+                                <label class="form-label" style="font-size:.8rem;font-weight:600;">
+                                    Type <code>RESET LEAVE DATA</code> to confirm
+                                </label>
+                                <input type="text" name="confirm_text" class="form-control mb-3"
+                                       placeholder="RESET LEAVE DATA" autocomplete="off"
+                                       style="font-size:.85rem;border-color:#fca5a5;">
+                                <button type="submit" class="btn btn-danger w-100" style="font-size:.85rem;">
+                                    <i class="bi bi-eraser me-1"></i>Clear All Leave Data
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Full Factory Reset -->
+                    <div class="col-lg-6">
+                        <div style="border:2px solid #dc2626;border-radius:12px;padding:20px;background:#fff1f2;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-fire fs-5" style="color:#7f1d1d;"></i>
+                                <strong style="color:#7f1d1d;">Full Factory Reset</strong>
+                            </div>
+                            <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
+                                Deletes <strong>everything</strong> — all employees, departments,
+                                leave data, and all user accounts except the admin.<br>
+                                Admin username and password are reset to <code>admin</code> / <code>admin</code>.
+                                You will be forced to change the password on first login.
+                            </p>
+                            <form method="post" action="{% url 'dashboard:factory_reset_full' %}"
+                                  onsubmit="return validateReset(this, 'RESET EVERYTHING');">
+                                {% csrf_token %}
+                                <label class="form-label" style="font-size:.8rem;font-weight:600;">
+                                    Type <code>RESET EVERYTHING</code> to confirm
+                                </label>
+                                <input type="text" name="confirm_text" class="form-control mb-3"
+                                       placeholder="RESET EVERYTHING" autocomplete="off"
+                                       style="font-size:.85rem;border-color:#dc2626;">
+                                <button type="submit" class="btn w-100"
+                                        style="background:#7f1d1d;color:white;border:none;font-size:.85rem;">
+                                    <i class="bi bi-fire me-1"></i>Full Factory Reset
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Adjust Entitlement Modal -->
+<div class="modal fade" id="adjustModal" tabindex="-1" aria-labelledby="adjustModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#f0f9ff;border-color:#bae6fd;">
+                <h6 class="modal-title" id="adjustModalLabel"><i class="bi bi-pencil me-2"></i>Adjust Entitlement</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="adjustForm" method="post" action="">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p id="adjustEmployeeName" style="font-size:.85rem;font-weight:600;margin-bottom:12px;"></p>
+                    <input type="hidden" name="year" value="{{ year }}">
+                    <label class="form-label" style="font-size:.82rem;font-weight:600;">New Entitlement (days)</label>
+                    <input type="number" name="entitlement" id="adjustValue" class="form-control" min="0" max="365" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openAdjust(pk, name, current) {
+    document.getElementById('adjustEmployeeName').textContent = name;
+    document.getElementById('adjustValue').value = current;
+    document.getElementById('adjustForm').action = '/dashboard/admin-settings/adjust-entitlement/' + pk + '/';
+    new bootstrap.Modal(document.getElementById('adjustModal')).show();
+}
+
+function validateReset(form, expected) {
+    var typed = form.querySelector('[name="confirm_text"]').value.trim();
+    if (typed !== expected) {
+        alert('Confirmation text does not match. Reset cancelled.\n\nYou must type: ' + expected);
+        return false;
+    }
+    return confirm(
+        'THIS CANNOT BE UNDONE.\n\nAre you absolutely sure you want to proceed with this reset?'
+    );
+}
+</script>
+{% endblock %}

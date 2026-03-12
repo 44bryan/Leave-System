@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py shell -c \"from leaves.models import LeaveType; [print\\(f''{lt.name} | Deductible={lt.is_deductible}''\\) for lt in LeaveType.objects.all\\(\\)]\")",
+      "Bash(taskkill /F /IM python.exe)"
+    ]
+  }
+}
