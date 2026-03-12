@@ -667,35 +667,39 @@
             /* Sidebar mobile footer */
             .sidebar-mobile-footer {
                 display: flex;
-                align-items: center;
-                justify-content: space-around;
-                padding: 12px 16px;
+                flex-direction: column;
+                padding: 8px 12px 12px;
                 border-top: 1px solid #cde8ef;
                 background: white;
-                margin-top: 0;
+                gap: 2px;
             }
-            .sidebar-icon-btn {
-                width: 44px; height: 44px;
-                border-radius: 12px;
-                border: 1.5px solid #cde8ef;
-                background: white;
-                color: #4a6b7c;
-                font-size: 1.1rem;
-                display: flex; align-items: center; justify-content: center;
-                cursor: pointer; text-decoration: none;
-                transition: all 0.18s;
-            }
-            .sidebar-icon-btn:hover, .sidebar-icon-btn.show {
-                border-color: #0891a8;
-                color: #0891a8;
-                background: #f0fafc;
-            }
-            .sidebar-icon-btn::after { display: none; }
-            .sidebar-user-mini {
+            .sidebar-footer-item {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                flex: 1;
+                gap: 10px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                color: #4a6b7c;
+                text-decoration: none;
+                font-size: 0.875rem;
+                font-weight: 500;
+                border: none;
+                background: none;
+                width: 100%;
+                text-align: left;
+                cursor: pointer;
+                transition: all 0.18s;
+            }
+            .sidebar-footer-item:hover, .sidebar-footer-item.show {
+                background: #e0f5f8;
+                color: #0891a8;
+            }
+            .sidebar-footer-item::after { display: none; }
+            .sidebar-footer-icon {
+                font-size: 1rem;
+                width: 20px;
+                text-align: center;
+                flex-shrink: 0;
             }
         }
 
@@ -806,10 +810,35 @@
 
     <div class="logo-bar-right">
 
-        <!-- Mobile: search icon only -->
-        <button class="mobile-search-btn" id="mobileSearchBtn" type="button" title="{% trans 'Search' %}">
-            <i class="bi bi-search"></i>
-        </button>
+        <!-- Mobile: search icon + language icon -->
+        <div class="d-flex align-items-center gap-2 d-lg-none">
+            <button class="mobile-search-btn" id="mobileSearchBtn" type="button" title="{% trans 'Search' %}">
+                <i class="bi bi-search"></i>
+            </button>
+            {% get_current_language as CURRENT_LANG %}
+            <div class="dropdown">
+                <button class="mobile-search-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" title="{% trans 'Language' %}" style="border:1.5px solid #cde8ef;">
+                    <i class="bi bi-globe2"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end topbar-dropdown" style="min-width:160px;">
+                    <li><div style="padding:8px 12px 4px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#9ab4c0; font-weight:700;">{% trans "Language" %}</div></li>
+                    <li>
+                        <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
+                            <input type="hidden" name="language" value="en">
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'en' %}fw-bold text-primary{% endif %}"><i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'en' %}invisible{% endif %}"></i>English</button>
+                        </form>
+                    </li>
+                    <li>
+                        <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
+                            <input type="hidden" name="language" value="fr">
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'fr' %}fw-bold text-primary{% endif %}"><i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'fr' %}invisible{% endif %}"></i>Français</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
         <!-- Desktop: full controls -->
         {% get_current_language as CURRENT_LANG %}
@@ -1010,52 +1039,20 @@
 
     <!-- ─── MOBILE SIDEBAR FOOTER ─── -->
     <div class="sidebar-mobile-footer">
-        <!-- User mini -->
-        <div class="sidebar-user-mini">
-            <div class="user-avatar" style="width:34px;height:34px;font-size:0.75rem;">
-                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
-            </div>
-            <div style="min-width:0;">
-                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
-                <div class="user-role">{{ user.employee.role|default:"User" }}</div>
-            </div>
-        </div>
 
-        <!-- Language icon -->
-        <div class="dropdown dropup">
-            <button class="sidebar-icon-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" title="{% trans 'Language' %}">
-                <i class="bi bi-globe2"></i>
-            </button>
-            <ul class="dropdown-menu topbar-dropdown" style="min-width:160px;">
-                <li><div style="padding:8px 12px 4px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#9ab4c0; font-weight:700;">{% trans "Language" %}</div></li>
-                <li>
-                    <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
-                        <input type="hidden" name="language" value="en">
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'en' %}fw-bold text-primary{% endif %}"><i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'en' %}invisible{% endif %}"></i>English</button>
-                    </form>
-                </li>
-                <li>
-                    <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
-                        <input type="hidden" name="language" value="fr">
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'fr' %}fw-bold text-primary{% endif %}"><i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'fr' %}invisible{% endif %}"></i>Français</button>
-                    </form>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Profile icon -->
-        <a href="{% url 'accounts:profile' %}" class="sidebar-icon-btn" title="{% trans 'My Profile' %}">
-            <i class="bi bi-person-circle"></i>
+        <!-- Profile row -->
+        <a href="{% url 'accounts:profile' %}" class="sidebar-footer-item">
+            <div class="sidebar-footer-icon"><i class="bi bi-person-circle"></i></div>
+            <span>{% trans "My Profile" %}</span>
         </a>
 
-        <!-- Settings icon -->
-        <div class="dropdown dropup">
-            <button class="sidebar-icon-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" title="{% trans 'Settings' %}">
-                <i class="bi bi-gear-fill"></i>
+        <!-- Settings row -->
+        <div class="dropdown dropup w-100">
+            <button class="sidebar-footer-item w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <div class="sidebar-footer-icon"><i class="bi bi-gear-fill"></i></div>
+                <span>{% trans "Settings" %}</span>
             </button>
-            <ul class="dropdown-menu topbar-dropdown" style="min-width:200px;">
+            <ul class="dropdown-menu topbar-dropdown w-100" style="min-width:200px;">
                 <li>
                     <div class="topbar-dropdown-header">
                         <div class="td-name">{{ user.get_full_name|default:user.username }}</div>
@@ -1070,6 +1067,7 @@
                 <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}</a></li>
             </ul>
         </div>
+
     </div>
 
 </aside>
