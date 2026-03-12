@@ -242,15 +242,22 @@
         }
 
         /* ─── PRINT MEDIA ─── */
+        @page { margin: 1.5cm; size: A4 portrait; }
         @media print {
-            body { background: white; padding: 0; }
+            body {
+                background: white;
+                padding: 0;
+                display: block;
+                align-items: unset;
+                min-height: unset;
+            }
             .print-bar { display: none; }
             .document {
                 box-shadow: none;
                 border-radius: 0;
                 max-width: 100%;
+                width: 100%;
             }
-            @page { margin: 1.5cm; size: A4; }
         }
     </style>
 </head>
