@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -209,7 +209,7 @@
 <div class="login-left">
     <div class="left-content">
         <div class="hospital-icon">
-            <img src="/static/LOGO.png" alt="Magrabi ICO Cameroon Eye Institute">
+            <img src="{% static 'LOGO.png' %}" alt="Magrabi ICO Cameroon Eye Institute">
         </div>
         <p class="hospital-tagline">{% trans "Staff Leave Management Portal" %} —<br>{% trans "Streamlined HR administration for our teams." %}</p>
         <ul class="feature-list">
