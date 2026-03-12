@@ -1,0 +1,614 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$YYkem93GmfwB3eEcHTGGvw$9bnUF0GgNhVh0+cu6JRSHcDFi6UjjrYF96D8LUfQbXU=",
+    "last_login": "2026-03-12T08:30:57.487Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "System",
+    "last_name": "Admin",
+    "email": "admin@hospital.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-03-09T13:41:45.608Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$LvirQdcXOlkdXZn1WhKnfU$/VukYhLhFmkFL2zk6EqxUFkYGti8vfg37vlYuCp6UA4=",
+    "last_login": "2026-03-12T08:31:32.841Z",
+    "is_superuser": false,
+    "username": "bryan001",
+    "first_name": "Besong Bryan",
+    "last_name": "Ebai",
+    "email": "besongbryan5@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-09T14:21:26.396Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$hIKEeCdTOy7Jel06ISd3Pn$n4OCaFYF6q7ZG43x46CuOWSLYU3oCZh7Zcv2l3WKUiY=",
+    "last_login": "2026-03-10T21:50:48.744Z",
+    "is_superuser": false,
+    "username": "roland001",
+    "first_name": "Agwe",
+    "last_name": "Roland",
+    "email": "agwe890@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-09T14:25:32.847Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$kLqILqv9zHnuacf6Ue0v3Q$MKy5vUL8dXySKGU+JcMZQJWKZyYGF6X66yX40G3QYKM=",
+    "last_login": "2026-03-10T21:51:48.148Z",
+    "is_superuser": false,
+    "username": "norbert",
+    "first_name": "Norbert",
+    "last_name": "Fonyein",
+    "email": "norbert@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-09T14:31:38.275Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$UzuYrBi2pMVm01KJHBfJzb$gZoc9pLopYgblS2skLCikDfMyYVXlZo/wVIsUO/kzXE=",
+    "last_login": "2026-03-10T21:59:15.048Z",
+    "is_superuser": false,
+    "username": "bitom",
+    "first_name": "Bitom",
+    "last_name": "David",
+    "email": "db@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-09T14:33:01.213Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$nLytLxwd0dspOdXsqmwazG$VzyZ5w/7w5cV5QB8sdRPtBkEl4I31cLL0N0ZtsiG3Ts=",
+    "last_login": "2026-03-10T12:42:29.438Z",
+    "is_superuser": false,
+    "username": "chin",
+    "first_name": "Chin",
+    "last_name": "Basile",
+    "email": "chin@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-09T14:58:37.547Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$KshdJ2iadGR8RQerumgDId$+ogJDs9pnGmGawHYfzwCqKhixk8f2awwis7Wb8Lkv9g=",
+    "last_login": "2026-03-10T10:04:57.630Z",
+    "is_superuser": false,
+    "username": "tatah",
+    "first_name": "Tatah",
+    "last_name": "Milton",
+    "email": "tath@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-10T07:04:01.440Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$Jq73ZWBeZV5obK6PVjuRGl$ZLx0oypI0A723el+/N/qnyyrnjv4DrYduZQg2PtfJpo=",
+    "last_login": "2026-03-10T21:54:40.064Z",
+    "is_superuser": false,
+    "username": "ernest",
+    "first_name": "Ernest",
+    "last_name": "Mendah",
+    "email": "ernest@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-03-10T07:51:13.062Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "0bn31r49hy6ueql7iyq5qcex8kiwckw6",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pDCAC0u3fcMZIAZqRqalHZlvLtt0oVu_3vvv0XAbS1ha7SEKYur8OLyu0VMT6oHyA-s91mmua7LFOWhyJM2Oc6ZXrfT_Tso2Mpe9z04xd4YpZNmSxYdapUYM3YGPWQLCJnA6G6g6MgNbDlSBDZqN5z4fAHkZzgp:1vzuJY:rj4hZghXd79UPdU5WTpWzmxSVlAskbHEO0czaG6T5Iw",
+    "expire_date": "2026-03-24T10:27:48.060Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "48n3jeq5vx1giviyq5vnopug91xdh36d",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pDCAC0u3fcMZIAZqRqalHZlvLtt0oVu_3vvv0XAbS1ha7SEKYur8OLyu0VMT6oHyA-s91mmua7LFOWhyJM2Oc6ZXrfT_Tso2Mpe9z04xd4YpZNmSxYdapUYM3YGPWQLCJnA6G6g6MgNbDlSBDZqN5z4fAHkZzgp:1vzvYr:UO1RtXKhFxoNneErTZnhb5zFAJE0Eppkt9qHN6U5qH8",
+    "expire_date": "2026-03-24T11:47:41.866Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "57a60tc7wbswe6txoy08lw9uxlvrk6dr",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2hBghAGX7nsGAsNUqoYmpV0Z765NutDtf-_9l4hpW2vcOi9xKuIitBGn3zEnenDbSbmndpslzW1dpix3RR60y2Eu_Lwe7t9BTb1-6xEDqbNnbYlDRoOpOLLauECIzoJXMCJk6wlJZW-NBgtQICtmUg7E-wPy1zdM:1vzw2v:upbkcHe152nx8vfgrV6-0JLb3e31J5_OWYrKZSCnb9s",
+    "expire_date": "2026-03-24T12:18:45.803Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "7jn53lsbqzgmw5m60bofpq00589buikp",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlk26x-U9DmDtd61cQA5UpxUiLuTSCmgfTPz3iLiutS49jzHkcVVaC9Ov2NCeua2E35gu0-SprbMY5K7Ig_a5TBxft0O9--gYq9bDYGNRZXYQHGBgKwFj86jQQiqnLW2ikhlawOw4pCLyQY24DRRoYv4fAH8bTf7:1vzr8W:DCAxCf2uz6zkxR1VOZrPa6NNd8xLNNUbybhDLWZf_t0",
+    "expire_date": "2026-03-24T07:04:12.659Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "7xgnmncjepfooc42jmb07pppz9bgac0w",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlneteOsKek5g-Xf4gBypDipEHeHSCmgfTPzXsKHba1-62XxUxZnAVqcfscY0qO0neR7aLdZprmtyxTlrsiDdnmdc3leDvfvoIZevzWDtaQiYdaDUzlZRkKrNLEmO2KJisAFZcgxcxzVYAxggcjWQEGdxfsD3383HQ:1vzu0C:AOs8FSN6yzrH035Ilhc4hkQV_uuUzzqVt67b2U3QKZE",
+    "expire_date": "2026-03-24T10:07:48.457Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "bkwvvp6uoiz1ry0rxn06f742ladhpq6b",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlneteOsKek5g-Xf4gBypDipEHeHSCmgfTPzXsKHba1-62XxUxZnAVqcfscY0qO0neR7aLdZprmtyxTlrsiDdnmdc3leDvfvoIZevzWDtaQiYdaDUzlZRkKrNLEmO2KJisAFZcgxcxzVYAxggcjWQEGdxfsD3383HQ:1vzuCn:aB8nO1LsDFrKCUWP3_BnsbyjFWsDFHRjUmomC9sAHq4",
+    "expire_date": "2026-03-24T10:20:49.447Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "fdvpo5bo7jj2rehi4mhxe044gm8i46v0",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlneteOsKek5g-Xf4gBypDipEHeHSCmgfTPzXsKHba1-62XxUxZnAVqcfscY0qO0neR7aLdZprmtyxTlrsiDdnmdc3leDvfvoIZevzWDtaQiYdaDUzlZRkKrNLEmO2KJisAFZcgxcxzVYAxggcjWQEGdxfsD3383HQ:1vztwE:TcYKdvDlO-a9EIY0FEq9dB1JnxV1GfvM9yuhP2VbIqI",
+    "expire_date": "2026-03-24T10:03:42.863Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "iz9l5vrx9n6qzvmsb04zr5jq9gpelvcm",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlneteOsKek5g-Xf4gBypDipEHeHSCmgfTPzXsKHba1-62XxUxZnAVqcfscY0qO0neR7aLdZprmtyxTlrsiDdnmdc3leDvfvoIZevzWDtaQiYdaDUzlZRkKrNLEmO2KJisAFZcgxcxzVYAxggcjWQEGdxfsD3383HQ:1vzvgm:VhBoDmZpWwvLW3fuZRzmXV8G6SKLJQqUO4N5u23hm9o",
+    "expire_date": "2026-03-24T11:55:52.219Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "mgq3wxuruz716x6r9wmhzxwwxt7xyiga",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlneteOsKek5g-Xf4gBypDipEHeHSCmgfTPzXsKHba1-62XxUxZnAVqcfscY0qO0neR7aLdZprmtyxTlrsiDdnmdc3leDvfvoIZevzWDtaQiYdaDUzlZRkKrNLEmO2KJisAFZcgxcxzVYAxggcjWQEGdxfsD3383HQ:1vzvrV:gyPsSy9NIEGwq-0u83M40OCqaBf2CTv_Gd17zgfLreI",
+    "expire_date": "2026-03-24T12:06:57.036Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "mpc5hx1s46pxtt2g75gfa4jx5b1isd9y",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pDCAC0u3fcMZIAZqRqalHZlvLtt0oVu_3vvv0XAbS1ha7SEKYur8OLyu0VMT6oHyA-s91mmua7LFOWhyJM2Oc6ZXrfT_Tso2Mpe9z04xd4YpZNmSxYdapUYM3YGPWQLCJnA6G6g6MgNbDlSBDZqN5z4fAHkZzgp:1vzdcQ:fWEIwEGB7OxNAjGTQbERo6cdGSLFBhsWOPtlQDgHyKM",
+    "expire_date": "2026-03-23T16:38:10.919Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "mw98ezqffsjx6lm9tpbr47vjo1jqgmk1",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlneteOsKek5g-Xf4gBypDipEHeHSCmgfTPzXsKHba1-62XxUxZnAVqcfscY0qO0neR7aLdZprmtyxTlrsiDdnmdc3leDvfvoIZevzWDtaQiYdaDUzlZRkKrNLEmO2KJisAFZcgxcxzVYAxggcjWQEGdxfsD3383HQ:1vzuCn:aB8nO1LsDFrKCUWP3_BnsbyjFWsDFHRjUmomC9sAHq4",
+    "expire_date": "2026-03-24T10:20:49.532Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ojrseks69fy8jhwhh8glz7kitocetkch",
+  "fields": {
+    "session_data": ".eJxVjEsKwjAUAO-StYTmn7h03zOEvE9MVVpo2pV4dyl0oduZYd4il31ree-85onEVSgrLr8QCj55Pgw9ynxfJC7ztk4gj0SetstxIX7dzvZv0Epvx5eNttEFh1hBGbIuDUEPjsCgcqw1VYMxYR0Up0rBR8_BUirWR9CgxecL-U434A:1w056h:vHUUQDCOSWtAixWZb0PT2pAh0wLUlII0AtADOR7s1aM",
+    "expire_date": "2026-03-24T21:59:15.063Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "rtaflpms55abwel8sz4ke4kzgwpw9gme",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pDCAC0u3fcMZIAZqRqalHZlvLtt0oVu_3vvv0XAbS1ha7SEKYur8OLyu0VMT6oHyA-s91mmua7LFOWhyJM2Oc6ZXrfT_Tso2Mpe9z04xd4YpZNmSxYdapUYM3YGPWQLCJnA6G6g6MgNbDlSBDZqN5z4fAHkZzgp:1vzvlT:1u7_mc8wKi3-gf2Ck6qys5Fj72Fvwz3ytkNs-DGUaqc",
+    "expire_date": "2026-03-24T12:00:43.932Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "uoj605f9gtkv6nxtzkyxgwqerknw1tre",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGlneteOsKek5g-Xf4gBypDipEHeHSCmgfTPzXsKHba1-62XxUxZnAVqcfscY0qO0neR7aLdZprmtyxTlrsiDdnmdc3leDvfvoIZevzWDtaQiYdaDUzlZRkKrNLEmO2KJisAFZcgxcxzVYAxggcjWQEGdxfsD3383HQ:1vzuCq:7xDU6TXXkwuVFynpkFfVsPOYiMJ85t6aMkyrBpg5QNY",
+    "expire_date": "2026-03-24T10:20:52.103Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "vhxwn9w88f781bsonvaklq61qq9ixsui",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pDCAC0u3fcMZIAZqRqalHZlvLtt0oVu_3vvv0XAbS1ha7SEKYur8OLyu0VMT6oHyA-s91mmua7LFOWhyJM2Oc6ZXrfT_Tso2Mpe9z04xd4YpZNmSxYdapUYM3YGPWQLCJnA6G6g6MgNbDlSBDZqN5z4fAHkZzgp:1w057o:QaS2G9YefMKmwUgmBrjN8GT_9uJVFBmFAGPgnIMpndY",
+    "expire_date": "2026-03-24T22:00:24.028Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "zflz2gjj53wyxz1thxsspd5mt5kkb7uw",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2hBghAGX7nsGAsNUqoYmpV0Z765NutDtf-_9l4hpW2vcOi9xKuIitBGn3zEnenDbSbmndpslzW1dpix3RR60y2Eu_Lwe7t9BTb1-6xEDqbNnbYlDRoOpOLLauECIzoJXMCJk6wlJZW-NBgtQICtmUg7E-wPy1zdM:1vzvWp:7QK-Cz7ZEyUA-BO2gaXR2Crr6hbFxmWCsvgAhZbYlAA",
+    "expire_date": "2026-03-24T11:45:35.305Z"
+  }
+},
+{
+  "model": "accounts.department",
+  "pk": 2,
+  "fields": {
+    "name": "Human Resources",
+    "code": "HR"
+  }
+},
+{
+  "model": "accounts.department",
+  "pk": 5,
+  "fields": {
+    "name": "Pharmacy",
+    "code": "PHARM"
+  }
+},
+{
+  "model": "accounts.department",
+  "pk": 6,
+  "fields": {
+    "name": "IT & Support",
+    "code": "IT"
+  }
+},
+{
+  "model": "accounts.department",
+  "pk": 9,
+  "fields": {
+    "name": "Administration",
+    "code": "ADMIN"
+  }
+},
+{
+  "model": "accounts.department",
+  "pk": 10,
+  "fields": {
+    "name": "Facility",
+    "code": "FACI"
+  }
+},
+{
+  "model": "accounts.department",
+  "pk": 11,
+  "fields": {
+    "name": "Medical Record",
+    "code": "MR"
+  }
+},
+{
+  "model": "accounts.department",
+  "pk": 12,
+  "fields": {
+    "name": "Maintenance",
+    "code": "MTN"
+  }
+},
+{
+  "model": "accounts.employee",
+  "pk": 9,
+  "fields": {
+    "user": [
+      "admin"
+    ],
+    "employee_id": "ADM-001",
+    "department": null,
+    "role": "hr",
+    "supervisor": null,
+    "position": "System Administrator",
+    "phone": "",
+    "date_joined_company": null,
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.employee",
+  "pk": 10,
+  "fields": {
+    "user": [
+      "bryan001"
+    ],
+    "employee_id": "AEF157",
+    "department": 6,
+    "role": "employee",
+    "supervisor": 12,
+    "position": "IT ASSISTANT",
+    "phone": "676249185",
+    "date_joined_company": "2025-01-01",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.employee",
+  "pk": 12,
+  "fields": {
+    "user": [
+      "roland001"
+    ],
+    "employee_id": "AEF567",
+    "department": 9,
+    "role": "manager",
+    "supervisor": null,
+    "position": "FACILITY MANAGER",
+    "phone": "676249185",
+    "date_joined_company": null,
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.employee",
+  "pk": 13,
+  "fields": {
+    "user": [
+      "norbert"
+    ],
+    "employee_id": "4789",
+    "department": 2,
+    "role": "hr",
+    "supervisor": null,
+    "position": "Human Resource",
+    "phone": "676249185",
+    "date_joined_company": null,
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.employee",
+  "pk": 14,
+  "fields": {
+    "user": [
+      "bitom"
+    ],
+    "employee_id": "AEF70",
+    "department": 6,
+    "role": "employee",
+    "supervisor": 12,
+    "position": "IT HEAD",
+    "phone": "676249185",
+    "date_joined_company": null,
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.employee",
+  "pk": 16,
+  "fields": {
+    "user": [
+      "chin"
+    ],
+    "employee_id": "AEF8900",
+    "department": 12,
+    "role": "employee",
+    "supervisor": 12,
+    "position": "General Maintenance Technician",
+    "phone": "697556971",
+    "date_joined_company": null,
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.employee",
+  "pk": 17,
+  "fields": {
+    "user": [
+      "tatah"
+    ],
+    "employee_id": "AEF34",
+    "department": 9,
+    "role": "employee",
+    "supervisor": 12,
+    "position": "Graphic Designer",
+    "phone": "676249185",
+    "date_joined_company": null,
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.employee",
+  "pk": 18,
+  "fields": {
+    "user": [
+      "ernest"
+    ],
+    "employee_id": "AEF008",
+    "department": 9,
+    "role": "admin_director",
+    "supervisor": null,
+    "position": "Administration Director",
+    "phone": "676249185",
+    "date_joined_company": null,
+    "is_active": true
+  }
+},
+{
+  "model": "leaves.leavetype",
+  "pk": 10,
+  "fields": {
+    "name": "Annual Leave",
+    "description": "",
+    "requires_document": false,
+    "color": "primary",
+    "is_active": true,
+    "is_deductible": true
+  }
+},
+{
+  "model": "leaves.leavetype",
+  "pk": 11,
+  "fields": {
+    "name": "Permission",
+    "description": "",
+    "requires_document": false,
+    "color": "warning",
+    "is_active": true,
+    "is_deductible": true
+  }
+},
+{
+  "model": "leaves.leavetype",
+  "pk": 13,
+  "fields": {
+    "name": "Sick Leave",
+    "description": "",
+    "requires_document": true,
+    "color": "danger",
+    "is_active": true,
+    "is_deductible": false
+  }
+},
+{
+  "model": "leaves.leavetype",
+  "pk": 14,
+  "fields": {
+    "name": "Maternity Leave",
+    "description": "",
+    "requires_document": true,
+    "color": "success",
+    "is_active": true,
+    "is_deductible": false
+  }
+},
+{
+  "model": "leaves.leavetype",
+  "pk": 15,
+  "fields": {
+    "name": "Paternity Leave",
+    "description": "",
+    "requires_document": true,
+    "color": "success",
+    "is_active": true,
+    "is_deductible": false
+  }
+},
+{
+  "model": "leaves.leavetype",
+  "pk": 16,
+  "fields": {
+    "name": "Marriage Leave",
+    "description": "",
+    "requires_document": false,
+    "color": "secondary",
+    "is_active": true,
+    "is_deductible": false
+  }
+},
+{
+  "model": "leaves.leavetype",
+  "pk": 18,
+  "fields": {
+    "name": "Study Leave",
+    "description": "",
+    "requires_document": false,
+    "color": "secondary",
+    "is_active": true,
+    "is_deductible": false
+  }
+},
+{
+  "model": "leaves.leavebalance",
+  "pk": 30,
+  "fields": {
+    "employee": 9,
+    "year": 2026,
+    "total_entitlement": 18
+  }
+},
+{
+  "model": "leaves.leavebalance",
+  "pk": 31,
+  "fields": {
+    "employee": 16,
+    "year": 2026,
+    "total_entitlement": 18
+  }
+},
+{
+  "model": "leaves.leavebalance",
+  "pk": 32,
+  "fields": {
+    "employee": 14,
+    "year": 2026,
+    "total_entitlement": 18
+  }
+},
+{
+  "model": "leaves.leavebalance",
+  "pk": 33,
+  "fields": {
+    "employee": 10,
+    "year": 2026,
+    "total_entitlement": 18
+  }
+},
+{
+  "model": "leaves.leavebalance",
+  "pk": 34,
+  "fields": {
+    "employee": 13,
+    "year": 2026,
+    "total_entitlement": 18
+  }
+},
+{
+  "model": "leaves.leavebalance",
+  "pk": 35,
+  "fields": {
+    "employee": 18,
+    "year": 2026,
+    "total_entitlement": 18
+  }
+},
+{
+  "model": "leaves.leavebalance",
+  "pk": 36,
+  "fields": {
+    "employee": 17,
+    "year": 2026,
+    "total_entitlement": 18
+  }
+},
+{
+  "model": "leaves.leavebalance",
+  "pk": 37,
+  "fields": {
+    "employee": 12,
+    "year": 2026,
+    "total_entitlement": 18
+  }
+}
+]
