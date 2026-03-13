@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}New Disciplinary Notice{% endblock %}
+
+{% block page_title %}New Disciplinary Notice{% endblock %}
+
+{% block nav_discipline %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'discipline:list' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> Disciplinary Records
+</a>
+{% endblock %}
+
+{% block content %}
+
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %} alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-{% if msg.tags == 'error' %}exclamation-circle{% elif msg.tags == 'warning' %}exclamation-triangle{% else %}check-circle{% endif %} me-2"></i>
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if is_manager_only %}
+    <div class="alert alert-info mb-4">
+        <i class="bi bi-info-circle me-2"></i>
+        As a Line Manager, you may issue <strong>Verbal Warnings</strong> and <strong>Written Cautions</strong> only.
+        Escalate serious matters to HR.
+    </div>
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-text text-danger"></i>
+                    Disciplinary Notice Form
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" id="disciplineForm">
+                        {% csrf_token %}
+
+                        <!-- Step 1: Department -->
+                        <div class="mb-4">
+                            <label class="form-label fw-600">
+                                <span class="badge bg-primary me-2" style="font-size:0.72rem;">1</span>
+                                Department
+                            </label>
+                            <select id="deptSelect" class="form-select">
+                                <option value="">— All Departments —</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.pk }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Select a department to filter employees below.</div>
+                        </div>
+
+                        <!-- Step 2: Employee -->
+                        <div class="mb-4">
+                            <label class="form-label fw-600">
+                                <span class="badge bg-primary me-2" style="font-size:0.72rem;">2</span>
+                                Employee <span class="text-danger">*</span>
+                            </label>
+                            <select name="employee" class="form-select" required id="employeeSelect">
+                                <option value="">— Select employee —</option>
+                                {% for e in employees %}
+                                <option value="{{ e.pk }}"
+                                    data-dept="{{ e.department.pk|default:'' }}"
+                                    data-dept-name="{{ e.department|default:'No Department' }}">
+                                    {{ e.get_full_name }}{% if e.department %} — {{ e.department }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div id="noEmployeesMsg" class="form-text text-warning" style="display:none;">
+                                <i class="bi bi-exclamation-triangle me-1"></i>No employees found in this department.
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Notice Type -->
+                        <div class="mb-4">
+                            <label class="form-label fw-600">
+                                <span class="badge bg-primary me-2" style="font-size:0.72rem;">3</span>
+                                Notice Type <span class="text-danger">*</span>
+                            </label>
+                            <select name="action_type" class="form-select" required id="actionTypeSelect">
+                                <option value="">— Select notice type —</option>
+                                {% for key, label in available_types %}
+                                <option value="{{ key }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="mt-2 px-3 py-2 rounded" id="typeDescription" style="font-size:0.82rem;display:none;"></div>
+                        </div>
+
+                        <!-- Suspension dates (shown only for suspension) -->
+                        <div class="mb-4 p-3 rounded" id="suspensionFields" style="display:none;background:#f8fafc;border:1.5px solid #cde8ef;">
+                            <label class="form-label fw-600">
+                                <i class="bi bi-calendar-range me-1 text-dark"></i>
+                                Suspension Start Date <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" name="suspension_start" class="form-control" id="suspensionStart">
+                            <div class="form-text mt-1">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Duration is fixed at <strong>8 days</strong>. The end date is calculated automatically.
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Reason -->
+                        <div class="mb-4">
+                            <label class="form-label fw-600">
+                                <span class="badge bg-primary me-2" style="font-size:0.72rem;">4</span>
+                                Reason / Description <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="reason" class="form-control" rows="5"
+                                placeholder="Describe the reason for this disciplinary action in clear and objective terms..." required></textarea>
+                        </div>
+
+                        <!-- Supporting Document -->
+                        <div class="mb-4">
+                            <label class="form-label fw-600">
+                                <i class="bi bi-paperclip me-1"></i>
+                                Supporting Document <span class="text-muted fw-normal">(optional)</span>
+                            </label>
+                            <input type="file" name="document" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png">
+                            <div class="form-text">Attach the official notice letter or any supporting document (PDF, Word, or image).</div>
+                        </div>
+
+                        <!-- Internal Notes -->
+                        <div class="mb-4">
+                            <label class="form-label fw-600">
+                                <i class="bi bi-lock me-1"></i>
+                                Internal Notes <span class="text-muted fw-normal">(not visible to employee)</span>
+                            </label>
+                            <textarea name="notes" class="form-control" rows="3"
+                                placeholder="Any internal remarks for HR records only..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-3 pt-2">
+                            <button type="submit" class="btn btn-danger px-5">
+                                <i class="bi bi-send me-2"></i> Issue Notice
+                            </button>
+                            <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ── Department → Employee Filter ──
+const deptSelect = document.getElementById('deptSelect');
+const employeeSelect = document.getElementById('employeeSelect');
+const noEmployeesMsg = document.getElementById('noEmployeesMsg');
+const allOptions = Array.from(employeeSelect.querySelectorAll('option[value]')).filter(o => o.value);
+
+deptSelect.addEventListener('change', function () {
+    const deptId = this.value;
+    employeeSelect.value = '';
+
+    // Remove all employee options except placeholder
+    allOptions.forEach(opt => opt.remove());
+
+    const filtered = deptId
+        ? allOptions.filter(opt => opt.dataset.dept === deptId)
+        : allOptions;
+
+    filtered.forEach(opt => employeeSelect.appendChild(opt));
+
+    noEmployeesMsg.style.display = filtered.length === 0 && deptId ? 'block' : 'none';
+});
+
+// ── Notice Type Description + Suspension Fields ──
+const typeDescriptions = {
+    'verbal_warning':  { text: 'An informal recorded warning — first step before formal written action.', color: '#92400e', bg: '#fef3c7' },
+    'written_caution': { text: 'A formal written caution placed on the employee\'s personnel record.', color: '#92400e', bg: '#fed7aa' },
+    'final_warning':   { text: 'A final written warning — next step is suspension or dismissal.', color: '#ffffff', bg: '#dc2626' },
+    'suspension':      { text: 'Employee is suspended from duty for exactly 8 days. End date is calculated automatically.', color: '#ffffff', bg: '#374151' },
+    'dismissal':       { text: 'Termination of employment. HR and Admin will be alerted to deactivate the account.', color: '#ffffff', bg: '#dc2626' },
+};
+
+const actionTypeSelect = document.getElementById('actionTypeSelect');
+const typeDesc = document.getElementById('typeDescription');
+const suspFields = document.getElementById('suspensionFields');
+const suspStart = document.getElementById('suspensionStart');
+
+actionTypeSelect.addEventListener('change', function () {
+    const val = this.value;
+    const info = typeDescriptions[val];
+    if (info) {
+        typeDesc.textContent = info.text;
+        typeDesc.style.display = 'block';
+        typeDesc.style.background = info.bg;
+        typeDesc.style.color = info.color;
+    } else {
+        typeDesc.style.display = 'none';
+    }
+    if (val === 'suspension') {
+        suspFields.style.display = 'block';
+        suspStart.required = true;
+    } else {
+        suspFields.style.display = 'none';
+        suspStart.required = false;
+    }
+});
+</script>
+{% endblock %}

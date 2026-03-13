@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}My Contract — LeaveDesk{% endblock %}
+{% block page_title %}My Contract{% endblock %}
+{% block nav_my_contract %}active{% endblock %}
+
+{% block topbar_actions %}
+{% if unread_count > 0 %}
+<a href="{% url 'contracts:notifications' %}" class="btn btn-outline-primary btn-sm position-relative">
+    <i class="bi bi-bell me-1"></i>Notifications
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.6rem;">
+        {{ unread_count }}
+    </span>
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if not contract %}
+<div class="card animate-in">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-file-earmark-x fs-1 d-block mb-3" style="color:#9ab4c0;"></i>
+        <h5 class="fw-bold mb-1">No Contract on Record</h5>
+        <p class="text-muted mb-0" style="font-size:.875rem;">You do not have a contract registered in the system yet. Please contact HR.</p>
+    </div>
+</div>
+{% else %}
+
+<!-- Contract Banner -->
+<div class="mb-4 p-4 rounded-3 text-white animate-in
+    {% if contract.contract_type == 'CDI' %}
+    " style="background: linear-gradient(135deg, #0A4D68, #088395);"
+    {% elif contract.is_expired %}
+    " style="background: linear-gradient(135deg, #dc2626, #b91c1c);"
+    {% elif contract.days_remaining is not None and contract.days_remaining <= 30 %}
+    " style="background: linear-gradient(135deg, #dc2626, #b91c1c);"
+    {% elif contract.days_remaining is not None and contract.days_remaining <= 60 %}
+    " style="background: linear-gradient(135deg, #d97706, #b45309);"
+    {% else %}
+    " style="background: linear-gradient(135deg, #059669, #047857);"
+    {% endif %}
+>
+    <div class="d-flex align-items-center gap-4 flex-wrap">
+        <div>
+            {% if contract.contract_type == 'CDI' %}
+            <i class="bi bi-infinity" style="font-size:2.5rem;opacity:.8;"></i>
+            {% elif contract.is_expired %}
+            <i class="bi bi-x-circle-fill" style="font-size:2.5rem;opacity:.8;"></i>
+            {% elif contract.is_expiring_soon %}
+            <i class="bi bi-alarm-fill" style="font-size:2.5rem;opacity:.8;"></i>
+            {% else %}
+            <i class="bi bi-file-earmark-check-fill" style="font-size:2.5rem;opacity:.8;"></i>
+            {% endif %}
+        </div>
+        <div style="flex:1;">
+            <div style="font-size:1.1rem;font-weight:800;">
+                {% if contract.contract_type == 'CDI' %}
+                    Permanent Contract (CDI)
+                {% else %}
+                    Fixed-Term Contract (CDD)
+                {% endif %}
+            </div>
+            <div style="font-size:.9rem;opacity:.85;margin-top:4px;">
+                {% if contract.contract_type == 'CDI' %}
+                    No fixed end date — your contract does not expire.
+                {% elif contract.is_expired %}
+                    Your contract expired on {{ contract.end_date|date:"d F Y" }}.
+                {% else %}
+                    {{ contract.duration_display }} &nbsp;·&nbsp; Ends {{ contract.end_date|date:"d F Y" }}
+                {% endif %}
+            </div>
+        </div>
+        {% if contract.contract_type == 'CDD' and not contract.is_expired and contract.days_remaining is not None %}
+        <div class="text-center">
+            <div style="font-size:2.5rem;font-weight:900;line-height:1;">{{ contract.days_remaining }}</div>
+            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">days left</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- Contract Details -->
+    <div class="col-lg-7">
+        <div class="card animate-in mb-4">
+            <div class="card-header"><i class="bi bi-file-text me-2"></i>Contract Details</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Contract Type</div>
+                        <div class="mt-1 fw-600">
+                            {% if contract.contract_type == 'CDI' %}
+                            <span class="badge" style="background:#dcfce7;color:#15803d;font-size:.82rem;"><i class="bi bi-infinity me-1"></i>CDI — Permanent</span>
+                            {% else %}
+                            <span class="badge" style="background:#fef9c3;color:#a16207;font-size:.82rem;"><i class="bi bi-calendar-range me-1"></i>CDD — Fixed Term</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Status</div>
+                        <div class="mt-1">
+                            {% if contract.status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% elif contract.status == 'terminated' %}
+                            <span class="badge bg-dark">Terminated</span>
+                            {% elif contract.status == 'renewed' %}
+                            <span class="badge bg-secondary">Superseded by renewal</span>
+                            {% elif contract.status == 'expired' %}
+                            <span class="badge bg-danger">Expired</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Start Date</div>
+                        <div class="mt-1">{{ contract.start_date|date:"d F Y" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">End Date</div>
+                        <div class="mt-1">
+                            {% if contract.end_date %}{{ contract.end_date|date:"d F Y" }}{% else %}<span class="text-muted">No end date (permanent)</span>{% endif %}
+                        </div>
+                    </div>
+                    {% if contract.notes %}
+                    <div class="col-12">
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Notes</div>
+                        <div class="mt-1 p-3 rounded-2" style="background:#f8fafc;border:1px solid #e8f0f5;font-size:.875rem;">
+                            {{ contract.notes|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Notifications -->
+        {% if notifications %}
+        <div class="card animate-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-bell me-2"></i>Contract Notifications</span>
+                {% if unread_count > 0 %}
+                <span class="badge bg-danger">{{ unread_count }} unread</span>
+                {% endif %}
+            </div>
+            <div class="list-group list-group-flush">
+                {% for n in notifications %}
+                <div class="list-group-item px-4 py-3 {% if not n.is_read %}bg-light{% endif %}">
+                    <div class="d-flex gap-2 align-items-start">
+                        {% if n.notification_type == 'renewed' %}
+                        <i class="bi bi-arrow-repeat text-success mt-1"></i>
+                        {% elif n.notification_type == 'terminated' %}
+                        <i class="bi bi-x-circle text-danger mt-1"></i>
+                        {% else %}
+                        <i class="bi bi-clock-history text-warning mt-1"></i>
+                        {% endif %}
+                        <div style="flex:1;">
+                            <div style="font-size:.85rem;">{{ n.message }}</div>
+                            <div style="font-size:.72rem;color:#9ab4c0;margin-top:3px;">{{ n.created_at|date:"d M Y, H:i" }}</div>
+                        </div>
+                        {% if not n.is_read %}
+                        <span class="badge bg-primary" style="font-size:.6rem;">New</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if unread_count > 0 %}
+            <div class="card-footer text-center py-2">
+                <a href="{% url 'contracts:notifications' %}" class="btn btn-sm btn-outline-primary">Mark all as read</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Column: Seniority + Employee Info -->
+    <div class="col-lg-5">
+
+        <!-- Seniority Card -->
+        <div class="card animate-in mb-4" style="border:2px solid {{ contract.seniority_badge_color }}20;">
+            <div class="card-header" style="background:{{ contract.seniority_badge_color }}15;">
+                <i class="bi bi-award me-2" style="color:{{ contract.seniority_badge_color }};"></i>
+                Seniority & Service
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div style="font-size:2.2rem;font-weight:900;color:{{ contract.seniority_badge_color }};">
+                        {{ contract.years_of_service }}
+                    </div>
+                    <div style="font-size:.75rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.06em;">
+                        Year{{ contract.years_of_service|pluralize }} of Service
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge" style="background:{{ contract.seniority_badge_color }};color:#fff;font-size:.82rem;padding:6px 14px;">
+                            {{ contract.seniority_category }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Seniority Progress Ladder -->
+                <div style="font-size:.75rem;color:#6b7a8d;margin-bottom:8px;font-weight:600;">SENIORITY PROGRESSION</div>
+                {% for label, min_yr, color in seniority_ladder %}
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:10px;height:10px;border-radius:50%;background:{{ color }};flex-shrink:0;"></div>
+                    <div style="font-size:.78rem;color:{% if contract.seniority_category == label %}#0d1b2a{% else %}#9ab4c0{% endif %};font-weight:{% if contract.seniority_category == label %}700{% else %}400{% endif %};">
+                        {{ label }} <span style="color:#c4d4de;">({{ min_yr }}+ yrs)</span>
+                    </div>
+                    {% if contract.seniority_category == label %}
+                    <i class="bi bi-arrow-left" style="color:{{ color }};font-size:.75rem;"></i>
+                    <span style="font-size:.7rem;color:{{ color }};font-weight:700;">You are here</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Age & Retirement Card -->
+        {% with age=employee.age %}
+        {% if age %}
+        <div class="card animate-in">
+            <div class="card-header"><i class="bi bi-person-badge me-2"></i>Personal Info</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span style="font-size:.85rem;color:#6b7a8d;">Age</span>
+                    <span class="fw-600">{{ age }} years</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span style="font-size:.85rem;color:#6b7a8d;">Years to Retirement (60)</span>
+                    <span class="fw-600 {% if employee.is_near_retirement %}text-danger{% endif %}">
+                        {% with ytr=employee.years_to_retirement %}
+                        {% if ytr > 0 %}{{ ytr }} yr{{ ytr|pluralize }}{% else %}Retirement age reached{% endif %}
+                        {% endwith %}
+                        {% if employee.is_near_retirement %}<i class="bi bi-exclamation-triangle-fill text-danger ms-1"></i>{% endif %}
+                    </span>
+                </div>
+                {% if employee.is_near_retirement %}
+                <div class="alert alert-warning mt-3 py-2 px-3 mb-0" style="font-size:.8rem;">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    This employee is approaching retirement age. Contact HR to review.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

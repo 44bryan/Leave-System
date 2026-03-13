@@ -22,10 +22,23 @@
                 <strong>{% trans "Deductible Leave Balance" %}</strong>
             </div>
             <div class="card-body p-3">
+                {% if balance.carried_forward > 0 %}
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom:1px dashed #cde8ef;">
+                    <span style="font-size:.78rem;color:#4a6b7c;font-weight:600;">Annual Entitlement:</span>
+                    <span class="badge bg-primary">{{ balance.total_entitlement }}d</span>
+                    <span style="font-size:.78rem;color:#4a6b7c;">+</span>
+                    <span style="font-size:.78rem;color:#0369a1;font-weight:600;">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Carried Forward:
+                    </span>
+                    <span class="badge" style="background:#0369a1;">{{ balance.carried_forward }}d</span>
+                    <span style="font-size:.78rem;color:#4a6b7c;">=</span>
+                    <span class="badge bg-dark">{{ balance.total_available }}d total</span>
+                </div>
+                {% endif %}
                 <div class="row g-2 text-center">
                     <div class="col-3">
-                        <div style="font-size:1.6rem;font-weight:800;color:#0A4D68;">{{ balance.total_entitlement }}</div>
-                        <div style="font-size:.68rem;color:#6b7a8d;font-weight:600;">{% trans "Entitlement" %}</div>
+                        <div style="font-size:1.6rem;font-weight:800;color:#0A4D68;">{{ balance.total_available }}</div>
+                        <div style="font-size:.68rem;color:#6b7a8d;font-weight:600;">{% trans "Available" %}</div>
                     </div>
                     <div class="col-3">
                         <div style="font-size:1.6rem;font-weight:800;color:#e53e3e;">{{ balance.used_days }}</div>

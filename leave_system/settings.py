@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'accounts',
     'leaves',
     'dashboard',
+    'discipline',
+    'contracts',
 ]
 
 MIDDLEWARE = [

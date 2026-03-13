@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}My Discipline Record — LeaveDesk{% endblock %}
+{% block page_title %}My Discipline Record{% endblock %}
+{% block nav_my_discipline %}active{% endblock %}
+
+{% block content %}
+
+{% if notices %}
+<!-- summary strip -->
+<div class="d-flex gap-3 flex-wrap mb-4">
+    <div class="stat-card" style="min-width:140px;flex:1;">
+        <div class="stat-icon" style="background:#fff8e1;color:#d97706;"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div class="stat-value">{{ notices|length }}</div>
+        <div class="stat-label">Total Notices</div>
+    </div>
+    {% for notice in notices %}{% if notice.action_type == 'suspension' and notice.is_currently_suspended %}
+    <div class="alert alert-dark d-flex align-items-start gap-3 mb-0 flex-grow-1" style="border-left:4px solid #374151;">
+        <i class="bi bi-person-slash fs-4 flex-shrink-0 mt-1"></i>
+        <div>
+            <strong>You are currently under suspension.</strong>
+            <div style="font-size:.875rem;margin-top:4px;">
+                {{ notice.suspension_start|date:"d M Y" }} – {{ notice.suspension_end|date:"d M Y" }}.
+                Contact HR for more information.
+            </div>
+        </div>
+    </div>
+    {% endif %}{% endfor %}
+</div>
+{% endif %}
+
+<div class="card animate-in">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-shield-exclamation me-2" style="color:#dc2626;"></i>Discipline Notices on Your Record</span>
+        {% if notices %}<span class="badge bg-danger">{{ notices|length }}</span>{% endif %}
+    </div>
+
+    {% if notices %}
+    <div class="list-group list-group-flush">
+        {% for notice in notices %}
+        <div class="list-group-item px-4 py-3">
+            <div class="d-flex align-items-start gap-3 flex-wrap">
+
+                <!-- Badge -->
+                <div style="margin-top:2px;min-width:120px;">
+                    {% if notice.action_type == 'verbal_warning' %}
+                        <span class="badge" style="background:#fef3c7;color:#92400e;font-size:.78rem;">
+                            <i class="bi bi-chat-dots me-1"></i>Verbal Warning
+                        </span>
+                    {% elif notice.action_type == 'written_caution' %}
+                        <span class="badge" style="background:#fed7aa;color:#92400e;font-size:.78rem;">
+                            <i class="bi bi-file-text me-1"></i>Written Caution
+                        </span>
+                    {% elif notice.action_type == 'final_warning' %}
+                        <span class="badge bg-danger" style="font-size:.78rem;">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Final Warning
+                        </span>
+                    {% elif notice.action_type == 'suspension' %}
+                        <span class="badge bg-dark" style="font-size:.78rem;">
+                            <i class="bi bi-person-slash me-1"></i>Suspension
+                        </span>
+                    {% elif notice.action_type == 'dismissal' %}
+                        <span class="badge bg-danger" style="font-size:.78rem;">
+                            <i class="bi bi-person-x me-1"></i>Dismissal
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Details -->
+                <div style="flex:1;">
+                    <div style="font-size:.82rem;color:#6b7a8d;margin-bottom:3px;">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        Issued on <strong>{{ notice.date_issued|date:"d M Y" }}</strong>
+                        &nbsp;·&nbsp;
+                        <i class="bi bi-person me-1"></i>
+                        By {{ notice.issued_by.get_full_name|default:notice.issued_by.username }}
+                    </div>
+                    <div style="font-size:.88rem;color:#0d1b2a;">{{ notice.reason }}</div>
+                    {% if notice.action_type == 'suspension' and notice.suspension_start %}
+                    <div class="mt-2" style="font-size:.8rem;color:#374151;background:#f3f4f6;border-radius:8px;padding:6px 10px;display:inline-block;">
+                        <i class="bi bi-calendar-range me-1"></i>
+                        Suspension period: <strong>{{ notice.suspension_start|date:"d M Y" }}</strong>
+                        – <strong>{{ notice.suspension_end|date:"d M Y" }}</strong>
+                        {% if notice.is_currently_suspended %}
+                        <span class="badge bg-dark ms-2" style="font-size:.65rem;">Active</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex flex-column gap-1">
+                    <a href="{% url 'discipline:detail' notice.pk %}" class="btn btn-sm btn-outline-secondary" style="white-space:nowrap;">
+                        <i class="bi bi-eye me-1"></i>View
+                    </a>
+                    {% if notice.document %}
+                    <a href="{{ notice.document.url }}" download class="btn btn-sm btn-outline-primary" style="white-space:nowrap;">
+                        <i class="bi bi-file-earmark-arrow-down me-1"></i>Download Letter
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="card-body text-center py-5">
+        <i class="bi bi-shield-check fs-1 d-block mb-3" style="color:#22c55e;"></i>
+        <h5 class="fw-bold mb-1">Clean Record</h5>
+        <p class="text-muted mb-0" style="font-size:.875rem;">You have no discipline notices on your record.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

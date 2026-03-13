@@ -45,8 +45,49 @@
             </div>
         </div>
 
-        <!-- Current balances preview -->
+        <!-- Year-End: Carry Forward -->
         <div class="card animate-in delay-1 mt-3">
+            <div class="card-header" style="background:#e0f2fe;border-color:#7dd3fc;">
+                <i class="bi bi-arrow-right-circle-fill me-2" style="color:#0369a1;"></i>
+                <strong>Year-End: Carry Forward Accumulated Leave</strong>
+            </div>
+            <div class="card-body p-4">
+                <p style="font-size:.875rem;color:#4a6b7c;">
+                    Transfer each employee's <strong>unused deductible leave</strong> from one year into the
+                    next year as <strong>accumulated (carried-forward) leave</strong>. This is added on top
+                    of the standard annual entitlement for that year.
+                </p>
+                <div class="alert" style="background:#e0f2fe;border-color:#7dd3fc;border-left:4px solid #0369a1;font-size:.82rem;border-radius:10px;">
+                    <i class="bi bi-info-circle me-2" style="color:#0369a1;"></i>
+                    Example: If an employee has <strong>4 days remaining in 2025</strong>, running carry-forward
+                    will add <strong>4 days accumulated</strong> to their 2026 balance (18 + 4 = 22 days total).
+                </div>
+                <form method="post" action="{% url 'dashboard:carry_forward' %}"
+                      onsubmit="return confirm('Carry forward unused leave from ' + document.getElementById('cfFromYear').value + ' to the next year? This will overwrite any existing carry-forward for the destination year.');">
+                    {% csrf_token %}
+                    <div class="d-flex align-items-end gap-3 flex-wrap">
+                        <div>
+                            <label class="form-label" style="font-size:.82rem;font-weight:600;">Carry forward FROM year</label>
+                            <select name="from_year" id="cfFromYear" class="form-select form-select-sm" style="width:120px;">
+                                {% for y in years %}
+                                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="padding-bottom:6px;">
+                            <i class="bi bi-arrow-right fs-5" style="color:#0369a1;"></i>
+                            <span style="font-size:.82rem;color:#0369a1;font-weight:600;" id="cfToYearLabel">{{ year|add:1 }}</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary px-4" style="background:#0369a1;border-color:#0369a1;">
+                            <i class="bi bi-arrow-right-circle me-2"></i>Run Carry Forward
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current balances preview -->
+        <div class="card animate-in delay-2 mt-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-table me-2"></i>Current Balances — {{ year }}</span>
                 <span class="badge bg-primary">{{ balances|length }}</span>
@@ -56,7 +97,9 @@
                     <thead>
                         <tr>
                             <th>Employee</th>
-                            <th class="text-center">Entitlement</th>
+                            <th class="text-center">Annual</th>
+                            <th class="text-center">Carried</th>
+                            <th class="text-center">Total</th>
                             <th class="text-center">Used</th>
                             <th class="text-center">Remaining</th>
                             <th class="text-center">Actions</th>
@@ -70,6 +113,14 @@
                                 <div style="font-size:.68rem;color:#6b7a8d;">{{ item.employee.employee_id }}</div>
                             </td>
                             <td class="text-center"><span class="badge bg-primary">{{ item.balance.total_entitlement }}</span></td>
+                            <td class="text-center">
+                                {% if item.balance.carried_forward > 0 %}
+                                <span class="badge" style="background:#0369a1;color:white;">+{{ item.balance.carried_forward }}</span>
+                                {% else %}
+                                <span class="text-muted" style="font-size:.75rem;">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center"><span class="badge bg-dark">{{ item.balance.total_available }}</span></td>
                             <td class="text-center"><span class="badge bg-light text-dark border">{{ item.balance.used_days }}</span></td>
                             <td class="text-center">
                                 <span class="badge {% if item.balance.remaining_days == 0 %}bg-danger{% elif item.balance.remaining_days <= 3 %}bg-warning text-dark{% else %}bg-success{% endif %}">
@@ -100,7 +151,7 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" class="text-center text-muted py-3">No employees found.</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted py-3">No employees found.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -195,9 +246,9 @@
                             </div>
                             <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
                                 Deletes all <strong>leave requests</strong>, <strong>leave balances</strong>,
-                                and <strong>leave types</strong>.<br>
+                                <strong>discipline records</strong>, and <strong>all contract data</strong> (contracts &amp; notifications).<br>
                                 <span style="color:#059669;font-weight:600;">Keeps:</span>
-                                all user accounts, employee profiles, and departments.
+                                all user accounts, employee profiles, departments, and leave types.
                             </p>
                             <form method="post" action="{% url 'dashboard:factory_reset_soft' %}"
                                   onsubmit="return validateReset(this, 'RESET LEAVE DATA');">
@@ -285,6 +336,10 @@ function openAdjust(pk, name, current) {
     document.getElementById('adjustForm').action = '/dashboard/admin-settings/adjust-entitlement/' + pk + '/';
     new bootstrap.Modal(document.getElementById('adjustModal')).show();
 }
+
+document.getElementById('cfFromYear').addEventListener('change', function () {
+    document.getElementById('cfToYearLabel').textContent = parseInt(this.value) + 1;
+});
 
 function validateReset(form, expected) {
     var typed = form.querySelector('[name="confirm_text"]').value.trim();

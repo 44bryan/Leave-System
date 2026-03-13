@@ -14,22 +14,136 @@ def get_employee(request):
         return None
 
 
+def _build_contract_analytics(today, year):
+    """Return contract analytics context dict — shared by admin, HR, and director dashboards."""
+    from contracts.models import Contract as _Contract
+    from collections import defaultdict as _dd
+
+    _all_active = list(
+        _Contract.objects.filter(status='active')
+        .select_related('employee', 'employee__user', 'employee__department')
+    )
+    _active_cdd = [c for c in _all_active if c.contract_type == 'CDD']
+    _active_cdi = [c for c in _all_active if c.contract_type == 'CDI']
+
+    contracts_expired_active = sorted(
+        [c for c in _active_cdd if c.is_expired], key=lambda c: c.end_date
+    )
+    contracts_expiring_30 = sorted(
+        [c for c in _active_cdd if c.days_remaining is not None and 0 < c.days_remaining <= 30],
+        key=lambda c: c.days_remaining
+    )
+    contracts_expiring_60 = sorted(
+        [c for c in _active_cdd if c.days_remaining is not None and 30 < c.days_remaining <= 60],
+        key=lambda c: c.days_remaining
+    )
+    contracts_expiring_90 = sorted(
+        [c for c in _active_cdd if c.days_remaining is not None and 60 < c.days_remaining <= 90],
+        key=lambda c: c.days_remaining
+    )
+
+    _all_emp = list(Employee.objects.filter(is_active=True).select_related('user', 'department'))
+    contracts_near_retirement = sorted(
+        [e for e in _all_emp if e.is_near_retirement()],
+        key=lambda e: (e.years_to_retirement() or 99)
+    )
+
+    _ct_total = len(_all_active)
+    _seniority_buckets = [
+        ("Probationary", 0, 1, "#6b7a8d"), ("Class 1", 1, 3, "#0284c7"),
+        ("Class 2", 3, 5, "#0891b2"),      ("Class 3", 5, 8, "#059669"),
+        ("Class 4", 8, 12, "#d97706"),     ("Senior", 12, 17, "#dc2626"),
+        ("Sr. Executive", 17, 22, "#7c3aed"), ("Principal", 22, 999, "#4c1d95"),
+    ]
+    contract_seniority_dist = [
+        {'label': lbl, 'color': col, 'min_yr': lo,
+         'count': sum(1 for c in _all_active if lo <= c.years_of_service < hi),
+         'pct': round(sum(1 for c in _all_active if lo <= c.years_of_service < hi) / _ct_total * 100) if _ct_total else 0}
+        for lbl, lo, hi, col in _seniority_buckets
+    ]
+    _service_ranges = [
+        ("<1 yr", 0, 1), ("1–3 yrs", 1, 3), ("3–5 yrs", 3, 5),
+        ("5–10 yrs", 5, 10), ("10–15", 10, 15), ("15–20", 15, 20), ("20+", 20, 999),
+    ]
+    contract_service_dist = [
+        {'label': lbl,
+         'count': sum(1 for c in _all_active if lo <= c.years_of_service < hi),
+         'pct': round(sum(1 for c in _all_active if lo <= c.years_of_service < hi) / _ct_total * 100) if _ct_total else 0}
+        for lbl, lo, hi in _service_ranges
+    ]
+    _ages = [e.age() for e in _all_emp if e.age() is not None]
+    contract_avg_age = round(sum(_ages) / len(_ages)) if _ages else None
+    _age_ranges = [
+        ("<25", 0, 25, False), ("25–34", 25, 35, False), ("35–44", 35, 45, False),
+        ("45–54", 45, 55, False), ("55–59", 55, 60, True), ("60+", 60, 200, True),
+    ]
+    contract_age_dist = [
+        {'label': lbl, 'danger': danger,
+         'count': sum(1 for a in _ages if lo <= a < hi),
+         'pct': round(sum(1 for a in _ages if lo <= a < hi) / len(_ages) * 100) if _ages else 0}
+        for lbl, lo, hi, danger in _age_ranges
+    ]
+    _dept_map = _dd(lambda: {'CDI': 0, 'CDD': 0, 'total': 0})
+    for c in _all_active:
+        dn = str(c.employee.department) if c.employee.department else 'No Department'
+        _dept_map[dn][c.contract_type] += 1
+        _dept_map[dn]['total'] += 1
+    contract_dept_breakdown = sorted(
+        [{'dept': k, **v} for k, v in _dept_map.items()], key=lambda x: -x['total']
+    )
+    contract_long_service = sorted(_active_cdi, key=lambda c: -c.years_of_service)[:8]
+    contract_recent_activity = list(
+        _Contract.objects.select_related('employee', 'employee__user', 'created_by').order_by('-created_at')[:10]
+    )
+    contract_issued_year = _Contract.objects.filter(created_at__year=year).count()
+    contract_renewed_year = _Contract.objects.filter(status='renewed', updated_at__year=year).count()
+    contract_terminated_year = _Contract.objects.filter(status='terminated', updated_at__year=year).count()
+
+    return {
+        'contracts_expired_active': contracts_expired_active,
+        'contracts_expiring_30': contracts_expiring_30,
+        'contracts_expiring_60': contracts_expiring_60,
+        'contracts_expiring_90': contracts_expiring_90,
+        'contracts_near_retirement': contracts_near_retirement,
+        'contract_total_active': _ct_total,
+        'contract_total_cdi': len(_active_cdi),
+        'contract_total_cdd': len(_active_cdd),
+        'contract_seniority_dist': contract_seniority_dist,
+        'contract_service_dist': contract_service_dist,
+        'contract_age_dist': contract_age_dist,
+        'contract_avg_age': contract_avg_age,
+        'contract_dept_breakdown': contract_dept_breakdown,
+        'contract_long_service': contract_long_service,
+        'contract_recent_activity': contract_recent_activity,
+        'contract_issued_year': contract_issued_year,
+        'contract_renewed_year': contract_renewed_year,
+        'contract_terminated_year': contract_terminated_year,
+    }
+
+
 def admin_dashboard(request):
     from django.contrib.auth.models import User
     from django.contrib.admin.models import LogEntry
+    from discipline.models import DisciplineRecord
+    from datetime import datetime
     today = date.today()
     year = today.year
 
+    # ── System counts ──
     total_employees = Employee.objects.filter(is_active=True).count()
     total_departments = Department.objects.count()
     total_users = User.objects.count()
-    total_requests_year = LeaveRequest.objects.filter(start_date__year=year).count()
     approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
-    pending_all = LeaveRequest.objects.filter(
-        status__in=['pending', 'manager_approved', 'hr_approved']
+    rejected_year = LeaveRequest.objects.filter(
+        status__in=['rejected_manager', 'rejected_hr', 'rejected_director'],
+        start_date__year=year
     ).count()
+    pending_manager = LeaveRequest.objects.filter(status='pending').count()
+    pending_hr = LeaveRequest.objects.filter(status='manager_approved').count()
+    pending_director = LeaveRequest.objects.filter(status='hr_approved').count()
+    pending_all = pending_manager + pending_hr + pending_director
 
-    # Role breakdown
+    # ── Role breakdown ──
     role_counts = {
         'Employees': Employee.objects.filter(role='employee').count(),
         'Managers': Employee.objects.filter(role='manager').count(),
@@ -37,30 +151,105 @@ def admin_dashboard(request):
         'Directors': Employee.objects.filter(role='admin_director').count(),
     }
 
-    # Recent admin log entries
+    # ── Recent admin log entries ──
     try:
         recent_logs = LogEntry.objects.select_related('user', 'content_type').order_by('-action_time')[:15]
     except Exception:
         recent_logs = []
 
-    # Departments with employee counts
+    # ── Departments with employee counts ──
     departments = Department.objects.annotate(emp_count=Count('employee'))
 
-    # Recently added employees
+    # ── Recently added employees ──
     recent_employees = Employee.objects.select_related('user', 'department').order_by('-user__date_joined')[:8]
+
+    # ── Discipline stats ──
+    discipline_warned = DisciplineRecord.objects.filter(
+        action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+    ).values('employee').distinct().count()
+    discipline_suspended = DisciplineRecord.objects.filter(
+        action_type='suspension', suspension_end__gte=today,
+    ).count()
+    discipline_dismissed = DisciplineRecord.objects.filter(
+        action_type='dismissal'
+    ).values('employee').distinct().count()
+    dismissal_alert = DisciplineRecord.objects.filter(
+        action_type='dismissal'
+    ).select_related('employee__user').order_by('-date_issued')[:10]
+
+    # ── Currently on leave ──
+    on_leave_now = LeaveRequest.objects.filter(
+        status='approved', start_date__lte=today, end_date__gte=today
+    ).select_related('employee__user', 'employee__department', 'leave_type')
+
+    # ── Pending approvals at each stage ──
+    pending_hr_requests = LeaveRequest.objects.filter(
+        status='manager_approved'
+    ).select_related('employee__user', 'leave_type', 'manager_action_by__user')[:10]
+
+    awaiting_director = LeaveRequest.objects.filter(
+        status='hr_approved'
+    ).select_related('employee__user', 'employee__department', 'leave_type', 'hr_action_by__user')[:10]
+
+    # ── Monthly chart ──
+    monthly_data = []
+    month_labels = []
+    for m in range(1, 13):
+        count = LeaveRequest.objects.filter(
+            status='approved', start_date__year=year, start_date__month=m
+        ).count()
+        monthly_data.append(count)
+        month_labels.append(datetime(year, m, 1).strftime('%b'))
+
+    # ── Department leave activity ──
+    dept_stats = Department.objects.annotate(
+        total_requests=Count(
+            'employee__leave_requests',
+            filter=Q(employee__leave_requests__start_date__year=year)
+        ),
+        approved_requests=Count(
+            'employee__leave_requests',
+            filter=Q(
+                employee__leave_requests__status='approved',
+                employee__leave_requests__start_date__year=year
+            )
+        )
+    )
+
+    # ── Low leave balance ──
+    all_balances = LeaveBalance.objects.filter(year=year).select_related('employee__user', 'employee__department')
+    low_balance = [b for b in all_balances if b.remaining_days <= 3]
+
+    # ── Contract analytics ──────────────────────────────────────────────────
+    _contract_ctx = _build_contract_analytics(today, year)
 
     return render(request, 'dashboard/admin_dashboard.html', {
         'total_employees': total_employees,
         'total_departments': total_departments,
         'total_users': total_users,
-        'total_requests_year': total_requests_year,
         'approved_year': approved_year,
+        'rejected_year': rejected_year,
+        'pending_manager': pending_manager,
+        'pending_hr': pending_hr,
+        'pending_director': pending_director,
         'pending_all': pending_all,
         'role_counts': role_counts,
         'recent_logs': recent_logs,
         'departments': departments,
         'recent_employees': recent_employees,
         'year': year,
+        'discipline_warned': discipline_warned,
+        'discipline_suspended': discipline_suspended,
+        'discipline_dismissed': discipline_dismissed,
+        'dismissal_alert': dismissal_alert,
+        'on_leave_now': on_leave_now,
+        'pending_hr_requests': pending_hr_requests,
+        'awaiting_director': awaiting_director,
+        'monthly_data': monthly_data,
+        'month_labels': month_labels,
+        'dept_stats': dept_stats,
+        'low_balance': low_balance,
+        **_contract_ctx,
     })
 
 
@@ -93,6 +282,7 @@ def home(request):
 
 
 def employee_dashboard(request, employee):
+    from discipline.models import DisciplineRecord
     today = date.today()
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=today.year,
@@ -110,6 +300,17 @@ def employee_dashboard(request, employee):
         end_date__gte=today
     ).first()
 
+    # Discipline notices for this employee
+    discipline_notices = DisciplineRecord.objects.filter(
+        employee=employee
+    ).order_by('-date_issued')
+    active_suspension = DisciplineRecord.objects.filter(
+        employee=employee,
+        action_type='suspension',
+        suspension_start__lte=today,
+        suspension_end__gte=today,
+    ).first()
+
     return render(request, 'dashboard/employee_dashboard.html', {
         'employee': employee,
         'balance': balance,
@@ -117,6 +318,8 @@ def employee_dashboard(request, employee):
         'pending_count': pending_count,
         'on_leave': on_leave,
         'today': today,
+        'discipline_notices': discipline_notices,
+        'active_suspension': active_suspension,
     })
 
 
@@ -150,6 +353,7 @@ def manager_dashboard(request, employee):
 
 
 def director_dashboard(request, employee):
+    from discipline.models import DisciplineRecord
     today = date.today()
     year = today.year
 
@@ -184,6 +388,19 @@ def director_dashboard(request, employee):
         from datetime import datetime
         month_labels.append(datetime(year, m, 1).strftime('%b'))
 
+    discipline_warned = DisciplineRecord.objects.filter(
+        action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+    ).values('employee').distinct().count()
+    discipline_suspended = DisciplineRecord.objects.filter(
+        action_type='suspension',
+        suspension_end__gte=today,
+    ).count()
+    discipline_dismissed = DisciplineRecord.objects.filter(
+        action_type='dismissal'
+    ).values('employee').distinct().count()
+
+    _contract_ctx = _build_contract_analytics(today, year)
+
     return render(request, 'dashboard/director_dashboard.html', {
         'employee': employee,
         'total_employees': total_employees,
@@ -195,12 +412,29 @@ def director_dashboard(request, employee):
         'monthly_data': monthly_data,
         'month_labels': month_labels,
         'year': year,
+        'discipline_warned': discipline_warned,
+        'discipline_suspended': discipline_suspended,
+        'discipline_dismissed': discipline_dismissed,
+        **_contract_ctx,
     })
 
 
 def hr_dashboard(request, employee):
+    from discipline.models import DisciplineRecord
     today = date.today()
     year = today.year
+
+    # Discipline stats
+    discipline_warned = DisciplineRecord.objects.filter(
+        action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+    ).values('employee').distinct().count()
+    discipline_suspended = DisciplineRecord.objects.filter(
+        action_type='suspension',
+        suspension_end__gte=today,
+    ).count()
+    discipline_dismissed = DisciplineRecord.objects.filter(
+        action_type='dismissal'
+    ).values('employee').distinct().count()
 
     # Key stats
     total_employees = Employee.objects.filter(is_active=True).count()
@@ -269,6 +503,8 @@ def hr_dashboard(request, employee):
         if b.remaining_days <= 3:
             low_balance.append(b)
 
+    _contract_ctx = _build_contract_analytics(today, year)
+
     return render(request, 'dashboard/hr_dashboard.html', {
         'employee': employee,
         'total_employees': total_employees,
@@ -286,6 +522,10 @@ def hr_dashboard(request, employee):
         'recent_requests': recent_requests,
         'low_balance': low_balance,
         'year': year,
+        'discipline_warned': discipline_warned,
+        'discipline_suspended': discipline_suspended,
+        'discipline_dismissed': discipline_dismissed,
+        **_contract_ctx,
     })
 
 
@@ -319,7 +559,7 @@ def leave_tracker(request):
     return render(request, 'dashboard/leave_tracker.html', {
         'balances': balances,
         'year': year,
-        'years': range(2023, date.today().year + 2),
+        'years': range(2000, date.today().year + 11),
         'departments': departments,
         'dept_filter': dept_filter,
     })
@@ -459,7 +699,7 @@ def admin_settings(request):
     return render(request, 'dashboard/admin_settings.html', {
         'balances': balances,
         'year': year,
-        'years': range(2023, date.today().year + 2),
+        'years': range(2000, date.today().year + 11),
     })
 
 
@@ -483,6 +723,38 @@ def reset_leave_balances(request):
         count += 1
     messages.success(request, f"Leave balances reset to 18 days for {count} employees ({year}).")
     return redirect('dashboard:admin_settings')
+
+
+@superuser_required_view
+def carry_forward_leave(request):
+    """Carry unused deductible leave from one year into the next as accumulated leave."""
+    if request.method != 'POST':
+        return redirect('dashboard:admin_settings')
+    from_year = int(request.POST.get('from_year', date.today().year - 1))
+    to_year = from_year + 1
+
+    balances = LeaveBalance.objects.filter(year=from_year).select_related('employee')
+    count = 0
+    total_days = 0
+    for bal in balances:
+        carry = bal.remaining_days
+        next_bal, created = LeaveBalance.objects.get_or_create(
+            employee=bal.employee,
+            year=to_year,
+            defaults={'total_entitlement': 18, 'carried_forward': carry},
+        )
+        if not created:
+            next_bal.carried_forward = carry
+            next_bal.save()
+        total_days += carry
+        count += 1
+
+    messages.success(
+        request,
+        f"Carry-forward complete: {count} employees — {total_days} days moved from {from_year} to {to_year}."
+    )
+    from django.urls import reverse
+    return redirect(reverse('dashboard:admin_settings') + f'?year={to_year}')
 
 
 @superuser_required_view
@@ -666,11 +938,13 @@ def factory_reset_full(request):
 @superuser_required_view
 def factory_reset_soft(request):
     """
-    Soft reset: deletes all leave requests, balances, and leave types
+    Soft reset: deletes all leave requests, balances, discipline records, and contract data
     but keeps all user accounts, employee profiles, and departments.
     """
     from django.contrib import messages
     from django.db import transaction
+    from discipline.models import DisciplineRecord
+    from contracts.models import Contract, ContractNotification
 
     if request.method != 'POST':
         return redirect('dashboard:admin_settings')
@@ -683,10 +957,13 @@ def factory_reset_soft(request):
     with transaction.atomic():
         LeaveRequest.objects.all().delete()
         LeaveBalance.objects.all().delete()
+        DisciplineRecord.objects.all().delete()
+        ContractNotification.objects.all().delete()
+        Contract.objects.all().delete()
 
     messages.success(
         request,
-        "Soft reset complete. All leave requests and balances have been cleared. "
+        "Soft reset complete. All leave requests, balances, discipline records, and contracts have been cleared. "
         "User accounts, employee profiles, departments, and leave types are intact."
     )
     return redirect('dashboard:admin_settings')

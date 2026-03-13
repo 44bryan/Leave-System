@@ -2,178 +2,217 @@
 {% load i18n %}
 {% block title %}{% trans "HR Dashboard" %} — LeaveDesk{% endblock %}
 {% block page_title %}{% trans "HR Dashboard" %}{% endblock %}
-{% block page_subtitle %}{{ year }} Overview · Eye Hospital{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
 
-{% block extra_css %}
-.metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-.pending-pulse {
-    display: inline-block;
-    width: 8px; height: 8px;
-    background: #e53e3e;
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-    margin-right: 6px;
-}
-@keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.4); }
-}
-.employee-on-leave {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid #f0f4f8;
-}
-.emp-avatar-sm {
-    width: 34px; height: 34px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #05BFDB, #088395);
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 700; font-size: 0.75rem;
-    flex-shrink: 0;
-}
+{% block topbar_actions %}
+<a href="{% url 'dashboard:tracker' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-table me-1"></i> {% trans "Leave Tracker" %}
+</a>
+<a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-shield-exclamation me-1"></i> {% trans "Issue Notice" %}
+</a>
+<a href="{% url 'leaves:hr_approvals' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-clipboard2-check me-1"></i> {% trans "HR Approvals" %}
+</a>
 {% endblock %}
 
 {% block content %}
-<!-- Stats Row -->
+
+<!-- ── Leave Overview ── -->
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
+    <i class="bi bi-calendar-check me-1"></i> {% trans "Leave Overview" %}
+</div>
 <div class="metric-row mb-4 animate-in">
     <div class="stat-card">
-        <div class="stat-icon" style="background: #e3f2fd; color: #0A4D68;">
-            <i class="bi bi-people-fill"></i>
-        </div>
+        <div class="stat-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
         <div class="stat-value">{{ total_employees }}</div>
         <div class="stat-label">{% trans "Active Employees" %}</div>
     </div>
     <div class="stat-card delay-1">
-        <div class="stat-icon" style="background: #fff8e1; color: #f57f17;">
-            <i class="bi bi-hourglass-split"></i>
-        </div>
+        <div class="stat-icon" style="background:#fff8e1;color:#f57f17;"><i class="bi bi-hourglass-split"></i></div>
         <div class="stat-value">{{ pending_manager }}</div>
         <div class="stat-label">{% trans "Awaiting Manager" %}</div>
     </div>
     <div class="stat-card delay-2">
-        <div class="stat-icon" style="background: #e8f5e9; color: #2e7d32;">
-            <i class="bi bi-clipboard2-check-fill"></i>
-        </div>
+        <div class="stat-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-clipboard2-check-fill"></i></div>
         <div class="stat-value">{{ pending_hr }}</div>
         <div class="stat-label">{% trans "Awaiting HR Approval" %}</div>
     </div>
     <div class="stat-card delay-2">
-        <div class="stat-icon" style="background: #ede7f6; color: #4527a0;">
-            <i class="bi bi-shield-check"></i>
-        </div>
+        <div class="stat-icon" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
         <div class="stat-value">{{ pending_director }}</div>
         <div class="stat-label">{% trans "Awaiting Director" %}</div>
     </div>
     <div class="stat-card delay-3">
-        <div class="stat-icon" style="background: #e0f7fa; color: #088395;">
-            <i class="bi bi-check2-all"></i>
-        </div>
+        <div class="stat-icon" style="background:#e0f7fa;color:#088395;"><i class="bi bi-check2-all"></i></div>
         <div class="stat-value">{{ approved_year }}</div>
         <div class="stat-label">{% trans "Approved This Year" %}</div>
     </div>
     <div class="stat-card delay-4">
-        <div class="stat-icon" style="background: #fce4ec; color: #c62828;">
-            <i class="bi bi-x-circle-fill"></i>
-        </div>
+        <div class="stat-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
         <div class="stat-value">{{ rejected_year }}</div>
         <div class="stat-label">{% trans "Rejected This Year" %}</div>
     </div>
 </div>
 
-<div class="row g-4">
-    <!-- Monthly Chart -->
+<!-- ── Discipline Overview ── -->
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
+    <i class="bi bi-shield-exclamation me-1"></i> {% trans "Discipline Overview" %}
+</div>
+<div class="row g-3 mb-4 animate-in delay-1">
+    <div class="col-sm-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="stat-card" style="border-top:3px solid #f59e0b;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon mb-0" style="background:#fff8e1;color:#d97706;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="color:#d97706;">{{ discipline_warned }}</div>
+                        <div class="stat-label">{% trans "Employees Warned" %}</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="stat-card" style="border-top:3px solid #374151;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon mb-0" style="background:#f3f4f6;color:#374151;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
+                        <i class="bi bi-person-slash"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="color:#374151;">{{ discipline_suspended }}</div>
+                        <div class="stat-label">{% trans "Suspended / Upcoming" %}</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="stat-card" style="border-top:3px solid #dc2626;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon mb-0" style="background:#fce4ec;color:#dc2626;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
+                        <i class="bi bi-person-x-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="color:#dc2626;">{{ discipline_dismissed }}</div>
+                        <div class="stat-label">{% trans "Dismissals" %}</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- ── Action Required ── -->
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
+    <i class="bi bi-clipboard2-check me-1"></i> {% trans "Action Required" %}
+</div>
+<div class="card mb-4 animate-in delay-2">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clipboard2-check me-2" style="color:#088395;"></i>{% trans "Pending HR Approvals" %}
+            <span class="badge bg-primary ms-2">{{ pending_hr }}</span>
+        </span>
+        <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm btn-primary">{% trans "View All" %}</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Employee" %}</th>
+                    <th>{% trans "Department" %}</th>
+                    <th>{% trans "Leave Type" %}</th>
+                    <th>{% trans "Period" %}</th>
+                    <th>{% trans "Days" %}</th>
+                    <th>{% trans "Manager" %}</th>
+                    <th>{% trans "Action" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in recent_requests %}
+                <tr>
+                    <td>
+                        <div style="font-weight:600;font-size:0.875rem;">{{ req.employee.get_full_name }}</div>
+                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.employee_id }}</div>
+                    </td>
+                    <td style="font-size:0.82rem;">{{ req.employee.department|default:"—" }}</td>
+                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                    <td style="font-size:0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
+                    <td><strong>{{ req.total_days }}d</strong></td>
+                    <td style="font-size:0.78rem;color:#6b7a8d;">
+                        {% if req.manager_action_by %}{{ req.manager_action_by.get_full_name }}{% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-check2-circle me-1"></i>{% trans "Review" %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>
+                        {% trans "No pending HR approvals" %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── Activity ── -->
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
+    <i class="bi bi-activity me-1"></i> {% trans "Leave Activity" %}
+</div>
+<div class="row g-4 mb-4">
     <div class="col-lg-8 animate-in delay-2">
         <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>{% trans "Monthly Leave Approvals" %} — {{ year }}</span>
+            <div class="card-header">
+                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>{% trans "Monthly Leave Approvals" %} — {{ year }}
             </div>
             <div class="card-body p-4">
                 <canvas id="monthlyChart" height="100"></canvas>
             </div>
         </div>
     </div>
-
-    <!-- Currently On Leave -->
     <div class="col-lg-4 animate-in delay-3">
         <div class="card h-100">
             <div class="card-header">
-                <span class="pending-pulse"></span>
-                {% trans "On Leave Today" %}
+                <span class="pending-pulse"></span>{% trans "On Leave Today" %}
                 <span class="badge bg-danger ms-2">{{ on_leave_now|length }}</span>
             </div>
-            <div class="card-body p-3" style="max-height: 320px; overflow-y: auto;">
-                {% if on_leave_now %}
+            <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
                 {% for req in on_leave_now %}
-                <div class="employee-on-leave">
-                    <div class="emp-avatar-sm">{{ req.employee.user.first_name|first|upper }}</div>
-                    <div class="flex-grow-1 min-w-0">
-                        <div style="font-size: 0.85rem; font-weight: 600;">{{ req.employee.get_full_name }}</div>
-                        <div style="font-size: 0.72rem; color: #6b7a8d;">{{ req.leave_type }} · Back {{ req.end_date }}</div>
+                <div class="d-flex align-items-center gap-2 py-2 border-bottom">
+                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                        {{ req.employee.user.first_name|first|upper }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:0.85rem;font-weight:600;">{{ req.employee.get_full_name }}</div>
+                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.leave_type }} · {% trans "Back" %} {{ req.end_date }}</div>
                     </div>
                 </div>
-                {% endfor %}
-                {% else %}
+                {% empty %}
                 <div class="text-center py-4 text-muted">
                     <i class="bi bi-check-circle fs-2 d-block mb-2"></i>
                     <small>{% trans "All staff are in today" %}</small>
                 </div>
-                {% endif %}
+                {% endfor %}
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Pending HR Approvals -->
-    <div class="col-12 animate-in delay-2">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-clipboard2-check me-2" style="color: #088395;"></i>{% trans "Pending HR Approvals" %}</span>
-                <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm btn-primary">{% trans "View All" %}</a>
-            </div>
-            <div class="table-responsive">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>{% trans "Employee" %}</th>
-                            <th>{% trans "Department" %}</th>
-                            <th>{% trans "Leave Type" %}</th>
-                            <th>{% trans "Period" %}</th>
-                            <th>{% trans "Days" %}</th>
-                            <th>{% trans "Manager Approved" %}</th>
-                            <th>{% trans "Action" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for req in recent_requests %}
-                        <tr>
-                            <td>
-                                <div style="font-weight: 600; font-size: 0.875rem;">{{ req.employee.get_full_name }}</div>
-                                <div style="font-size: 0.72rem; color: #6b7a8d;">{{ req.employee.employee_id }}</div>
-                            </td>
-                            <td><span style="font-size: 0.82rem;">{{ req.employee.department|default:"—" }}</span></td>
-                            <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
-                            <td style="font-size: 0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
-                            <td><strong>{{ req.total_days }}d</strong></td>
-                            <td style="font-size: 0.78rem; color: #6b7a8d;">
-                                {% if req.manager_action_by %}{{ req.manager_action_by.get_full_name }}{% endif %}
-                            </td>
-                            <td>
-                                <a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-check2-circle me-1"></i>{% trans "Review" %}
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="7" class="text-center text-muted py-4">{% trans "No pending approvals" %}</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Department Stats & Low Balance -->
-    <div class="col-lg-6 animate-in delay-3">
+<!-- ── Analytics ── -->
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
+    <i class="bi bi-graph-up me-1"></i> {% trans "Analytics" %}
+</div>
+<div class="row g-4 animate-in delay-3">
+    <div class="col-lg-6">
         <div class="card h-100">
             <div class="card-header"><i class="bi bi-building me-2"></i>{% trans "Department Leave Activity" %}</div>
             <div class="card-body p-3">
@@ -181,12 +220,12 @@
                 {% if dept.total_requests > 0 %}
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
-                        <span style="font-size: 0.85rem; font-weight: 600;">{{ dept.name }}</span>
-                        <span style="font-size: 0.78rem; color: #6b7a8d;">{{ dept.approved_requests }}/{{ dept.total_requests }}</span>
+                        <span style="font-size:0.85rem;font-weight:600;">{{ dept.name }}</span>
+                        <span style="font-size:0.78rem;color:#6b7a8d;">{{ dept.approved_requests }}/{{ dept.total_requests }}</span>
                     </div>
-                    <div class="progress">
+                    <div class="progress" style="height:6px;">
                         {% if dept.total_requests > 0 %}
-                        <div class="progress-bar bg-primary" style="width: {% widthratio dept.approved_requests dept.total_requests 100 %}%"></div>
+                        <div class="progress-bar bg-primary" style="width:{% widthratio dept.approved_requests dept.total_requests 100 %}%;border-radius:10px;"></div>
                         {% endif %}
                     </div>
                 </div>
@@ -197,21 +236,21 @@
             </div>
         </div>
     </div>
-
-    <!-- Low Balance Warning -->
-    <div class="col-lg-6 animate-in delay-4">
+    <div class="col-lg-6">
         <div class="card h-100">
-            <div class="card-header" style="color: #e53e3e;">
+            <div class="card-header" style="color:#e53e3e;">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>{% trans "Low Leave Balance (≤3 days)" %}
             </div>
-            <div class="card-body p-3" style="max-height: 320px; overflow-y: auto;">
+            <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
                 {% if low_balance %}
                 {% for b in low_balance %}
                 <div class="d-flex align-items-center gap-2 py-2 border-bottom">
-                    <div class="emp-avatar-sm">{{ b.employee.user.first_name|first|upper }}</div>
+                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#e53e3e,#c62828);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                        {{ b.employee.user.first_name|first|upper }}
+                    </div>
                     <div class="flex-grow-1">
-                        <div style="font-size: 0.85rem; font-weight: 600;">{{ b.employee.get_full_name }}</div>
-                        <div style="font-size: 0.72rem; color: #6b7a8d;">{{ b.employee.department|default:"No dept" }}</div>
+                        <div style="font-size:0.85rem;font-weight:600;">{{ b.employee.get_full_name }}</div>
+                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ b.employee.department|default:"No dept" }}</div>
                     </div>
                     <span class="badge bg-danger">{{ b.remaining_days }}d left</span>
                 </div>
@@ -226,6 +265,22 @@
         </div>
     </div>
 </div>
+
+{% include 'dashboard/includes/contract_analytics.html' %}
+
+{% endblock %}
+
+{% block extra_css %}
+.metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+.pending-pulse {
+    display:inline-block; width:8px; height:8px;
+    background:#e53e3e; border-radius:50%;
+    animation:pulse 1.5s infinite; margin-right:6px;
+}
+@keyframes pulse {
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:0.5;transform:scale(1.4);}
+}
 {% endblock %}
 
 {% block extra_js %}
@@ -239,7 +294,7 @@ new Chart(ctx, {
         datasets: [{
             label: 'Approved Leaves',
             data: {{ monthly_data|safe }},
-            backgroundColor: 'rgba(8, 131, 149, 0.15)',
+            backgroundColor: 'rgba(8,131,149,0.12)',
             borderColor: '#088395',
             borderWidth: 2,
             borderRadius: 8,
@@ -248,24 +303,10 @@ new Chart(ctx, {
     },
     options: {
         responsive: true,
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: ctx => ` ${ctx.parsed.y} approved leaves`
-                }
-            }
-        },
+        plugins: { legend: { display: false } },
         scales: {
-            y: {
-                beginAtZero: true,
-                ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans' } },
-                grid: { color: '#f0f4f8' }
-            },
-            x: {
-                ticks: { font: { family: 'Plus Jakarta Sans' } },
-                grid: { display: false }
-            }
+            y: { beginAtZero: true, ticks: { stepSize:1, font:{family:'Plus Jakarta Sans'} }, grid:{color:'#f0f4f8'} },
+            x: { ticks: { font:{family:'Plus Jakarta Sans'} }, grid:{display:false} }
         }
     }
 });

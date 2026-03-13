@@ -31,6 +31,7 @@ class Employee(models.Model):
     )
     position = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
     date_joined_company = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
@@ -51,6 +52,30 @@ class Employee(models.Model):
 
     def is_director(self):
         return self.role == 'admin_director'
+
+    def age(self):
+        if not self.date_of_birth:
+            return None
+        from datetime import date
+        today = date.today()
+        years = today.year - self.date_of_birth.year
+        if (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day):
+            years -= 1
+        return years
+
+    def years_to_retirement(self):
+        """Years remaining until retirement age (60). None if no date_of_birth."""
+        a = self.age()
+        if a is None:
+            return None
+        return max(0, 60 - a)
+
+    def is_near_retirement(self):
+        """True if within 5 years of retirement age (60)."""
+        ytr = self.years_to_retirement()
+        if ytr is None:
+            return False
+        return ytr <= 5
 
     def get_role_display_badge(self):
         badges = {

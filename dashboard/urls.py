@@ -9,6 +9,7 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('admin-settings/', views.admin_settings, name='admin_settings'),
     path('admin-settings/reset-balances/', views.reset_leave_balances, name='reset_balances'),
+    path('admin-settings/carry-forward/', views.carry_forward_leave, name='carry_forward'),
     path('admin-settings/export/', views.export_data, name='export_data'),
     path('admin-settings/import/', views.import_data, name='import_data'),
     path('admin-settings/reset-balance/<int:pk>/', views.reset_single_balance, name='reset_single_balance'),

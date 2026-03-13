@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Discipline Statistics{% endblock %}
+
+{% block nav_discipline %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="d-flex align-items-center gap-3">
+        <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+        <div>
+            <div class="topbar-title">Discipline Statistics</div>
+        </div>
+    </div>
+    <div class="topbar-actions">
+        <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> All Records
+        </a>
+        <a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle me-1"></i> Issue Notice
+        </a>
+    </div>
+</div>
+
+<div class="page-content">
+
+    <!-- Summary stat cards -->
+    <div class="row g-3 mb-5">
+        <div class="col-sm-4">
+            <div class="stat-card text-center animate-in" style="border-top: 3px solid #f59e0b;">
+                <div class="stat-icon mx-auto mb-2" style="background:#fff8e1; color:#d97706;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="stat-value" style="color:#d97706;">{{ warned_count }}</div>
+                <div class="stat-label">Employees with Warnings</div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="stat-card text-center animate-in delay-1" style="border-top: 3px solid #374151;">
+                <div class="stat-icon mx-auto mb-2" style="background:#f3f4f6; color:#374151;">
+                    <i class="bi bi-person-slash"></i>
+                </div>
+                <div class="stat-value" style="color:#374151;">{{ suspended_count }}</div>
+                <div class="stat-label">Suspended / Upcoming</div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="stat-card text-center animate-in delay-2" style="border-top: 3px solid #dc2626;">
+                <div class="stat-icon mx-auto mb-2" style="background:#fce4ec; color:#dc2626;">
+                    <i class="bi bi-person-x-fill"></i>
+                </div>
+                <div class="stat-value" style="color:#dc2626;">{{ dismissed_count }}</div>
+                <div class="stat-label">Dismissals</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Warned Employees -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center gap-2" style="color:#d97706;">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Warned Employees
+                    <span class="badge ms-auto" style="background:#fff8e1; color:#d97706;">{{ warned_count }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for emp in warned_employees %}
+                        <li class="list-group-item px-4 py-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    {{ emp.user.first_name|first|upper }}{{ emp.user.last_name|first|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
+                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"No dept" }}</div>
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">No warned employees</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suspended / Upcoming -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center gap-2" style="color:#374151;">
+                    <i class="bi bi-person-slash"></i> Suspended / Upcoming
+                    <span class="badge bg-dark ms-auto">{{ suspended_count }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for emp in suspended_employees %}
+                        <li class="list-group-item px-4 py-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#374151,#1f2937);color:white;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    {{ emp.user.first_name|first|upper }}{{ emp.user.last_name|first|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
+                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"No dept" }}</div>
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">No suspended employees</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dismissals -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center gap-2 text-danger">
+                    <i class="bi bi-person-x-fill"></i> Dismissals
+                    <span class="badge bg-danger ms-auto">{{ dismissed_count }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for emp in dismissed_employees %}
+                        <li class="list-group-item px-4 py-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    {{ emp.user.first_name|first|upper }}{{ emp.user.last_name|first|upper }}
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
+                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"No dept" }}</div>
+                                </div>
+                                <a href="/accounts/employees/{{ emp.pk }}/edit/" class="btn btn-sm btn-outline-danger" style="font-size:0.72rem;">
+                                    <i class="bi bi-person-x me-1"></i>Deactivate
+                                </a>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">No dismissals on record</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

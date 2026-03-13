@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Issue Contract — LeaveDesk{% endblock %}
+{% block page_title %}Issue Contract{% endblock %}
+{% block nav_contracts %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'contracts:list' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> All Contracts
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-7">
+<div class="card animate-in">
+    <div class="card-header">
+        <i class="bi bi-file-earmark-plus me-2" style="color:#0284c7;"></i>Issue New Contract
+    </div>
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-600">Employee <span class="text-danger">*</span></label>
+                <select name="employee" class="form-select" required>
+                    <option value="">— Select Employee —</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.pk }}">
+                        {{ emp.get_full_name }} ({{ emp.employee_id }}){% if emp.department %} — {{ emp.department }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-600">Contract Type <span class="text-danger">*</span></label>
+                <div class="d-flex gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="contract_type" id="type_cdd" value="CDD" checked onchange="toggleEndDate()">
+                        <label class="form-check-label" for="type_cdd">
+                            <strong>CDD</strong> — Fixed Term <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="contract_type" id="type_cdi" value="CDI" onchange="toggleEndDate()">
+                        <label class="form-check-label" for="type_cdi">
+                            <strong>CDI</strong> — Permanent <span class="text-muted" style="font-size:.8rem;">(no end date)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label fw-600">Start Date <span class="text-danger">*</span></label>
+                    <input type="date" name="start_date" class="form-control" required>
+                </div>
+                <div class="col-sm-6" id="end-date-wrap">
+                    <label class="form-label fw-600">End Date <span class="text-danger">*</span> <small class="text-muted fw-normal">(CDD only)</small></label>
+                    <input type="date" name="end_date" id="end-date-input" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-600">Notes <small class="text-muted fw-normal">(optional)</small></label>
+                <textarea name="notes" class="form-control" rows="3" placeholder="Any additional notes about this contract…"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-check me-1"></i>Issue Contract
+                </button>
+                <a href="{% url 'contracts:list' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+function toggleEndDate() {
+    const isCDI = document.getElementById('type_cdi').checked;
+    const wrap = document.getElementById('end-date-wrap');
+    const input = document.getElementById('end-date-input');
+    wrap.style.opacity = isCDI ? '0.4' : '1';
+    input.required = !isCDI;
+    input.disabled = isCDI;
+    if (isCDI) input.value = '';
+}
+</script>
+{% endblock %}

@@ -359,7 +359,7 @@ def all_leaves_hr(request):
         'year_filter': year_filter,
         'departments': departments,
         'status_choices': LeaveRequest.STATUS_CHOICES,
-        'years': range(2023, date.today().year + 2),
+        'years': range(2000, date.today().year + 11),
     })
 
 
@@ -392,7 +392,7 @@ def employee_leave_summary(request, pk):
         'balance': balance,
         'all_requests': all_requests,
         'year': year,
-        'years': range(2023, date.today().year + 2),
+        'years': range(2000, date.today().year + 11),
     })
 
 

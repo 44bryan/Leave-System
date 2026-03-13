@@ -139,6 +139,10 @@ class LeaveBalance(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='leave_balances')
     year = models.PositiveIntegerField()
     total_entitlement = models.PositiveIntegerField(default=18)
+    carried_forward = models.PositiveIntegerField(
+        default=0,
+        help_text="Unused days carried over from the previous year (accumulated leave)."
+    )
 
     class Meta:
         unique_together = ('employee', 'year')
@@ -146,6 +150,11 @@ class LeaveBalance(models.Model):
 
     def __str__(self):
         return f"{self.employee} - {self.year}"
+
+    @property
+    def total_available(self):
+        """Annual entitlement + accumulated days carried forward from prior year."""
+        return self.total_entitlement + self.carried_forward
 
     @property
     def used_days(self):
@@ -158,13 +167,13 @@ class LeaveBalance(models.Model):
 
     @property
     def remaining_days(self):
-        return max(0, self.total_entitlement - self.used_days)
+        return max(0, self.total_available - self.used_days)
 
     @property
     def usage_percentage(self):
-        if self.total_entitlement == 0:
+        if self.total_available == 0:
             return 0
-        return round((self.used_days / self.total_entitlement) * 100)
+        return round((self.used_days / self.total_available) * 100)
 
     def non_deductible_by_type(self):
         """Returns list of {name, days} for approved non-deductible leaves this year."""

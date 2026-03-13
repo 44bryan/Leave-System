@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Discipline Records{% endblock %}
+
+{% block nav_discipline %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="d-flex align-items-center gap-3">
+        <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+        <div>
+            <div class="topbar-title">Discipline Records</div>
+        </div>
+    </div>
+    <div class="topbar-actions">
+        {% if is_privileged or request.user.is_superuser %}
+        <a href="{% url 'discipline:stats' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-bar-chart-line me-1"></i> Stats
+        </a>
+        {% endif %}
+        <a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle me-1"></i> Issue Notice
+        </a>
+    </div>
+</div>
+
+<div class="page-content">
+
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %} alert-dismissible fade show mb-4">
+                <i class="bi bi-{% if msg.tags == 'error' %}exclamation-circle{% elif msg.tags == 'warning' %}exclamation-triangle{% else %}check-circle{% endif %} me-2"></i>
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Dismissal Alert Banner (HR/Admin only) -->
+    {% if dismissal_alert %}
+    <div class="alert alert-danger mb-4" style="border-left: 4px solid #dc3545;">
+        <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-exclamation-octagon-fill fs-4 mt-1 text-danger flex-shrink-0"></i>
+            <div>
+                <strong>Action Required — Dismissal Notices</strong>
+                <p class="mb-2 mt-1" style="font-size:0.875rem;">
+                    The following employees have been dismissed and their accounts must be deactivated manually by HR or Admin:
+                </p>
+                <ul class="mb-0" style="font-size:0.875rem;">
+                    {% for d in dismissal_alert %}
+                    <li>
+                        <strong>{{ d.employee.get_full_name }}</strong> — {{ d.employee.employee_id }}
+                        <span class="text-muted">(dismissed {{ d.date_issued }})</span>
+                        <a href="/accounts/employees/{{ d.employee.pk }}/edit/" class="ms-2 text-danger fw-bold" style="font-size:0.8rem;">
+                            <i class="bi bi-person-x me-1"></i>Deactivate Account
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body py-3">
+            <form method="get" class="d-flex flex-wrap gap-3 align-items-end">
+                <div>
+                    <label class="form-label mb-1" style="font-size:0.78rem;">Type</label>
+                    <select name="type" class="form-select form-select-sm" style="min-width:180px;" onchange="this.form.submit()">
+                        <option value="">All Types</option>
+                        {% for key, label in action_types %}
+                        <option value="{{ key }}" {% if type_filter == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if is_privileged %}
+                <div>
+                    <label class="form-label mb-1" style="font-size:0.78rem;">Department</label>
+                    <select name="dept" class="form-select form-select-sm" style="min-width:180px;" onchange="this.form.submit()">
+                        <option value="">All Departments</option>
+                        {% for d in departments %}
+                        <option value="{{ d.pk }}" {% if dept_filter == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                {% if type_filter or dept_filter %}
+                <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Records Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-shield-exclamation me-2 text-danger"></i>Discipline Records
+                <span class="badge bg-secondary ms-2">{{ records|length }}</span>
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Type</th>
+                        <th>Date Issued</th>
+                        <th>Issued By</th>
+                        {% if is_privileged %}<th>Department</th>{% endif %}
+                        <th>Suspension Period</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>
+                            <div class="fw-600">{{ record.employee.get_full_name }}</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0;">{{ record.employee.employee_id }}</div>
+                        </td>
+                        <td>
+                            {% if record.action_type == 'verbal_warning' %}
+                                <span class="badge" style="background:#fef3c7; color:#92400e;">Verbal Warning</span>
+                            {% elif record.action_type == 'written_caution' %}
+                                <span class="badge" style="background:#fed7aa; color:#92400e;">Written Caution</span>
+                            {% elif record.action_type == 'final_warning' %}
+                                <span class="badge bg-danger">Final Warning</span>
+                            {% elif record.action_type == 'suspension' %}
+                                <span class="badge bg-dark">Suspension</span>
+                            {% elif record.action_type == 'dismissal' %}
+                                <span class="badge bg-danger">Dismissal</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ record.date_issued|date:"d M Y" }}</td>
+                        <td style="font-size:0.82rem;">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</td>
+                        {% if is_privileged %}
+                        <td style="font-size:0.82rem;">{{ record.employee.department|default:"—" }}</td>
+                        {% endif %}
+                        <td style="font-size:0.82rem;">
+                            {% if record.action_type == 'suspension' and record.suspension_start %}
+                                {{ record.suspension_start|date:"d M" }} – {{ record.suspension_end|date:"d M Y" }}
+                                {% if record.is_currently_suspended %}
+                                    <span class="badge bg-dark ms-1" style="font-size:0.65rem;">Active</span>
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'discipline:detail' record.pk %}" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5" style="color:#9ab4c0;">
+                            <i class="bi bi-shield-check fs-2 d-block mb-2"></i>
+                            No discipline records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -30,7 +30,7 @@ class EmployeeCreateForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'supervisor', 'position', 'phone', 'date_joined_company']
+        fields = ['employee_id', 'department', 'role', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -39,6 +39,7 @@ class EmployeeCreateForm(forms.ModelForm):
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
 
     def save(self, commit=True):
@@ -64,7 +65,7 @@ class EmployeeEditForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'supervisor', 'position', 'phone', 'date_joined_company', 'is_active']
+        fields = ['employee_id', 'department', 'role', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'is_active']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -73,6 +74,7 @@ class EmployeeEditForm(forms.ModelForm):
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

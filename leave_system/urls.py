@@ -34,6 +34,8 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('leaves/', include('leaves.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('discipline/', include('discipline.urls')),
+    path('contracts/', include('contracts.urls')),
     path('', lambda request: redirect('dashboard:home'), name='home'),
     path('debug-settings/', debug_settings),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Discipline Notice — {{ record.employee.get_full_name }}{% endblock %}
+{% block page_title %}Discipline Notice{% endblock %}
+{% block nav_discipline %}active{% endblock %}
+
+{% block topbar_actions %}
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_manager %}
+<a href="{% url 'discipline:list' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> Disciplinary Records
+</a>
+{% else %}
+<a href="{% url 'discipline:my_notices' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> My Discipline Record
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Type Banner -->
+            <div class="mb-4 p-4 rounded-3 text-white
+                {% if record.action_type == 'dismissal' or record.action_type == 'final_warning' %}
+                    " style="background: linear-gradient(135deg, #dc2626, #b91c1c);"
+                {% elif record.action_type == 'suspension' %}
+                    " style="background: linear-gradient(135deg, #374151, #1f2937);"
+                {% elif record.action_type == 'written_caution' %}
+                    " style="background: linear-gradient(135deg, #d97706, #b45309);"
+                {% else %}
+                    " style="background: linear-gradient(135deg, #f59e0b, #d97706);"
+                {% endif %}
+            >
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-exclamation-octagon-fill fs-2"></i>
+                    <div>
+                        <div style="font-size:1.1rem; font-weight:800;">{{ record.get_action_type_display }}</div>
+                        <div style="font-size:0.875rem; opacity:0.85;">Issued on {{ record.date_issued|date:"d F Y" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-person me-2"></i>Employee Details</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Employee</div>
+                            <div class="fw-600 mt-1">{{ record.employee.get_full_name }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Employee ID</div>
+                            <div class="fw-600 mt-1">{{ record.employee.employee_id }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Department</div>
+                            <div class="mt-1">{{ record.employee.department|default:"—" }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Position</div>
+                            <div class="mt-1">{{ record.employee.position|default:"—" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-file-text me-2"></i>Notice Details</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Issued By</div>
+                            <div class="mt-1">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Date Issued</div>
+                            <div class="mt-1">{{ record.date_issued|date:"d F Y" }}</div>
+                        </div>
+
+                        {% if record.action_type == 'suspension' %}
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Suspension Start</div>
+                            <div class="mt-1">{{ record.suspension_start|date:"d F Y"|default:"—" }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Suspension End (8 days)</div>
+                            <div class="mt-1">{{ record.suspension_end|date:"d F Y"|default:"—" }}</div>
+                        </div>
+                        {% if record.is_currently_suspended %}
+                        <div class="col-12">
+                            <div class="alert alert-dark py-2 px-3 mb-0" style="font-size:0.875rem;">
+                                <i class="bi bi-person-slash me-2"></i>
+                                <strong>This employee is currently suspended.</strong>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+
+                        <div class="col-12">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Reason</div>
+                            <div class="mt-2 p-3 rounded-2" style="background:#f8fafc; border:1px solid #e8f0f5; font-size:0.9rem; line-height:1.7;">
+                                {{ record.reason|linebreaks }}
+                            </div>
+                        </div>
+
+                        {% if record.document %}
+                        <div class="col-12">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Attached Document</div>
+                            <div class="mt-2">
+                                <a href="{{ record.document.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-file-earmark-arrow-down me-1"></i> Download Document
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Internal notes — only visible to HR/Admin/Manager who issued -->
+            {% if record.notes %}
+            {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or record.issued_by == request.user %}
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-lock me-2"></i>Internal Notes <small class="text-muted fw-normal">(not visible to employee)</small></div>
+                <div class="card-body">
+                    <p style="font-size:0.9rem; color:#4a6b7c; margin:0;">{{ record.notes|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            {% if record.action_type == 'dismissal' %}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                <strong>Dismissal Notice:</strong> HR and Admin must manually deactivate this employee's account.
+                <a href="/accounts/employees/{{ record.employee.pk }}/edit/" class="alert-link ms-2">
+                    Go to Employee Profile <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}
