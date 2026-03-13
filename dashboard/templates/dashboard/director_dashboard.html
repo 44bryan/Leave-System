@@ -5,10 +5,10 @@
 {% block nav_dashboard %}active{% endblock %}
 
 {% block topbar_actions %}
-<a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm">
+<a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
     <i class="bi bi-shield-exclamation me-1"></i> Issue Notice
 </a>
-<a href="{% url 'leaves:director_approvals' %}" class="btn btn-primary btn-sm">
+<a href="{% url 'leaves:director_approvals' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
     <i class="bi bi-shield-check me-1"></i> Final Approvals
 </a>
 {% endblock %}
