@@ -1092,6 +1092,27 @@
     </div>
     {% endif %}
 
+    <!-- Mobile-only footer: profile / settings / logout -->
+    <div class="sidebar-mobile-footer">
+        <a href="{% url 'accounts:profile' %}" class="sidebar-footer-item">
+            <i class="bi bi-person-circle sidebar-footer-icon"></i>
+            <span>{% trans "My Profile" %}</span>
+        </a>
+        {% if user.is_superuser %}
+        <a href="{% url 'dashboard:admin_settings' %}" class="sidebar-footer-item">
+            <i class="bi bi-sliders sidebar-footer-icon"></i>
+            <span>{% trans "System Settings" %}</span>
+        </a>
+        {% endif %}
+        <a href="{% url 'accounts:change_password' %}" class="sidebar-footer-item">
+            <i class="bi bi-key sidebar-footer-icon"></i>
+            <span>{% trans "Change Password" %}</span>
+        </a>
+        <a href="{% url 'accounts:logout' %}" class="sidebar-footer-item" style="color:#dc2626;">
+            <i class="bi bi-box-arrow-right sidebar-footer-icon" style="color:#dc2626;"></i>
+            <span>{% trans "Sign Out" %}</span>
+        </a>
+    </div>
 
 </aside>
 
