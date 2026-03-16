@@ -32,6 +32,10 @@
 <div class="mb-4 p-4 rounded-3 text-white animate-in
     {% if contract.contract_type == 'CDI' %}
     " style="background: linear-gradient(135deg, #0A4D68, #088395);"
+    {% elif contract.contract_type == 'INTERN' %}
+    " style="background: linear-gradient(135deg, #0369a1, #0ea5e9);"
+    {% elif contract.contract_type == 'WACS' %}
+    " style="background: linear-gradient(135deg, #6d28d9, #8b5cf6);"
     {% elif contract.is_expired %}
     " style="background: linear-gradient(135deg, #dc2626, #b91c1c);"
     {% elif contract.days_remaining is not None and contract.days_remaining <= 30 %}
@@ -46,6 +50,10 @@
         <div>
             {% if contract.contract_type == 'CDI' %}
             <i class="bi bi-infinity" style="font-size:2.5rem;opacity:.8;"></i>
+            {% elif contract.contract_type == 'INTERN' %}
+            <i class="bi bi-mortarboard-fill" style="font-size:2.5rem;opacity:.8;"></i>
+            {% elif contract.contract_type == 'WACS' %}
+            <i class="bi bi-award-fill" style="font-size:2.5rem;opacity:.8;"></i>
             {% elif contract.is_expired %}
             <i class="bi bi-x-circle-fill" style="font-size:2.5rem;opacity:.8;"></i>
             {% elif contract.is_expiring_soon %}
@@ -58,6 +66,10 @@
             <div style="font-size:1.1rem;font-weight:800;">
                 {% if contract.contract_type == 'CDI' %}
                     Permanent Contract (CDI)
+                {% elif contract.contract_type == 'INTERN' %}
+                    Internship Contract
+                {% elif contract.contract_type == 'WACS' %}
+                    WACS Residency / Trainee Programme
                 {% else %}
                     Fixed-Term Contract (CDD)
                 {% endif %}
@@ -65,6 +77,12 @@
             <div style="font-size:.9rem;opacity:.85;margin-top:4px;">
                 {% if contract.contract_type == 'CDI' %}
                     No fixed end date — your contract does not expire.
+                {% elif contract.contract_type == 'INTERN' %}
+                    Internship period: {{ contract.start_date|date:"d F Y" }}
+                    {% if contract.end_date %} — {{ contract.end_date|date:"d F Y" }}{% endif %}
+                {% elif contract.contract_type == 'WACS' %}
+                    WACS Programme: {{ contract.start_date|date:"d F Y" }}
+                    {% if contract.end_date %} — {{ contract.end_date|date:"d F Y" }}{% endif %}
                 {% elif contract.is_expired %}
                     Your contract expired on {{ contract.end_date|date:"d F Y" }}.
                 {% else %}
@@ -72,10 +90,20 @@
                 {% endif %}
             </div>
         </div>
-        {% if contract.contract_type == 'CDD' and not contract.is_expired and contract.days_remaining is not None %}
+        {% if contract.contract_type in 'CDD' and not contract.is_expired and contract.days_remaining is not None %}
         <div class="text-center">
             <div style="font-size:2.5rem;font-weight:900;line-height:1;">{{ contract.days_remaining }}</div>
             <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">days left</div>
+        </div>
+        {% elif contract.contract_type == 'INTERN' and contract.days_remaining is not None and contract.days_remaining > 0 %}
+        <div class="text-center">
+            <div style="font-size:2.5rem;font-weight:900;line-height:1;">{{ contract.days_remaining }}</div>
+            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">days remaining</div>
+        </div>
+        {% elif contract.contract_type == 'WACS' and contract.days_remaining is not None and contract.days_remaining > 0 %}
+        <div class="text-center">
+            <div style="font-size:2.5rem;font-weight:900;line-height:1;">{{ contract.days_remaining }}</div>
+            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">days remaining</div>
         </div>
         {% endif %}
     </div>
@@ -86,7 +114,12 @@
     <!-- Contract Details -->
     <div class="col-lg-7">
         <div class="card animate-in mb-4">
-            <div class="card-header"><i class="bi bi-file-text me-2"></i>Contract Details</div>
+            <div class="card-header">
+                <i class="bi bi-file-text me-2"></i>
+                {% if contract.contract_type == 'INTERN' %}Internship Details
+                {% elif contract.contract_type == 'WACS' %}WACS Programme Details
+                {% else %}Contract Details{% endif %}
+            </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-sm-6">
@@ -94,6 +127,10 @@
                         <div class="mt-1 fw-600">
                             {% if contract.contract_type == 'CDI' %}
                             <span class="badge" style="background:#dcfce7;color:#15803d;font-size:.82rem;"><i class="bi bi-infinity me-1"></i>CDI — Permanent</span>
+                            {% elif contract.contract_type == 'INTERN' %}
+                            <span class="badge" style="background:#e0f2fe;color:#0369a1;font-size:.82rem;"><i class="bi bi-mortarboard me-1"></i>Internship Contract</span>
+                            {% elif contract.contract_type == 'WACS' %}
+                            <span class="badge" style="background:#fdf4ff;color:#7e22ce;font-size:.82rem;"><i class="bi bi-award me-1"></i>WACS Residency</span>
                             {% else %}
                             <span class="badge" style="background:#fef9c3;color:#a16207;font-size:.82rem;"><i class="bi bi-calendar-range me-1"></i>CDD — Fixed Term</span>
                             {% endif %}
@@ -114,11 +151,15 @@
                         </div>
                     </div>
                     <div class="col-sm-6">
-                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Start Date</div>
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">
+                            {% if contract.contract_type == 'INTERN' %}Internship Start{% elif contract.contract_type == 'WACS' %}Programme Start{% else %}Start Date{% endif %}
+                        </div>
                         <div class="mt-1">{{ contract.start_date|date:"d F Y" }}</div>
                     </div>
                     <div class="col-sm-6">
-                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">End Date</div>
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">
+                            {% if contract.contract_type == 'INTERN' %}Internship End{% elif contract.contract_type == 'WACS' %}Programme End{% else %}End Date{% endif %}
+                        </div>
                         <div class="mt-1">
                             {% if contract.end_date %}{{ contract.end_date|date:"d F Y" }}{% else %}<span class="text-muted">No end date (permanent)</span>{% endif %}
                         </div>
@@ -145,15 +186,37 @@
         </div>
 
         <!-- HR Collection Notice -->
-        <div class="card animate-in mb-4" style="border:1.5px solid #0891b2;background:#f0f9ff;">
+        <div class="card animate-in mb-4"
+            {% if contract.contract_type == 'INTERN' %}style="border:1.5px solid #0ea5e9;background:#f0f9ff;"
+            {% elif contract.contract_type == 'WACS' %}style="border:1.5px solid #8b5cf6;background:#fdf4ff;"
+            {% else %}style="border:1.5px solid #0891b2;background:#f0f9ff;"{% endif %}>
             <div class="card-body d-flex align-items-start gap-3 py-3">
-                <i class="bi bi-building-check fs-4 mt-1 flex-shrink-0" style="color:#0891b2;"></i>
+                <i class="bi bi-building-check fs-4 mt-1 flex-shrink-0"
+                    {% if contract.contract_type == 'INTERN' %}style="color:#0369a1;"
+                    {% elif contract.contract_type == 'WACS' %}style="color:#7e22ce;"
+                    {% else %}style="color:#0891b2;"{% endif %}></i>
                 <div>
-                    <div style="font-weight:700;color:#0A4D68;font-size:.9rem;">Action Required — Collect Your Signed Contract</div>
+                    <div style="font-weight:700;font-size:.9rem;
+                        {% if contract.contract_type == 'INTERN' %}color:#0369a1;
+                        {% elif contract.contract_type == 'WACS' %}color:#6d28d9;
+                        {% else %}color:#0A4D68;{% endif %}">
+                        Action Required — Collect Your Signed
+                        {% if contract.contract_type == 'INTERN' %}Internship Agreement
+                        {% elif contract.contract_type == 'WACS' %}WACS Programme Agreement
+                        {% else %}Contract{% endif %}
+                    </div>
                     <div style="font-size:.82rem;color:#4a6b7c;margin-top:4px;">
+                        {% if contract.contract_type == 'INTERN' %}
+                        Your Internship Contract has been issued and is ready for signature. Please visit the
+                        <strong>HR Office</strong> to sign and collect your internship agreement document.
+                        {% elif contract.contract_type == 'WACS' %}
+                        Your WACS Residency agreement has been issued. Please visit the
+                        <strong>HR Office</strong> to sign and collect your programme contract document.
+                        {% else %}
                         Your contract has been issued and is ready for signature. Please visit the
                         <strong>HR Office</strong> at your earliest convenience to sign and collect
                         your official contract document.
+                        {% endif %}
                     </div>
                     <div style="font-size:.75rem;color:#9ab4c0;margin-top:6px;">
                         <i class="bi bi-clock me-1"></i>Issued on {{ contract.created_at|date:"d F Y" }} at {{ contract.created_at|time:"H:i" }}
@@ -202,10 +265,101 @@
         {% endif %}
     </div>
 
-    <!-- Right Column: Employee Info -->
+    <!-- Right Column -->
     <div class="col-lg-5">
 
-        <!-- Years of Service Card -->
+        {% if contract.contract_type == 'INTERN' %}
+        <!-- Internship Duration Card -->
+        <div class="card animate-in mb-4" style="border:1.5px solid #bae6fd;">
+            <div class="card-header" style="background:#e0f2fe;border-color:#bae6fd;">
+                <i class="bi bi-mortarboard me-2" style="color:#0369a1;"></i>Internship Programme
+            </div>
+            <div class="card-body text-center">
+                {% if contract.days_remaining is not None and contract.days_remaining > 0 %}
+                <div style="font-size:2.5rem;font-weight:900;color:#0369a1;">{{ contract.days_remaining }}</div>
+                <div style="font-size:.78rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.06em;">Days Remaining</div>
+                {% elif contract.is_expired %}
+                <div style="font-size:1.1rem;font-weight:700;color:#dc2626;">Internship Completed</div>
+                {% else %}
+                <div style="font-size:1.1rem;font-weight:700;color:#0369a1;">Active</div>
+                {% endif %}
+                {% if contract.end_date %}
+                <div class="mt-3 pt-3" style="border-top:1px solid #bae6fd;">
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Programme Ends</div>
+                    <div style="font-weight:700;color:#0369a1;">{{ contract.end_date|date:"d F Y" }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Intern Info Card -->
+        <div class="card animate-in" style="border:1.5px solid #bae6fd;background:#f0f9ff;">
+            <div class="card-body py-3 px-4">
+                <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#0369a1;margin-bottom:10px;">
+                    <i class="bi bi-info-circle me-1"></i>Intern Information
+                </div>
+                <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #bae6fd;font-size:.85rem;">
+                    <span style="color:#6b7a8d;">Programme Type</span>
+                    <span class="fw-600">Internship</span>
+                </div>
+                <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #bae6fd;font-size:.85rem;">
+                    <span style="color:#6b7a8d;">Leave Approvals</span>
+                    <span class="fw-600">Direct to HR</span>
+                </div>
+                {% if employee.department %}
+                <div class="d-flex justify-content-between py-2" style="font-size:.85rem;">
+                    <span style="color:#6b7a8d;">Department</span>
+                    <span class="fw-600">{{ employee.department }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% elif contract.contract_type == 'WACS' %}
+        <!-- WACS Duration Card -->
+        <div class="card animate-in mb-4" style="border:1.5px solid #ddd6fe;">
+            <div class="card-header" style="background:#fdf4ff;border-color:#ddd6fe;">
+                <i class="bi bi-award me-2" style="color:#7e22ce;"></i>WACS Residency Programme
+            </div>
+            <div class="card-body text-center">
+                {% if contract.days_remaining is not None and contract.days_remaining > 0 %}
+                <div style="font-size:2.5rem;font-weight:900;color:#7e22ce;">{{ contract.days_remaining }}</div>
+                <div style="font-size:.78rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.06em;">Days Remaining</div>
+                {% elif contract.is_expired %}
+                <div style="font-size:1.1rem;font-weight:700;color:#dc2626;">Programme Completed</div>
+                {% else %}
+                <div style="font-size:1.1rem;font-weight:700;color:#7e22ce;">Active</div>
+                {% endif %}
+                {% if contract.end_date %}
+                <div class="mt-3 pt-3" style="border-top:1px solid #ddd6fe;">
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Programme Ends</div>
+                    <div style="font-weight:700;color:#7e22ce;">{{ contract.end_date|date:"d F Y" }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- WACS Info -->
+        <div class="card animate-in" style="border:1.5px solid #ddd6fe;background:#fdf4ff;">
+            <div class="card-body py-3 px-4">
+                <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#7e22ce;margin-bottom:10px;">
+                    <i class="bi bi-info-circle me-1"></i>Trainee Information
+                </div>
+                <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #ddd6fe;font-size:.85rem;">
+                    <span style="color:#6b7a8d;">Programme Type</span>
+                    <span class="fw-600">WACS Residency</span>
+                </div>
+                {% if employee.department %}
+                <div class="d-flex justify-content-between py-2" style="font-size:.85rem;">
+                    <span style="color:#6b7a8d;">Department</span>
+                    <span class="fw-600">{{ employee.department }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Years of Service Card (CDI/CDD only) -->
         <div class="card animate-in mb-4">
             <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#0284c7;"></i>Years of Service</div>
             <div class="card-body text-center">
@@ -214,7 +368,7 @@
             </div>
         </div>
 
-        <!-- Age & Retirement Card -->
+        <!-- Age & Retirement Card (CDI/CDD only) -->
         {% with age=employee.age %}
         {% if age %}
         <div class="card animate-in">
@@ -243,6 +397,7 @@
         </div>
         {% endif %}
         {% endwith %}
+        {% endif %}
 
     </div>
 </div>
