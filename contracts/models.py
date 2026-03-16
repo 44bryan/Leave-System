@@ -21,6 +21,7 @@ class Contract(models.Model):
     employee = models.ForeignKey(
         Employee, on_delete=models.CASCADE, related_name='contracts'
     )
+    contract_number = models.CharField(max_length=50, blank=True, default='', help_text='Official contract reference number')
     contract_type = models.CharField(max_length=10, choices=CONTRACT_TYPE_CHOICES)
     start_date = models.DateField()
     end_date = models.DateField(

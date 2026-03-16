@@ -63,6 +63,26 @@
                             {% endif %}
                         </div>
                     </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Sex</div>
+                        <div>{{ employee.get_sex_display|default:"—" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Nationality</div>
+                        <div>{{ employee.nationality|default:"—" }}</div>
+                    </div>
+                    {% if employee.contract_number %}
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Contract / Personnel No.</div>
+                        <div class="fw-bold font-monospace">{{ employee.contract_number }}</div>
+                    </div>
+                    {% endif %}
+                    {% if employee.qualifications %}
+                    <div class="col-12">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Qualifications</div>
+                        <div style="white-space:pre-line;">{{ employee.qualifications }}</div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

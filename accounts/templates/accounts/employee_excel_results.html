@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Import Results — LeaveDesk{% endblock %}
+{% block page_title %}Import Results{% endblock %}
+{% block nav_employees %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'accounts:employee_import' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-upload me-1"></i> Upload Another File
+</a>
+<a href="{% url 'accounts:employee_list' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-people me-1"></i> View Employee List
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4 animate-in">
+    <div class="col-md-4">
+        <div class="stat-card" style="border-top:3px solid #16a34a;">
+            <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-person-check-fill"></i></div>
+            <div class="stat-value" style="color:#16a34a;">{{ created|length }}</div>
+            <div class="stat-label">Successfully Imported</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card" style="border-top:3px solid #dc2626;">
+            <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-person-x-fill"></i></div>
+            <div class="stat-value" style="color:#dc2626;">{{ skipped|length }}</div>
+            <div class="stat-label">Rows Skipped (Errors)</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card" style="border-top:3px solid #0891b2;">
+            <div class="stat-icon" style="background:#cffafe;color:#0891b2;"><i class="bi bi-list-check"></i></div>
+            <div class="stat-value">{{ total_processed }}</div>
+            <div class="stat-label">Total Rows Processed</div>
+        </div>
+    </div>
+</div>
+
+{% if created %}
+<div class="card animate-in delay-1 mb-4">
+    <div class="card-header" style="background:#f0fdf4;color:#15803d;border-bottom:1px solid #bbf7d0;">
+        <i class="bi bi-check-circle-fill me-2"></i> Successfully Created ({{ created|length }})
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm mb-0">
+            <thead>
+                <tr>
+                    <th>Row</th>
+                    <th>Name</th>
+                    <th>Employee ID</th>
+                    <th>Contract</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in created %}
+                <tr>
+                    <td style="color:#6b7a8d;">{{ r.row }}</td>
+                    <td><strong>{{ r.name }}</strong></td>
+                    <td><code>{{ r.emp_id }}</code></td>
+                    <td><span class="badge bg-success">{{ r.contract }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if skipped %}
+<div class="card animate-in delay-2 mb-4">
+    <div class="card-header" style="background:#fef2f2;color:#dc2626;border-bottom:1px solid #fecaca;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> Skipped Rows ({{ skipped|length }})
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm mb-0">
+            <thead>
+                <tr>
+                    <th>Row</th>
+                    <th>Name</th>
+                    <th>Reason(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in skipped %}
+                <tr>
+                    <td style="color:#6b7a8d;">{{ r.row }}</td>
+                    <td>{{ r.name|default:"—" }}</td>
+                    <td>
+                        {% for err in r.errors %}
+                        <div style="font-size:0.8rem;color:#dc2626;"><i class="bi bi-dot"></i>{{ err }}</div>
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer" style="font-size:0.8rem;color:#6b7a8d;">
+        Fix the errors in your Excel file and re-upload just the affected rows.
+    </div>
+</div>
+{% endif %}
+
+{% if not created and not skipped %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-circle me-2"></i>No rows were processed. The file may be empty or the header row may be missing.
+</div>
+{% endif %}
+{% endblock %}

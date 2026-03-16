@@ -1172,6 +1172,11 @@
                     <i class="bi bi-person-plus"></i> Add Employee
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:employee_import' %}" class="nav-link-sidebar">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Import from Excel
+                </a>
+            </li>
             {% endif %}
             {% if user.is_superuser %}
             <li class="nav-item-sidebar">

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Import Employees from Excel — LeaveDesk{% endblock %}
+{% block page_title %}Import Employees from Excel{% endblock %}
+{% block nav_employees %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'accounts:employee_import' %}?download_template=1" class="btn btn-outline-success btn-sm">
+    <i class="bi bi-download me-1"></i> Download Template
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <!-- Instructions card -->
+        <div class="card animate-in mb-4">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>How to Import</div>
+            <div class="card-body">
+                <ol style="font-size:0.88rem;line-height:1.8;">
+                    <li>Click <strong>Download Template</strong> (top right) to get the Excel file with all column headers.</li>
+                    <li>Fill in your staff data. Columns marked in <span style="color:#dc2626;font-weight:600;">red</span> are required; teal columns are optional.</li>
+                    <li>Save the file and upload it below.</li>
+                    <li>The system will create an account for each valid row, issue a contract, and send a welcome notification.</li>
+                </ol>
+                <div class="alert alert-warning py-2 mb-0" style="font-size:0.82rem;">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    Each employee's default password is <strong>Micei2021</strong>. They must change it on first login.
+                    Department names must <strong>exactly match</strong> existing departments in the system.
+                </div>
+            </div>
+        </div>
+
+        <!-- Column reference -->
+        <div class="card animate-in delay-1 mb-4">
+            <div class="card-header" style="cursor:pointer;" data-bs-toggle="collapse" data-bs-target="#col-ref">
+                <i class="bi bi-table me-2"></i>Column Reference
+                <i class="bi bi-chevron-down ms-auto float-end"></i>
+            </div>
+            <div class="collapse" id="col-ref">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0" style="font-size:0.8rem;">
+                        <thead>
+                            <tr>
+                                <th>Column Header</th>
+                                <th>Required?</th>
+                                <th>Example / Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>first_name</code></td><td><span class="badge bg-danger">Required</span></td><td>Jane</td></tr>
+                            <tr><td><code>last_name</code></td><td><span class="badge bg-danger">Required</span></td><td>Doe</td></tr>
+                            <tr><td><code>email</code></td><td><span class="badge bg-danger">Required</span></td><td>jane.doe@hospital.cm</td></tr>
+                            <tr><td><code>employee_id</code></td><td><span class="badge bg-danger">Required</span></td><td>EMP-001</td></tr>
+                            <tr><td><code>contract_type</code></td><td><span class="badge bg-danger">Required</span></td><td>CDI / CDD / INTERN / WACS</td></tr>
+                            <tr><td><code>contract_start_date</code></td><td><span class="badge bg-danger">Required</span></td><td>2024-01-01</td></tr>
+                            <tr><td><code>contract_end_date</code></td><td><span class="badge bg-warning text-dark">CDD/INTERN/WACS</span></td><td>2024-12-31</td></tr>
+                            <tr><td><code>date_of_birth</code></td><td><span class="badge bg-secondary">Optional</span></td><td>1990-05-15</td></tr>
+                            <tr><td><code>sex</code></td><td><span class="badge bg-secondary">Optional</span></td><td>M or F</td></tr>
+                            <tr><td><code>nationality</code></td><td><span class="badge bg-secondary">Optional</span></td><td>Cameroonian</td></tr>
+                            <tr><td><code>phone</code></td><td><span class="badge bg-secondary">Optional</span></td><td>+237 600000000</td></tr>
+                            <tr><td><code>position</code></td><td><span class="badge bg-secondary">Optional</span></td><td>Nurse</td></tr>
+                            <tr><td><code>department</code></td><td><span class="badge bg-secondary">Optional</span></td><td>Must match existing dept name exactly</td></tr>
+                            <tr><td><code>role</code></td><td><span class="badge bg-secondary">Optional</span></td><td>employee / manager / intern / wacs_resident …</td></tr>
+                            <tr><td><code>staff_category</code></td><td><span class="badge bg-secondary">Optional</span></td><td>A, B … L, AA … AL, BA … BL</td></tr>
+                            <tr><td><code>date_joined_hospital</code></td><td><span class="badge bg-secondary">Optional</span></td><td>2024-01-01</td></tr>
+                            <tr><td><code>qualifications</code></td><td><span class="badge bg-secondary">Optional</span></td><td>BSc Nursing, MBBS …</td></tr>
+                            <tr><td><code>contract_number</code></td><td><span class="badge bg-secondary">Optional</span></td><td>CTR-2024-001</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload form -->
+        <div class="card animate-in delay-2">
+            <div class="card-header"><i class="bi bi-upload me-2"></i>Upload Excel File</div>
+            <div class="card-body p-4">
+                {% if messages %}
+                {% for msg in messages %}
+                <div class="alert alert-{{ msg.tags }} mb-3">{{ msg }}</div>
+                {% endfor %}
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select .xlsx file *</label>
+                        <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls" required>
+                        <div class="form-text">Only .xlsx files are supported. Maximum ~500 rows recommended per upload.</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-cloud-upload me-1"></i> Import
+                        </button>
+                        <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

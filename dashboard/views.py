@@ -23,8 +23,10 @@ def _build_contract_analytics(today, year):
         _Contract.objects.filter(status='active')
         .select_related('employee', 'employee__user', 'employee__department')
     )
-    _active_cdd = [c for c in _all_active if c.contract_type == 'CDD']
-    _active_cdi = [c for c in _all_active if c.contract_type == 'CDI']
+    _active_cdd    = [c for c in _all_active if c.contract_type == 'CDD']
+    _active_cdi    = [c for c in _all_active if c.contract_type == 'CDI']
+    _active_intern = [c for c in _all_active if c.contract_type == 'INTERN']
+    _active_wacs   = [c for c in _all_active if c.contract_type == 'WACS']
 
     contracts_expired_active = sorted(
         [c for c in _active_cdd if c.is_expired], key=lambda c: c.end_date
@@ -112,6 +114,8 @@ def _build_contract_analytics(today, year):
         'contract_total_active': _ct_total,
         'contract_total_cdi': len(_active_cdi),
         'contract_total_cdd': len(_active_cdd),
+        'contract_total_intern': len(_active_intern),
+        'contract_total_wacs': len(_active_wacs),
         'staff_category_groups': staff_category_groups,
         'staff_category_detail': staff_category_detail,
         'contract_dept_breakdown': contract_dept_breakdown,

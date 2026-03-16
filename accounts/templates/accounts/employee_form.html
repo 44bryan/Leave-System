@@ -6,12 +6,17 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-9">
         <div class="card animate-in">
             <div class="card-header"><i class="bi bi-person-fill me-2"></i>{{ title }}</div>
             <div class="card-body p-4">
-                <form method="post" novalidate>
+                <form method="post" novalidate id="employee-form">
                     {% csrf_token %}
+
+                    <!-- Personal Info section label -->
+                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
+                        <i class="bi bi-person me-1"></i> Personal Information
+                    </div>
 
                     {% if not employee %}
                     <div class="row g-3 mb-3">
@@ -38,7 +43,6 @@
                             <div class="form-text"><i class="bi bi-info-circle me-1"></i>Default: <strong>Micei2021</strong> — employee must change at first login.</div>
                         </div>
                     </div>
-                    <hr>
                     {% else %}
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -54,19 +58,47 @@
                             {{ form.email }}
                         </div>
                     </div>
-                    <hr>
                     {% endif %}
 
-                    <div class="row g-3">
+                    <!-- Sex / DOB / Nationality -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Sex</label>
+                            {{ form.sex }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Date of Birth</label>
+                            {{ form.date_of_birth }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Nationality</label>
+                            {{ form.nationality }}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Employment Details section label -->
+                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
+                        <i class="bi bi-briefcase me-1"></i> Employment Details
+                    </div>
+
+                    <!-- Intern hint banner (hidden by default) -->
+                    <div class="alert alert-warning py-2 px-3 mb-3 d-none" style="font-size:0.82rem;border-left:3px solid #f59e0b;background:#fffbeb;border-radius:8px;" id="intern-notice">
+                        <i class="bi bi-mortarboard me-1"></i>
+                        <strong>Internship Contract</strong> — Only Name, Employee ID, Email, Phone and Date of Birth are required. Greyed-out fields are optional for interns.
+                    </div>
+
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">{% trans "Employee ID" %} *</label>
                             {{ form.employee_id }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 optional-field">
                             <label class="form-label">{% trans "Position" %}</label>
                             {{ form.position }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 optional-field">
                             <label class="form-label">{% trans "Department" %}</label>
                             {{ form.department }}
                         </div>
@@ -74,26 +106,32 @@
                             <label class="form-label">Role</label>
                             {{ form.role }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 optional-field">
                             <label class="form-label">Staff Category</label>
                             {{ form.staff_category }}
                             <div class="form-text">Classification: A–L, AA–AL, BA–BL</div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 optional-field">
                             <label class="form-label">Line Manager / Supervisor</label>
                             {{ form.supervisor }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 optional-field">
                             <label class="form-label">{% trans "Phone" %}</label>
                             {{ form.phone }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 optional-field">
                             <label class="form-label">{% trans "Date Joined Hospital" %}</label>
                             {{ form.date_joined_company }}
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">{% trans "Date of Birth" %}</label>
-                            {{ form.date_of_birth }}
+                        <div class="col-md-6 optional-field">
+                            <label class="form-label">Contract Number</label>
+                            {{ form.contract_number }}
+                            <div class="form-text">Official reference number (optional)</div>
+                        </div>
+                        <div class="col-12 optional-field">
+                            <label class="form-label">Qualifications</label>
+                            {{ form.qualifications }}
+                            <div class="form-text">Academic / professional qualifications</div>
                         </div>
                         {% if employee %}
                         <div class="col-md-6">
@@ -108,6 +146,8 @@
 
                     {% if not employee %}
                     <hr class="my-4">
+
+                    <!-- Initial Contract section label -->
                     <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
                         <i class="bi bi-file-earmark-text me-1"></i> Initial Contract
                     </div>
@@ -115,6 +155,7 @@
                         <i class="bi bi-info-circle me-1"></i>
                         A contract is required to activate the employee account. The employee will be notified automatically.
                     </div>
+
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Contract Type *</label>
@@ -131,9 +172,9 @@
                             {% endif %}
                         </div>
                         <div class="col-md-4" id="end-date-wrap">
-                            <label class="form-label">End Date <span id="end-required-star" style="display:none;">*</span></label>
+                            <label class="form-label">End Date <span id="end-required-star">*</span></label>
                             {{ form.contract_end_date }}
-                            <div class="form-text" id="end-date-hint">Required for CDD only.</div>
+                            <div class="form-text">Required for CDD / INTERN / WACS.</div>
                             {% if form.contract_end_date.errors %}
                             <div class="text-danger" style="font-size:0.8rem;">{{ form.contract_end_date.errors.0 }}</div>
                             {% endif %}
@@ -167,7 +208,7 @@
 
 {% block extra_js %}
 <script>
-// Auto-generate username from first name (firstname + 4-digit number via AJAX hint)
+// Auto-generate username from first name
 (function() {
     const firstNameInput = document.querySelector('input[name="first_name"]');
     const usernameInput  = document.getElementById('id_username');
@@ -179,33 +220,63 @@
         const val = this.value.trim().toLowerCase().replace(/[^a-z]/g, '');
         if (!val) return;
         debounceTimer = setTimeout(function() {
-            // Ask the server for the next available username
             fetch('/accounts/username-suggest/?first_name=' + encodeURIComponent(val))
                 .then(r => r.json())
                 .then(d => { if (d.username && !usernameInput.dataset.manuallyEdited) usernameInput.value = d.username; })
                 .catch(() => {});
         }, 400);
     });
-
-    usernameInput.addEventListener('input', function() {
-        this.dataset.manuallyEdited = '1';
-    });
+    usernameInput.addEventListener('input', function() { this.dataset.manuallyEdited = '1'; });
 })();
 
-// Show/hide contract end date based on contract type
+// Smart contract-type behaviour
 (function() {
-    const ctSelect = document.getElementById('id_contract_type');
-    const endWrap  = document.getElementById('end-date-wrap');
-    const endStar  = document.getElementById('end-required-star');
-    const endInput = document.getElementById('id_contract_end_date');
+    const ctSelect     = document.getElementById('id_contract_type');
+    const roleSelect   = document.getElementById('id_role');
+    const endWrap      = document.getElementById('end-date-wrap');
+    const endInput     = document.getElementById('id_contract_end_date');
+    const internNotice = document.getElementById('intern-notice');
+    const optionalCols = document.querySelectorAll('.optional-field');
+
     if (!ctSelect) return;
 
+    // Auto-role mapping
+    const ROLE_MAP = { INTERN: 'intern', WACS: 'wacs_resident' };
+
     function update() {
-        const isCDD = ctSelect.value === 'CDD';
-        if (endWrap)  endWrap.style.opacity = isCDD ? '1' : '0.4';
-        if (endStar)  endStar.style.display = isCDD ? 'inline' : 'none';
-        if (endInput) endInput.required = isCDD;
+        const ct = ctSelect.value;
+        const needsEnd = ['CDD','INTERN','WACS'].includes(ct);
+        const isIntern = ct === 'INTERN';
+
+        // End date: required/visible for fixed-term contracts
+        if (endWrap)  endWrap.style.opacity = needsEnd ? '1' : '0.45';
+        if (endInput) endInput.required = needsEnd;
+
+        // Auto-set role
+        if (roleSelect && ROLE_MAP[ct]) {
+            roleSelect.value = ROLE_MAP[ct];
+        } else if (roleSelect && !ROLE_MAP[ct] && (roleSelect.value === 'intern' || roleSelect.value === 'wacs_resident')) {
+            // If user switched away from INTERN/WACS, reset role to employee
+            roleSelect.value = 'employee';
+        }
+
+        // Intern: gray out optional employment fields
+        if (internNotice) {
+            internNotice.classList.toggle('d-none', !isIntern);
+        }
+        optionalCols.forEach(function(col) {
+            col.style.opacity = isIntern ? '0.4' : '1';
+            col.style.pointerEvents = isIntern ? 'none' : '';
+            col.querySelectorAll('input, select, textarea').forEach(function(el) {
+                if (isIntern) {
+                    el.setAttribute('tabindex', '-1');
+                } else {
+                    el.removeAttribute('tabindex');
+                }
+            });
+        });
     }
+
     ctSelect.addEventListener('change', update);
     update();
 })();

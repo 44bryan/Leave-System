@@ -16,4 +16,5 @@ urlpatterns = [
     path('profile/change-password/', views.change_password, name='change_password'),
     path('employees/<int:pk>/reset-credentials/', views.admin_reset_credentials, name='reset_credentials'),
     path('username-suggest/', views.username_suggest, name='username_suggest'),
+    path('employees/import/', views.employee_excel_upload, name='employee_import'),
 ]

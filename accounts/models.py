@@ -30,6 +30,13 @@ class Employee(models.Model):
         ('admin_director', 'Administration Director'),
         ('finance_director', 'Finance Director'),
         ('ceo', 'CEO'),
+        ('intern', 'Intern'),
+        ('wacs_resident', 'WACS Resident / Trainee'),
+    ]
+
+    SEX_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
     ]
 
     CATEGORY_CHOICES = _build_category_choices()
@@ -50,6 +57,13 @@ class Employee(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     date_joined_company = models.DateField(null=True, blank=True)
+    sex = models.CharField(max_length=6, choices=SEX_CHOICES, blank=True, default='')
+    nationality = models.CharField(max_length=80, blank=True, default='')
+    contract_number = models.CharField(
+        max_length=50, blank=True, default='',
+        help_text='Official contract reference number'
+    )
+    qualifications = models.TextField(blank=True, default='', help_text='Academic and professional qualifications')
     is_active = models.BooleanField(default=True)
     dismissal_date = models.DateField(null=True, blank=True, help_text='Date dismissal was issued — account deactivated after 14 days')
 
@@ -77,6 +91,12 @@ class Employee(models.Model):
 
     def is_ceo(self):
         return self.role == 'ceo'
+
+    def is_intern(self):
+        return self.role == 'intern'
+
+    def is_wacs_resident(self):
+        return self.role == 'wacs_resident'
 
     def age(self):
         if not self.date_of_birth:
@@ -110,5 +130,7 @@ class Employee(models.Model):
             'admin_director': 'danger',
             'finance_director': 'danger',
             'ceo': 'dark',
+            'intern': 'info',
+            'wacs_resident': 'warning',
         }
         return badges.get(self.role, 'secondary')

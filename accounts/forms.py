@@ -61,30 +61,33 @@ class EmployeeCreateForm(forms.ModelForm):
         required=False,
         widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'id_contract_end_date'}),
         label='Contract End Date',
-        help_text='Required for CDD. Leave blank for CDI.',
+        help_text='Required for CDD, INTERN and WACS.',
     )
-
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
-            'role': forms.Select(attrs={'class': 'form-select'}),
+            'role': forms.Select(attrs={'class': 'form-select', 'id': 'id_role'}),
             'staff_category': forms.Select(attrs={'class': 'form-select'}),
             'supervisor': forms.Select(attrs={'class': 'form-select'}),
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'sex': forms.Select(attrs={'class': 'form-select'}),
+            'nationality': forms.TextInput(attrs={'class': 'form-control'}),
+            'contract_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. CTR-2024-001'}),
+            'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
     def clean(self):
         cleaned = super().clean()
         ct = cleaned.get('contract_type')
         end = cleaned.get('contract_end_date')
-        if ct == 'CDD' and not end:
-            self.add_error('contract_end_date', 'End date is required for a CDD (Fixed Term) contract.')
+        if ct in ('CDD', 'INTERN', 'WACS') and not end:
+            self.add_error('contract_end_date', 'End date is required for this contract type.')
         return cleaned
 
     def save(self, commit=True):
@@ -110,7 +113,7 @@ class EmployeeEditForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'is_active']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'is_active']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -121,6 +124,10 @@ class EmployeeEditForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'sex': forms.Select(attrs={'class': 'form-select'}),
+            'nationality': forms.TextInput(attrs={'class': 'form-control'}),
+            'contract_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
