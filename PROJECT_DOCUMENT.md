@@ -269,6 +269,58 @@ Then open: **http://127.0.0.1:8000**
 
 ## Change Log
 
+### 2026-03-16
+
+- **New Employee fields** — `sex` (M/F), `nationality`, `contract_number`, `qualifications` added to `Employee` model
+  - Migrations 0007 and 0008 applied
+  - Both `EmployeeCreateForm` and `EmployeeEditForm` updated to include all new fields
+  - `Add Employee` / `Edit Employee` form template fully reorganised: Personal Info section (sex, DOB, nationality), Employment Details section
+
+- **New Roles** — `intern` and `wacs_resident` added to `Employee.ROLE_CHOICES`
+  - Badge colors: Intern = info (teal), WACS Resident = warning (amber)
+
+- **Smart contract-type form behaviour** (`accounts/employee_form.html`)
+  - Selecting **Internship (INTERN)**: optional employment fields (position, department, staff category, supervisor, date joined, qualifications, contract number) are grayed out and pointer-events disabled; a warning banner explains that only Name, Employee ID, Email, Phone and DOB are required; Role auto-set to `intern`
+  - Selecting **WACS**: full employee account, all fields optional; Role auto-set to `wacs_resident`
+  - Selecting **CDI**: end date grayed out (not required)
+  - Switching away from INTERN/WACS: Role resets to `employee`
+
+- **Dashboard — INTERN/WACS stat cards** (`dashboard/templates/dashboard/includes/contract_analytics.html`)
+  - Contract KPI strip now shows **Interns** and **WACS Residents** stat cards (linking to filtered contracts list)
+  - `_build_contract_analytics()` in `dashboard/views.py` now returns `contract_total_intern` and `contract_total_wacs`
+
+- **Excel Bulk Import** — HR and Admin can upload an Excel file to create employees in bulk
+  - URL: `/accounts/employees/import/`
+  - Sidebar link under "Employees → Import from Excel" (visible to HR and superuser)
+  - **Download Template** button generates a pre-formatted `.xlsx` with all column headers; required columns in red, optional in teal; includes a Notes sheet explaining valid values
+  - Upload processes each row: validates required fields, checks for duplicate employee IDs/emails, looks up departments by name, creates User + Employee + Contract + LeaveBalance + welcome notification in a single transaction
+  - Results page shows Created/Skipped counts and per-row error details
+  - Dependency: `openpyxl==3.1.5` added to `requirements.txt`
+
+  **Excel column headers (exact match, case-insensitive):**
+  | Column | Required? |
+  |--------|-----------|
+  | `first_name` | Yes |
+  | `last_name` | Yes |
+  | `email` | Yes |
+  | `employee_id` | Yes |
+  | `contract_type` | Yes (CDI/CDD/INTERN/WACS) |
+  | `contract_start_date` | Yes |
+  | `contract_end_date` | Required for CDD/INTERN/WACS |
+  | `date_of_birth` | Optional |
+  | `sex` | Optional (M/F) |
+  | `nationality` | Optional |
+  | `phone` | Optional |
+  | `position` | Optional |
+  | `department` | Optional (must match existing dept name) |
+  | `role` | Optional (auto-set from contract type) |
+  | `staff_category` | Optional |
+  | `date_joined_hospital` | Optional |
+  | `qualifications` | Optional |
+  | `contract_number` | Optional |
+
+
+
 ### 2026-03-12
 - Fixed Server Error (500) on startup caused by missing staticfiles manifest
 - Root cause: `STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'` requires running `collectstatic` before the server can serve any page

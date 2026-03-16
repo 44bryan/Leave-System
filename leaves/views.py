@@ -60,7 +60,7 @@ def submit_leave(request):
                         f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
                         f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
                         notification_type='leave_submitted',
-                        url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                     )
                 return redirect('leaves:my_requests')
 
@@ -170,6 +170,18 @@ def manager_action(request, pk):
                     notification_type='leave_manager_approved',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
+                # Notify all HR admins that a leave is awaiting their review
+                from accounts.models import Employee as _Emp
+                for hr_emp in _Emp.objects.filter(role='hr', is_active=True).select_related('user'):
+                    notify(
+                        hr_emp.user,
+                        f'Leave Awaiting HR Review — {leave.employee.get_full_name()}',
+                        f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
+                        f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
+                        f'{leave.total_days} day(s)) pending your review.',
+                        notification_type='leave_submitted',
+                        url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
+                    )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_MANAGER
                 messages.warning(request, f"Leave request #{pk} has been rejected.")
@@ -247,6 +259,18 @@ def hr_action(request, pk):
                     notification_type='leave_hr_approved',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
+                # Notify Admin Director and Finance Director
+                from accounts.models import Employee as _Emp
+                for dir_emp in _Emp.objects.filter(role__in=('admin_director', 'finance_director'), is_active=True).select_related('user'):
+                    notify(
+                        dir_emp.user,
+                        f'Leave Awaiting Your Approval — {leave.employee.get_full_name()}',
+                        f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
+                        f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
+                        f'{leave.total_days} day(s)) awaiting your final decision.',
+                        notification_type='leave_hr_approved',
+                        url=reverse('leaves:director_action', kwargs={'pk': leave.pk}),
+                    )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_HR
                 messages.warning(request, f"Leave request #{pk} has been rejected by HR.")

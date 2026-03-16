@@ -17,27 +17,49 @@
 
 <!-- Summary Strip -->
 <div class="d-flex gap-3 flex-wrap mb-4">
-    <div class="stat-card" style="min-width:130px;flex:1;">
-        <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;"><i class="bi bi-file-earmark-text-fill"></i></div>
-        <div class="stat-value">{{ total }}</div>
-        <div class="stat-label">Total Contracts</div>
-    </div>
-    <div class="stat-card" style="min-width:130px;flex:1;">
-        <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-infinity"></i></div>
-        <div class="stat-value">{{ active_cdi }}</div>
-        <div class="stat-label">Active CDI</div>
-    </div>
-    <div class="stat-card" style="min-width:130px;flex:1;">
-        <div class="stat-icon" style="background:#fef9c3;color:#ca8a04;"><i class="bi bi-calendar-range"></i></div>
-        <div class="stat-value">{{ active_cdd }}</div>
-        <div class="stat-label">Active CDD</div>
-    </div>
+    <a href="{% url 'contracts:list' %}" class="text-decoration-none" style="flex:1;min-width:120px;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;"><i class="bi bi-file-earmark-text-fill"></i></div>
+            <div class="stat-value">{{ total }}</div>
+            <div class="stat-label">Total Contracts</div>
+        </div>
+    </a>
+    <a href="{% url 'contracts:list' %}?type=CDI" class="text-decoration-none" style="flex:1;min-width:120px;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-infinity"></i></div>
+            <div class="stat-value">{{ active_cdi }}</div>
+            <div class="stat-label">Active CDI</div>
+        </div>
+    </a>
+    <a href="{% url 'contracts:list' %}?type=CDD" class="text-decoration-none" style="flex:1;min-width:120px;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef9c3;color:#ca8a04;"><i class="bi bi-calendar-range"></i></div>
+            <div class="stat-value">{{ active_cdd }}</div>
+            <div class="stat-label">Active CDD</div>
+        </div>
+    </a>
+    <a href="{% url 'contracts:list' %}?type=INTERN" class="text-decoration-none" style="flex:1;min-width:120px;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#cffafe;color:#0891b2;"><i class="bi bi-mortarboard-fill"></i></div>
+            <div class="stat-value">{{ active_intern }}</div>
+            <div class="stat-label">Interns</div>
+        </div>
+    </a>
+    <a href="{% url 'contracts:list' %}?type=WACS" class="text-decoration-none" style="flex:1;min-width:120px;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-hospital-fill"></i></div>
+            <div class="stat-value">{{ active_wacs }}</div>
+            <div class="stat-label">WACS Residents</div>
+        </div>
+    </a>
     {% if expiring_soon_count > 0 %}
-    <div class="stat-card" style="min-width:130px;flex:1;border:2px solid #fca5a5;">
-        <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-alarm-fill"></i></div>
-        <div class="stat-value" style="color:#dc2626;">{{ expiring_soon_count }}</div>
-        <div class="stat-label">Expiring ≤ 60 days</div>
-    </div>
+    <a href="{% url 'contracts:list' %}?expiring=60" class="text-decoration-none" style="flex:1;min-width:120px;">
+        <div class="stat-card" style="border:2px solid #fca5a5;">
+            <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-alarm-fill"></i></div>
+            <div class="stat-value" style="color:#dc2626;">{{ expiring_soon_count }}</div>
+            <div class="stat-label">Expiring ≤ 60 days</div>
+        </div>
+    </a>
     {% endif %}
 </div>
 
@@ -47,10 +69,12 @@
         <form method="get" class="d-flex gap-2 flex-wrap align-items-end">
             <div>
                 <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Type</label>
-                <select name="type" class="form-select form-select-sm" style="min-width:130px;">
+                <select name="type" class="form-select form-select-sm" style="min-width:150px;">
                     <option value="">All Types</option>
-                    <option value="CDD" {% if filter_type == 'CDD' %}selected{% endif %}>CDD — Fixed Term</option>
-                    <option value="CDI" {% if filter_type == 'CDI' %}selected{% endif %}>CDI — Permanent</option>
+                    <option value="CDI"    {% if filter_type == 'CDI'    %}selected{% endif %}>CDI — Permanent</option>
+                    <option value="CDD"    {% if filter_type == 'CDD'    %}selected{% endif %}>CDD — Fixed Term</option>
+                    <option value="INTERN" {% if filter_type == 'INTERN' %}selected{% endif %}>Internship</option>
+                    <option value="WACS"   {% if filter_type == 'WACS'   %}selected{% endif %}>WACS Residency</option>
                 </select>
             </div>
             <div>

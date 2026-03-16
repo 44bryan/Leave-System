@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.urls import reverse
 from datetime import date
 
 from accounts.models import Employee
@@ -173,7 +174,7 @@ def issue_discipline(request):
                     f"Please review the notice and contact HR if you have any questions."
                 ),
                 notification_type='discipline',
-                url=f'/discipline/{record.pk}/',
+                url=reverse('discipline:detail', kwargs={'pk': record.pk}),
             )
 
             messages.success(

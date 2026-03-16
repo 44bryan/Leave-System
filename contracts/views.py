@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 from datetime import date
 from collections import defaultdict
 
@@ -115,16 +116,20 @@ def contract_list(request):
 
     # Summary counts
     all_contracts = Contract.objects.all()
-    total = all_contracts.count()
-    active_cdd = all_contracts.filter(contract_type='CDD', status='active').count()
-    active_cdi = all_contracts.filter(contract_type='CDI', status='active').count()
+    total         = all_contracts.count()
+    active_cdi    = all_contracts.filter(contract_type='CDI',    status='active').count()
+    active_cdd    = all_contracts.filter(contract_type='CDD',    status='active').count()
+    active_intern = all_contracts.filter(contract_type='INTERN', status='active').count()
+    active_wacs   = all_contracts.filter(contract_type='WACS',   status='active').count()
     expiring_soon = [c for c in Contract.objects.filter(contract_type='CDD', status='active') if c.is_expiring_soon]
 
     return render(request, 'contracts/contract_list.html', {
         'contracts': contracts,
         'total': total,
-        'active_cdd': active_cdd,
         'active_cdi': active_cdi,
+        'active_cdd': active_cdd,
+        'active_intern': active_intern,
+        'active_wacs': active_wacs,
         'expiring_soon_count': len(expiring_soon),
         'filter_type': filter_type,
         'filter_status': filter_status,
@@ -215,7 +220,7 @@ def issue_contract(request):
                 + " Please visit the HR Office to sign and collect your contract document."
             ),
             notification_type='contract_issued',
-            url='/contracts/my-contract/',
+            url=reverse('contracts:my_contract'),
         )
 
         messages.success(request, f"Contract issued for {emp.get_full_name()}.")
@@ -284,7 +289,7 @@ def renew_contract(request, pk):
             title='Contract Renewed',
             message=renewal_msg,
             notification_type='contract_renewed',
-            url=f'/contracts/{new_contract.pk}/',
+            url=reverse('contracts:detail', kwargs={'pk': new_contract.pk}),
         )
 
         messages.success(
@@ -326,7 +331,7 @@ def terminate_contract(request, pk):
             title='Contract Terminated',
             message=termination_msg,
             notification_type='contract_terminated',
-            url=f'/contracts/{contract.pk}/',
+            url=reverse('contracts:my_contract'),
         )
 
         messages.success(
@@ -357,6 +362,8 @@ def contract_stats(request):
     total_active  = len(all_contracts)
     total_cdi     = sum(1 for c in all_contracts if c.contract_type == 'CDI')
     total_cdd     = sum(1 for c in all_contracts if c.contract_type == 'CDD')
+    total_intern  = sum(1 for c in all_contracts if c.contract_type == 'INTERN')
+    total_wacs    = sum(1 for c in all_contracts if c.contract_type == 'WACS')
     total_staff   = len(all_employees)
 
     # ── Expiry urgency buckets ────────────────────────────────────────────────
@@ -466,6 +473,8 @@ def contract_stats(request):
         'total_active': total_active,
         'total_cdi': total_cdi,
         'total_cdd': total_cdd,
+        'total_intern': total_intern,
+        'total_wacs': total_wacs,
         'expiring_30': expiring_30,
         'expiring_60': expiring_60,
         'expiring_90': expiring_90,
