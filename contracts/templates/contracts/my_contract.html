@@ -185,46 +185,6 @@
             </div>
         </div>
 
-        <!-- HR Collection Notice -->
-        <div class="card animate-in mb-4"
-            {% if contract.contract_type == 'INTERN' %}style="border:1.5px solid #0ea5e9;background:#f0f9ff;"
-            {% elif contract.contract_type == 'WACS' %}style="border:1.5px solid #8b5cf6;background:#fdf4ff;"
-            {% else %}style="border:1.5px solid #0891b2;background:#f0f9ff;"{% endif %}>
-            <div class="card-body d-flex align-items-start gap-3 py-3">
-                <i class="bi bi-building-check fs-4 mt-1 flex-shrink-0"
-                    {% if contract.contract_type == 'INTERN' %}style="color:#0369a1;"
-                    {% elif contract.contract_type == 'WACS' %}style="color:#7e22ce;"
-                    {% else %}style="color:#0891b2;"{% endif %}></i>
-                <div>
-                    <div style="font-weight:700;font-size:.9rem;
-                        {% if contract.contract_type == 'INTERN' %}color:#0369a1;
-                        {% elif contract.contract_type == 'WACS' %}color:#6d28d9;
-                        {% else %}color:#0A4D68;{% endif %}">
-                        Action Required — Collect Your Signed
-                        {% if contract.contract_type == 'INTERN' %}Internship Agreement
-                        {% elif contract.contract_type == 'WACS' %}WACS Programme Agreement
-                        {% else %}Contract{% endif %}
-                    </div>
-                    <div style="font-size:.82rem;color:#4a6b7c;margin-top:4px;">
-                        {% if contract.contract_type == 'INTERN' %}
-                        Your Internship Contract has been issued and is ready for signature. Please visit the
-                        <strong>HR Office</strong> to sign and collect your internship agreement document.
-                        {% elif contract.contract_type == 'WACS' %}
-                        Your WACS Residency agreement has been issued. Please visit the
-                        <strong>HR Office</strong> to sign and collect your programme contract document.
-                        {% else %}
-                        Your contract has been issued and is ready for signature. Please visit the
-                        <strong>HR Office</strong> at your earliest convenience to sign and collect
-                        your official contract document.
-                        {% endif %}
-                    </div>
-                    <div style="font-size:.75rem;color:#9ab4c0;margin-top:6px;">
-                        <i class="bi bi-clock me-1"></i>Issued on {{ contract.created_at|date:"d F Y" }} at {{ contract.created_at|time:"H:i" }}
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Recent Notifications -->
         {% if notifications %}
         <div class="card animate-in">
