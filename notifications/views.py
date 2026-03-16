@@ -14,13 +14,39 @@ def notification_list(request):
     })
 
 
+def _fix_legacy_url(url):
+    """Rewrite legacy notification URLs that used the old /leaves/<pk>/action/<role>/ format."""
+    import re
+    # Old format: /leaves/<pk>/action/manager/ → /leaves/manager/action/<pk>/
+    m = re.match(r'^/leaves/(\d+)/action/(manager|hr|director)/$', url)
+    if m:
+        pk, role = m.group(1), m.group(2)
+        return f'/leaves/{role}/action/{pk}/'
+    # Old contract issued URL
+    if url == '/contracts/my-contract/':
+        return '/contracts/my/'
+    return url
+
+
 @login_required
 def mark_read(request, pk):
     notif = get_object_or_404(Notification, pk=pk, recipient=request.user)
     notif.is_read = True
+    url = notif.url or ''
+    # Rewrite any legacy-format URLs stored in the DB
+    if url:
+        url = _fix_legacy_url(url)
+        if url != notif.url:
+            notif.url = url  # persist the corrected URL so it doesn't need fixing again
     notif.save()
-    if notif.url:
-        return redirect(notif.url)
+    if url:
+        # Validate the URL resolves before redirecting — fall back to notification list on 404
+        try:
+            from django.urls import resolve
+            resolve(url)
+            return redirect(url)
+        except Exception:
+            pass
     return redirect('notifications:list')
 
 
