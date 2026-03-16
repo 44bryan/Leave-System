@@ -51,6 +51,7 @@ class Employee(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     date_joined_company = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    dismissal_date = models.DateField(null=True, blank=True, help_text='Date dismissal was issued — account deactivated after 14 days')
 
     class Meta:
         ordering = ['user__last_name', 'user__first_name']

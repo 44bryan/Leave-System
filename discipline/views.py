@@ -8,6 +8,23 @@ from accounts.models import Employee
 from .models import DisciplineRecord
 
 
+def _process_pending_dismissals():
+    """Deactivate Django User accounts of dismissed employees past their 14-day window."""
+    try:
+        from datetime import timedelta
+        cutoff = date.today() - timedelta(days=14)
+        from accounts.models import Employee as _Emp
+        pending = _Emp.objects.filter(
+            dismissal_date__lte=cutoff,
+            user__is_active=True,
+        ).select_related('user')
+        for emp in pending:
+            emp.user.is_active = False
+            emp.user.save(update_fields=['is_active'])
+    except Exception:
+        pass
+
+
 @login_required
 def my_discipline_notices(request):
     """Employee's personal discipline record — visible only to the employee themselves."""
@@ -138,6 +155,12 @@ def issue_discipline(request):
 
             record.save()
 
+            # If dismissal, set dismissal_date on employee (account auto-deactivates after 14 days)
+            if action_type == 'dismissal':
+                from datetime import timedelta
+                target_employee.dismissal_date = date.today()
+                target_employee.save(update_fields=['dismissal_date'])
+
             # Notify the employee via the main notification system
             from notifications.utils import notify
             issuer_name = request.user.get_full_name() or request.user.username
@@ -181,6 +204,7 @@ def issue_discipline(request):
 
 @login_required
 def discipline_list(request):
+    _process_pending_dismissals()
     emp = get_employee(request)
     is_super = request.user.is_superuser
 

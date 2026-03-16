@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
+from django.urls import reverse
 from datetime import date
 from .models import LeaveRequest, LeaveBalance, LeaveType
 from .forms import LeaveRequestForm, ApprovalForm
@@ -59,7 +60,7 @@ def submit_leave(request):
                         f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
                         f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
                         notification_type='leave_submitted',
-                        url=f'/leaves/{leave.pk}/action/manager/',
+                        url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
                     )
                 return redirect('leaves:my_requests')
 
@@ -167,7 +168,7 @@ def manager_action(request, pk):
                     f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
                     f'has been approved by your manager and is now awaiting HR review.',
                     notification_type='leave_manager_approved',
-                    url=f'/leaves/{leave.pk}/',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_MANAGER
@@ -179,7 +180,7 @@ def manager_action(request, pk):
                     f'was rejected by your manager.'
                     + (f' Remarks: {remarks}' if remarks else ''),
                     notification_type='leave_rejected',
-                    url=f'/leaves/{leave.pk}/',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             leave.save()
             return redirect('leaves:manager_approvals')
@@ -244,7 +245,7 @@ def hr_action(request, pk):
                     f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
                     f'has been approved by HR and is now awaiting the Administration Director\'s final decision.',
                     notification_type='leave_hr_approved',
-                    url=f'/leaves/{leave.pk}/',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_HR
@@ -256,7 +257,7 @@ def hr_action(request, pk):
                     f'was rejected by HR.'
                     + (f' Remarks: {remarks}' if remarks else ''),
                     notification_type='leave_rejected',
-                    url=f'/leaves/{leave.pk}/',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             leave.save()
             return redirect('leaves:hr_approvals')
@@ -321,7 +322,7 @@ def director_action(request, pk):
                     f'Great news! Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
                     f'{leave.total_days} day(s)) has been fully approved by the Administration Director.',
                     notification_type='leave_approved',
-                    url=f'/leaves/{leave.pk}/',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_DIRECTOR
@@ -333,7 +334,7 @@ def director_action(request, pk):
                     f'was rejected by the Administration Director.'
                     + (f' Remarks: {remarks}' if remarks else ''),
                     notification_type='leave_rejected',
-                    url=f'/leaves/{leave.pk}/',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             leave.save()
             return redirect('leaves:director_approvals')

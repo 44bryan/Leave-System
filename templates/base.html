@@ -399,6 +399,13 @@
             border-color: #e8f0f5;
         }
 
+        .suspension-overlay {
+            pointer-events: none;
+            opacity: 0.4;
+            filter: grayscale(60%);
+            user-select: none;
+        }
+
         /* ─── NOTIFICATION BELL ─── */
         .notif-btn {
             position: relative;
@@ -1285,6 +1292,15 @@
         </div>
     </div>
 
+    {% if is_suspended %}
+    <div style="background:linear-gradient(135deg,#7f1d1d,#991b1b);color:white;padding:14px 20px;display:flex;align-items:center;gap:12px;font-size:0.9rem;font-weight:600;position:sticky;top:0;z-index:999;">
+        <i class="bi bi-person-lock fs-5 flex-shrink-0"></i>
+        <div>
+            <div>Your account is currently <strong>suspended</strong> until {{ suspension_end|date:"d F Y" }}.</div>
+            <div style="font-weight:400;font-size:0.78rem;opacity:0.85;margin-top:2px;">You can view notifications only. All actions are disabled until your suspension ends.</div>
+        </div>
+    </div>
+    {% endif %}
     <div class="page-content">
         {% if messages %}
         {% for message in messages %}
@@ -1495,6 +1511,22 @@ function toggleSidebar() {
         });
     }
 })();
+
+// ── Suspend account: disable all nav actions ──────────────────────────────────
+{% if is_suspended %}
+(function() {
+    // Grey out and disable all nav links except notifications
+    document.querySelectorAll('.nav-link-sidebar, .topbar-actions a, .topbar-actions button, .sidebar-mobile-footer a').forEach(function(el) {
+        el.classList.add('suspension-overlay');
+        el.style.pointerEvents = 'none';
+    });
+    // Disable all form submit buttons on page (prevent leave submission etc)
+    document.querySelectorAll('form button[type="submit"], form input[type="submit"]').forEach(function(el) {
+        el.disabled = true;
+        el.classList.add('suspension-overlay');
+    });
+})();
+{% endif %}
 </script>
 {% block extra_js %}{% endblock %}
 </body>

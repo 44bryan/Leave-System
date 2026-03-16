@@ -96,8 +96,12 @@ def _generate_username(first_name):
 
 @hr_or_superuser_required
 def employee_list(request):
-    employees = Employee.objects.select_related('user', 'department', 'supervisor__user').all()
-    return render(request, 'accounts/employee_list.html', {'employees': employees})
+    show_former = request.GET.get('show_former', '0') == '1'
+    if show_former:
+        employees = Employee.objects.filter(is_active=False).select_related('user', 'department', 'supervisor__user')
+    else:
+        employees = Employee.objects.filter(is_active=True).select_related('user', 'department', 'supervisor__user')
+    return render(request, 'accounts/employee_list.html', {'employees': employees, 'show_former': show_former})
 
 
 @hr_or_superuser_required

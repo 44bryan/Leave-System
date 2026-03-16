@@ -345,3 +345,19 @@ Then open: **http://127.0.0.1:8000**
   - Sorted by soonest retirement first
   - Accessible to HR, Director, Superuser via "Retirement Tracker" in sidebar
   - HR advice banner at bottom recommends 6-month advance planning
+
+- **Dismissal & Suspension enforcement**
+  - `Employee.dismissal_date` (DateField, nullable) added to `accounts/Employee` model — migration `0006` applied
+  - When a `dismissal` discipline notice is issued, `dismissal_date` is stamped on the employee record
+  - `_process_pending_dismissals()` in `discipline/views.py` auto-deactivates dismissed employee Django User accounts 14 days after `dismissal_date`; called at the start of `discipline_list`
+  - `notifications/context_processors.py` now queries active suspensions and injects `is_suspended` (bool) and `suspension_end` (date) into every template
+  - `base.html` suspension banner: sticky red bar shown to suspended employees with suspension end date
+  - `base.html` suspension JS: greys out all nav links and disables form submit buttons while suspended
+  - `.suspension-overlay` CSS class added to `base.html` style block
+
+- **Notification URL fix** — all 7 `notify()` calls in `leaves/views.py` now use `reverse()` instead of hardcoded strings; `from django.urls import reverse` import added
+
+- **HR Employee List — Former Employees toggle**
+  - `accounts/views.py` `employee_list` now accepts `?show_former=1` GET param
+  - When `show_former=1`, lists `is_active=False` employees; default lists `is_active=True`
+  - `show_former` boolean passed to template context for toggle button rendering
