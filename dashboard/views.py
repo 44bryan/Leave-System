@@ -275,6 +275,8 @@ def home(request):
 
     if employee.is_director():
         return director_dashboard(request, employee)
+    elif employee.is_ceo():
+        return director_dashboard(request, employee)
     elif employee.is_hr():
         return hr_dashboard(request, employee)
     elif employee.is_manager():
@@ -536,7 +538,7 @@ def retirement_dashboard(request):
     """HR-only: list of employees approaching retirement (within 3 years)."""
     emp = get_employee(request)
     is_super = request.user.is_superuser
-    if not is_super and (not emp or not (emp.is_hr() or emp.is_director())):
+    if not is_super and (not emp or not (emp.is_hr() or emp.is_director() or emp.is_ceo())):
         return redirect('dashboard:home')
 
     from accounts.models import Employee as _Emp
@@ -579,7 +581,7 @@ def retirement_dashboard(request):
 def leave_tracker(request):
     """HR leave balance tracker for all employees"""
     emp = get_employee(request)
-    if not emp or (not emp.is_hr() and not emp.is_director()):
+    if not emp or (not emp.is_hr() and not emp.is_director() and not emp.is_ceo()):
         return redirect('dashboard:home')
 
     year = int(request.GET.get('year', date.today().year))

@@ -9,10 +9,10 @@ from .models import Contract, ContractNotification
 
 
 def _is_hr_or_above(user):
-    """HR, superuser, or director — can VIEW contracts."""
+    """HR, superuser, director, or CEO — can VIEW contracts."""
     try:
         emp = user.employee
-        return emp.is_hr() or emp.is_director() or user.is_superuser
+        return emp.is_hr() or emp.is_director() or emp.is_ceo() or user.is_superuser
     except Exception:
         return user.is_superuser
 

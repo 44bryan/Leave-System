@@ -34,7 +34,7 @@ def get_employee(request):
 
 
 def can_issue_discipline(emp, is_super):
-    """HR, Admin Director, and Superuser can issue all types. Manager can issue limited types."""
+    """HR, Director, and Superuser can issue all types. Manager can issue limited types."""
     if is_super:
         return True
     if emp is None:
@@ -48,6 +48,15 @@ def is_hr_or_above(emp, is_super):
     if emp is None:
         return False
     return emp.is_hr() or emp.is_director()
+
+
+def can_view_discipline(emp, is_super):
+    """HR, Director, CEO, Manager, and Superuser can view records."""
+    if is_super:
+        return True
+    if emp is None:
+        return False
+    return emp.is_hr() or emp.is_director() or emp.is_ceo() or emp.is_manager()
 
 
 # Managers can ONLY issue verbal warnings (with a recommendation for follow-up)
@@ -175,8 +184,10 @@ def discipline_list(request):
     emp = get_employee(request)
     is_super = request.user.is_superuser
 
+    is_privileged = is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo()))
+
     # Filter records by role
-    if is_super or (emp and (emp.is_hr() or emp.is_director())):
+    if is_privileged:
         records = DisciplineRecord.objects.select_related(
             'employee__user', 'employee__department', 'issued_by'
         ).all()
@@ -197,13 +208,13 @@ def discipline_list(request):
         records = records.filter(action_type=type_filter)
 
     dept_filter = request.GET.get('dept', '')
-    if dept_filter and (is_super or (emp and (emp.is_hr() or emp.is_director()))):
+    if dept_filter and is_privileged:
         records = records.filter(employee__department_id=dept_filter)
 
     from accounts.models import Department
     departments = Department.objects.all()
 
-    # Dismissal alert (HR/Admin/Superuser only)
+    # Dismissal alert (HR/Admin/Superuser only — not CEO, they're view-only)
     dismissal_alert = []
     if is_super or (emp and (emp.is_hr() or emp.is_director())):
         dismissal_alert = DisciplineRecord.objects.filter(
@@ -217,7 +228,7 @@ def discipline_list(request):
         'departments': departments,
         'action_types': DisciplineRecord.ACTION_CHOICES,
         'dismissal_alert': dismissal_alert,
-        'is_privileged': is_super or (emp and (emp.is_hr() or emp.is_director())),
+        'is_privileged': is_privileged,
     })
 
 
@@ -232,7 +243,7 @@ def discipline_detail(request, pk):
     )
 
     # Access control
-    if is_super or (emp and (emp.is_hr() or emp.is_director())):
+    if is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo())):
         pass  # full access
     elif emp and emp.is_manager():
         if record.employee.supervisor != emp:

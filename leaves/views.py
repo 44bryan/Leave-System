@@ -353,12 +353,13 @@ def leave_detail(request, pk):
     employee = get_employee(request)
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
-    # Only owner, their manager, HR, or Director can view
+    # Only owner, their manager, HR, Director, CEO, or Superuser can view
     can_view = (
         leave.employee == employee or
         request.user.is_superuser or
         (employee and employee.is_hr()) or
         (employee and employee.is_director()) or
+        (employee and employee.is_ceo()) or
         (employee and employee.is_manager() and leave.employee.supervisor == employee)
     )
     if not can_view:
@@ -394,7 +395,7 @@ def print_leave(request, pk):
 def all_leaves_hr(request):
     """HR/Director view of all leave requests"""
     employee = get_employee(request)
-    if not employee or (not employee.is_hr() and not employee.is_director()):
+    if not employee or (not employee.is_hr() and not employee.is_director() and not employee.is_ceo()):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
 

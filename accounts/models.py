@@ -28,6 +28,8 @@ class Employee(models.Model):
         ('manager', 'Line Manager'),
         ('hr', 'HR Admin'),
         ('admin_director', 'Administration Director'),
+        ('finance_director', 'Finance Director'),
+        ('ceo', 'CEO'),
     ]
 
     CATEGORY_CHOICES = _build_category_choices()
@@ -66,7 +68,14 @@ class Employee(models.Model):
         return self.role == 'manager'
 
     def is_director(self):
-        return self.role == 'admin_director'
+        """Admin Director and Finance Director share the same operational role."""
+        return self.role in ('admin_director', 'finance_director')
+
+    def is_finance_director(self):
+        return self.role == 'finance_director'
+
+    def is_ceo(self):
+        return self.role == 'ceo'
 
     def age(self):
         if not self.date_of_birth:
@@ -98,5 +107,7 @@ class Employee(models.Model):
             'manager': 'primary',
             'hr': 'success',
             'admin_director': 'danger',
+            'finance_director': 'danger',
+            'ceo': 'dark',
         }
         return badges.get(self.role, 'secondary')

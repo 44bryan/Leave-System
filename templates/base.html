@@ -1049,42 +1049,77 @@
 
     {% if user.employee.is_director %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">{% trans "Director" %}</div>
+        <div class="sidebar-section-label">{% if user.employee.is_finance_director %}Finance Director{% else %}Director{% endif %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:director_approvals' %}" class="nav-link-sidebar {% block nav_director %}{% endblock %}">
-                    <i class="bi bi-shield-check"></i> {% trans "Director Queue" %}
+                    <i class="bi bi-shield-check"></i> Director Queue
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar {% block nav_all_leaves_dir %}{% endblock %}">
-                    <i class="bi bi-list-ul"></i> {% trans "All Requests" %}
+                    <i class="bi bi-list-ul"></i> All Requests
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar {% block nav_tracker_dir %}{% endblock %}">
-                    <i class="bi bi-bar-chart-line"></i> {% trans "Leave Tracker" %}
+                    <i class="bi bi-bar-chart-line"></i> Leave Tracker
                 </a>
             </li>
         </ul>
     </div>
     {% endif %}
 
-    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_manager %}
+    {% if user.employee.is_ceo %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">CEO — Overview</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar">
+                    <i class="bi bi-list-ul"></i> All Leave Requests
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar">
+                    <i class="bi bi-bar-chart-line"></i> Leave Tracker
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'discipline:list' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-exclamation"></i> Discipline Records
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'contracts:list' %}" class="nav-link-sidebar">
+                    <i class="bi bi-file-earmark-text"></i> All Contracts
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:retirement' %}" class="nav-link-sidebar">
+                    <i class="bi bi-hourglass-split"></i> Retirement Tracker
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_manager or user.employee.is_ceo %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">Discipline</div>
         <ul class="list-unstyled mb-0">
+            {% if not user.employee.is_ceo %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
                     <i class="bi bi-file-earmark-text"></i> New Disciplinary Notice
                 </a>
             </li>
+            {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar {% block nav_discipline %}{% endblock %}">
                     <i class="bi bi-shield-exclamation"></i> Disciplinary Records
                 </a>
             </li>
-            {% if user.is_superuser or user.employee.is_hr or user.employee.is_director %}
+            {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_ceo %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:stats' %}" class="nav-link-sidebar {% block nav_discipline_stats %}{% endblock %}">
                     <i class="bi bi-bar-chart-steps"></i> Statistics
@@ -1095,11 +1130,11 @@
     </div>
     {% endif %}
 
-    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director %}
+    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_ceo %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">Contracts</div>
         <ul class="list-unstyled mb-0">
-            {% if user.is_superuser or user.employee.is_hr %}
+            {% if user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'contracts:issue' %}" class="nav-link-sidebar">
                     <i class="bi bi-file-earmark-plus"></i> New Contract
@@ -1431,6 +1466,34 @@ function toggleSidebar() {
             .then(r => r.json()).then(renderMobile).catch(() => { body.innerHTML = ''; });
         }, 280);
     });
+})();
+
+// ── Auto-highlight sidebar nav based on current URL ──────────────────────────
+(function () {
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('.nav-link-sidebar');
+
+    // Find the most specific matching href length
+    let bestLength = 0;
+    links.forEach(function (link) {
+        const href = (link.getAttribute('href') || '').split('?')[0];
+        if (href.length >= 2 && currentPath.startsWith(href) && href.length > bestLength) {
+            bestLength = href.length;
+        }
+    });
+
+    // Apply active to ALL links that match at that specificity (handles same URL in multiple sections)
+    if (bestLength > 0) {
+        links.forEach(function (link) {
+            link.classList.remove('active');
+        });
+        links.forEach(function (link) {
+            const href = (link.getAttribute('href') || '').split('?')[0];
+            if (href.length >= 2 && currentPath.startsWith(href) && href.length === bestLength) {
+                link.classList.add('active');
+            }
+        });
+    }
 })();
 </script>
 {% block extra_js %}{% endblock %}
