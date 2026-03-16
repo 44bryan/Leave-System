@@ -9,5 +9,6 @@ urlpatterns = [
     path('my-notices/', views.my_discipline_notices, name='my_notices'),
     path('<int:pk>/', views.discipline_detail, name='detail'),
     path('<int:pk>/propose/', views.propose_sanction, name='propose_sanction'),
+    path('<int:pk>/delete/', views.delete_discipline_record, name='delete'),
     path('stats/', views.discipline_stats, name='stats'),
 ]

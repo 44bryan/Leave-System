@@ -70,7 +70,7 @@ class EmployeeCreateForm(forms.ModelForm):
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
             'role': forms.Select(attrs={'class': 'form-select', 'id': 'id_role'}),
-            'staff_category': forms.Select(attrs={'class': 'form-select'}),
+            'staff_category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 5, 12, 12A, 12AB', 'style': 'text-transform:uppercase;'}),
             'supervisor': forms.Select(attrs={'class': 'form-select'}),
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
@@ -81,6 +81,10 @@ class EmployeeCreateForm(forms.ModelForm):
             'contract_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. CTR-2024-001'}),
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean_staff_category(self):
+        value = self.cleaned_data.get('staff_category', '').strip().upper()
+        return value
 
     def clean(self):
         cleaned = super().clean()
@@ -118,7 +122,7 @@ class EmployeeEditForm(forms.ModelForm):
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
             'role': forms.Select(attrs={'class': 'form-select'}),
-            'staff_category': forms.Select(attrs={'class': 'form-select'}),
+            'staff_category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 5, 12, 12A, 12AB', 'style': 'text-transform:uppercase;'}),
             'supervisor': forms.Select(attrs={'class': 'form-select'}),
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
@@ -130,6 +134,10 @@ class EmployeeEditForm(forms.ModelForm):
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+    def clean_staff_category(self):
+        value = self.cleaned_data.get('staff_category', '').strip().upper()
+        return value
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

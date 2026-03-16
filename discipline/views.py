@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db import models
+from django.db.models import Q, F
 from django.urls import reverse
 from datetime import date
 
@@ -177,6 +178,22 @@ def issue_discipline(request):
                 url=reverse('discipline:detail', kwargs={'pk': record.pk}),
             )
 
+            # Notify all HR staff when a manager issues a verbal warning / recommendation
+            if is_manager_only:
+                hr_staff = Employee.objects.filter(role='hr', is_active=True).select_related('user')
+                for hr_emp in hr_staff:
+                    notify(
+                        hr_emp.user,
+                        title=f'Manager Discipline Report: {record.get_action_type_display()}',
+                        message=(
+                            f"{issuer_name} has issued a {record.get_action_type_display()} to "
+                            f"{target_employee.get_full_name()} and submitted a sanction recommendation. "
+                            f"Please review and complete the HR proposal."
+                        ),
+                        notification_type='discipline',
+                        url=reverse('discipline:detail', kwargs={'pk': record.pk}),
+                    )
+
             messages.success(
                 request,
                 f"{record.get_action_type_display()} issued to {target_employee.get_full_name()} successfully."
@@ -210,15 +227,17 @@ def discipline_list(request):
     is_super = request.user.is_superuser
 
     is_privileged = is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo()))
+    is_manager_only = (emp and emp.is_manager() and not emp.is_hr() and not emp.is_director() and not is_super)
 
     # Filter records by role
     if is_privileged:
         records = DisciplineRecord.objects.select_related(
             'employee__user', 'employee__department', 'issued_by'
         ).all()
-    elif emp and emp.is_manager():
+    elif is_manager_only:
+        # Managers see ONLY records they personally issued
         records = DisciplineRecord.objects.filter(
-            employee__supervisor=emp
+            issued_by=request.user
         ).select_related('employee__user', 'employee__department', 'issued_by')
     elif emp:
         records = DisciplineRecord.objects.filter(
@@ -246,6 +265,24 @@ def discipline_list(request):
             action_type='dismissal'
         ).select_related('employee__user').order_by('-date_issued')[:10]
 
+    # Manager success rate stats
+    manager_stats = None
+    if is_manager_only:
+        all_issued = DisciplineRecord.objects.filter(issued_by=request.user)
+        total = all_issued.count()
+        director_approved = all_issued.exclude(
+            director_proposed_sanction=''
+        ).exclude(director_proposed_sanction__isnull=True).count()
+        no_action = all_issued.filter(director_proposed_sanction='no_further_action').count()
+        manager_stats = {
+            'total': total,
+            'director_approved': director_approved,
+            'no_action': no_action,
+            'match': all_issued.filter(
+                recommended_sanction=F('director_proposed_sanction')
+            ).count() if total else 0,
+        }
+
     return render(request, 'discipline/list.html', {
         'records': records,
         'type_filter': type_filter,
@@ -254,7 +291,41 @@ def discipline_list(request):
         'action_types': DisciplineRecord.ACTION_CHOICES,
         'dismissal_alert': dismissal_alert,
         'is_privileged': is_privileged,
+        'is_manager_only': is_manager_only,
+        'manager_stats': manager_stats,
     })
+
+
+@login_required
+def delete_discipline_record(request, pk):
+    """Permanently delete a discipline record. Only superuser or admin_director."""
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+    is_admin_dir = emp and emp.role == 'admin_director'
+
+    if not (is_super or is_admin_dir):
+        messages.error(request, "You do not have permission to delete discipline records.")
+        return redirect('discipline:list')
+
+    record = get_object_or_404(DisciplineRecord, pk=pk)
+
+    if request.method == 'POST':
+        employee = record.employee
+        action_type = record.action_type
+
+        # If dismissal record is deleted, clear the dismissal date so account is not deactivated
+        if action_type == 'dismissal' and employee.dismissal_date:
+            employee.dismissal_date = None
+            employee.save(update_fields=['dismissal_date'])
+
+        emp_name = employee.get_full_name()
+        record_type = record.get_action_type_display()
+        record.delete()
+
+        messages.success(request, f"{record_type} record for {emp_name} has been permanently deleted.")
+        return redirect('discipline:list')
+
+    return redirect('discipline:detail', pk=pk)
 
 
 @login_required
@@ -271,7 +342,8 @@ def discipline_detail(request, pk):
     if is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo())):
         pass  # full access
     elif emp and emp.is_manager():
-        if record.employee.supervisor != emp:
+        # Managers can view records they issued (regardless of current supervisor assignment)
+        if record.issued_by != request.user:
             messages.error(request, "Access denied.")
             return redirect('discipline:list')
     elif emp:

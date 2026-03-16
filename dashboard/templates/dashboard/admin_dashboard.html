@@ -233,45 +233,26 @@
 </div>
 {% endif %}
 
-<!-- Seniority + Years of Service -->
+<!-- Years of Service -->
 <div class="row g-4 mb-4 animate-in">
-    <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header"><i class="bi bi-award me-2" style="color:#7c3aed;"></i>Workforce Seniority Distribution</div>
-            <div class="card-body p-4">
-                {% for s in contract_seniority_dist %}
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <div style="font-size:.82rem;font-weight:600;">
-                            <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:{{ s.color }};margin-right:5px;"></span>
-                            {{ s.label }} <span style="color:#c4d4de;font-size:.7rem;">({{ s.min_yr }}+ yrs)</span>
-                        </div>
-                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ s.count }}</strong> staff &nbsp;<span style="font-size:.7rem;">{{ s.pct }}%</span></div>
-                    </div>
-                    <div class="progress" style="height:7px;background:#f0f4f8;">
-                        <div class="progress-bar" style="width:{{ s.pct }}%;background:{{ s.color }};border-radius:4px;"></div>
-                    </div>
-                </div>
-                {% endfor %}
-                {% if not contract_total_active %}<div class="text-center text-muted py-3" style="font-size:.85rem;">No active contracts yet.</div>{% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card h-100">
+    <div class="col-12">
+        <div class="card">
             <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#0284c7;"></i>Years of Service Breakdown</div>
             <div class="card-body p-4">
+                <div class="row g-3">
                 {% for s in contract_service_dist %}
-                <div class="mb-3">
+                <div class="col-md-4">
                     <div class="d-flex justify-content-between mb-1">
                         <div style="font-size:.82rem;font-weight:600;">{{ s.label }}</div>
-                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ s.count }}</strong> staff &nbsp;<span style="font-size:.7rem;">{{ s.pct }}%</span></div>
+                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ s.count }}</strong> &nbsp;<span style="font-size:.7rem;">{{ s.pct }}%</span></div>
                     </div>
                     <div class="progress" style="height:7px;background:#f0f4f8;">
                         <div class="progress-bar" style="width:{{ s.pct }}%;background:#0284c7;border-radius:4px;"></div>
                     </div>
                 </div>
                 {% endfor %}
+                {% if not contract_total_active %}<div class="col-12 text-center text-muted py-3" style="font-size:.85rem;">No active contracts yet.</div>{% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -311,7 +292,7 @@
             <div class="table-responsive">
                 <table class="table mb-0">
                     <thead>
-                        <tr><th>Department</th><th class="text-center">CDI</th><th class="text-center">CDD</th><th class="text-center">Total</th><th>CDD %</th></tr>
+                        <tr><th>Department</th><th class="text-center">CDI</th><th class="text-center">CDD</th><th class="text-center">Intern</th><th class="text-center">WACS</th><th class="text-center">Total</th></tr>
                     </thead>
                     <tbody>
                         {% for row in contract_dept_breakdown %}
@@ -319,18 +300,12 @@
                             <td style="font-size:.85rem;font-weight:600;">{{ row.dept }}</td>
                             <td class="text-center"><span class="badge" style="background:#dcfce7;color:#15803d;">{{ row.CDI }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#fef9c3;color:#a16207;">{{ row.CDD }}</span></td>
+                            <td class="text-center"><span class="badge" style="background:#e0f2fe;color:#0369a1;">{{ row.INTERN }}</span></td>
+                            <td class="text-center"><span class="badge" style="background:#fdf4ff;color:#7e22ce;">{{ row.WACS }}</span></td>
                             <td class="text-center"><strong>{{ row.total }}</strong></td>
-                            <td style="min-width:80px;">
-                                {% if row.total %}
-                                <div class="progress" style="height:5px;background:#f0f4f8;">
-                                    <div class="progress-bar" style="width:{% widthratio row.CDD row.total 100 %}%;background:#ca8a04;border-radius:3px;"></div>
-                                </div>
-                                <div style="font-size:.65rem;color:#9ab4c0;margin-top:2px;">{% widthratio row.CDD row.total 100 %}% CDD</div>
-                                {% endif %}
-                            </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" class="text-center text-muted py-4">No contracts yet.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">No contracts yet.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -357,8 +332,7 @@
                             <div style="font-size:.72rem;color:#9ab4c0;">{{ c.employee.department|default:"No dept" }} · since {{ c.start_date|date:"Y" }}</div>
                         </div>
                         <div class="text-end">
-                            <span class="badge" style="background:{{ c.seniority_badge_color }};color:#fff;font-size:.72rem;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</span>
-                            <div style="font-size:.65rem;color:#9ab4c0;margin-top:2px;">{{ c.seniority_category }}</div>
+                            <span class="badge bg-primary" style="font-size:.72rem;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</span>
                         </div>
                     </div>
                 </a>

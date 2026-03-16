@@ -52,50 +52,45 @@ def _build_contract_analytics(today, year):
 
     _ct_total = len(_all_active)
 
-    # Staff category distribution (A–L single, AA–AL, BA–BL)
-    _cat_colors = {
-        'single': '#0284c7',   # A–L  → blue
-        'AA':     '#059669',   # AA–AL → green
-        'BA':     '#d97706',   # BA–BL → amber
-    }
-    _single = [chr(c) for c in range(ord('A'), ord('L') + 1)]
-    _aa_series = [f'A{l}' for l in [chr(c) for c in range(ord('A'), ord('L') + 1)]]
-    _ba_series = [f'B{l}' for l in [chr(c) for c in range(ord('A'), ord('L') + 1)]]
+    # Staff category distribution — numeric system (1–12 with optional letter suffixes)
+    import re as _re
 
-    def _cat_count(cats):
-        return Employee.objects.filter(is_active=True, staff_category__in=cats).count()
+    def _cat_num(cat):
+        m = _re.match(r'^(\d+)', cat or '')
+        return int(m.group(1)) if m else 0
 
-    _single_count = _cat_count(_single)
-    _aa_count = _cat_count(_aa_series)
-    _ba_count = _cat_count(_ba_series)
-    _total_categorised = _single_count + _aa_count + _ba_count
+    _cat_qs = (
+        Employee.objects.filter(is_active=True, staff_category__gt='')
+        .values('staff_category')
+        .annotate(count=Count('id'))
+    )
+    staff_category_detail = sorted(
+        [{'cat': row['staff_category'], 'count': row['count'],
+          'color': '#0284c7' if _cat_num(row['staff_category']) <= 6 else '#7c3aed'}
+         for row in _cat_qs],
+        key=lambda x: (_cat_num(x['cat']), x['cat'])
+    )
+    _total_categorised = sum(x['count'] for x in staff_category_detail)
 
     def _pct(n):
         return round(n / _total_categorised * 100) if _total_categorised else 0
 
+    _lower = sum(x['count'] for x in staff_category_detail if 1 <= _cat_num(x['cat']) <= 6)
+    _upper = sum(x['count'] for x in staff_category_detail if 7 <= _cat_num(x['cat']) <= 12)
     staff_category_groups = [
-        {'label': 'A–L (Grade 1–12)', 'count': _single_count, 'pct': _pct(_single_count), 'color': _cat_colors['single']},
-        {'label': 'AA–AL (Grade 13–24)', 'count': _aa_count, 'pct': _pct(_aa_count), 'color': _cat_colors['AA']},
-        {'label': 'BA–BL (Grade 25–36)', 'count': _ba_count, 'pct': _pct(_ba_count), 'color': _cat_colors['BA']},
+        {'label': 'Category 1–6', 'count': _lower, 'pct': _pct(_lower), 'color': '#0284c7'},
+        {'label': 'Category 7–12', 'count': _upper, 'pct': _pct(_upper), 'color': '#7c3aed'},
     ]
-
-    # Per-category breakdown (all 36 categories)
-    _all_cats = [(cat, _cat_colors['single']) for cat in _single] + \
-                [(cat, _cat_colors['AA']) for cat in _aa_series] + \
-                [(cat, _cat_colors['BA']) for cat in _ba_series]
-    staff_category_detail = [
-        {'cat': cat, 'color': col,
-         'count': Employee.objects.filter(is_active=True, staff_category=cat).count()}
-        for cat, col in _all_cats
-        if Employee.objects.filter(is_active=True, staff_category=cat).exists()
-    ]
-    _dept_map = _dd(lambda: {'CDI': 0, 'CDD': 0, 'total': 0})
+    _dept_map = _dd(lambda: _dd(int))
     for c in _all_active:
         dn = str(c.employee.department) if c.employee.department else 'No Department'
         _dept_map[dn][c.contract_type] += 1
         _dept_map[dn]['total'] += 1
     contract_dept_breakdown = sorted(
-        [{'dept': k, **v} for k, v in _dept_map.items()], key=lambda x: -x['total']
+        [{'dept': k, 'CDI': v.get('CDI', 0), 'CDD': v.get('CDD', 0),
+          'INTERN': v.get('INTERN', 0), 'WACS': v.get('WACS', 0),
+          'total': v.get('total', 0)} for k, v in _dept_map.items()],
+        key=lambda x: -x['total']
     )
     contract_long_service = sorted(_active_cdi, key=lambda c: -c.years_of_service)[:8]
     contract_recent_activity = list(

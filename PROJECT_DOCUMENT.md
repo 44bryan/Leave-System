@@ -413,3 +413,74 @@ Then open: **http://127.0.0.1:8000**
   - `accounts/views.py` `employee_list` now accepts `?show_former=1` GET param
   - When `show_former=1`, lists `is_active=False` employees; default lists `is_active=True`
   - `show_former` boolean passed to template context for toggle button rendering
+
+### 2026-03-15 (session 2 — continued)
+
+- **Suspension UI fixes**
+  - Notification bell + logout buttons excluded from suspension greying via `data-no-suspend` attribute
+  - Notification dropdown z-index fix: topbar raised to `z-index:1050` so dropdown appears above red suspension banner
+  - Suspension banner removed from sticky positioning (now flows with content); topbar `top` set to `76px` to sit below fixed logo-bar
+
+- **Staff category — numeric format**
+  - `Employee.staff_category` changed from letter-based choices (A–L) to free-text numeric format `1–12` with optional letter suffixes (e.g. `12AB`, `12AL`)
+  - `RegexValidator` enforces pattern `^(?:[1-9]|1[0-2])[A-Z]{0,3}$`
+  - `staff_category` max_length increased from 3 to 6; `choices` removed
+  - Both `EmployeeCreateForm` and `EmployeeEditForm` updated: TextInput with uppercase styling + `clean_staff_category()` method
+  - Migration `accounts/migrations/0009_staff_category_numeric.py` applied
+
+- **Seniority removed entirely**
+  - All seniority properties, badges, cards, and references removed from `contracts/models.py`, `contracts/views.py`, and all contract templates (`contract_detail.html`, `contract_list.html`, `my_contract.html`, `stats.html`)
+  - Admin and contract analytics dashboards updated to remove seniority badges
+  - Replaced with plain "Years of Service" display everywhere
+
+- **Username auto-generation improved**
+  - `_generate_username()` now uses `firstname.lastname` format
+  - On collision, appends sequential number (`firstname.lastname2`, `firstname.lastname3`, etc.)
+  - `username_suggest` API and `employee_create` view updated to accept `last_name` parameter
+  - Employee form JS updated to send both first and last name to suggest endpoint
+
+- **Excel import restricted to superuser only**
+  - `employee_import` view now requires `request.user.is_superuser` (was `@hr_or_superuser_required`)
+  - Sidebar link moved from HR block to superuser-only block in `base.html`
+
+- **Duplicate Retirement Tracker removed**
+  - Removed duplicate Retirement Tracker sidebar link from HR section in `base.html`
+
+- **Sidebar scroll position persistence**
+  - `sessionStorage` used to save/restore sidebar scroll position across page navigations
+  - JS added to `base.html` before the Live Search section
+
+- **Topbar always visible on scroll**
+  - Logo-bar: `position:fixed; top:0; height:76px; z-index:1100`
+  - Topbar: `position:sticky; top:76px; z-index:1050` — sticks below the logo-bar on all devices
+
+- **Discipline module enhancements**
+  - Line Manager HR notification: when a manager issues a verbal warning, all HR staff receive an in-app notification with a link to the record
+  - Delete discipline record: Admin Director and superuser can permanently delete a record (as if it never happened); dismissal records also clear `employee.dismissal_date`; URL: `discipline/<id>/delete/`
+  - Sequential workflow: Step 3 (Director's Proposal) only appears in detail view after Step 2 (HR Proposal) is complete — eliminates dual "Accept" buttons
+  - Manager scope: Line Managers now see ONLY records they personally issued (filter: `issued_by=request.user`)
+  - Manager success rate panel: discipline list shows 3 stat cards for managers (Notices Issued / Director Reviewed / No Further Action)
+  - Privileged view (all records): Admin Director, Finance Director, HR, CEO, Superuser see all records
+  - Discipline list table: "Issued By" and "Department" columns only shown to privileged users; "Director's Decision" column shown to managers with live status
+
+### 2026-03-16
+
+- **Dashboard KeyError fix** — `_build_contract_analytics` dept_map and `contract_stats` dept_map changed from `{'CDI':0,'CDD':0}` to `defaultdict(int)` to handle INTERN/WACS contract types without KeyError
+
+- **Contract notifications — type-specific messages**
+  - `contracts/views.py`: added `_contract_issue_message()`, `_contract_renewal_message()`, `_contract_termination_message()` helpers
+  - INTERN → "Internship Contract Issued/Renewed"; WACS → "WACS Residency Contract Issued/Renewed"; CDI → "Permanent (CDI)"; CDD → "Fixed-Term (CDD)"
+  - End-date validation now covers INTERN and WACS (not only CDD)
+  - `accounts/views.py` welcome notification also uses type-specific message
+
+- **Staff category distribution — numeric system**
+  - `_build_contract_analytics()` in `dashboard/views.py` rewritten: queries actual assigned categories dynamically, groups into Category 1–6 and Category 7–12 (instead of old A-L/AA-AL/BA-BL letter system)
+  - `staff_category_detail` now shows all real assigned values (e.g. 5, 12A, 12AB) with badge colors
+
+- **Department breakdown — INTERN & WACS columns**
+  - All three department breakdown tables (contract_analytics.html, admin_dashboard.html, contracts/stats.html) updated to show CDI / CDD / Intern / WACS / Total columns (removed misleading CDD % bar)
+
+- **Intern accounts — simplified experience**
+  - "My Discipline Record" sidebar link hidden from interns (`{% if not user.employee.is_intern %}`)
+  - Leave submission: interns bypass manager approval — leave auto-advances to `manager_approved` on submission, HR notified directly with "[Intern Leave Request]" label
+  - Admins (CEO, Finance Director, Admin Director, System Admin, Superuser) can still see all intern data

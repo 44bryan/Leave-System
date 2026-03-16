@@ -56,6 +56,36 @@
     </div>
     {% endif %}
 
+    <!-- Manager Success Rate Card -->
+    {% if is_manager_only and manager_stats %}
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div style="font-size:2rem;font-weight:800;color:#0891a8;">{{ manager_stats.total }}</div>
+                    <div class="text-muted" style="font-size:.8rem;">Notices Issued by You</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div style="font-size:2rem;font-weight:800;color:#059669;">{{ manager_stats.director_approved }}</div>
+                    <div class="text-muted" style="font-size:.8rem;">Director Reviewed</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div style="font-size:2rem;font-weight:800;color:#d97706;">{{ manager_stats.no_action }}</div>
+                    <div class="text-muted" style="font-size:.8rem;">No Further Action</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Filters -->
     <div class="card mb-4">
         <div class="card-body py-3">
@@ -101,8 +131,8 @@
                         <th>Employee</th>
                         <th>Type</th>
                         <th>Date Issued</th>
-                        <th>Issued By</th>
-                        {% if is_privileged %}<th>Department</th>{% endif %}
+                        {% if is_privileged %}<th>Issued By</th><th>Department</th>{% endif %}
+                        {% if is_manager_only %}<th>Director's Decision</th>{% endif %}
                         <th>Suspension Period</th>
                         <th></th>
                     </tr>
@@ -128,9 +158,18 @@
                             {% endif %}
                         </td>
                         <td>{{ record.date_issued|date:"d M Y" }}</td>
-                        <td style="font-size:0.82rem;">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</td>
                         {% if is_privileged %}
+                        <td style="font-size:0.82rem;">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</td>
                         <td style="font-size:0.82rem;">{{ record.employee.department|default:"—" }}</td>
+                        {% endif %}
+                        {% if is_manager_only %}
+                        <td style="font-size:0.82rem;">
+                            {% if record.director_proposed_sanction %}
+                                {{ record.get_director_proposed_sanction_display }}
+                            {% else %}
+                                <span class="text-muted">Pending</span>
+                            {% endif %}
+                        </td>
                         {% endif %}
                         <td style="font-size:0.82rem;">
                             {% if record.action_type == 'suspension' %}

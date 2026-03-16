@@ -34,6 +34,92 @@ def _get_employee(request):
         return None
 
 
+def _contract_issue_message(contract):
+    """Return a tailored notification title + message for a newly issued contract."""
+    start = contract.start_date.strftime('%d %b %Y')
+    end   = contract.end_date.strftime('%d %b %Y') if contract.end_date else None
+    ct    = contract.contract_type
+
+    if ct == 'INTERN':
+        title = 'Internship Contract Issued'
+        msg = (
+            f"An Internship Contract has been issued to you, effective {start}."
+            + (f" Your internship ends on {end}." if end else "")
+            + " This contract governs your internship programme. "
+            "Please visit the HR Office to sign and collect your internship contract document."
+        )
+    elif ct == 'WACS':
+        title = 'WACS Residency Contract Issued'
+        msg = (
+            f"A WACS Residency / Trainee Programme contract has been issued to you, effective {start}."
+            + (f" Programme end date: {end}." if end else "")
+            + " This contract covers your participation in the WACS Residency Programme. "
+            "Please visit the HR Office to sign and collect your contract document."
+        )
+    elif ct == 'CDI':
+        title = 'Permanent Contract (CDI) Issued'
+        msg = (
+            f"A Permanent (CDI) contract has been issued to you, effective {start}. "
+            "This is an open-ended employment contract with no fixed end date. "
+            "Please visit the HR Office to sign and collect your contract document."
+        )
+    else:  # CDD
+        title = 'Fixed-Term Contract (CDD) Issued'
+        msg = (
+            f"A Fixed-Term (CDD) contract has been issued to you, effective {start}."
+            + (f" Contract end date: {end}." if end else "")
+            + " Please visit the HR Office to sign and collect your contract document."
+        )
+    return title, msg
+
+
+def _contract_renewal_message(new_contract):
+    """Return a tailored renewal message for a contract."""
+    start = new_contract.start_date.strftime('%d %b %Y')
+    end   = new_contract.end_date.strftime('%d %b %Y') if new_contract.end_date else None
+    ct    = new_contract.contract_type
+
+    if ct == 'INTERN':
+        msg = (
+            f"Your Internship Contract has been renewed, effective {start}."
+            + (f" New end date: {end}." if end else "")
+        )
+    elif ct == 'WACS':
+        msg = (
+            f"Your WACS Residency Programme contract has been renewed, effective {start}."
+            + (f" New programme end date: {end}." if end else "")
+        )
+    elif ct == 'CDI':
+        msg = (
+            f"Your contract has been renewed as a Permanent (CDI) contract, effective {start}. "
+            "This is an open-ended employment contract."
+        )
+    else:  # CDD
+        msg = (
+            f"Your Fixed-Term (CDD) contract has been renewed, effective {start}."
+            + (f" New end date: {end}." if end else "")
+        )
+    return msg
+
+
+def _contract_termination_message(contract, reason=''):
+    """Return a tailored termination message for a contract."""
+    ct = contract.contract_type
+    label_map = {
+        'CDI': 'Permanent (CDI)',
+        'CDD': 'Fixed-Term (CDD)',
+        'INTERN': 'Internship',
+        'WACS': 'WACS Residency',
+    }
+    label = label_map.get(ct, contract.get_contract_type_display())
+    msg = (
+        f"Your {label} contract has been terminated"
+        + (f" for the following reason: {reason}" if reason else "")
+        + ". Please contact HR for further information."
+    )
+    return msg
+
+
 # ── Employee views ───────────────────────────────────────────────────────────
 
 @login_required
@@ -52,23 +138,11 @@ def my_contract(request):
     unread_count = emp.contract_notifications.filter(is_read=False).count()
     notifications = emp.contract_notifications.all()[:10]
 
-    seniority_ladder = [
-        ("Probationary Period", 0,  "#6b7a8d"),
-        ("Class 1",             1,  "#0284c7"),
-        ("Class 2",             3,  "#0891b2"),
-        ("Class 3",             5,  "#059669"),
-        ("Class 4",             8,  "#d97706"),
-        ("Senior Staff",        12, "#dc2626"),
-        ("Senior Executive",    17, "#7c3aed"),
-        ("Principal Executive", 22, "#4c1d95"),
-    ]
-
     return render(request, 'contracts/my_contract.html', {
         'contract': contract,
         'employee': emp,
         'notifications': notifications,
         'unread_count': unread_count,
-        'seniority_ladder': seniority_ladder,
     })
 
 
@@ -182,8 +256,9 @@ def issue_contract(request):
                 'employees': employees, 'today': today,
             })
 
-        if contract_type == 'CDD' and not end_date:
-            messages.error(request, "End date is required for CDD (fixed-term) contracts.")
+        if contract_type in ('CDD', 'INTERN', 'WACS') and not end_date:
+            label = {'CDD': 'Fixed-Term (CDD)', 'INTERN': 'Internship', 'WACS': 'WACS Residency'}[contract_type]
+            messages.error(request, f"End date is required for {label} contracts.")
             return render(request, 'contracts/issue_contract.html', {
                 'employees': employees, 'today': today,
             })
@@ -210,15 +285,11 @@ def issue_contract(request):
 
         # Notify employee via main notification system
         from notifications.utils import notify
+        _title, _msg = _contract_issue_message(contract)
         notify(
             emp.user,
-            title='Contract Issued',
-            message=(
-                f"A {contract.get_contract_type_display()} contract has been issued to you, "
-                f"effective {contract.start_date.strftime('%d %b %Y')}."
-                + (f" End date: {contract.end_date.strftime('%d %b %Y')}." if contract.end_date else " This is a permanent contract.")
-                + " Please visit the HR Office to sign and collect your contract document."
-            ),
+            title=_title,
+            message=_msg,
             notification_type='contract_issued',
             url=reverse('contracts:my_contract'),
         )
@@ -250,8 +321,8 @@ def renew_contract(request, pk):
             messages.error(request, "New start date is required.")
             return redirect('contracts:detail', pk=pk)
 
-        if contract_type == 'CDD' and not new_end:
-            messages.error(request, "End date is required for CDD renewal.")
+        if contract_type in ('CDD', 'INTERN', 'WACS') and not new_end:
+            messages.error(request, "End date is required for this contract type renewal.")
             return redirect('contracts:detail', pk=pk)
 
         # Mark old contract as renewed
@@ -271,12 +342,7 @@ def renew_contract(request, pk):
         )
 
         # Notify employee (ContractNotification + main bell)
-        renewal_msg = (
-            f"Your contract has been renewed. "
-            f"New contract type: {new_contract.get_contract_type_display()}. "
-            f"Start date: {new_contract.start_date.strftime('%d %b %Y')}."
-            + (f" End date: {new_contract.end_date.strftime('%d %b %Y')}." if new_contract.end_date else " This is a permanent contract (CDI).")
-        )
+        renewal_msg = _contract_renewal_message(new_contract)
         ContractNotification.objects.create(
             employee=old_contract.employee,
             contract=new_contract,
@@ -314,11 +380,7 @@ def terminate_contract(request, pk):
         contract.status = 'terminated'
         contract.save()
 
-        termination_msg = (
-            f"Your contract has been terminated"
-            + (f" for the following reason: {reason}" if reason else "")
-            + ". Please contact HR for further information."
-        )
+        termination_msg = _contract_termination_message(contract, reason)
         ContractNotification.objects.create(
             employee=contract.employee,
             contract=contract,
@@ -374,26 +436,6 @@ def contract_stats(request):
         contract_type='CDD', status='active', end_date__lt=today
     ).select_related('employee', 'employee__user', 'employee__department').order_by('end_date')
 
-    # ── Seniority distribution ────────────────────────────────────────────────
-    seniority_buckets = [
-        ("Probationary Period", 0,  1,  "#6b7a8d"),
-        ("Class 1",             1,  3,  "#0284c7"),
-        ("Class 2",             3,  5,  "#0891b2"),
-        ("Class 3",             5,  8,  "#059669"),
-        ("Class 4",             8,  12, "#d97706"),
-        ("Senior Staff",        12, 17, "#dc2626"),
-        ("Senior Executive",    17, 22, "#7c3aed"),
-        ("Principal Executive", 22, 999,"#4c1d95"),
-    ]
-    seniority_dist = []
-    for label, min_yr, max_yr, color in seniority_buckets:
-        count = sum(1 for c in all_contracts if min_yr <= c.years_of_service < max_yr)
-        seniority_dist.append({
-            'label': label, 'count': count, 'color': color,
-            'pct': round((count / total_active * 100) if total_active else 0),
-            'min_yr': min_yr,
-        })
-
     # ── Years of service distribution (all active employees with any contract) ─
     service_ranges = [
         ("<1 year",   0, 1),
@@ -435,13 +477,15 @@ def contract_stats(request):
         })
 
     # ── Department breakdown ──────────────────────────────────────────────────
-    dept_map = defaultdict(lambda: {'CDI': 0, 'CDD': 0, 'total': 0})
+    dept_map = defaultdict(lambda: defaultdict(int))
     for c in all_contracts:
         dept_name = str(c.employee.department) if c.employee.department else 'No Department'
         dept_map[dept_name][c.contract_type] += 1
         dept_map[dept_name]['total'] += 1
     dept_breakdown = sorted(
-        [{'dept': k, **v} for k, v in dept_map.items()],
+        [{'dept': k, 'CDI': v.get('CDI', 0), 'CDD': v.get('CDD', 0),
+          'INTERN': v.get('INTERN', 0), 'WACS': v.get('WACS', 0),
+          'total': v.get('total', 0)} for k, v in dept_map.items()],
         key=lambda x: -x['total']
     )
 
@@ -479,7 +523,6 @@ def contract_stats(request):
         'expiring_60': expiring_60,
         'expiring_90': expiring_90,
         'already_expired': already_expired,
-        'seniority_dist': seniority_dist,
         'service_dist': service_dist,
         'near_retirement': near_retirement,
         'avg_age': avg_age,

@@ -119,7 +119,7 @@
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Status / Time Left</th>
-                    <th>Seniority</th>
+                    <th>Years of Service</th>
                     <th>Age</th>
                     <th></th>
                 </tr>
@@ -172,12 +172,7 @@
                         <span class="badge bg-success">Active</span>
                         {% endif %}
                     </td>
-                    <td>
-                        <span class="badge" style="background:{{ c.seniority_badge_color }};color:#fff;font-size:.72rem;">
-                            {{ c.seniority_category }}
-                        </span>
-                        <div style="font-size:.7rem;color:#9ab4c0;margin-top:2px;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</div>
-                    </td>
+                    <td style="font-size:.85rem;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</td>
                     <td style="font-size:.85rem;">
                         {% with age=c.employee.age %}
                         {% if age %}

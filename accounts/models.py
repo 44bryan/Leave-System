@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
 
 
 class Department(models.Model):
@@ -13,13 +14,10 @@ class Department(models.Model):
         return self.name
 
 
-def _build_category_choices():
-    """A–L, AA–AL, BA–BL staff classification categories."""
-    letters = [chr(c) for c in range(ord('A'), ord('L') + 1)]
-    choices = [(l, l) for l in letters]
-    choices += [(f'A{l}', f'A{l}') for l in letters]
-    choices += [(f'B{l}', f'B{l}') for l in letters]
-    return choices
+_category_validator = RegexValidator(
+    regex=r'^(?:[1-9]|1[0-2])[A-Z]{0,3}$',
+    message='Enter a valid category: a number 1–12 followed by optional letters (e.g. 5, 12, 12A, 12AB, 12AL).'
+)
 
 
 class Employee(models.Model):
@@ -39,15 +37,14 @@ class Employee(models.Model):
         ('F', 'Female'),
     ]
 
-    CATEGORY_CHOICES = _build_category_choices()
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee')
     employee_id = models.CharField(max_length=20, unique=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='employee')
     staff_category = models.CharField(
-        max_length=3, choices=CATEGORY_CHOICES, blank=True, default='',
-        help_text='Staff classification category (A–L, AA–AL, BA–BL)'
+        max_length=6, blank=True, default='',
+        validators=[_category_validator],
+        help_text='Category 1–12 with optional letter suffix (e.g. 5, 12, 12A, 12AB, 12AL)'
     )
     supervisor = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True,

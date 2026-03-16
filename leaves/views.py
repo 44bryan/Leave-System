@@ -51,17 +51,32 @@ def submit_leave(request):
                 messages.error(request, "You already have a leave request for overlapping dates.")
             else:
                 leave.save()
-                messages.success(request, f"Leave request submitted successfully for {leave.total_days} day(s). Awaiting manager approval.")
-                # Notify the employee's supervisor
-                if employee.supervisor:
-                    notify(
-                        employee.supervisor.user,
-                        f'New Leave Request — {employee.get_full_name()}',
-                        f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
-                        f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
-                        notification_type='leave_submitted',
-                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
-                    )
+                if employee.is_intern():
+                    # Interns have no line manager — skip manager step, go directly to HR
+                    leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
+                    leave.save(update_fields=['status'])
+                    messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Sent directly to HR for review.")
+                    for hr_emp in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
+                        notify(
+                            hr_emp.user,
+                            f'Intern Leave Request — {employee.get_full_name()}',
+                            f'{employee.get_full_name()} (Intern) has submitted a {leave.leave_type} request '
+                            f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). '
+                            f'No manager approval required — awaiting your HR review.',
+                            notification_type='leave_submitted',
+                            url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                        )
+                else:
+                    messages.success(request, f"Leave request submitted successfully for {leave.total_days} day(s). Awaiting manager approval.")
+                    if employee.supervisor:
+                        notify(
+                            employee.supervisor.user,
+                            f'New Leave Request — {employee.get_full_name()}',
+                            f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
+                            f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
+                            notification_type='leave_submitted',
+                            url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                        )
                 return redirect('leaves:my_requests')
 
     import json

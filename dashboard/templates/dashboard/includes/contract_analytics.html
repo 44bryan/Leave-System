@@ -270,7 +270,7 @@
             <div class="table-responsive">
                 <table class="table mb-0">
                     <thead>
-                        <tr><th>Department</th><th class="text-center">CDI</th><th class="text-center">CDD</th><th class="text-center">Total</th><th>CDD %</th></tr>
+                        <tr><th>Department</th><th class="text-center">CDI</th><th class="text-center">CDD</th><th class="text-center">Intern</th><th class="text-center">WACS</th><th class="text-center">Total</th></tr>
                     </thead>
                     <tbody>
                         {% for row in contract_dept_breakdown %}
@@ -278,18 +278,12 @@
                             <td style="font-size:.85rem;font-weight:600;">{{ row.dept }}</td>
                             <td class="text-center"><span class="badge" style="background:#dcfce7;color:#15803d;">{{ row.CDI }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#fef9c3;color:#a16207;">{{ row.CDD }}</span></td>
+                            <td class="text-center"><span class="badge" style="background:#e0f2fe;color:#0369a1;">{{ row.INTERN }}</span></td>
+                            <td class="text-center"><span class="badge" style="background:#fdf4ff;color:#7e22ce;">{{ row.WACS }}</span></td>
                             <td class="text-center"><strong>{{ row.total }}</strong></td>
-                            <td style="min-width:80px;">
-                                {% if row.total %}
-                                <div class="progress" style="height:5px;background:#f0f4f8;">
-                                    <div class="progress-bar" style="width:{% widthratio row.CDD row.total 100 %}%;background:#ca8a04;border-radius:3px;"></div>
-                                </div>
-                                <div style="font-size:.65rem;color:#9ab4c0;margin-top:2px;">{% widthratio row.CDD row.total 100 %}% CDD</div>
-                                {% endif %}
-                            </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" class="text-center text-muted py-4">No contracts yet.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">No contracts yet.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -316,8 +310,7 @@
                             <div style="font-size:.72rem;color:#9ab4c0;">{{ c.employee.department|default:"No dept" }} · since {{ c.start_date|date:"Y" }}</div>
                         </div>
                         <div class="text-end">
-                            <span class="badge" style="background:{{ c.seniority_badge_color }};color:#fff;font-size:.72rem;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</span>
-                            <div style="font-size:.65rem;color:#9ab4c0;margin-top:2px;">{{ c.seniority_category }}</div>
+                            <span class="badge bg-primary" style="font-size:.72rem;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</span>
                         </div>
                     </div>
                 </a>

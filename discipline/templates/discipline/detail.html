@@ -14,6 +14,11 @@
     <i class="bi bi-arrow-left me-1"></i> My Discipline Record
 </a>
 {% endif %}
+{% if request.user.is_superuser or request.user.employee.role == 'admin_director' %}
+<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteRecordModal">
+    <i class="bi bi-trash3 me-1"></i> Delete Record
+</button>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -159,7 +164,7 @@
             </div>
             {% endif %}
 
-            <!-- Step 2 — HR Proposed Sanction -->
+            <!-- Step 2 — HR Proposed Sanction (shown once Step 1 exists or no manager recommendation needed) -->
             <div class="card mb-3" style="border:1.5px solid #bfdbfe;background:#eff6ff;">
                 <div class="card-header" style="background:#eff6ff;border-color:#bfdbfe;">
                     <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#1d4ed8;font-weight:700;">
@@ -221,7 +226,8 @@
                 </div>
             </div>
 
-            <!-- Step 3 — Director Proposed Sanction -->
+            <!-- Step 3 — Director Proposed Sanction (only shown after HR has submitted a proposal) -->
+            {% if record.hr_proposed_sanction or request.user.is_superuser %}
             <div class="card mb-3" style="border:1.5px solid #fca5a5;background:#fff5f5;">
                 <div class="card-header" style="background:#fff5f5;border-color:#fca5a5;">
                     <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#b91c1c;font-weight:700;">
@@ -282,6 +288,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% endif %}{# end Step 3 conditional #}
 
             <!-- Step 4 — HR Issue Final Discipline -->
             {% if record.director_proposed_sanction and record.director_proposed_sanction != 'no_further_action' %}
@@ -332,4 +339,34 @@
 
         </div>
     </div>
+
+    {% if request.user.is_superuser or request.user.employee.role == 'admin_director' %}
+    <!-- Delete Record Confirmation Modal -->
+    <div class="modal fade" id="deleteRecordModal" tabindex="-1" aria-labelledby="deleteRecordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteRecordModalLabel"><i class="bi bi-trash3 me-2"></i>Delete Discipline Record</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to <strong>permanently delete</strong> this <strong>{{ record.get_action_type_display }}</strong> record for <strong>{{ record.employee.get_full_name }}</strong>.</p>
+                    <p class="text-muted mb-0" style="font-size:.875rem;">This action cannot be undone. The record will be completely erased — no trace will remain in the system.</p>
+                    {% if record.action_type == 'suspension' %}
+                    <div class="alert alert-warning mt-3 mb-0" style="font-size:.85rem;">
+                        <i class="bi bi-info-circle me-1"></i> Deleting this suspension record will also lift any active suspension restriction on this employee's account.
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="post" action="{% url 'discipline:delete' record.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash3 me-1"></i>Yes, Delete Record</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 {% endblock %}

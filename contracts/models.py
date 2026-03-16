@@ -97,45 +97,6 @@ class Contract(models.Model):
         return max(0, years)
 
     @property
-    def seniority_category(self):
-        """Progresses every year based on years of service."""
-        yrs = self.years_of_service
-        if yrs < 1:
-            return "Probationary Period"
-        elif yrs < 3:
-            return "Class 1"
-        elif yrs < 5:
-            return "Class 2"
-        elif yrs < 8:
-            return "Class 3"
-        elif yrs < 12:
-            return "Class 4"
-        elif yrs < 17:
-            return "Senior Staff"
-        elif yrs < 22:
-            return "Senior Executive"
-        else:
-            return "Principal Executive"
-
-    @property
-    def seniority_badge_color(self):
-        yrs = self.years_of_service
-        if yrs < 1:
-            return "#6b7a8d"
-        elif yrs < 3:
-            return "#0284c7"
-        elif yrs < 5:
-            return "#0891b2"
-        elif yrs < 8:
-            return "#059669"
-        elif yrs < 12:
-            return "#d97706"
-        elif yrs < 17:
-            return "#dc2626"
-        else:
-            return "#7c3aed"
-
-    @property
     def duration_display(self):
         if self.contract_type == 'CDI':
             return "Permanent (no fixed end date)"

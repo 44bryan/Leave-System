@@ -257,50 +257,18 @@
 
 </div>
 
-<!-- ══════════════════ SENIORITY + YEARS OF SERVICE ═══════════════════════ -->
+<!-- ══════════════════ YEARS OF SERVICE ═════════════════════════════════ -->
 <div class="row g-4 mb-4">
-
-    <!-- Seniority Distribution -->
-    <div class="col-lg-6">
-        <div class="card h-100 animate-in">
-            <div class="card-header"><i class="bi bi-award me-2" style="color:#7c3aed;"></i>Workforce Seniority Distribution</div>
-            <div class="card-body p-4">
-                {% for s in seniority_dist %}
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <div style="font-size:.82rem;font-weight:600;">
-                            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{{ s.color }};margin-right:6px;"></span>
-                            {{ s.label }}
-                            <span style="font-size:.72rem;color:#9ab4c0;">({{ s.min_yr }}+ yrs)</span>
-                        </div>
-                        <div style="font-size:.82rem;color:#6b7a8d;">
-                            <strong>{{ s.count }}</strong> <span style="font-size:.72rem;">staff</span>
-                        </div>
-                    </div>
-                    <div class="progress" style="height:8px;background:#f0f4f8;">
-                        <div class="progress-bar" style="width:{{ s.pct }}%;background:{{ s.color }};border-radius:4px;"></div>
-                    </div>
-                </div>
-                {% endfor %}
-                {% if not total_active %}
-                <div class="text-center text-muted py-3" style="font-size:.85rem;">No active contracts to analyse.</div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Years of Service Distribution -->
-    <div class="col-lg-6">
-        <div class="card h-100 animate-in">
+    <div class="col-12">
+        <div class="card animate-in">
             <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#0284c7;"></i>Years of Service Breakdown</div>
             <div class="card-body p-4">
+                <div class="row g-3">
                 {% for s in service_dist %}
-                <div class="mb-3">
+                <div class="col-md-4">
                     <div class="d-flex justify-content-between mb-1">
                         <div style="font-size:.82rem;font-weight:600;">{{ s.label }}</div>
-                        <div style="font-size:.82rem;color:#6b7a8d;">
-                            <strong>{{ s.count }}</strong> staff &nbsp; <span style="color:#c4d4de;">{{ s.pct }}%</span>
-                        </div>
+                        <div style="font-size:.82rem;color:#6b7a8d;"><strong>{{ s.count }}</strong> &nbsp;<span style="color:#c4d4de;">{{ s.pct }}%</span></div>
                     </div>
                     <div class="progress" style="height:8px;background:#f0f4f8;">
                         <div class="progress-bar" style="width:{{ s.pct }}%;background:#0284c7;border-radius:4px;"></div>
@@ -308,12 +276,12 @@
                 </div>
                 {% endfor %}
                 {% if not total_active %}
-                <div class="text-center text-muted py-3" style="font-size:.85rem;">No data yet.</div>
+                <div class="col-12 text-center text-muted py-3" style="font-size:.85rem;">No data yet.</div>
                 {% endif %}
+                </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <!-- ════════════════════ AGE DISTRIBUTION + DEPT BREAKDOWN ════════════════ -->
@@ -359,8 +327,9 @@
                             <th>Department</th>
                             <th class="text-center">CDI</th>
                             <th class="text-center">CDD</th>
+                            <th class="text-center">Intern</th>
+                            <th class="text-center">WACS</th>
                             <th class="text-center">Total</th>
-                            <th>CDD %</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -373,20 +342,16 @@
                             <td class="text-center">
                                 <span class="badge" style="background:#fef9c3;color:#a16207;">{{ row.CDD }}</span>
                             </td>
-                            <td class="text-center"><strong>{{ row.total }}</strong></td>
-                            <td style="min-width:80px;">
-                                {% if row.total %}
-                                {% with pct=row.CDD|add:0 %}
-                                <div class="progress" style="height:6px;background:#f0f4f8;">
-                                    <div class="progress-bar" style="width:{% widthratio row.CDD row.total 100 %}%;background:#ca8a04;border-radius:3px;"></div>
-                                </div>
-                                <div style="font-size:.65rem;color:#9ab4c0;margin-top:2px;">{% widthratio row.CDD row.total 100 %}% CDD</div>
-                                {% endwith %}
-                                {% endif %}
+                            <td class="text-center">
+                                <span class="badge" style="background:#e0f2fe;color:#0369a1;">{{ row.INTERN }}</span>
                             </td>
+                            <td class="text-center">
+                                <span class="badge" style="background:#fdf4ff;color:#7e22ce;">{{ row.WACS }}</span>
+                            </td>
+                            <td class="text-center"><strong>{{ row.total }}</strong></td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" class="text-center text-muted py-4">No data yet.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">No data yet.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -421,10 +386,9 @@
                             </div>
                         </div>
                         <div class="text-end">
-                            <span class="badge" style="background:{{ c.seniority_badge_color }};color:#fff;font-size:.75rem;">
+                            <span class="badge bg-primary" style="font-size:.75rem;">
                                 {{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}
                             </span>
-                            <div style="font-size:.68rem;color:#9ab4c0;margin-top:2px;">{{ c.seniority_category }}</div>
                         </div>
                     </div>
                 </div>

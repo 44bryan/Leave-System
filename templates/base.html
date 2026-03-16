@@ -318,8 +318,8 @@
             align-items: center;
             justify-content: space-between;
             position: sticky;
-            top: 0;
-            z-index: 100;
+            top: 76px;
+            z-index: 1050;
         }
 
         .topbar-title {
@@ -955,7 +955,7 @@
                     <li><a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}"><i class="bi bi-sliders me-2" style="color:#0891a8;"></i>System Settings</a></li>
                     {% endif %}
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}</a></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}" data-no-suspend><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}</a></li>
                 </ul>
             </div>
 
@@ -998,11 +998,13 @@
                     <i class="bi bi-journal-text"></i> {% trans "My Requests" %}
                 </a>
             </li>
+            {% if not user.employee.is_intern %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:my_notices' %}" class="nav-link-sidebar {% block nav_my_discipline %}{% endblock %}">
                     <i class="bi bi-shield-exclamation"></i> {% trans "My Discipline Record" %}
                 </a>
             </li>
+            {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'contracts:my_contract' %}" class="nav-link-sidebar {% block nav_my_contract %}{% endblock %}">
                     <i class="bi bi-file-earmark-person"></i> {% trans "My Contract" %}
@@ -1172,11 +1174,6 @@
                     <i class="bi bi-person-plus"></i> Add Employee
                 </a>
             </li>
-            <li class="nav-item-sidebar">
-                <a href="{% url 'accounts:employee_import' %}" class="nav-link-sidebar">
-                    <i class="bi bi-file-earmark-spreadsheet"></i> Import from Excel
-                </a>
-            </li>
             {% endif %}
             {% if user.is_superuser %}
             <li class="nav-item-sidebar">
@@ -1189,12 +1186,12 @@
                     <i class="bi bi-tags"></i> Leave Types
                 </a>
             </li>
-            {% endif %}
             <li class="nav-item-sidebar">
-                <a href="{% url 'dashboard:retirement' %}" class="nav-link-sidebar {% block nav_retirement_admin %}{% endblock %}">
-                    <i class="bi bi-hourglass-split"></i> Retirement Tracker
+                <a href="{% url 'accounts:employee_import' %}" class="nav-link-sidebar">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Import from Excel
                 </a>
             </li>
+            {% endif %}
             {% if user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:admin_settings' %}" class="nav-link-sidebar {% block nav_settings %}{% endblock %}">
@@ -1222,7 +1219,7 @@
             <i class="bi bi-key sidebar-footer-icon"></i>
             <span>{% trans "Change Password" %}</span>
         </a>
-        <a href="{% url 'accounts:logout' %}" class="sidebar-footer-item" style="color:#dc2626;">
+        <a href="{% url 'accounts:logout' %}" class="sidebar-footer-item" style="color:#dc2626;" data-no-suspend>
             <i class="bi bi-box-arrow-right sidebar-footer-icon" style="color:#dc2626;"></i>
             <span>{% trans "Sign Out" %}</span>
         </a>
@@ -1257,7 +1254,7 @@
                         {% if notif_unread > 0 %}
                         <form method="post" action="{% url 'notifications:mark_all_read' %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:0.72rem;color:#9ab4c0;">Mark all read</button>
+                            <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:0.72rem;color:#9ab4c0;" data-no-suspend>Mark all read</button>
                         </form>
                         {% endif %}
                     </div>
@@ -1298,7 +1295,7 @@
     </div>
 
     {% if is_suspended %}
-    <div style="background:linear-gradient(135deg,#7f1d1d,#991b1b);color:white;padding:14px 20px;display:flex;align-items:center;gap:12px;font-size:0.9rem;font-weight:600;position:sticky;top:0;z-index:999;">
+    <div style="background:linear-gradient(135deg,#7f1d1d,#991b1b);color:white;padding:14px 20px;display:flex;align-items:center;gap:12px;font-size:0.9rem;font-weight:600;">
         <i class="bi bi-person-lock fs-5 flex-shrink-0"></i>
         <div>
             <div>Your account is currently <strong>suspended</strong> until {{ suspension_end|date:"d F Y" }}.</div>
@@ -1335,6 +1332,19 @@ function toggleSidebar() {
         document.body.classList.toggle('sidebar-collapsed');
     }
 }
+
+// ─── Sidebar scroll position persistence ───────────────────────────────────
+(function () {
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    // Restore saved position immediately on load
+    var saved = sessionStorage.getItem('sidebarScroll');
+    if (saved) sidebar.scrollTop = parseInt(saved, 10);
+    // Save position before any navigation
+    sidebar.addEventListener('scroll', function () {
+        sessionStorage.setItem('sidebarScroll', sidebar.scrollTop);
+    });
+})();
 
 // ─── Live Search ───────────────────────────────────────────────────────────
 (function () {
@@ -1520,13 +1530,15 @@ function toggleSidebar() {
 // ── Suspend account: disable all nav actions ──────────────────────────────────
 {% if is_suspended %}
 (function() {
-    // Grey out and disable all nav links except notifications
+    // Grey out and disable all nav links except sign-out and notifications
     document.querySelectorAll('.nav-link-sidebar, .topbar-actions a, .topbar-actions button, .sidebar-mobile-footer a').forEach(function(el) {
+        if (el.dataset.noSuspend) return;
         el.classList.add('suspension-overlay');
         el.style.pointerEvents = 'none';
     });
     // Disable all form submit buttons on page (prevent leave submission etc)
     document.querySelectorAll('form button[type="submit"], form input[type="submit"]').forEach(function(el) {
+        if (el.dataset.noSuspend) return;
         el.disabled = true;
         el.classList.add('suspension-overlay');
     });

@@ -79,19 +79,22 @@ def hr_or_superuser_required(view_func):
     return wrapper
 
 
-def _generate_username(first_name):
-    """Generate username as lowercase_firstname + 4-digit incrementing number."""
+def _generate_username(first_name, last_name=''):
+    """Generate username as firstname.lastname (e.g. john.smith).
+    If already taken, appends incrementing numbers: john.smith2, john.smith3, …
+    Falls back gracefully when only first_name is provided (AJAX suggest endpoint).
+    """
     from django.contrib.auth.models import User
     import re
-    base = re.sub(r'[^a-z]', '', first_name.lower()) or 'user'
-    # Find highest existing number for this base
-    existing = User.objects.filter(username__startswith=base).values_list('username', flat=True)
-    max_num = 0
-    for uname in existing:
-        suffix = uname[len(base):]
-        if suffix.isdigit():
-            max_num = max(max_num, int(suffix))
-    return f"{base}{str(max_num + 1).zfill(4)}"
+    first = re.sub(r'[^a-z]', '', first_name.lower()) or 'user'
+    last = re.sub(r'[^a-z]', '', last_name.lower())
+    base = f"{first}.{last}" if last else first
+    candidate = base
+    counter = 2
+    while User.objects.filter(username=candidate).exists():
+        candidate = f"{base}{counter}"
+        counter += 1
+    return candidate
 
 
 @hr_or_superuser_required
@@ -106,11 +109,12 @@ def employee_list(request):
 
 @hr_or_superuser_required
 def employee_create(request):
-    # Auto-generate username suggestion on GET (or from POST first_name)
+    # Auto-generate username suggestion on GET (or from POST first_name + last_name)
     auto_username = ''
     first_name_hint = request.POST.get('first_name', '')
+    last_name_hint = request.POST.get('last_name', '')
     if first_name_hint:
-        auto_username = _generate_username(first_name_hint)
+        auto_username = _generate_username(first_name_hint, last_name_hint)
 
     form = EmployeeCreateForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -150,15 +154,19 @@ def employee_create(request):
 
                 # Welcome notification to the new employee
                 from notifications.utils import notify
-                contract_label = contract.get_contract_type_display()
+                from contracts.views import _contract_issue_message
+                _ctitle, _cmsg = _contract_issue_message(contract)
+                ct = contract.contract_type
+                if ct == 'INTERN':
+                    welcome_intro = f"Welcome to LeaveDesk, {employee.get_full_name()}! Your internship account has been created and activated."
+                elif ct == 'WACS':
+                    welcome_intro = f"Welcome to LeaveDesk, {employee.get_full_name()}! Your WACS Residency account has been created and activated."
+                else:
+                    welcome_intro = f"Welcome to LeaveDesk, {employee.get_full_name()}! Your account has been created and activated."
                 notify(
                     employee.user,
                     title='Welcome — Your Account Is Now Active',
-                    message=(
-                        f"Welcome to LeaveDesk, {employee.get_full_name()}! Your account has been created and activated. "
-                        f"A {contract_label} contract starting {contract.start_date.strftime('%d %b %Y')} has been issued. "
-                        f"Please visit the HR Office to sign and collect your contract document."
-                    ),
+                    message=f"{welcome_intro} {_cmsg}",
                     notification_type='account_activated',
                     url='/contracts/my-contract/',
                 )
@@ -246,17 +254,21 @@ def admin_reset_credentials(request, pk):
 
 @login_required
 def username_suggest(request):
-    """AJAX endpoint: suggest next available username for a given first_name."""
+    """AJAX endpoint: suggest next available username for a given first_name + last_name."""
     from django.http import JsonResponse
     first_name = request.GET.get('first_name', '').strip()
+    last_name = request.GET.get('last_name', '').strip()
     if not first_name:
         return JsonResponse({'username': ''})
-    username = _generate_username(first_name)
+    username = _generate_username(first_name, last_name)
     return JsonResponse({'username': username})
 
 
-@hr_or_superuser_required
+@login_required
 def employee_import(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied. System Admin only.")
+        return redirect('dashboard:home')
     """Bulk-import employees from an Excel (.xlsx) file."""
     from django.http import HttpResponse
     import openpyxl
