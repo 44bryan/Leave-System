@@ -15,4 +15,5 @@ urlpatterns = [
     path('departments/<int:pk>/delete/', views.department_delete, name='department_delete'),
     path('profile/change-password/', views.change_password, name='change_password'),
     path('employees/<int:pk>/reset-credentials/', views.admin_reset_credentials, name='reset_credentials'),
+    path('username-suggest/', views.username_suggest, name='username_suggest'),
 ]

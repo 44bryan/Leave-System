@@ -26,10 +26,11 @@
     {% endif %}
 
     {% if is_manager_only %}
-    <div class="alert alert-info mb-4">
+    <div class="alert alert-info mb-4" style="border-left:3px solid #0891b2;">
         <i class="bi bi-info-circle me-2"></i>
-        As a Line Manager, you may issue <strong>Verbal Warnings</strong> and <strong>Written Cautions</strong> only.
-        Escalate serious matters to HR.
+        As a <strong>Line Manager</strong>, you may issue a <strong>Verbal Warning</strong> only.
+        You must also provide a <strong>Recommended Sanction</strong> for HR to consider.
+        Your recommendation will <em>not</em> be visible to the employee.
     </div>
     {% endif %}
 
@@ -127,6 +128,33 @@
                             <input type="file" name="document" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png">
                             <div class="form-text">Attach the official notice letter or any supporting document (PDF, Word, or image).</div>
                         </div>
+
+                        <!-- Manager Recommendation (shown only for managers) -->
+                        {% if is_manager_only %}
+                        <div class="mb-4 p-3 rounded" style="background:#fffbeb;border:1.5px solid #fde68a;">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#d97706;font-weight:700;margin-bottom:12px;">
+                                <i class="bi bi-shield-exclamation me-1"></i> Recommended Follow-Up Action
+                                <span class="text-muted fw-normal" style="font-size:0.7rem;text-transform:none;">(not visible to employee)</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-600" style="font-size:0.85rem;">Proposed Sanction *</label>
+                                <select name="recommended_sanction" class="form-select" required>
+                                    <option value="">— Select proposed sanction —</option>
+                                    <option value="written_caution">Written Caution</option>
+                                    <option value="final_warning">Final Written Warning</option>
+                                    <option value="suspension">Suspension</option>
+                                    <option value="dismissal">Dismissal</option>
+                                    <option value="no_further_action">No Further Action Required</option>
+                                </select>
+                                <div class="form-text">Recommend the sanction you believe is appropriate. HR and Admin Director will review.</div>
+                            </div>
+                            <div>
+                                <label class="form-label fw-600" style="font-size:0.85rem;">Recommendation Details</label>
+                                <textarea name="recommendation_note" class="form-control" rows="3"
+                                    placeholder="Explain your recommendation and any additional context for HR consideration..."></textarea>
+                            </div>
+                        </div>
+                        {% endif %}
 
                         <!-- Internal Notes -->
                         <div class="mb-4">

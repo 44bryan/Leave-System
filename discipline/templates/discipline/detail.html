@@ -119,6 +119,37 @@
                 </div>
             </div>
 
+            <!-- Manager's Recommendation — HIDDEN from employee -->
+            {% if record.recommended_sanction %}
+            {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director %}
+            <div class="card mb-4" style="border:1.5px solid #fde68a;background:#fffbeb;">
+                <div class="card-header" style="background:#fffbeb;border-color:#fde68a;">
+                    <i class="bi bi-shield-exclamation me-2" style="color:#d97706;"></i>
+                    Manager's Recommendation
+                    <small class="text-muted fw-normal">(not visible to employee)</small>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Proposed Sanction</div>
+                            <div class="mt-1 fw-bold" style="color:#d97706;">
+                                {{ record.get_recommended_sanction_display }}
+                            </div>
+                        </div>
+                        {% if record.recommendation_note %}
+                        <div class="col-12">
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Recommendation Details</div>
+                            <div class="mt-2 p-3 rounded-2" style="background:#fefce8;border:1px solid #fde68a;font-size:0.875rem;">
+                                {{ record.recommendation_note|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
             <!-- Internal notes — only visible to HR/Admin/Manager who issued -->
             {% if record.notes %}
             {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or record.issued_by == request.user %}

@@ -50,8 +50,8 @@ def is_hr_or_above(emp, is_super):
     return emp.is_hr() or emp.is_director()
 
 
-# Types a manager is allowed to issue
-MANAGER_ALLOWED_TYPES = ['verbal_warning', 'written_caution']
+# Managers can ONLY issue verbal warnings (with a recommendation for follow-up)
+MANAGER_ALLOWED_TYPES = ['verbal_warning']
 
 
 @login_required
@@ -87,6 +87,8 @@ def issue_discipline(request):
         notes = request.POST.get('notes', '').strip()
         suspension_start = request.POST.get('suspension_start') or None
         document = request.FILES.get('document')
+        recommended_sanction = request.POST.get('recommended_sanction', '').strip()
+        recommendation_note = request.POST.get('recommendation_note', '').strip()
 
         # Validate
         errors = []
@@ -97,7 +99,7 @@ def issue_discipline(request):
         if not reason:
             errors.append("Reason is required.")
         if is_manager_only and action_type not in MANAGER_ALLOWED_TYPES:
-            errors.append("You are not authorised to issue this type of discipline notice.")
+            errors.append("You are not authorised to issue this type of discipline notice. As a Line Manager, you may only issue a Verbal Warning.")
         if action_type == 'suspension' and not suspension_start:
             errors.append("Please provide the suspension start date.")
 
@@ -117,6 +119,8 @@ def issue_discipline(request):
                 issued_by=request.user,
                 reason=reason,
                 notes=notes,
+                recommended_sanction=recommended_sanction if is_manager_only else '',
+                recommendation_note=recommendation_note if is_manager_only else '',
             )
             if action_type == 'suspension' and suspension_start:
                 record.suspension_start = suspension_start

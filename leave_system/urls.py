@@ -30,7 +30,6 @@ def debug_settings(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('i18n/', include('django.conf.urls.i18n')),
     path('accounts/', include('accounts.urls')),
     path('leaves/', include('leaves.urls')),
     path('dashboard/', include('dashboard.urls')),

@@ -143,8 +143,10 @@ def contract_detail(request, pk):
             messages.error(request, "Access denied.")
             return redirect('contracts:my_contract')
 
+    # Only show OLDER contracts (true history — no forward links creating circular navigation)
     renewal_history = Contract.objects.filter(
-        employee=contract.employee
+        employee=contract.employee,
+        start_date__lte=contract.start_date,
     ).exclude(pk=contract.pk).order_by('-start_date')
 
     return render(request, 'contracts/contract_detail.html', {

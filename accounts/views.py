@@ -35,6 +35,16 @@ def profile_view(request):
     return render(request, 'accounts/profile.html', {'employee': employee, 'change_form': change_form})
 
 
+def _is_hr_or_superuser(user):
+    """HR Admin or Superuser — can manage employees."""
+    if user.is_superuser:
+        return True
+    try:
+        return user.employee.is_hr()
+    except Exception:
+        return False
+
+
 def hr_required(view_func):
     @login_required
     def wrapper(request, *args, **kwargs):
@@ -58,14 +68,46 @@ def superuser_required(view_func):
     return wrapper
 
 
-@superuser_required
+def hr_or_superuser_required(view_func):
+    """Decorator allowing HR Admin OR Superuser."""
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if not _is_hr_or_superuser(request.user):
+            messages.error(request, "Access denied. HR or Admin only.")
+            return redirect('dashboard:home')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+def _generate_username(first_name):
+    """Generate username as lowercase_firstname + 4-digit incrementing number."""
+    from django.contrib.auth.models import User
+    import re
+    base = re.sub(r'[^a-z]', '', first_name.lower()) or 'user'
+    # Find highest existing number for this base
+    existing = User.objects.filter(username__startswith=base).values_list('username', flat=True)
+    max_num = 0
+    for uname in existing:
+        suffix = uname[len(base):]
+        if suffix.isdigit():
+            max_num = max(max_num, int(suffix))
+    return f"{base}{str(max_num + 1).zfill(4)}"
+
+
+@hr_or_superuser_required
 def employee_list(request):
     employees = Employee.objects.select_related('user', 'department', 'supervisor__user').all()
     return render(request, 'accounts/employee_list.html', {'employees': employees})
 
 
-@superuser_required
+@hr_or_superuser_required
 def employee_create(request):
+    # Auto-generate username suggestion on GET (or from POST first_name)
+    auto_username = ''
+    first_name_hint = request.POST.get('first_name', '')
+    if first_name_hint:
+        auto_username = _generate_username(first_name_hint)
+
     form = EmployeeCreateForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         try:
@@ -111,10 +153,14 @@ def employee_create(request):
             return redirect('accounts:employee_list')
         except Exception as e:
             messages.error(request, f"Error creating employee: {e}")
-    return render(request, 'accounts/employee_form.html', {'form': form, 'title': 'Add New Employee'})
+    return render(request, 'accounts/employee_form.html', {
+        'form': form,
+        'title': 'Add New Employee',
+        'auto_username': auto_username,
+    })
 
 
-@superuser_required
+@hr_or_superuser_required
 def employee_edit(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
     form = EmployeeEditForm(request.POST or None, instance=employee)
@@ -125,7 +171,7 @@ def employee_edit(request, pk):
     return render(request, 'accounts/employee_form.html', {'form': form, 'title': 'Edit Employee', 'employee': employee})
 
 
-@superuser_required
+@hr_or_superuser_required
 def employee_delete(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
     if request.method == 'POST':
@@ -182,3 +228,14 @@ def admin_reset_credentials(request, pk):
         'form': form,
         'employee': employee,
     })
+
+
+@login_required
+def username_suggest(request):
+    """AJAX endpoint: suggest next available username for a given first_name."""
+    from django.http import JsonResponse
+    first_name = request.GET.get('first_name', '').strip()
+    if not first_name:
+        return JsonResponse({'username': ''})
+    username = _generate_username(first_name)
+    return JsonResponse({'username': username})

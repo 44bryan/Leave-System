@@ -2,30 +2,23 @@
 {% load i18n %}
 
 {% block title %}Discipline Records{% endblock %}
-
+{% block page_title %}Discipline Records{% endblock %}
 {% block nav_discipline %}active{% endblock %}
 
-{% block content %}
-<div class="topbar">
-    <div class="d-flex align-items-center gap-3">
-        <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
-        <div>
-            <div class="topbar-title">Discipline Records</div>
-        </div>
-    </div>
-    <div class="topbar-actions">
-        {% if is_privileged or request.user.is_superuser %}
-        <a href="{% url 'discipline:stats' %}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-bar-chart-line me-1"></i> Stats
-        </a>
-        {% endif %}
-        <a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus-circle me-1"></i> Issue Notice
-        </a>
-    </div>
-</div>
+{% block topbar_actions %}
+{% if is_privileged or request.user.is_superuser %}
+<a href="{% url 'discipline:stats' %}" class="btn btn-outline-secondary btn-sm d-none d-sm-inline-flex">
+    <i class="bi bi-bar-chart-line me-1"></i> Stats
+</a>
+{% endif %}
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_manager %}
+<a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
+    <i class="bi bi-plus-circle me-1"></i> Issue Notice
+</a>
+{% endif %}
+{% endblock %}
 
-<div class="page-content">
+{% block content %}
 
     {% if messages %}
         {% for msg in messages %}
@@ -140,10 +133,14 @@
                         <td style="font-size:0.82rem;">{{ record.employee.department|default:"—" }}</td>
                         {% endif %}
                         <td style="font-size:0.82rem;">
-                            {% if record.action_type == 'suspension' and record.suspension_start %}
-                                {{ record.suspension_start|date:"d M" }} – {{ record.suspension_end|date:"d M Y" }}
-                                {% if record.is_currently_suspended %}
-                                    <span class="badge bg-dark ms-1" style="font-size:0.65rem;">Active</span>
+                            {% if record.action_type == 'suspension' %}
+                                {% if record.suspension_start and record.suspension_end %}
+                                    {{ record.suspension_start|date:"d M Y" }} – {{ record.suspension_end|date:"d M Y" }}
+                                    {% if record.is_currently_suspended %}
+                                        <span class="badge bg-dark ms-1" style="font-size:0.65rem;">Active</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Dates pending</span>
                                 {% endif %}
                             {% else %}
                                 —
@@ -167,5 +164,4 @@
             </table>
         </div>
     </div>
-</div>
 {% endblock %}

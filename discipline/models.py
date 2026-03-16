@@ -13,6 +13,15 @@ class DisciplineRecord(models.Model):
         ('dismissal', 'Dismissal'),
     ]
 
+    RECOMMENDED_ACTION_CHOICES = [
+        ('', '— No recommendation —'),
+        ('written_caution', 'Written Caution'),
+        ('final_warning', 'Final Written Warning'),
+        ('suspension', 'Suspension'),
+        ('dismissal', 'Dismissal'),
+        ('no_further_action', 'No Further Action Required'),
+    ]
+
     employee = models.ForeignKey(
         Employee, on_delete=models.CASCADE, related_name='discipline_records'
     )
@@ -27,6 +36,17 @@ class DisciplineRecord(models.Model):
     # Suspension fields
     suspension_start = models.DateField(null=True, blank=True)
     suspension_end = models.DateField(null=True, blank=True)  # auto = start + 8 days
+
+    # Manager recommendation (hidden from employee — visible to HR/Director/Superuser only)
+    recommended_sanction = models.CharField(
+        max_length=20, choices=RECOMMENDED_ACTION_CHOICES,
+        blank=True, default='',
+        help_text='Proposed follow-up action recommended by the issuing manager (not visible to employee)'
+    )
+    recommendation_note = models.TextField(
+        blank=True, default='',
+        help_text='Manager\'s recommendation details (not visible to employee)'
+    )
 
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

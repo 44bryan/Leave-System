@@ -25,13 +25,28 @@ class EmployeeCreateForm(forms.ModelForm):
     first_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
     last_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), initial='hospital2024')
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'id_username'}),
+        help_text='Auto-generated from first name. You may change it.',
+    )
+    password = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'readonly': 'readonly',
+            'style': 'background:#f8fafc;color:#6b7a8d;cursor:not-allowed;',
+            'value': 'Micei2021',
+        }),
+        initial='Micei2021',
+        help_text='Default password. Employee must change it on first login.',
+    )
 
     # Contract fields (required at registration)
     CONTRACT_TYPE_CHOICES = [
-        ('CDI', 'CDI — Permanent (Contrat à Durée Indéterminée)'),
-        ('CDD', 'CDD — Fixed Term (Contrat à Durée Déterminée)'),
+        ('CDI',    'CDI — Permanent'),
+        ('CDD',    'CDD — Fixed Term'),
+        ('INTERN', 'Internship Contract'),
+        ('WACS',   'WACS Residency / Trainee Programme'),
     ]
     contract_type = forms.ChoiceField(
         choices=CONTRACT_TYPE_CHOICES,
@@ -51,11 +66,12 @@ class EmployeeCreateForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
             'role': forms.Select(attrs={'class': 'form-select'}),
+            'staff_category': forms.Select(attrs={'class': 'form-select'}),
             'supervisor': forms.Select(attrs={'class': 'form-select'}),
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
@@ -94,11 +110,12 @@ class EmployeeEditForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'is_active']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'is_active']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
             'role': forms.Select(attrs={'class': 'form-select'}),
+            'staff_category': forms.Select(attrs={'class': 'form-select'}),
             'supervisor': forms.Select(attrs={'class': 'form-select'}),
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),

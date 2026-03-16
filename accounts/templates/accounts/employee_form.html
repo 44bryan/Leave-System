@@ -28,19 +28,14 @@
                             {{ form.email }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">{% trans "Username" %} *</label>
+                            <label class="form-label">Username *</label>
                             {{ form.username }}
+                            <div class="form-text">Auto-generated. You may edit if needed.</div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">{% trans "Password" %}</label>
-                            <div style="position:relative;">
-                                {{ form.password }}
-                                <button type="button" tabindex="-1" onclick="togglePassword(this)"
-                                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#6b7a8d;cursor:pointer;font-size:1rem;">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                            <div class="form-text">Default: hospital2024</div>
+                            <label class="form-label">Default Password</label>
+                            {{ form.password }}
+                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Default: <strong>Micei2021</strong> — employee must change at first login.</div>
                         </div>
                     </div>
                     <hr>
@@ -76,11 +71,16 @@
                             {{ form.department }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">{% trans "Role" %}</label>
+                            <label class="form-label">Role</label>
                             {{ form.role }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">{% trans "Line Manager / Supervisor" %}</label>
+                            <label class="form-label">Staff Category</label>
+                            {{ form.staff_category }}
+                            <div class="form-text">Classification: A–L, AA–AL, BA–BL</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Line Manager / Supervisor</label>
                             {{ form.supervisor }}
                         </div>
                         <div class="col-md-6">
@@ -167,17 +167,30 @@
 
 {% block extra_js %}
 <script>
-function togglePassword(btn) {
-    const input = btn.closest('div').querySelector('input');
-    const icon = btn.querySelector('i');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = 'bi bi-eye-slash';
-    } else {
-        input.type = 'password';
-        icon.className = 'bi bi-eye';
-    }
-}
+// Auto-generate username from first name (firstname + 4-digit number via AJAX hint)
+(function() {
+    const firstNameInput = document.querySelector('input[name="first_name"]');
+    const usernameInput  = document.getElementById('id_username');
+    if (!firstNameInput || !usernameInput) return;
+
+    let debounceTimer;
+    firstNameInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const val = this.value.trim().toLowerCase().replace(/[^a-z]/g, '');
+        if (!val) return;
+        debounceTimer = setTimeout(function() {
+            // Ask the server for the next available username
+            fetch('/accounts/username-suggest/?first_name=' + encodeURIComponent(val))
+                .then(r => r.json())
+                .then(d => { if (d.username && !usernameInput.dataset.manuallyEdited) usernameInput.value = d.username; })
+                .catch(() => {});
+        }, 400);
+    });
+
+    usernameInput.addEventListener('input', function() {
+        this.dataset.manuallyEdited = '1';
+    });
+})();
 
 // Show/hide contract end date based on contract type
 (function() {

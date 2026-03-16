@@ -13,6 +13,15 @@ class Department(models.Model):
         return self.name
 
 
+def _build_category_choices():
+    """A–L, AA–AL, BA–BL staff classification categories."""
+    letters = [chr(c) for c in range(ord('A'), ord('L') + 1)]
+    choices = [(l, l) for l in letters]
+    choices += [(f'A{l}', f'A{l}') for l in letters]
+    choices += [(f'B{l}', f'B{l}') for l in letters]
+    return choices
+
+
 class Employee(models.Model):
     ROLE_CHOICES = [
         ('employee', 'Employee'),
@@ -21,10 +30,16 @@ class Employee(models.Model):
         ('admin_director', 'Administration Director'),
     ]
 
+    CATEGORY_CHOICES = _build_category_choices()
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee')
     employee_id = models.CharField(max_length=20, unique=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='employee')
+    staff_category = models.CharField(
+        max_length=3, choices=CATEGORY_CHOICES, blank=True, default='',
+        help_text='Staff classification category (A–L, AA–AL, BA–BL)'
+    )
     supervisor = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='subordinates'

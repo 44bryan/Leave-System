@@ -906,71 +906,21 @@
 
     <div class="logo-bar-right">
 
-        <!-- Mobile: search icon + language icon -->
+        <!-- Mobile: search icon -->
         <div class="d-flex align-items-center gap-2 d-lg-none">
-            <button class="mobile-search-btn" id="mobileSearchBtn" type="button" title="{% trans 'Search' %}">
+            <button class="mobile-search-btn" id="mobileSearchBtn" type="button" title="Search">
                 <i class="bi bi-search"></i>
             </button>
-            {% get_current_language as CURRENT_LANG %}
-            <div class="dropdown">
-                <button class="mobile-search-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" title="{% trans 'Language' %}" style="border:1.5px solid #cde8ef;">
-                    <i class="bi bi-globe2"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end topbar-dropdown" style="min-width:160px;">
-                    <li><div style="padding:8px 12px 4px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#9ab4c0; font-weight:700;">{% trans "Language" %}</div></li>
-                    <li>
-                        <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
-                            <input type="hidden" name="language" value="en">
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'en' %}fw-bold text-primary{% endif %}"><i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'en' %}invisible{% endif %}"></i>English</button>
-                        </form>
-                    </li>
-                    <li>
-                        <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
-                            <input type="hidden" name="language" value="fr">
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'fr' %}fw-bold text-primary{% endif %}"><i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'fr' %}invisible{% endif %}"></i>Français</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
         </div>
 
         <!-- Desktop: full controls -->
-        {% get_current_language as CURRENT_LANG %}
         <div class="desktop-topbar-controls d-flex align-items-center gap-2">
 
             <!-- Search bar -->
             <div class="topbar-search" id="searchWrapper">
                 <i class="bi bi-search topbar-search-icon"></i>
-                <input type="text" class="topbar-search-input" placeholder="{% trans 'Search users, events and more...' %}" id="topbarSearch" autocomplete="off">
+                <input type="text" class="topbar-search-input" placeholder="Search users, events and more..." id="topbarSearch" autocomplete="off">
                 <div class="search-results-dropdown" id="searchDropdown"></div>
-            </div>
-
-            <!-- Language dropdown -->
-            <div class="dropdown">
-                <button class="lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-globe2"></i>
-                    {% if CURRENT_LANG == 'fr' %}Français{% else %}English{% endif %}
-                    <i class="bi bi-chevron-down lang-chevron"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end topbar-dropdown" style="min-width:170px;">
-                    <li><div style="padding:8px 12px 4px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#9ab4c0; font-weight:700;">{% trans "Language" %}</div></li>
-                    <li>
-                        <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
-                            <input type="hidden" name="language" value="en">
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'en' %}fw-bold text-primary{% endif %}"><i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'en' %}invisible{% endif %}"></i>English</button>
-                        </form>
-                    </li>
-                    <li>
-                        <form method="post" action="{% url 'set_language' %}">{% csrf_token %}
-                            <input type="hidden" name="language" value="fr">
-                            <input type="hidden" name="next" value="{{ request.path }}">
-                            <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'fr' %}fw-bold text-primary{% endif %}"><i class="bi bi-check2 me-2 {% if CURRENT_LANG != 'fr' %}invisible{% endif %}"></i>Français</button>
-                        </form>
-                    </li>
-                </ul>
             </div>
 
             <!-- Logged-in user chip -->
@@ -1165,35 +1115,46 @@
     </div>
     {% endif %}
 
-    {% if user.is_superuser %}
+    {% if user.is_superuser or user.employee.is_hr %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">{% trans "Admin" %}</div>
+        <div class="sidebar-section-label">Admin</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:employee_list' %}" class="nav-link-sidebar {% block nav_employees %}{% endblock %}">
-                    <i class="bi bi-people"></i> {% trans "Employees" %}
+                    <i class="bi bi-people"></i> Employees
                 </a>
             </li>
+            {% if user.employee.is_hr %}
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:employee_create' %}" class="nav-link-sidebar">
+                    <i class="bi bi-person-plus"></i> Add Employee
+                </a>
+            </li>
+            {% endif %}
+            {% if user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:department_list' %}" class="nav-link-sidebar {% block nav_depts %}{% endblock %}">
-                    <i class="bi bi-building"></i> {% trans "Departments" %}
+                    <i class="bi bi-building"></i> Departments
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:leave_type_list' %}" class="nav-link-sidebar {% block nav_leave_types %}{% endblock %}">
-                    <i class="bi bi-tags"></i> {% trans "Leave Types" %}
+                    <i class="bi bi-tags"></i> Leave Types
                 </a>
             </li>
+            {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:retirement' %}" class="nav-link-sidebar {% block nav_retirement_admin %}{% endblock %}">
-                    <i class="bi bi-hourglass-split"></i> {% trans "Retirement Tracker" %}
+                    <i class="bi bi-hourglass-split"></i> Retirement Tracker
                 </a>
             </li>
+            {% if user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:admin_settings' %}" class="nav-link-sidebar {% block nav_settings %}{% endblock %}">
-                    <i class="bi bi-sliders"></i> {% trans "System Settings" %}
+                    <i class="bi bi-sliders"></i> System Settings
                 </a>
             </li>
+            {% endif %}
         </ul>
     </div>
     {% endif %}

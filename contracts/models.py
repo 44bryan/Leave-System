@@ -6,8 +6,10 @@ from accounts.models import Employee
 
 class Contract(models.Model):
     CONTRACT_TYPE_CHOICES = [
-        ('CDD', 'CDD — Fixed Term (Contrat à Durée Déterminée)'),
-        ('CDI', 'CDI — Permanent (Contrat à Durée Indéterminée)'),
+        ('CDI',    'CDI — Permanent (Contrat à Durée Indéterminée)'),
+        ('CDD',    'CDD — Fixed Term (Contrat à Durée Déterminée)'),
+        ('INTERN', 'Internship Contract'),
+        ('WACS',   'WACS Residency / Trainee Programme'),
     ]
     STATUS_CHOICES = [
         ('active', 'Active'),
@@ -19,7 +21,7 @@ class Contract(models.Model):
     employee = models.ForeignKey(
         Employee, on_delete=models.CASCADE, related_name='contracts'
     )
-    contract_type = models.CharField(max_length=3, choices=CONTRACT_TYPE_CHOICES)
+    contract_type = models.CharField(max_length=10, choices=CONTRACT_TYPE_CHOICES)
     start_date = models.DateField()
     end_date = models.DateField(
         null=True, blank=True,
