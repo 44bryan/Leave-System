@@ -48,8 +48,20 @@
                         <div>{{ employee.supervisor.get_full_name|default:"—" }}</div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Joined Hospital" %}</div>
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Joined Hospital</div>
                         <div>{{ employee.date_joined_company|default:"—" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Staff Category</div>
+                        <div>
+                            {% if employee.staff_category %}
+                            <span class="badge" style="background:#e0f2fe;color:#0284c7;font-size:.85rem;padding:.35em .7em;">
+                                Category {{ employee.staff_category }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load i18n %}
 
 {% block title %}Discipline Notice — {{ record.employee.get_full_name }}{% endblock %}
 {% block page_title %}Discipline Notice{% endblock %}
@@ -18,6 +17,16 @@
 {% endblock %}
 
 {% block content %}
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %} alert-dismissible fade show mb-3">
+                <i class="bi bi-{% if msg.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %} me-2"></i>
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="row justify-content-center">
         <div class="col-lg-8">
 
@@ -119,26 +128,27 @@
                 </div>
             </div>
 
-            <!-- Manager's Recommendation — HIDDEN from employee -->
-            {% if record.recommended_sanction %}
+            <!-- ══ SANCTION REVIEW WORKFLOW (HR / Director / Superuser only) ══ -->
             {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director %}
-            <div class="card mb-4" style="border:1.5px solid #fde68a;background:#fffbeb;">
+
+            <!-- Step 1 — Manager's Recommendation -->
+            {% if record.recommended_sanction %}
+            <div class="card mb-3" style="border:1.5px solid #fde68a;background:#fffbeb;">
                 <div class="card-header" style="background:#fffbeb;border-color:#fde68a;">
-                    <i class="bi bi-shield-exclamation me-2" style="color:#d97706;"></i>
-                    Manager's Recommendation
-                    <small class="text-muted fw-normal">(not visible to employee)</small>
+                    <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#d97706;font-weight:700;">
+                        <i class="bi bi-person-badge me-1"></i> Step 1 — Line Manager's Recommendation
+                    </span>
+                    <small class="text-muted fw-normal ms-1">(not visible to employee)</small>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-sm-6">
                             <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Proposed Sanction</div>
-                            <div class="mt-1 fw-bold" style="color:#d97706;">
-                                {{ record.get_recommended_sanction_display }}
-                            </div>
+                            <div class="mt-1 fw-bold" style="color:#d97706;">{{ record.get_recommended_sanction_display }}</div>
                         </div>
                         {% if record.recommendation_note %}
                         <div class="col-12">
-                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Recommendation Details</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Details</div>
                             <div class="mt-2 p-3 rounded-2" style="background:#fefce8;border:1px solid #fde68a;font-size:0.875rem;">
                                 {{ record.recommendation_note|linebreaks }}
                             </div>
@@ -148,7 +158,155 @@
                 </div>
             </div>
             {% endif %}
+
+            <!-- Step 2 — HR Proposed Sanction -->
+            <div class="card mb-3" style="border:1.5px solid #bfdbfe;background:#eff6ff;">
+                <div class="card-header" style="background:#eff6ff;border-color:#bfdbfe;">
+                    <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#1d4ed8;font-weight:700;">
+                        <i class="bi bi-people me-1"></i> Step 2 — HR Proposed Sanction
+                    </span>
+                    <small class="text-muted fw-normal ms-1">(not visible to employee)</small>
+                </div>
+                <div class="card-body">
+                    {% if record.hr_proposed_sanction %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">HR Proposed Sanction</div>
+                            <div class="mt-1 fw-bold" style="color:#1d4ed8;">{{ record.get_hr_proposed_sanction_display }}</div>
+                        </div>
+                        {% if record.hr_proposed_note %}
+                        <div class="col-12">
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">HR Notes</div>
+                            <div class="mt-2 p-3 rounded-2" style="background:#dbeafe;border:1px solid #bfdbfe;font-size:0.875rem;">
+                                {{ record.hr_proposed_note|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if request.user.is_superuser or request.user.employee.is_hr %}
+                    <form method="post" action="{% url 'discipline:propose_sanction' record.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="role" value="hr">
+                        <div class="row g-2">
+                            <div class="col-sm-6">
+                                <label class="form-label" style="font-size:0.82rem;">
+                                    {% if record.hr_proposed_sanction %}Update HR Proposed Sanction{% else %}Submit HR Proposed Sanction{% endif %}
+                                </label>
+                                <select name="proposed_sanction" class="form-select form-select-sm">
+                                    <option value="">— Select sanction —</option>
+                                    <option value="written_caution" {% if record.hr_proposed_sanction == 'written_caution' %}selected{% endif %}>Written Caution</option>
+                                    <option value="final_warning" {% if record.hr_proposed_sanction == 'final_warning' %}selected{% endif %}>Final Written Warning</option>
+                                    <option value="suspension" {% if record.hr_proposed_sanction == 'suspension' %}selected{% endif %}>Suspension</option>
+                                    <option value="dismissal" {% if record.hr_proposed_sanction == 'dismissal' %}selected{% endif %}>Dismissal</option>
+                                    <option value="no_further_action" {% if record.hr_proposed_sanction == 'no_further_action' %}selected{% endif %}>No Further Action</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <textarea name="proposed_note" class="form-control form-control-sm" rows="2"
+                                    placeholder="HR remarks (optional)...">{{ record.hr_proposed_note }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-check2 me-1"></i>
+                                    {% if record.hr_proposed_sanction %}Update{% else %}Submit{% endif %} HR Proposal
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    {% elif not record.hr_proposed_sanction %}
+                    <div class="text-muted" style="font-size:0.875rem;"><i class="bi bi-hourglass me-1"></i>Awaiting HR input.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Step 3 — Director Proposed Sanction -->
+            <div class="card mb-3" style="border:1.5px solid #fca5a5;background:#fff5f5;">
+                <div class="card-header" style="background:#fff5f5;border-color:#fca5a5;">
+                    <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#b91c1c;font-weight:700;">
+                        <i class="bi bi-shield-check me-1"></i> Step 3 — Admin Director Final Proposal
+                    </span>
+                    <small class="text-muted fw-normal ms-1">(not visible to employee)</small>
+                </div>
+                <div class="card-body">
+                    {% if record.director_proposed_sanction %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Director Proposed Sanction</div>
+                            <div class="mt-1 fw-bold" style="color:#b91c1c;">{{ record.get_director_proposed_sanction_display }}</div>
+                        </div>
+                        {% if record.director_proposed_note %}
+                        <div class="col-12">
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Director Notes</div>
+                            <div class="mt-2 p-3 rounded-2" style="background:#fee2e2;border:1px solid #fca5a5;font-size:0.875rem;">
+                                {{ record.director_proposed_note|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if request.user.is_superuser or request.user.employee.is_director %}
+                    <form method="post" action="{% url 'discipline:propose_sanction' record.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="role" value="director">
+                        <div class="row g-2">
+                            <div class="col-sm-6">
+                                <label class="form-label" style="font-size:0.82rem;">
+                                    {% if record.director_proposed_sanction %}Update Director Proposal{% else %}Submit Director Proposal{% endif %}
+                                </label>
+                                <select name="proposed_sanction" class="form-select form-select-sm">
+                                    <option value="">— Select sanction —</option>
+                                    <option value="written_caution" {% if record.director_proposed_sanction == 'written_caution' %}selected{% endif %}>Written Caution</option>
+                                    <option value="final_warning" {% if record.director_proposed_sanction == 'final_warning' %}selected{% endif %}>Final Written Warning</option>
+                                    <option value="suspension" {% if record.director_proposed_sanction == 'suspension' %}selected{% endif %}>Suspension</option>
+                                    <option value="dismissal" {% if record.director_proposed_sanction == 'dismissal' %}selected{% endif %}>Dismissal</option>
+                                    <option value="no_further_action" {% if record.director_proposed_sanction == 'no_further_action' %}selected{% endif %}>No Further Action</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <textarea name="proposed_note" class="form-control form-control-sm" rows="2"
+                                    placeholder="Director remarks (optional)...">{{ record.director_proposed_note }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-check2 me-1"></i>
+                                    {% if record.director_proposed_sanction %}Update{% else %}Submit{% endif %} Director Proposal
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    {% elif not record.director_proposed_sanction %}
+                    <div class="text-muted" style="font-size:0.875rem;"><i class="bi bi-hourglass me-1"></i>Awaiting Director input.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Step 4 — HR Issue Final Discipline -->
+            {% if record.director_proposed_sanction and record.director_proposed_sanction != 'no_further_action' %}
+            {% if request.user.is_superuser or request.user.employee.is_hr %}
+            <div class="alert alert-success mb-4" style="border-left:4px solid #16a34a;">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Director has approved the proposed sanction.</strong>
+                You can now issue the formal discipline notice to the employee.
+                <div class="mt-2">
+                    <a href="{% url 'discipline:issue' %}?prefill_employee={{ record.employee.pk }}&prefill_type={{ record.director_proposed_sanction }}"
+                       class="btn btn-success btn-sm">
+                        <i class="bi bi-send me-1"></i> Issue Final Discipline Notice
+                    </a>
+                </div>
+            </div>
             {% endif %}
+            {% elif record.director_proposed_sanction == 'no_further_action' %}
+            <div class="alert alert-info mb-4">
+                <i class="bi bi-info-circle me-2"></i>
+                Director has proposed <strong>No Further Action</strong>. No additional notice is required.
+            </div>
+            {% endif %}
+
+            {% endif %}
+            <!-- ══ END WORKFLOW ══ -->
 
             <!-- Internal notes — only visible to HR/Admin/Manager who issued -->
             {% if record.notes %}

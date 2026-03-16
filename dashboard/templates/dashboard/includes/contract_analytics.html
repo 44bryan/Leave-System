@@ -215,75 +215,38 @@
 </div>
 {% endif %}
 
-<!-- Seniority + Years of Service -->
-<div class="row g-4 mb-4 animate-in">
-    <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header"><i class="bi bi-award me-2" style="color:#7c3aed;"></i>Workforce Seniority Distribution</div>
-            <div class="card-body p-4">
-                {% for s in contract_seniority_dist %}
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <div style="font-size:.82rem;font-weight:600;">
-                            <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:{{ s.color }};margin-right:5px;"></span>
-                            {{ s.label }} <span style="color:#c4d4de;font-size:.7rem;">({{ s.min_yr }}+ yrs)</span>
-                        </div>
-                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ s.count }}</strong> staff &nbsp;<span style="font-size:.7rem;">{{ s.pct }}%</span></div>
-                    </div>
-                    <div class="progress" style="height:7px;background:#f0f4f8;">
-                        <div class="progress-bar" style="width:{{ s.pct }}%;background:{{ s.color }};border-radius:4px;"></div>
-                    </div>
-                </div>
-                {% endfor %}
-                {% if not contract_total_active %}<div class="text-center text-muted py-3" style="font-size:.85rem;">No active contracts yet.</div>{% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#0284c7;"></i>Years of Service Breakdown</div>
-            <div class="card-body p-4">
-                {% for s in contract_service_dist %}
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <div style="font-size:.82rem;font-weight:600;">{{ s.label }}</div>
-                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ s.count }}</strong> staff &nbsp;<span style="font-size:.7rem;">{{ s.pct }}%</span></div>
-                    </div>
-                    <div class="progress" style="height:7px;background:#f0f4f8;">
-                        <div class="progress-bar" style="width:{{ s.pct }}%;background:#0284c7;border-radius:4px;"></div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Age Distribution + Department Breakdown -->
+<!-- Staff Category Distribution + Department Breakdown -->
 <div class="row g-4 mb-4 animate-in">
     <div class="col-lg-5">
         <div class="card h-100">
-            <div class="card-header">
-                <i class="bi bi-bar-chart-fill me-2" style="color:#d97706;"></i>
-                Age Distribution {% if contract_avg_age %}<small class="text-muted fw-normal ms-1">avg {{ contract_avg_age }} yrs</small>{% endif %}
-            </div>
+            <div class="card-header"><i class="bi bi-diagram-3 me-2" style="color:#7c3aed;"></i>Staff Category Distribution</div>
             <div class="card-body p-4">
-                {% for a in contract_age_dist %}
+                {% for g in staff_category_groups %}
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
                         <div style="font-size:.82rem;font-weight:600;">
-                            {{ a.label }}
-                            {% if a.danger %}<span class="badge bg-warning text-dark ms-1" style="font-size:.6rem;">At risk</span>{% endif %}
+                            <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:{{ g.color }};margin-right:5px;"></span>
+                            {{ g.label }}
                         </div>
-                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ a.count }}</strong> &nbsp;<span style="font-size:.7rem;">{{ a.pct }}%</span></div>
+                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ g.count }}</strong> staff &nbsp;<span style="font-size:.7rem;">{{ g.pct }}%</span></div>
                     </div>
                     <div class="progress" style="height:7px;background:#f0f4f8;">
-                        <div class="progress-bar" style="width:{{ a.pct }}%;background:{% if a.danger %}#d97706{% else %}#0891b2{% endif %};border-radius:4px;"></div>
+                        <div class="progress-bar" style="width:{{ g.pct }}%;background:{{ g.color }};border-radius:4px;"></div>
                     </div>
                 </div>
-                {% empty %}
-                <div class="text-center text-muted py-3" style="font-size:.85rem;">No date-of-birth data yet. Add via employee profiles.</div>
                 {% endfor %}
+                {% if staff_category_detail %}
+                <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin:16px 0 8px;">Per Category</div>
+                <div class="d-flex flex-wrap gap-1">
+                    {% for c in staff_category_detail %}
+                    <span class="badge" style="background:{{ c.color }}20;color:{{ c.color }};border:1px solid {{ c.color }}40;font-size:.7rem;">
+                        {{ c.cat }} <strong>{{ c.count }}</strong>
+                    </span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-3" style="font-size:.85rem;">No staff categories assigned yet.</div>
+                {% endif %}
             </div>
         </div>
     </div>

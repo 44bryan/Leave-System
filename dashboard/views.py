@@ -49,39 +49,43 @@ def _build_contract_analytics(today, year):
     )
 
     _ct_total = len(_all_active)
-    _seniority_buckets = [
-        ("Probationary", 0, 1, "#6b7a8d"), ("Class 1", 1, 3, "#0284c7"),
-        ("Class 2", 3, 5, "#0891b2"),      ("Class 3", 5, 8, "#059669"),
-        ("Class 4", 8, 12, "#d97706"),     ("Senior", 12, 17, "#dc2626"),
-        ("Sr. Executive", 17, 22, "#7c3aed"), ("Principal", 22, 999, "#4c1d95"),
+
+    # Staff category distribution (A–L single, AA–AL, BA–BL)
+    _cat_colors = {
+        'single': '#0284c7',   # A–L  → blue
+        'AA':     '#059669',   # AA–AL → green
+        'BA':     '#d97706',   # BA–BL → amber
+    }
+    _single = [chr(c) for c in range(ord('A'), ord('L') + 1)]
+    _aa_series = [f'A{l}' for l in [chr(c) for c in range(ord('A'), ord('L') + 1)]]
+    _ba_series = [f'B{l}' for l in [chr(c) for c in range(ord('A'), ord('L') + 1)]]
+
+    def _cat_count(cats):
+        return Employee.objects.filter(is_active=True, staff_category__in=cats).count()
+
+    _single_count = _cat_count(_single)
+    _aa_count = _cat_count(_aa_series)
+    _ba_count = _cat_count(_ba_series)
+    _total_categorised = _single_count + _aa_count + _ba_count
+
+    def _pct(n):
+        return round(n / _total_categorised * 100) if _total_categorised else 0
+
+    staff_category_groups = [
+        {'label': 'A–L (Grade 1–12)', 'count': _single_count, 'pct': _pct(_single_count), 'color': _cat_colors['single']},
+        {'label': 'AA–AL (Grade 13–24)', 'count': _aa_count, 'pct': _pct(_aa_count), 'color': _cat_colors['AA']},
+        {'label': 'BA–BL (Grade 25–36)', 'count': _ba_count, 'pct': _pct(_ba_count), 'color': _cat_colors['BA']},
     ]
-    contract_seniority_dist = [
-        {'label': lbl, 'color': col, 'min_yr': lo,
-         'count': sum(1 for c in _all_active if lo <= c.years_of_service < hi),
-         'pct': round(sum(1 for c in _all_active if lo <= c.years_of_service < hi) / _ct_total * 100) if _ct_total else 0}
-        for lbl, lo, hi, col in _seniority_buckets
-    ]
-    _service_ranges = [
-        ("<1 yr", 0, 1), ("1–3 yrs", 1, 3), ("3–5 yrs", 3, 5),
-        ("5–10 yrs", 5, 10), ("10–15", 10, 15), ("15–20", 15, 20), ("20+", 20, 999),
-    ]
-    contract_service_dist = [
-        {'label': lbl,
-         'count': sum(1 for c in _all_active if lo <= c.years_of_service < hi),
-         'pct': round(sum(1 for c in _all_active if lo <= c.years_of_service < hi) / _ct_total * 100) if _ct_total else 0}
-        for lbl, lo, hi in _service_ranges
-    ]
-    _ages = [e.age() for e in _all_emp if e.age() is not None]
-    contract_avg_age = round(sum(_ages) / len(_ages)) if _ages else None
-    _age_ranges = [
-        ("<25", 0, 25, False), ("25–34", 25, 35, False), ("35–44", 35, 45, False),
-        ("45–54", 45, 55, False), ("55–59", 55, 60, True), ("60+", 60, 200, True),
-    ]
-    contract_age_dist = [
-        {'label': lbl, 'danger': danger,
-         'count': sum(1 for a in _ages if lo <= a < hi),
-         'pct': round(sum(1 for a in _ages if lo <= a < hi) / len(_ages) * 100) if _ages else 0}
-        for lbl, lo, hi, danger in _age_ranges
+
+    # Per-category breakdown (all 36 categories)
+    _all_cats = [(cat, _cat_colors['single']) for cat in _single] + \
+                [(cat, _cat_colors['AA']) for cat in _aa_series] + \
+                [(cat, _cat_colors['BA']) for cat in _ba_series]
+    staff_category_detail = [
+        {'cat': cat, 'color': col,
+         'count': Employee.objects.filter(is_active=True, staff_category=cat).count()}
+        for cat, col in _all_cats
+        if Employee.objects.filter(is_active=True, staff_category=cat).exists()
     ]
     _dept_map = _dd(lambda: {'CDI': 0, 'CDD': 0, 'total': 0})
     for c in _all_active:
@@ -108,10 +112,8 @@ def _build_contract_analytics(today, year):
         'contract_total_active': _ct_total,
         'contract_total_cdi': len(_active_cdi),
         'contract_total_cdd': len(_active_cdd),
-        'contract_seniority_dist': contract_seniority_dist,
-        'contract_service_dist': contract_service_dist,
-        'contract_age_dist': contract_age_dist,
-        'contract_avg_age': contract_avg_age,
+        'staff_category_groups': staff_category_groups,
+        'staff_category_detail': staff_category_detail,
         'contract_dept_breakdown': contract_dept_breakdown,
         'contract_long_service': contract_long_service,
         'contract_recent_activity': contract_recent_activity,

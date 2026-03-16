@@ -1086,7 +1086,7 @@
             </li>
             {% if user.is_superuser or user.employee.is_hr or user.employee.is_director %}
             <li class="nav-item-sidebar">
-                <a href="{% url 'discipline:stats' %}" class="nav-link-sidebar">
+                <a href="{% url 'discipline:stats' %}" class="nav-link-sidebar {% block nav_discipline_stats %}{% endblock %}">
                     <i class="bi bi-bar-chart-steps"></i> Statistics
                 </a>
             </li>

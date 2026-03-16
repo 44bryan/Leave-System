@@ -249,6 +249,37 @@ def discipline_detail(request, pk):
 
 
 @login_required
+def propose_sanction(request, pk):
+    """HR or Director submits their proposed sanction on a discipline record."""
+    if request.method != 'POST':
+        return redirect('discipline:detail', pk=pk)
+
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+
+    record = get_object_or_404(DisciplineRecord, pk=pk)
+
+    role = request.POST.get('role')
+    sanction = request.POST.get('proposed_sanction', '').strip()
+    note = request.POST.get('proposed_note', '').strip()
+
+    if role == 'hr' and (is_super or (emp and emp.is_hr())):
+        record.hr_proposed_sanction = sanction
+        record.hr_proposed_note = note
+        record.save()
+        messages.success(request, "HR proposed sanction saved.")
+    elif role == 'director' and (is_super or (emp and emp.is_director())):
+        record.director_proposed_sanction = sanction
+        record.director_proposed_note = note
+        record.save()
+        messages.success(request, "Director proposed sanction saved.")
+    else:
+        messages.error(request, "You do not have permission to submit this proposal.")
+
+    return redirect('discipline:detail', pk=pk)
+
+
+@login_required
 def discipline_stats(request):
     """Standalone stats page — HR, Admin Director, Superuser only."""
     emp = get_employee(request)

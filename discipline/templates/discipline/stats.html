@@ -1,29 +1,21 @@
 {% extends 'base.html' %}
-{% load i18n %}
 
 {% block title %}Discipline Statistics{% endblock %}
+{% block page_title %}Discipline Statistics{% endblock %}
+{% block nav_discipline_stats %}active{% endblock %}
 
-{% block nav_discipline %}active{% endblock %}
+{% block topbar_actions %}
+<a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> All Records
+</a>
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_manager %}
+<a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
+    <i class="bi bi-plus-circle me-1"></i> Issue Notice
+</a>
+{% endif %}
+{% endblock %}
 
 {% block content %}
-<div class="topbar">
-    <div class="d-flex align-items-center gap-3">
-        <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
-        <div>
-            <div class="topbar-title">Discipline Statistics</div>
-        </div>
-    </div>
-    <div class="topbar-actions">
-        <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i> All Records
-        </a>
-        <a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus-circle me-1"></i> Issue Notice
-        </a>
-    </div>
-</div>
-
-<div class="page-content">
 
     <!-- Summary stat cards -->
     <div class="row g-3 mb-5">
@@ -149,5 +141,4 @@
         </div>
 
     </div>
-</div>
 {% endblock %}

@@ -43,10 +43,19 @@ class DisciplineRecord(models.Model):
         blank=True, default='',
         help_text='Proposed follow-up action recommended by the issuing manager (not visible to employee)'
     )
-    recommendation_note = models.TextField(
-        blank=True, default='',
-        help_text='Manager\'s recommendation details (not visible to employee)'
+    recommendation_note = models.TextField(blank=True, default='')
+
+    # HR proposed sanction (after reviewing manager recommendation)
+    hr_proposed_sanction = models.CharField(
+        max_length=20, choices=RECOMMENDED_ACTION_CHOICES, blank=True, default=''
     )
+    hr_proposed_note = models.TextField(blank=True, default='')
+
+    # Admin Director proposed sanction
+    director_proposed_sanction = models.CharField(
+        max_length=20, choices=RECOMMENDED_ACTION_CHOICES, blank=True, default=''
+    )
+    director_proposed_note = models.TextField(blank=True, default='')
 
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
