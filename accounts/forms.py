@@ -28,6 +28,27 @@ class EmployeeCreateForm(forms.ModelForm):
     username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), initial='hospital2024')
 
+    # Contract fields (required at registration)
+    CONTRACT_TYPE_CHOICES = [
+        ('CDI', 'CDI — Permanent (Contrat à Durée Indéterminée)'),
+        ('CDD', 'CDD — Fixed Term (Contrat à Durée Déterminée)'),
+    ]
+    contract_type = forms.ChoiceField(
+        choices=CONTRACT_TYPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_contract_type'}),
+        label='Contract Type',
+    )
+    contract_start_date = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        label='Contract Start Date',
+    )
+    contract_end_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'id_contract_end_date'}),
+        label='Contract End Date',
+        help_text='Required for CDD. Leave blank for CDI.',
+    )
+
     class Meta:
         model = Employee
         fields = ['employee_id', 'department', 'role', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth']
@@ -41,6 +62,14 @@ class EmployeeCreateForm(forms.ModelForm):
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
+
+    def clean(self):
+        cleaned = super().clean()
+        ct = cleaned.get('contract_type')
+        end = cleaned.get('contract_end_date')
+        if ct == 'CDD' and not end:
+            self.add_error('contract_end_date', 'End date is required for a CDD (Fixed Term) contract.')
+        return cleaned
 
     def save(self, commit=True):
         employee = super().save(commit=False)

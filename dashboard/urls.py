@@ -6,6 +6,7 @@ app_name = 'dashboard'
 urlpatterns = [
     path('', views.home, name='home'),
     path('tracker/', views.leave_tracker, name='tracker'),
+    path('retirement/', views.retirement_dashboard, name='retirement'),
     path('search/', views.search, name='search'),
     path('admin-settings/', views.admin_settings, name='admin_settings'),
     path('admin-settings/reset-balances/', views.reset_leave_balances, name='reset_balances'),

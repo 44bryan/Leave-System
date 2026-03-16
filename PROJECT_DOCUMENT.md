@@ -249,3 +249,63 @@ leave_system/
 - `DEBUG = True` and `SECRET_KEY` in `settings.py` must be changed before any production deployment.
 - File uploads (supporting documents) are stored in `media/leave_docs/`.
 - To reset the database: delete `db.sqlite3`, then run `python manage.py migrate` and `python manage.py seed_data`.
+
+---
+
+## How to Start the Server Locally (Correct Way)
+
+```bash
+cd C:\Users\bry30\Desktop\leave_system
+source venv/Scripts/activate
+python manage.py collectstatic --noinput   # only needed once or after static file changes
+DEBUG=True python manage.py runserver
+```
+
+Then open: **http://127.0.0.1:8000**
+
+> `DEBUG` defaults to `False` in settings.py. Always pass `DEBUG=True` when running locally so you get full error pages instead of generic 500 errors.
+
+---
+
+## Change Log
+
+### 2026-03-12
+- Fixed Server Error (500) on startup caused by missing staticfiles manifest
+- Root cause: `STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'` requires running `collectstatic` before the server can serve any page
+- Fix applied: ran `python manage.py collectstatic --noinput` — 128 files copied, 380 post-processed
+- Server now runs correctly at http://127.0.0.1:8000
+- No code changes were made; only static files were collected
+
+- **Added Discipline Module** — new Django app `discipline/`
+  - New model: `DisciplineRecord` with fields: employee, action_type, issued_by, date_issued, reason, document, suspension_start, suspension_end (auto = start+8 days), notes
+  - Action types: Verbal Warning, Written Caution, Final Written Warning, Suspension (8 days fixed), Dismissal
+  - HR Admin and Admin Director can issue all types; Line Manager can only issue Verbal Warning and Written Caution
+  - Employees see only their own records; Managers see their team's records; HR/Admin see all
+  - Dismissal keeps account active but shows a persistent banner alerting HR and Admin to deactivate manually
+  - **New URLs:** `/discipline/` (list), `/discipline/issue/` (form), `/discipline/<id>/` (detail), `/discipline/stats/` (stats page)
+  - Sidebar section "Discipline" visible to HR, Director, Manager, and Superuser
+  - HR and Director dashboards now show discipline stats row: Warned / Suspended / Dismissed (clickable)
+  - Employee dashboard shows red alert banner if they have any discipline notice; dark banner if actively suspended
+  - Migration applied: `discipline/migrations/0001_initial.py`
+---
+
+- **Discipline module UX improvements (2026-03-12 session 2)**
+  - Removed duplicate stat cards from Discipline Records list page — stats now live exclusively on Discipline Stats page and general dashboards
+  - Cleaned up discipline_list view — no longer computes stats, only dismissal_alert for HR/Admin
+  - Employee dashboard: replaced generic 'you have a discipline notice' banner with a tabbed card
+    - Tab 1: Leave Requests (existing)
+    - Tab 2: Discipline Notices — shows ALL notices with type badge, date, issued by, reason snippet, and View link
+    - Tab badge shows red count if employee has any notices
+    - Suspension banner at top is kept (critical visibility)
+  - discipline_notices queryset now returns all records (no [:5] limit)
+
+- **Dashboard reorganisation (2026-03-12 session 3)**
+  - All four role dashboards (Manager, HR, Admin Director, Super Admin) fully reorganised with:
+    - Clear section labels between groups (Overview / Discipline Overview / Action Required / Leave Activity / Analytics / Staff & System)
+    - Action buttons moved to `{% block topbar_actions %}` so they appear in the teal topbar
+    - Consistent stat card styling across all dashboards
+  - Manager dashboard: fixed stat card style, added full-width pending approvals table, added Team Members card
+  - HR dashboard: Action Required (pending approvals) moved above chart; section labels added; topbar actions: Leave Tracker + Issue Notice + HR Approvals
+  - Director dashboard: Awaiting Final Approval table moved above chart; topbar actions: Issue Notice + Final Approvals
+  - Admin dashboard: added Discipline Overview section (3 cards); added Discipline Records quick action link; topbar actions: Add Employee + System Settings
+  - admin_dashboard view updated to fetch discipline_warned, discipline_suspended, discipline_dismissed

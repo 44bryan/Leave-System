@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Notifications — LeaveDesk{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+
+{% block topbar_actions %}
+<form method="post" action="{% url 'notifications:mark_all_read' %}" class="d-inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
+        <i class="bi bi-check2-all me-1"></i> Mark All Read
+    </button>
+</form>
+{% endblock %}
+
+{% block content %}
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
+    <i class="bi bi-bell me-1"></i> All Notifications
+</div>
+
+<div class="card animate-in" style="border-radius:14px;overflow:hidden;">
+    {% if notifications %}
+    <div class="list-group list-group-flush">
+        {% for n in notifications %}
+        <a href="{% url 'notifications:mark_read' n.pk %}"
+           class="list-group-item list-group-item-action d-flex align-items-start gap-3 py-3 px-4{% if not n.is_read %}" style="background:#f0f9fb;{% endif %}">
+            <div style="width:42px;height:42px;border-radius:11px;background:{{ n.badge_color }}20;color:{{ n.badge_color }};display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;margin-top:2px;">
+                <i class="bi {{ n.icon }}"></i>
+            </div>
+            <div class="flex-grow-1 min-width-0">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div style="font-weight:{% if not n.is_read %}700{% else %}600{% endif %};font-size:0.875rem;color:#0d1b2a;">
+                        {{ n.title }}
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                        {% if not n.is_read %}
+                        <span style="width:8px;height:8px;background:#0891a8;border-radius:50%;display:inline-block;"></span>
+                        {% endif %}
+                        <span style="font-size:0.72rem;color:#9ab4c0;white-space:nowrap;">{{ n.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+                <div style="font-size:0.82rem;color:#4a6b7c;margin-top:3px;line-height:1.45;">{{ n.message }}</div>
+                <div style="font-size:0.7rem;color:#9ab4c0;margin-top:4px;">
+                    <i class="bi bi-clock me-1"></i>{{ n.created_at|date:"d M Y, H:i" }}
+                    &nbsp;·&nbsp;
+                    <span class="badge" style="background:{{ n.badge_color }}20;color:{{ n.badge_color }};font-size:0.65rem;">
+                        {{ n.get_notification_type_display }}
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-bell-slash fs-1 d-block mb-3" style="color:#cde8ef;"></i>
+        <div style="font-size:0.95rem;font-weight:600;color:#6b7a8d;">No notifications yet</div>
+        <div style="font-size:0.82rem;color:#9ab4c0;margin-top:6px;">You'll see leave updates, discipline notices, and contract changes here.</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

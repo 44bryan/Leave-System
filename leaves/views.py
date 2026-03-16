@@ -7,6 +7,7 @@ from datetime import date
 from .models import LeaveRequest, LeaveBalance, LeaveType
 from .forms import LeaveRequestForm, ApprovalForm
 from accounts.models import Employee
+from notifications.utils import notify
 
 
 def get_employee(request):
@@ -50,6 +51,16 @@ def submit_leave(request):
             else:
                 leave.save()
                 messages.success(request, f"Leave request submitted successfully for {leave.total_days} day(s). Awaiting manager approval.")
+                # Notify the employee's supervisor
+                if employee.supervisor:
+                    notify(
+                        employee.supervisor.user,
+                        f'New Leave Request — {employee.get_full_name()}',
+                        f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
+                        f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
+                        notification_type='leave_submitted',
+                        url=f'/leaves/{leave.pk}/action/manager/',
+                    )
                 return redirect('leaves:my_requests')
 
     import json
@@ -150,9 +161,26 @@ def manager_action(request, pk):
             if action == 'approve':
                 leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
                 messages.success(request, "Leave request approved. Forwarded to HR for review.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Manager Approved',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'has been approved by your manager and is now awaiting HR review.',
+                    notification_type='leave_manager_approved',
+                    url=f'/leaves/{leave.pk}/',
+                )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_MANAGER
                 messages.warning(request, f"Leave request #{pk} has been rejected.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Rejected by Manager',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'was rejected by your manager.'
+                    + (f' Remarks: {remarks}' if remarks else ''),
+                    notification_type='leave_rejected',
+                    url=f'/leaves/{leave.pk}/',
+                )
             leave.save()
             return redirect('leaves:manager_approvals')
     else:
@@ -210,9 +238,26 @@ def hr_action(request, pk):
             if action == 'approve':
                 leave.status = LeaveRequest.STATUS_HR_APPROVED
                 messages.success(request, "Leave request approved by HR. Forwarded to Administration Director.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — HR Approved',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'has been approved by HR and is now awaiting the Administration Director\'s final decision.',
+                    notification_type='leave_hr_approved',
+                    url=f'/leaves/{leave.pk}/',
+                )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_HR
                 messages.warning(request, f"Leave request #{pk} has been rejected by HR.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Rejected by HR',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'was rejected by HR.'
+                    + (f' Remarks: {remarks}' if remarks else ''),
+                    notification_type='leave_rejected',
+                    url=f'/leaves/{leave.pk}/',
+                )
             leave.save()
             return redirect('leaves:hr_approvals')
     else:
@@ -270,9 +315,26 @@ def director_action(request, pk):
             if action == 'approve':
                 leave.status = LeaveRequest.STATUS_APPROVED
                 messages.success(request, "Leave request FULLY APPROVED by Administration Director.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Fully Approved',
+                    f'Great news! Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
+                    f'{leave.total_days} day(s)) has been fully approved by the Administration Director.',
+                    notification_type='leave_approved',
+                    url=f'/leaves/{leave.pk}/',
+                )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_DIRECTOR
                 messages.warning(request, f"Leave request #{pk} has been rejected by Administration Director.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Rejected by Director',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'was rejected by the Administration Director.'
+                    + (f' Remarks: {remarks}' if remarks else ''),
+                    notification_type='leave_rejected',
+                    url=f'/leaves/{leave.pk}/',
+                )
             leave.save()
             return redirect('leaves:director_approvals')
     else:

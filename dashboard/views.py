@@ -530,6 +530,50 @@ def hr_dashboard(request, employee):
 
 
 @login_required
+def retirement_dashboard(request):
+    """HR-only: list of employees approaching retirement (within 3 years)."""
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+    if not is_super and (not emp or not (emp.is_hr() or emp.is_director())):
+        return redirect('dashboard:home')
+
+    from accounts.models import Employee as _Emp
+    today = date.today()
+    retirement_age = 60
+
+    # All active employees with DOB set
+    all_employees = _Emp.objects.filter(
+        is_active=True, date_of_birth__isnull=False
+    ).select_related('user', 'department').order_by('date_of_birth')
+
+    # Compute years to retirement and filter < 3 years
+    near_retirement = []
+    for e in all_employees:
+        age = e.age()
+        if age is None:
+            continue
+        ytr = retirement_age - age
+        if 0 <= ytr <= 3:
+            retirement_date = e.date_of_birth.replace(year=e.date_of_birth.year + retirement_age)
+            near_retirement.append({
+                'employee': e,
+                'age': age,
+                'years_to_retirement': ytr,
+                'retirement_date': retirement_date,
+                'months_remaining': max(0, (retirement_date.year - today.year) * 12 + (retirement_date.month - today.month)),
+            })
+
+    # Sort by soonest retirement first
+    near_retirement.sort(key=lambda x: x['years_to_retirement'])
+
+    return render(request, 'dashboard/retirement_dashboard.html', {
+        'near_retirement': near_retirement,
+        'total': len(near_retirement),
+        'retirement_age': retirement_age,
+    })
+
+
+@login_required
 def leave_tracker(request):
     """HR leave balance tracker for all employees"""
     emp = get_employee(request)

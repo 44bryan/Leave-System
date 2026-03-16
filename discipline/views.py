@@ -125,6 +125,21 @@ def issue_discipline(request):
 
             record.save()
 
+            # Notify the employee via the main notification system
+            from notifications.utils import notify
+            issuer_name = request.user.get_full_name() or request.user.username
+            notify(
+                target_employee.user,
+                title=f'Discipline Notice: {record.get_action_type_display()}',
+                message=(
+                    f"A {record.get_action_type_display()} has been issued to you by {issuer_name}. "
+                    f"Reason: {reason}. "
+                    f"Please review the notice and contact HR if you have any questions."
+                ),
+                notification_type='discipline',
+                url=f'/discipline/{record.pk}/',
+            )
+
             messages.success(
                 request,
                 f"{record.get_action_type_display()} issued to {target_employee.get_full_name()} successfully."

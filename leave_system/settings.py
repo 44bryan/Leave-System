@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'dashboard',
     'discipline',
     'contracts',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -59,6 +60,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'notifications.context_processors.notifications_ctx',
             ],
         },
     },
@@ -113,3 +115,20 @@ CSRF_FAILURE_VIEW = 'leave_system.urls.csrf_debug_view'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# ── Email Configuration ─────────────────────────────────────────────────────
+# Set EMAIL_NOTIFICATIONS_ENABLED=True and configure SMTP env vars to send emails.
+# For local dev, emails are printed to the console when DEBUG=True.
+EMAIL_NOTIFICATIONS_ENABLED = config('EMAIL_NOTIFICATIONS_ENABLED', default=False, cast=bool)
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+
+EMAIL_HOST          = config('EMAIL_HOST',          default='smtp.gmail.com')
+EMAIL_PORT          = config('EMAIL_PORT',          default=587, cast=int)
+EMAIL_USE_TLS       = config('EMAIL_USE_TLS',       default=True,  cast=bool)
+EMAIL_HOST_USER     = config('EMAIL_HOST_USER',     default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL',  default='LeaveDesk HR <noreply@leavedesk.com>')

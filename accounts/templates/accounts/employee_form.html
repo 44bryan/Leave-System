@@ -106,6 +106,41 @@
                         {% endif %}
                     </div>
 
+                    {% if not employee %}
+                    <hr class="my-4">
+                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
+                        <i class="bi bi-file-earmark-text me-1"></i> Initial Contract
+                    </div>
+                    <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.82rem;border-left:3px solid #0891b2;background:#f0f9ff;border-radius:8px;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        A contract is required to activate the employee account. The employee will be notified automatically.
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Contract Type *</label>
+                            {{ form.contract_type }}
+                            {% if form.contract_type.errors %}
+                            <div class="text-danger" style="font-size:0.8rem;">{{ form.contract_type.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Start Date *</label>
+                            {{ form.contract_start_date }}
+                            {% if form.contract_start_date.errors %}
+                            <div class="text-danger" style="font-size:0.8rem;">{{ form.contract_start_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4" id="end-date-wrap">
+                            <label class="form-label">End Date <span id="end-required-star" style="display:none;">*</span></label>
+                            {{ form.contract_end_date }}
+                            <div class="form-text" id="end-date-hint">Required for CDD only.</div>
+                            {% if form.contract_end_date.errors %}
+                            <div class="text-danger" style="font-size:0.8rem;">{{ form.contract_end_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     {% if form.errors %}
                     <div class="alert alert-danger mt-3">
                         {% trans "Please fix the errors below:" %}
@@ -143,5 +178,23 @@ function togglePassword(btn) {
         icon.className = 'bi bi-eye';
     }
 }
+
+// Show/hide contract end date based on contract type
+(function() {
+    const ctSelect = document.getElementById('id_contract_type');
+    const endWrap  = document.getElementById('end-date-wrap');
+    const endStar  = document.getElementById('end-required-star');
+    const endInput = document.getElementById('id_contract_end_date');
+    if (!ctSelect) return;
+
+    function update() {
+        const isCDD = ctSelect.value === 'CDD';
+        if (endWrap)  endWrap.style.opacity = isCDD ? '1' : '0.4';
+        if (endStar)  endStar.style.display = isCDD ? 'inline' : 'none';
+        if (endInput) endInput.required = isCDD;
+    }
+    ctSelect.addEventListener('change', update);
+    update();
+})();
 </script>
 {% endblock %}

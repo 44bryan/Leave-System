@@ -201,6 +201,21 @@ def issue_contract(request):
             existing.status = 'renewed'
             existing.save()
 
+        # Notify employee via main notification system
+        from notifications.utils import notify
+        notify(
+            emp.user,
+            title='Contract Issued',
+            message=(
+                f"A {contract.get_contract_type_display()} contract has been issued to you, "
+                f"effective {contract.start_date.strftime('%d %b %Y')}."
+                + (f" End date: {contract.end_date.strftime('%d %b %Y')}." if contract.end_date else " This is a permanent contract.")
+                + " Please visit the HR Office to sign and collect your contract document."
+            ),
+            notification_type='contract_issued',
+            url='/contracts/my-contract/',
+        )
+
         messages.success(request, f"Contract issued for {emp.get_full_name()}.")
         return redirect('contracts:detail', pk=contract.pk)
 
@@ -248,17 +263,26 @@ def renew_contract(request, pk):
             renewed_from=old_contract,
         )
 
-        # Notify employee
+        # Notify employee (ContractNotification + main bell)
+        renewal_msg = (
+            f"Your contract has been renewed. "
+            f"New contract type: {new_contract.get_contract_type_display()}. "
+            f"Start date: {new_contract.start_date.strftime('%d %b %Y')}."
+            + (f" End date: {new_contract.end_date.strftime('%d %b %Y')}." if new_contract.end_date else " This is a permanent contract (CDI).")
+        )
         ContractNotification.objects.create(
             employee=old_contract.employee,
             contract=new_contract,
             notification_type='renewed',
-            message=(
-                f"Your contract has been renewed. "
-                f"New contract type: {new_contract.get_contract_type_display()}. "
-                f"Start date: {new_contract.start_date.strftime('%d %b %Y')}."
-                + (f" End date: {new_contract.end_date.strftime('%d %b %Y')}." if new_contract.end_date else " This is a permanent contract (CDI).")
-            ),
+            message=renewal_msg,
+        )
+        from notifications.utils import notify
+        notify(
+            old_contract.employee.user,
+            title='Contract Renewed',
+            message=renewal_msg,
+            notification_type='contract_renewed',
+            url=f'/contracts/{new_contract.pk}/',
         )
 
         messages.success(
@@ -283,15 +307,24 @@ def terminate_contract(request, pk):
         contract.status = 'terminated'
         contract.save()
 
+        termination_msg = (
+            f"Your contract has been terminated"
+            + (f" for the following reason: {reason}" if reason else "")
+            + ". Please contact HR for further information."
+        )
         ContractNotification.objects.create(
             employee=contract.employee,
             contract=contract,
             notification_type='terminated',
-            message=(
-                f"Your contract has been terminated"
-                + (f" for the following reason: {reason}" if reason else "")
-                + ". Please contact HR for further information."
-            ),
+            message=termination_msg,
+        )
+        from notifications.utils import notify
+        notify(
+            contract.employee.user,
+            title='Contract Terminated',
+            message=termination_msg,
+            notification_type='contract_terminated',
+            url=f'/contracts/{contract.pk}/',
         )
 
         messages.success(

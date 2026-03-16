@@ -399,6 +399,102 @@
             border-color: #e8f0f5;
         }
 
+        /* ─── NOTIFICATION BELL ─── */
+        .notif-btn {
+            position: relative;
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.4);
+            border-radius: 10px;
+            width: 38px; height: 38px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            flex-shrink: 0;
+        }
+        .notif-btn:hover { background: rgba(255,255,255,0.28); }
+        .notif-badge {
+            position: absolute;
+            top: -5px; right: -5px;
+            background: #e53e3e;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            border-radius: 99px;
+            min-width: 17px; height: 17px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 3px;
+            border: 2px solid #0891a8;
+        }
+        .notif-panel {
+            width: 360px;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(10,77,104,0.2);
+            padding: 0;
+            overflow: hidden;
+            margin-top: 8px !important;
+        }
+        .notif-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid #e8f0f5;
+            background: #f8fcfd;
+        }
+        .notif-header-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #0d1b2a;
+        }
+        .notif-body { max-height: 340px; overflow-y: auto; }
+        .notif-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 11px 16px;
+            border-bottom: 1px solid #f0f4f8;
+            text-decoration: none;
+            color: #0d1b2a;
+            transition: background 0.12s;
+            position: relative;
+        }
+        .notif-item:hover { background: #f0f9fb; color: #0d1b2a; }
+        .notif-item.notif-unread { background: #f0f9fb; }
+        .notif-icon {
+            width: 36px; height: 36px;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .notif-text { flex: 1; min-width: 0; }
+        .notif-title { font-weight: 600; font-size: 0.82rem; line-height: 1.3; }
+        .notif-msg { font-size: 0.74rem; color: #6b7a8d; margin-top: 2px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .notif-time { font-size: 0.68rem; color: #9ab4c0; margin-top: 3px; }
+        .notif-dot {
+            width: 7px; height: 7px;
+            background: #0891a8;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .notif-empty {
+            text-align: center;
+            padding: 32px 16px;
+            color: #9ab4c0;
+        }
+        .notif-footer {
+            padding: 10px 12px;
+            background: #f8fcfd;
+            border-top: 1px solid #e8f0f5;
+        }
+        @media (max-width: 480px) {
+            .notif-panel { width: calc(100vw - 24px); }
+        }
+
         /* ─── PAGE CONTENT ─── */
         .page-content {
             padding: 28px;
@@ -992,6 +1088,11 @@
                     <i class="bi bi-bar-chart-line"></i> {% trans "Leave Tracker" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:retirement' %}" class="nav-link-sidebar {% block nav_retirement %}{% endblock %}">
+                    <i class="bi bi-hourglass-split"></i> {% trans "Retirement Tracker" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}
@@ -1084,6 +1185,11 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:retirement' %}" class="nav-link-sidebar {% block nav_retirement_admin %}{% endblock %}">
+                    <i class="bi bi-hourglass-split"></i> {% trans "Retirement Tracker" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:admin_settings' %}" class="nav-link-sidebar {% block nav_settings %}{% endblock %}">
                     <i class="bi bi-sliders"></i> {% trans "System Settings" %}
                 </a>
@@ -1125,8 +1231,61 @@
             </button>
             <div class="topbar-title">{% block page_title %}{% trans "Dashboard" %}{% endblock %}</div>
         </div>
-        <div class="topbar-actions">
-            {% block topbar_actions %}{% endblock %}
+        <div class="d-flex align-items-center gap-2">
+            <!-- Notification Bell -->
+            <div class="dropdown">
+                <button class="notif-btn" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                    <i class="bi bi-bell"></i>
+                    {% if notif_unread > 0 %}
+                    <span class="notif-badge">{{ notif_unread }}</span>
+                    {% endif %}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end notif-panel" aria-labelledby="notifDropdown">
+                    <div class="notif-header">
+                        <span class="notif-header-title">
+                            <i class="bi bi-bell me-1"></i>Notifications
+                            {% if notif_unread > 0 %}<span class="badge bg-danger ms-1">{{ notif_unread }}</span>{% endif %}
+                        </span>
+                        {% if notif_unread > 0 %}
+                        <form method="post" action="{% url 'notifications:mark_all_read' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:0.72rem;color:#9ab4c0;">Mark all read</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="notif-body">
+                        {% if notif_recent %}
+                        {% for n in notif_recent %}
+                        <a href="{% url 'notifications:mark_read' n.pk %}" class="notif-item{% if not n.is_read %} notif-unread{% endif %}">
+                            <div class="notif-icon" style="background:{{ n.badge_color }}20;color:{{ n.badge_color }};">
+                                <i class="bi {{ n.icon }}"></i>
+                            </div>
+                            <div class="notif-text">
+                                <div class="notif-title">{{ n.title }}</div>
+                                <div class="notif-msg">{{ n.message|truncatechars:65 }}</div>
+                                <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+                            </div>
+                            {% if not n.is_read %}<span class="notif-dot"></span>{% endif %}
+                        </a>
+                        {% endfor %}
+                        {% else %}
+                        <div class="notif-empty">
+                            <i class="bi bi-bell-slash fs-2 d-block mb-2"></i>
+                            <small>No notifications yet</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="notif-footer">
+                        <a href="{% url 'notifications:list' %}" class="btn btn-sm btn-outline-primary w-100" style="font-size:0.8rem;">
+                            View All Notifications
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Page Actions -->
+            <div class="topbar-actions">
+                {% block topbar_actions %}{% endblock %}
+            </div>
         </div>
     </div>
 

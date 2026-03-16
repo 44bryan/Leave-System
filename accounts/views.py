@@ -71,14 +71,43 @@ def employee_create(request):
         try:
             with transaction.atomic():
                 employee = form.save()
-            from leaves.models import LeaveBalance
-            from datetime import date
-            LeaveBalance.objects.get_or_create(
-                employee=employee,
-                year=date.today().year,
-                defaults={'total_entitlement': 18}
-            )
-            messages.success(request, f"Employee {employee.get_full_name()} created successfully.")
+
+                from leaves.models import LeaveBalance
+                from datetime import date
+                LeaveBalance.objects.get_or_create(
+                    employee=employee,
+                    year=date.today().year,
+                    defaults={'total_entitlement': 18}
+                )
+
+                # Create initial contract from registration data
+                from contracts.models import Contract
+                contract = Contract.objects.create(
+                    employee=employee,
+                    contract_type=form.cleaned_data['contract_type'],
+                    start_date=form.cleaned_data['contract_start_date'],
+                    end_date=form.cleaned_data.get('contract_end_date') or None,
+                    status='active',
+                    created_by=request.user,
+                    notes='Issued at registration.',
+                )
+
+                # Welcome notification to the new employee
+                from notifications.utils import notify
+                contract_label = contract.get_contract_type_display()
+                notify(
+                    employee.user,
+                    title='Welcome — Your Account Is Now Active',
+                    message=(
+                        f"Welcome to LeaveDesk, {employee.get_full_name()}! Your account has been created and activated. "
+                        f"A {contract_label} contract starting {contract.start_date.strftime('%d %b %Y')} has been issued. "
+                        f"Please visit the HR Office to sign and collect your contract document."
+                    ),
+                    notification_type='account_activated',
+                    url='/contracts/my-contract/',
+                )
+
+            messages.success(request, f"Employee {employee.get_full_name()} created and contract issued successfully.")
             return redirect('accounts:employee_list')
         except Exception as e:
             messages.error(request, f"Error creating employee: {e}")

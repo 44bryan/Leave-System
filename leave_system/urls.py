@@ -36,6 +36,7 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('discipline/', include('discipline.urls')),
     path('contracts/', include('contracts.urls')),
+    path('notifications/', include('notifications.urls')),
     path('', lambda request: redirect('dashboard:home'), name='home'),
     path('debug-settings/', debug_settings),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

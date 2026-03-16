@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Staff Retirement Tracker — LeaveDesk{% endblock %}
+{% block page_title %}Staff Retirement Tracker{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'dashboard:home' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
+    <i class="bi bi-arrow-left me-1"></i> Dashboard
+</a>
+{% endblock %}
+
+{% block content %}
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
+    <i class="bi bi-hourglass-split me-1"></i> Retirement Tracker — Staff with ≤ 3 Years Remaining
+</div>
+
+<!-- Summary strip -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card animate-in text-center py-3" style="border-left:3px solid #dc2626;">
+            <div style="font-size:2rem;font-weight:800;color:#dc2626;line-height:1;">{{ total }}</div>
+            <div style="font-size:0.72rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Approaching Retirement</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card animate-in text-center py-3" style="border-left:3px solid #d97706;">
+            <div style="font-size:2rem;font-weight:800;color:#d97706;line-height:1;">
+                {% with count=0 %}
+                {% for item in near_retirement %}{% if item.years_to_retirement == 0 %}{% with count=count|add:1 %}{% endwith %}{% endif %}{% endfor %}
+                {{ near_retirement|length }}
+                {% endwith %}
+            </div>
+            <div style="font-size:0.72rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">Retirement Age {{ retirement_age }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card animate-in text-center py-3" style="border-left:3px solid #0891b2;">
+            <div style="font-size:2rem;font-weight:800;color:#0891b2;line-height:1;">
+                {% for item in near_retirement %}{% if item.years_to_retirement <= 1 %}1{% endif %}{% endfor %}
+            </div>
+            <div style="font-size:0.72rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">≤ 1 Year Remaining</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card animate-in text-center py-3" style="border-left:3px solid #059669;">
+            <div style="font-size:2rem;font-weight:800;color:#059669;line-height:1;">
+                {% for item in near_retirement %}{% if item.years_to_retirement == 3 %}1{% endif %}{% endfor %}
+            </div>
+            <div style="font-size:0.72rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">3 Years Remaining</div>
+        </div>
+    </div>
+</div>
+
+{% if near_retirement %}
+<div class="card animate-in" style="border-radius:14px;overflow:hidden;">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background:#f8fafc;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;color:#6b7a8d;">
+                <tr>
+                    <th class="px-4 py-3">Employee</th>
+                    <th class="py-3">Department</th>
+                    <th class="py-3">Current Age</th>
+                    <th class="py-3">Retirement Date</th>
+                    <th class="py-3">Time Remaining</th>
+                    <th class="py-3">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in near_retirement %}
+            {% with ytr=item.years_to_retirement %}
+            <tr>
+                <td class="px-4 py-3">
+                    <div style="font-weight:600;font-size:0.9rem;color:#0d1b2a;">
+                        {{ item.employee.get_full_name }}
+                    </div>
+                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ item.employee.position|default:item.employee.get_role_display }}</div>
+                </td>
+                <td class="py-3">
+                    <span style="font-size:0.82rem;color:#4a6b7c;">
+                        {{ item.employee.department.name|default:"—" }}
+                    </span>
+                </td>
+                <td class="py-3">
+                    <span style="font-weight:600;font-size:0.9rem;color:#0d1b2a;">{{ item.age }}</span>
+                    <span style="font-size:0.75rem;color:#9ab4c0;"> yrs</span>
+                </td>
+                <td class="py-3">
+                    <span style="font-size:0.85rem;font-weight:600;color:#0d1b2a;">
+                        {{ item.retirement_date|date:"d M Y" }}
+                    </span>
+                </td>
+                <td class="py-3">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:90px;height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden;">
+                            {% if ytr == 0 %}
+                            {% with pct=0 %}
+                            <div style="width:100%;height:100%;background:#dc2626;border-radius:99px;"></div>
+                            {% endwith %}
+                            {% elif ytr == 1 %}
+                            <div style="width:33%;height:100%;background:#dc2626;border-radius:99px;"></div>
+                            {% elif ytr == 2 %}
+                            <div style="width:66%;height:100%;background:#d97706;border-radius:99px;"></div>
+                            {% else %}
+                            <div style="width:100%;height:100%;background:#059669;border-radius:99px;"></div>
+                            {% endif %}
+                        </div>
+                        <span style="font-size:0.82rem;font-weight:600;
+                            color:{% if ytr == 0 %}#dc2626{% elif ytr == 1 %}#dc2626{% elif ytr == 2 %}#d97706{% else %}#059669{% endif %};">
+                            {% if ytr == 0 %}Due now{% elif ytr == 1 %}~{{ item.months_remaining }} mo{% else %}{{ ytr }} yr{% if ytr != 1 %}s{% endif %}{% endif %}
+                        </span>
+                    </div>
+                </td>
+                <td class="py-3">
+                    {% if ytr == 0 %}
+                    <span class="badge" style="background:#fef2f2;color:#dc2626;font-size:0.72rem;padding:5px 10px;border-radius:8px;">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>At Retirement Age
+                    </span>
+                    {% elif ytr == 1 %}
+                    <span class="badge" style="background:#fff7ed;color:#ea580c;font-size:0.72rem;padding:5px 10px;border-radius:8px;">
+                        <i class="bi bi-alarm me-1"></i>Critical
+                    </span>
+                    {% elif ytr == 2 %}
+                    <span class="badge" style="background:#fffbeb;color:#d97706;font-size:0.72rem;padding:5px 10px;border-radius:8px;">
+                        <i class="bi bi-clock-history me-1"></i>Soon
+                    </span>
+                    {% else %}
+                    <span class="badge" style="background:#f0fdf4;color:#059669;font-size:0.72rem;padding:5px 10px;border-radius:8px;">
+                        <i class="bi bi-clock me-1"></i>3 Years
+                    </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card animate-in mt-4 p-3" style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;">
+    <div class="d-flex align-items-start gap-3">
+        <i class="bi bi-lightbulb-fill fs-5 mt-1 flex-shrink-0" style="color:#d97706;"></i>
+        <div>
+            <div style="font-weight:700;color:#92400e;font-size:0.875rem;">HR Action Recommended</div>
+            <div style="font-size:0.8rem;color:#78350f;margin-top:4px;line-height:1.5;">
+                Staff listed above are within 3 years of the mandatory retirement age ({{ retirement_age }}).
+                HR should initiate succession planning, notify the employees, and begin retirement benefit processing
+                at least 6 months before the retirement date.
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="card animate-in text-center py-5">
+    <i class="bi bi-check2-circle fs-1 d-block mb-3" style="color:#cde8ef;"></i>
+    <div style="font-size:0.95rem;font-weight:600;color:#6b7a8d;">No staff approaching retirement</div>
+    <div style="font-size:0.82rem;color:#9ab4c0;margin-top:6px;">
+        No active employees are within 3 years of retirement age ({{ retirement_age }}).
+    </div>
+</div>
+{% endif %}
+{% endblock %}
