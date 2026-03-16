@@ -309,3 +309,39 @@ Then open: **http://127.0.0.1:8000**
   - Director dashboard: Awaiting Final Approval table moved above chart; topbar actions: Issue Notice + Final Approvals
   - Admin dashboard: added Discipline Overview section (3 cards); added Discipline Records quick action link; topbar actions: Add Employee + System Settings
   - admin_dashboard view updated to fetch discipline_warned, discipline_suspended, discipline_dismissed
+
+### 2026-03-15
+
+- **Notification System** — full in-app + email notification system (`notifications/` app)
+  - `Notification` model: recipient (FK User), title, message, type, url, is_read, created_at
+  - Bell icon in topbar navbar with unread badge counter (shows up to 6 recent in dropdown)
+  - Clicking a notification marks it read and redirects to the relevant page (url field)
+  - Full notification list at `/notifications/` with Mark All Read
+  - Context processor (`notifications_ctx`) injects `notif_unread` and `notif_recent` into every template
+  - `notify()` utility function in `notifications/utils.py` — creates Notification + optionally sends email
+  - Email: set `EMAIL_NOTIFICATIONS_ENABLED=True` in environment + SMTP vars (EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, etc.)
+  - Triggers: leave submitted/approved/rejected, discipline issued, contract issued/renewed/terminated, account activated
+
+- **Registration flow with mandatory contract** — employee create form now includes contract fields
+  - `EmployeeCreateForm` has 3 new fields: `contract_type` (CDI/CDD), `contract_start_date`, `contract_end_date`
+  - End date field shows/hides via JS based on selected contract type; required only for CDD
+  - `employee_create` view creates Employee + Contract + LeaveBalance in a single transaction
+  - Welcome `account_activated` notification sent to new employee automatically
+  - Form template shows a teal "Initial Contract" section only for new employee creation
+
+- **Discipline notifications** — when a discipline notice is issued, the employee now receives a bell notification
+  - `discipline/views.py` calls `notify()` after `record.save()` with type `discipline`
+  - Notification links directly to the discipline detail page
+
+- **Contract bell notifications** — all contract events now also fire main bell notifications
+  - Issue contract → `contract_issued` notification to employee
+  - Renew contract → `contract_renewed` notification
+  - Terminate contract → `contract_terminated` notification
+  - These complement the existing `ContractNotification` records
+
+- **HR Retirement Dashboard** — `/dashboard/retirement/`
+  - Shows all active employees within 3 years of retirement age (60)
+  - Table: name, department, current age, retirement date, countdown bar, urgency badge
+  - Sorted by soonest retirement first
+  - Accessible to HR, Director, Superuser via "Retirement Tracker" in sidebar
+  - HR advice banner at bottom recommends 6-month advance planning
