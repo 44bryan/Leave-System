@@ -299,9 +299,18 @@ def issue_contract(request):
         messages.success(request, f"Contract issued for {emp.get_full_name()}.")
         return redirect('contracts:detail', pk=contract.pk)
 
+    preselect_employee_pk = request.GET.get('employee')
+    preselect_employee = None
+    if preselect_employee_pk:
+        try:
+            preselect_employee = employees.get(pk=preselect_employee_pk)
+        except Employee.DoesNotExist:
+            pass
+
     return render(request, 'contracts/issue_contract.html', {
         'employees': employees,
         'today': today,
+        'preselect_employee': preselect_employee,
     })
 
 

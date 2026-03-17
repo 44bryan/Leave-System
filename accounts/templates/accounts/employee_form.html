@@ -233,6 +233,110 @@
         </div>
     </div>
 </div>
+
+{% if employee %}
+<!-- ─── CONTRACT MANAGEMENT PANEL ─── -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-9">
+        <div class="card animate-in delay-1">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-file-earmark-text me-2"></i>Contract Management</span>
+                <a href="{% url 'contracts:issue' %}?employee={{ employee.pk }}"
+                   class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    {% if active_contract %}Change / Renew Contract{% else %}Issue Contract{% endif %}
+                </a>
+            </div>
+            <div class="card-body p-4">
+
+                {% if active_contract %}
+                <!-- Current active contract -->
+                <div class="mb-4 p-3 rounded-3 text-white"
+                     style="background:{% if active_contract.contract_type == 'CDI' %}linear-gradient(135deg,#0A4D68,#088395){% elif active_contract.contract_type == 'INTERN' %}linear-gradient(135deg,#7c3aed,#6d28d9){% elif active_contract.contract_type == 'WACS' %}linear-gradient(135deg,#0e7490,#0891a8){% elif active_contract.is_expiring_soon %}linear-gradient(135deg,#d97706,#b45309){% else %}linear-gradient(135deg,#059669,#047857){% endif %};">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <i class="bi bi-file-earmark-check-fill fs-3"></i>
+                        <div style="flex:1;">
+                            <div style="font-size:1rem;font-weight:800;">{{ active_contract.get_contract_type_display }}</div>
+                            <div style="font-size:0.8rem;opacity:0.85;">
+                                Active since {{ active_contract.start_date|date:"d M Y" }}
+                                {% if active_contract.end_date %}· Ends {{ active_contract.end_date|date:"d M Y" }}{% endif %}
+                                {% if active_contract.days_remaining is not None and not active_contract.is_expired %}
+                                · <strong>{{ active_contract.days_remaining }} days remaining</strong>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <a href="{% url 'contracts:detail' active_contract.pk %}"
+                           class="btn btn-sm" style="background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.3);">
+                            <i class="bi bi-eye me-1"></i>Full Details
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-warning py-2 px-3 mb-4" style="font-size:0.85rem;border-left:3px solid #f59e0b;">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    No active contract. Use the <strong>Issue Contract</strong> button above to create one.
+                </div>
+                {% endif %}
+
+                <!-- Contract history -->
+                {% if contract_history %}
+                <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:10px;">
+                    <i class="bi bi-clock-history me-1"></i> Contract History
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in contract_history %}
+                            <tr>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          style="background:{% if c.contract_type == 'CDI' %}#0891a8{% elif c.contract_type == 'CDD' %}#059669{% elif c.contract_type == 'INTERN' %}#7c3aed{% else %}#0e7490{% endif %};">
+                                        {{ c.get_contract_type_display }}
+                                    </span>
+                                </td>
+                                <td style="font-size:0.82rem;">{{ c.start_date|date:"d M Y" }}</td>
+                                <td style="font-size:0.82rem;">{{ c.end_date|date:"d M Y"|default:"—" }}</td>
+                                <td>
+                                    <span class="badge rounded-pill
+                                        {% if c.status == 'active' %}bg-success
+                                        {% elif c.status == 'renewed' %}bg-info text-dark
+                                        {% elif c.status == 'expired' %}bg-warning text-dark
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ c.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'contracts:detail' c.pk %}" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size:0.75rem;">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    {% if active_contract %}
+                    <div style="font-size:0.8rem;color:#9ab4c0;text-align:center;padding:12px 0;">
+                        <i class="bi bi-clock-history me-1"></i> No previous contracts on record.
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}

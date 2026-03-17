@@ -6,9 +6,15 @@
 {% block nav_contracts %}active{% endblock %}
 
 {% block topbar_actions %}
+{% if preselect_employee %}
+<a href="{% url 'accounts:employee_edit' preselect_employee.pk %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> Back to Employee
+</a>
+{% else %}
 <a href="{% url 'contracts:list' %}" class="btn btn-outline-primary btn-sm">
     <i class="bi bi-arrow-left me-1"></i> All Contracts
 </a>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -16,11 +22,23 @@
 <div class="col-lg-7">
 <div class="card animate-in">
     <div class="card-header">
-        <i class="bi bi-file-earmark-plus me-2" style="color:#0284c7;"></i>Issue New Contract
+        <i class="bi bi-file-earmark-plus me-2" style="color:#0284c7;"></i>
+        {% if preselect_employee %}Change / Renew Contract — {{ preselect_employee.get_full_name }}{% else %}Issue New Contract{% endif %}
     </div>
     <div class="card-body p-4">
+        {% if preselect_employee %}
+        <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.82rem;border-left:3px solid #0891b2;background:#f0f9ff;border-radius:8px;">
+            <i class="bi bi-person-fill me-1"></i>
+            Issuing contract for <strong>{{ preselect_employee.get_full_name }}</strong>
+            ({{ preselect_employee.employee_id }}){% if preselect_employee.department %} — {{ preselect_employee.department }}{% endif %}.
+            Any existing active contract will be automatically marked as <em>renewed</em>.
+        </div>
+        {% endif %}
         <form method="post">
             {% csrf_token %}
+            {% if preselect_employee %}
+            <input type="hidden" name="employee" value="{{ preselect_employee.pk }}">
+            {% else %}
             <div class="mb-3">
                 <label class="form-label fw-600">Employee <span class="text-danger">*</span></label>
                 <select name="employee" class="form-select" required>
@@ -32,6 +50,7 @@
                     {% endfor %}
                 </select>
             </div>
+            {% endif %}
 
             <div class="mb-3">
                 <label class="form-label fw-600">Contract Type <span class="text-danger">*</span></label>
@@ -104,7 +123,11 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-file-earmark-check me-1"></i>Issue Contract
                 </button>
+                {% if preselect_employee %}
+                <a href="{% url 'accounts:employee_edit' preselect_employee.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                {% else %}
                 <a href="{% url 'contracts:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                {% endif %}
             </div>
         </form>
     </div>

@@ -190,7 +190,18 @@ def employee_edit(request, pk):
         form.save()
         messages.success(request, "Employee updated successfully.")
         return redirect('accounts:employee_list')
-    return render(request, 'accounts/employee_form.html', {'form': form, 'title': 'Edit Employee', 'employee': employee})
+
+    from contracts.models import Contract
+    active_contract = employee.contracts.filter(status='active').first()
+    contract_history = employee.contracts.exclude(pk=active_contract.pk).order_by('-start_date') if active_contract else employee.contracts.order_by('-start_date')
+
+    return render(request, 'accounts/employee_form.html', {
+        'form': form,
+        'title': 'Edit Employee',
+        'employee': employee,
+        'active_contract': active_contract,
+        'contract_history': contract_history,
+    })
 
 
 @hr_or_superuser_required

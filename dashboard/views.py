@@ -634,6 +634,58 @@ def leave_tracker(request):
 
 
 @login_required
+def birthday_dashboard(request):
+    """HR-only: staff birthdays organised by month, with current month highlighted."""
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+    if not is_super and (not emp or not (emp.is_hr() or emp.is_director() or emp.is_ceo())):
+        return redirect('dashboard:home')
+
+    today = date.today()
+    selected_month = int(request.GET.get('month', today.month))
+
+    from accounts.models import Employee as _Emp
+    from datetime import datetime
+
+    month_name = datetime(today.year, selected_month, 1).strftime('%B')
+
+    # All active employees with DOB
+    all_employees = list(
+        _Emp.objects.filter(is_active=True, date_of_birth__isnull=False)
+        .select_related('user', 'department')
+    )
+
+    # Group by birth month
+    months_data = []
+    for m in range(1, 13):
+        name = datetime(today.year, m, 1).strftime('%B')
+        staff = sorted(
+            [e for e in all_employees if e.date_of_birth.month == m],
+            key=lambda e: e.date_of_birth.day
+        )
+        months_data.append({'month': m, 'name': name, 'staff': staff, 'count': len(staff)})
+
+    # This month's birthdays, sorted by day
+    this_month_staff = months_data[today.month - 1]['staff']
+
+    # Today's birthdays
+    todays_birthdays = [e for e in all_employees if e.date_of_birth.month == today.month and e.date_of_birth.day == today.day]
+
+    # Selected month's birthdays
+    selected_staff = months_data[selected_month - 1]['staff']
+
+    return render(request, 'dashboard/birthday_dashboard.html', {
+        'today': today,
+        'months_data': months_data,
+        'this_month_staff': this_month_staff,
+        'todays_birthdays': todays_birthdays,
+        'selected_month': selected_month,
+        'selected_month_name': month_name,
+        'selected_staff': selected_staff,
+    })
+
+
+@login_required
 def search(request):
     """Live search endpoint — returns JSON results for the topbar search."""
     q = request.GET.get('q', '').strip()

@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Staff Birthdays — LeaveDesk{% endblock %}
+{% block page_title %}Staff Birthday Calendar{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+    <!-- Today's birthdays banner -->
+    {% if todays_birthdays %}
+    <div class="col-12">
+        <div class="p-4 rounded-3 text-white animate-in"
+             style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span style="font-size:2rem;">🎂</span>
+                <div>
+                    <div style="font-size:1rem;font-weight:800;">Happy Birthday Today!</div>
+                    <div style="font-size:0.85rem;opacity:0.9;">
+                        {% for e in todays_birthdays %}
+                            <strong>{{ e.get_full_name }}</strong>{% if e.department %} ({{ e.department }}){% endif %}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- This month highlight + month selector -->
+    <div class="col-12">
+        <div class="card animate-in">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <span><i class="bi bi-cake2 me-2" style="color:#f59e0b;"></i>
+                    Birthdays in <strong>{{ selected_month_name }}</strong>
+                    {% if selected_month == today.month %}
+                    <span class="badge bg-warning text-dark ms-2" style="font-size:0.7rem;">This Month</span>
+                    {% endif %}
+                    <span class="ms-2 text-muted" style="font-size:0.8rem;">— {{ selected_staff|length }} staff</span>
+                </span>
+                <!-- Month tabs -->
+                <div class="d-flex flex-wrap gap-1">
+                    {% for md in months_data %}
+                    <a href="?month={{ md.month }}"
+                       class="btn btn-sm {% if md.month == selected_month %}btn-primary{% else %}btn-outline-secondary{% endif %}"
+                       style="font-size:0.75rem;padding:3px 10px;position:relative;">
+                        {{ md.name|slice:":3" }}
+                        {% if md.count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill
+                              {% if md.month == today.month %}bg-warning text-dark{% else %}bg-danger{% endif %}"
+                              style="font-size:0.6rem;">{{ md.count }}</span>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if selected_staff %}
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">#</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Position</th>
+                                <th>Birthday</th>
+                                <th>Age</th>
+                                <th>Days Away</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in selected_staff %}
+                            {% with bday_this_year=e.date_of_birth|date:"Y-m-d" %}
+                            <tr {% if e.date_of_birth.day == today.day and selected_month == today.month %}style="background:#fffbeb;"{% endif %}>
+                                <td style="font-size:0.82rem;color:#9ab4c0;">{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-weight:800;font-size:0.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                            {{ e.user.first_name|first|upper }}{{ e.user.last_name|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight:600;font-size:0.875rem;">{{ e.get_full_name }}</div>
+                                            <div style="font-size:0.72rem;color:#9ab4c0;">{{ e.employee_id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="font-size:0.82rem;">{{ e.department|default:"—" }}</td>
+                                <td style="font-size:0.82rem;">{{ e.position|default:"—" }}</td>
+                                <td>
+                                    {% if e.date_of_birth.day == today.day and selected_month == today.month %}
+                                    <span style="font-weight:700;color:#d97706;">🎂 {{ e.date_of_birth|date:"d F" }}</span>
+                                    {% else %}
+                                    <span style="font-size:0.875rem;">{{ e.date_of_birth|date:"d F" }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="font-size:0.875rem;">
+                                    {% if e.date_of_birth %}
+                                    {{ e.age }}
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td>
+                                    {% if selected_month == today.month %}
+                                        {% if e.date_of_birth.day == today.day %}
+                                        <span class="badge bg-warning text-dark">Today!</span>
+                                        {% elif e.date_of_birth.day > today.day %}
+                                        <span class="badge bg-light text-dark border" style="font-size:0.72rem;">
+                                            in {{ e.date_of_birth.day|add:"-0" }} — {{ today.day }} days
+                                        </span>
+                                        {% else %}
+                                        <span style="font-size:0.75rem;color:#9ab4c0;">Passed</span>
+                                        {% endif %}
+                                    {% else %}
+                                    <span style="font-size:0.75rem;color:#9ab4c0;">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endwith %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align:center;padding:40px 20px;color:#9ab4c0;">
+                    <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                    <small>No staff birthdays in {{ selected_month_name }}.</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Annual overview grid -->
+    <div class="col-12">
+        <div class="card animate-in delay-1">
+            <div class="card-header">
+                <i class="bi bi-grid-3x3-gap me-2" style="color:#0891a8;"></i>Annual Birthday Overview
+            </div>
+            <div class="card-body p-3">
+                <div class="row g-3">
+                    {% for md in months_data %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="?month={{ md.month }}" class="text-decoration-none">
+                        <div class="p-3 rounded-3 border h-100
+                             {% if md.month == today.month %}border-warning{% elif md.month == selected_month %}border-primary{% endif %}"
+                             style="background:{% if md.month == today.month %}#fffbeb{% elif md.month == selected_month %}#f0f9ff{% else %}#fafbfc{% endif %};transition:box-shadow .15s;"
+                             onmouseover="this.style.boxShadow='0 4px 14px rgba(8,145,168,0.14)'" onmouseout="this.style.boxShadow=''">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span style="font-size:0.78rem;font-weight:700;color:{% if md.month == today.month %}#d97706{% elif md.month == selected_month %}#0891a8{% else %}#4a6b7c{% endif %};">
+                                    {{ md.name }}
+                                </span>
+                                {% if md.month == today.month %}
+                                <span class="badge bg-warning text-dark" style="font-size:0.6rem;">Now</span>
+                                {% endif %}
+                            </div>
+                            {% if md.staff %}
+                            <div style="font-size:1.4rem;font-weight:800;color:{% if md.month == today.month %}#d97706{% elif md.month == selected_month %}#0891a8{% else %}#0d1b2a{% endif %};">
+                                {{ md.count }}
+                                <span style="font-size:0.7rem;font-weight:500;color:#9ab4c0;">staff</span>
+                            </div>
+                            <div style="font-size:0.72rem;color:#6b7a8d;margin-top:4px;">
+                                {% for e in md.staff|slice:":3" %}
+                                    {{ e.user.first_name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if md.count > 3 %} +{{ md.count|add:"-3" }} more{% endif %}
+                            </div>
+                            {% else %}
+                            <div style="font-size:0.78rem;color:#9ab4c0;margin-top:4px;">No birthdays</div>
+                            {% endif %}
+                        </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
