@@ -930,6 +930,14 @@
                 <div class="search-results-dropdown" id="searchDropdown"></div>
             </div>
 
+            <!-- Language switcher -->
+            <form action="{% url 'set_language' %}" method="post" class="d-flex gap-1">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                <button type="submit" name="language" value="en" class="lang-dropdown-btn{% if LANGUAGE_CODE == 'en' %} active{% endif %}" style="{% if LANGUAGE_CODE == 'en' %}border-color:#0891a8;color:#0891a8;background:#f0fafc;{% endif %}">EN</button>
+                <button type="submit" name="language" value="fr" class="lang-dropdown-btn{% if LANGUAGE_CODE == 'fr' %} active{% endif %}" style="{% if LANGUAGE_CODE == 'fr' %}border-color:#0891a8;color:#0891a8;background:#f0fafc;{% endif %}">FR</button>
+            </form>
+
             <!-- Logged-in user chip -->
             <div class="user-chip">
                 <div class="user-chip-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
@@ -954,16 +962,6 @@
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}"><i class="bi bi-sliders me-2" style="color:#0891a8;"></i>System Settings</a></li>
                     {% endif %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <div class="px-3 py-2" style="font-size:.78rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.08em;">Language</div>
-                        <form action="{% url 'set_language' %}" method="post" class="px-3 pb-2 d-flex gap-2">
-                            {% csrf_token %}
-                            <input name="next" type="hidden" value="{{ request.get_full_path }}">
-                            <button type="submit" name="language" value="en" class="btn btn-sm {% if LANGUAGE_CODE == 'en' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="font-size:.75rem;padding:2px 10px;">EN</button>
-                            <button type="submit" name="language" value="fr" class="btn btn-sm {% if LANGUAGE_CODE == 'fr' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="font-size:.75rem;padding:2px 10px;">FR</button>
-                        </form>
-                    </li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}" data-no-suspend><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}</a></li>
                 </ul>
@@ -1215,6 +1213,13 @@
 
     <!-- Mobile-only footer: profile / settings / logout -->
     <div class="sidebar-mobile-footer">
+        <!-- Language switcher (mobile) -->
+        <form action="{% url 'set_language' %}" method="post" class="d-flex gap-2 px-2 py-2">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+            <button type="submit" name="language" value="en" class="btn btn-sm flex-fill {% if LANGUAGE_CODE == 'en' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="font-size:0.8rem;">🌐 EN</button>
+            <button type="submit" name="language" value="fr" class="btn btn-sm flex-fill {% if LANGUAGE_CODE == 'fr' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="font-size:0.8rem;">🌐 FR</button>
+        </form>
         <a href="{% url 'accounts:profile' %}" class="sidebar-footer-item">
             <i class="bi bi-person-circle sidebar-footer-icon"></i>
             <span>{% trans "My Profile" %}</span>
