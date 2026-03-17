@@ -913,8 +913,28 @@
 
     <div class="logo-bar-right">
 
-        <!-- Mobile: search icon -->
+        <!-- Mobile: language dropdown + search icon -->
         <div class="d-flex align-items-center gap-2 d-lg-none">
+            <div class="dropdown">
+                <button class="mobile-search-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                        title="Language" style="width:auto;padding:0 10px;gap:4px;font-size:0.78rem;font-weight:700;">
+                    🌐 {% if LANGUAGE_CODE == 'fr' %}FR{% else %}EN{% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" style="min-width:130px;border-radius:12px;box-shadow:0 8px 24px rgba(10,77,104,0.18);border:none;padding:6px;">
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                            {% csrf_token %}<input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <button type="submit" name="language" value="en" class="dropdown-item rounded-2 {% if LANGUAGE_CODE == 'en' %}fw-bold text-primary{% endif %}" style="font-size:0.85rem;">🇬🇧 English</button>
+                        </form>
+                    </li>
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                            {% csrf_token %}<input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <button type="submit" name="language" value="fr" class="dropdown-item rounded-2 {% if LANGUAGE_CODE == 'fr' %}fw-bold text-primary{% endif %}" style="font-size:0.85rem;">🇫🇷 Français</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
             <button class="mobile-search-btn" id="mobileSearchBtn" type="button" title="Search">
                 <i class="bi bi-search"></i>
             </button>
@@ -931,12 +951,27 @@
             </div>
 
             <!-- Language switcher -->
-            <form action="{% url 'set_language' %}" method="post" class="d-flex gap-1">
-                {% csrf_token %}
-                <input name="next" type="hidden" value="{{ request.get_full_path }}">
-                <button type="submit" name="language" value="en" class="lang-dropdown-btn{% if LANGUAGE_CODE == 'en' %} active{% endif %}" style="{% if LANGUAGE_CODE == 'en' %}border-color:#0891a8;color:#0891a8;background:#f0fafc;{% endif %}">EN</button>
-                <button type="submit" name="language" value="fr" class="lang-dropdown-btn{% if LANGUAGE_CODE == 'fr' %} active{% endif %}" style="{% if LANGUAGE_CODE == 'fr' %}border-color:#0891a8;color:#0891a8;background:#f0fafc;{% endif %}">FR</button>
-            </form>
+            <div class="dropdown">
+                <button class="lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Language">
+                    <span class="lang-flag">🌐</span>
+                    <span>{% if LANGUAGE_CODE == 'fr' %}FR{% else %}EN{% endif %}</span>
+                    <i class="bi bi-chevron-down lang-chevron"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" style="min-width:140px;border-radius:12px;box-shadow:0 8px 24px rgba(10,77,104,0.18);border:none;padding:6px;">
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                            {% csrf_token %}<input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <button type="submit" name="language" value="en" class="dropdown-item rounded-2 {% if LANGUAGE_CODE == 'en' %}fw-bold text-primary{% endif %}" style="font-size:0.85rem;">🇬🇧 English</button>
+                        </form>
+                    </li>
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                            {% csrf_token %}<input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <button type="submit" name="language" value="fr" class="dropdown-item rounded-2 {% if LANGUAGE_CODE == 'fr' %}fw-bold text-primary{% endif %}" style="font-size:0.85rem;">🇫🇷 Français</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
 
             <!-- Logged-in user chip -->
             <div class="user-chip">
@@ -1213,13 +1248,6 @@
 
     <!-- Mobile-only footer: profile / settings / logout -->
     <div class="sidebar-mobile-footer">
-        <!-- Language switcher (mobile) -->
-        <form action="{% url 'set_language' %}" method="post" class="d-flex gap-2 px-2 py-2">
-            {% csrf_token %}
-            <input name="next" type="hidden" value="{{ request.get_full_path }}">
-            <button type="submit" name="language" value="en" class="btn btn-sm flex-fill {% if LANGUAGE_CODE == 'en' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="font-size:0.8rem;">🌐 EN</button>
-            <button type="submit" name="language" value="fr" class="btn btn-sm flex-fill {% if LANGUAGE_CODE == 'fr' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="font-size:0.8rem;">🌐 FR</button>
-        </form>
         <a href="{% url 'accounts:profile' %}" class="sidebar-footer-item">
             <i class="bi bi-person-circle sidebar-footer-icon"></i>
             <span>{% trans "My Profile" %}</span>
