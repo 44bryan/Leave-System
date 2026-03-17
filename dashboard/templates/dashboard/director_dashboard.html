@@ -1,115 +1,83 @@
 {% extends 'base.html' %}
-{% load i18n %}
-{% block title %}Director Dashboard — LeaveDesk{% endblock %}
-{% block page_title %}Director Dashboard{% endblock %}
+{% block title %}Executive Dashboard — LeaveDesk{% endblock %}
+{% block page_title %}Executive Dashboard{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
     <i class="bi bi-shield-exclamation me-1"></i> Issue Notice
 </a>
-<a href="{% url 'leaves:director_approvals' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
+<a href="{% url 'leaves:director_approvals' %}" class="btn btn-primary btn-sm">
     <i class="bi bi-shield-check me-1"></i> Final Approvals
+    {% if pending_director > 0 %}<span class="badge bg-warning text-dark ms-1">{{ pending_director }}</span>{% endif %}
 </a>
 {% endblock %}
 
 {% block content %}
 
-<!-- ── Overview ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-grid-1x2 me-1"></i> Overview
-</div>
+<!-- ── At a Glance ── -->
+<div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> At a Glance</div>
 <div class="row g-3 mb-4 animate-in">
-    <div class="col-sm-6 col-lg-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
+    <div class="col-6 col-sm-4 col-lg">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
             <div class="stat-value">{{ total_employees }}</div>
-            <div class="stat-label">Active Employees</div>
+            <div class="stat-label">Active Staff</div>
         </div>
     </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="stat-card delay-1">
-            <div class="stat-icon" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
-            <div class="stat-value">{{ pending_director }}</div>
-            <div class="stat-label">Awaiting Your Approval</div>
-            {% if pending_director > 0 %}
-            <a href="{% url 'leaves:director_approvals' %}" class="btn btn-sm btn-outline-primary mt-3 w-100">Review Now</a>
-            {% endif %}
+    <div class="col-6 col-sm-4 col-lg">
+        <div class="stat-card text-center" style="border-top:3px solid #4527a0;{% if pending_director > 0 %}background:#faf8ff;{% endif %}">
+            <div class="stat-icon mx-auto" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
+            <div class="stat-value" style="color:#4527a0;">{{ pending_director }}</div>
+            <div class="stat-label">Awaiting You</div>
         </div>
     </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="stat-card delay-2">
-            <div class="stat-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-check2-all"></i></div>
+    <div class="col-6 col-sm-4 col-lg">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-check2-all"></i></div>
             <div class="stat-value">{{ approved_year }}</div>
-            <div class="stat-label">Approved This Year</div>
+            <div class="stat-label">Approved {{ year }}</div>
         </div>
     </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="stat-card delay-3">
-            <div class="stat-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
+    <div class="col-6 col-sm-4 col-lg">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
             <div class="stat-value">{{ rejected_year }}</div>
-            <div class="stat-label">Rejected This Year</div>
+            <div class="stat-label">Rejected {{ year }}</div>
         </div>
     </div>
-</div>
-
-<!-- ── Discipline Overview ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-shield-exclamation me-1"></i> Discipline Overview
-</div>
-<div class="row g-3 mb-4 animate-in delay-1">
-    <div class="col-sm-4">
+    <div class="col-6 col-sm-4 col-lg">
         <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #f59e0b;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#fff8e1;color:#d97706;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#d97706;">{{ discipline_warned }}</div>
-                        <div class="stat-label">Employees Warned</div>
-                    </div>
-                </div>
+            <div class="stat-card text-center" style="border-top:3px solid #f59e0b;">
+                <div class="stat-icon mx-auto" style="background:#fff8e1;color:#d97706;"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="stat-value" style="color:#d97706;">{{ discipline_warned }}</div>
+                <div class="stat-label">Warned</div>
             </div>
         </a>
     </div>
-    <div class="col-sm-4">
+    <div class="col-6 col-sm-4 col-lg">
         <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #374151;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#f3f4f6;color:#374151;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-person-slash"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#374151;">{{ discipline_suspended }}</div>
-                        <div class="stat-label">Suspended / Upcoming</div>
-                    </div>
-                </div>
+            <div class="stat-card text-center" style="border-top:3px solid #374151;">
+                <div class="stat-icon mx-auto" style="background:#f3f4f6;color:#374151;"><i class="bi bi-person-slash"></i></div>
+                <div class="stat-value" style="color:#374151;">{{ discipline_suspended }}</div>
+                <div class="stat-label">Suspended</div>
             </div>
         </a>
     </div>
-    <div class="col-sm-4">
+    <div class="col-6 col-sm-4 col-lg">
         <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #dc2626;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#fce4ec;color:#dc2626;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-person-x-fill"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#dc2626;">{{ discipline_dismissed }}</div>
-                        <div class="stat-label">Dismissals</div>
-                    </div>
-                </div>
+            <div class="stat-card text-center" style="border-top:3px solid #dc2626;">
+                <div class="stat-icon mx-auto" style="background:#fce4ec;color:#dc2626;"><i class="bi bi-person-x-fill"></i></div>
+                <div class="stat-value" style="color:#dc2626;">{{ discipline_dismissed }}</div>
+                <div class="stat-label">Dismissed</div>
             </div>
         </a>
     </div>
 </div>
 
 <!-- ── Action Required ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-shield-check me-1"></i> Action Required
-</div>
-<div class="card mb-4 animate-in delay-2">
+<div class="section-label"><i class="bi bi-shield-check me-1"></i> Action Required</div>
+<div class="card mb-4 animate-in delay-1">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-shield-check me-2" style="color:#0A4D68;"></i>Requests Awaiting Your Final Approval
             <span class="badge bg-primary ms-2">{{ pending_director }}</span>
@@ -145,7 +113,7 @@
                     </td>
                     <td>
                         <a href="{% url 'leaves:director_action' req.pk %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-shield-check me-1"></i>Final Decision
+                            <i class="bi bi-shield-check me-1"></i>Decide
                         </a>
                     </td>
                 </tr>
@@ -153,7 +121,7 @@
                 <tr>
                     <td colspan="7" class="text-center text-muted py-4">
                         <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>
-                        No requests awaiting your approval
+                        No requests awaiting your approval — all clear!
                     </td>
                 </tr>
                 {% endfor %}
@@ -163,14 +131,13 @@
 </div>
 
 <!-- ── Leave Activity ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-activity me-1"></i> Leave Activity
-</div>
-<div class="row g-4 animate-in delay-3">
+<div class="section-label"><i class="bi bi-activity me-1"></i> Leave Activity</div>
+<div class="row g-4 animate-in delay-2">
     <div class="col-lg-8">
         <div class="card h-100">
-            <div class="card-header">
-                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Leave Approvals — {{ year }}
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Leave Approvals — {{ year }}</span>
+                <span class="badge" style="background:#e0f2fe;color:#0284c7;">{{ approved_year }} total</span>
             </div>
             <div class="card-body p-4">
                 <canvas id="monthlyChart" height="100"></canvas>
@@ -179,14 +146,14 @@
     </div>
     <div class="col-lg-4">
         <div class="card h-100">
-            <div class="card-header">
-                <span class="pending-pulse"></span>On Leave Today
-                <span class="badge bg-danger ms-2">{{ on_leave_now|length }}</span>
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><span class="pending-pulse"></span>On Leave Today</span>
+                <span class="badge bg-danger">{{ on_leave_now|length }}</span>
             </div>
             <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
                 {% for req in on_leave_now %}
                 <div class="d-flex align-items-center gap-2 py-2 border-bottom">
-                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ req.employee.user.first_name|first|upper }}
                     </div>
                     <div class="flex-grow-1">
@@ -210,15 +177,9 @@
 {% endblock %}
 
 {% block extra_css %}
-.pending-pulse {
-    display:inline-block;width:8px;height:8px;
-    background:#e53e3e;border-radius:50%;
-    animation:pulse 1.5s infinite;margin-right:6px;
-}
-@keyframes pulse {
-    0%,100%{opacity:1;transform:scale(1);}
-    50%{opacity:0.5;transform:scale(1.4);}
-}
+.section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
+.pending-pulse { display:inline-block;width:8px;height:8px;background:#e53e3e;border-radius:50%;animation:pulse 1.5s infinite;margin-right:6px; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.4);} }
 {% endblock %}
 
 {% block extra_js %}

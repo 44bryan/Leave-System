@@ -7,94 +7,195 @@
 <a href="{% url 'accounts:employee_create' %}" class="btn btn-primary btn-sm">
     <i class="bi bi-person-plus me-1"></i> Add Employee
 </a>
-<a href="{% url 'dashboard:admin_settings' %}" class="btn btn-outline-primary btn-sm">
+<a href="{% url 'dashboard:admin_settings' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
     <i class="bi bi-sliders me-1"></i> System Settings
 </a>
 {% endblock %}
 
 {% block extra_css %}
-.metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
-.pending-pulse {
-    display:inline-block; width:8px; height:8px;
-    background:#e53e3e; border-radius:50%;
-    animation:pulse 1.5s infinite; margin-right:6px;
-}
-@keyframes pulse {
-    0%,100%{opacity:1;transform:scale(1);}
-    50%{opacity:0.5;transform:scale(1.4);}
-}
-.section-label {
-    font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em;
-    color:#9ab4c0; font-weight:700; margin-bottom:12px;
-}
+.section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
+.pending-pulse { display:inline-block;width:8px;height:8px;background:#e53e3e;border-radius:50%;animation:pulse 1.5s infinite;margin-right:6px; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.4);} }
 {% endblock %}
 
 {% block content %}
 
-<!-- ══════════════════════ CONTRACTS SECTION ══════════════════════════════ -->
-<div class="section-label"><i class="bi bi-file-earmark-person me-1"></i> Contracts Overview</div>
+<!-- ── Dismissal Alert (urgent — always first) ── -->
+{% if dismissal_alert %}
+<div class="alert alert-danger mb-4" style="border-left:4px solid #dc3545;">
+    <div class="d-flex align-items-start gap-3">
+        <i class="bi bi-exclamation-octagon-fill fs-4 mt-1 text-danger flex-shrink-0"></i>
+        <div>
+            <strong>Action Required — Dismissal Notices</strong>
+            <p class="mb-2 mt-1" style="font-size:0.875rem;">The following employees have been dismissed and their accounts must be deactivated:</p>
+            <ul class="mb-0" style="font-size:0.875rem;">
+                {% for d in dismissal_alert %}
+                <li>
+                    <strong>{{ d.employee.get_full_name }}</strong> — {{ d.employee.employee_id }}
+                    <span class="text-muted">(dismissed {{ d.date_issued }})</span>
+                    <a href="/accounts/employees/{{ d.employee.pk }}/edit/" class="ms-2 text-danger fw-bold" style="font-size:0.8rem;">
+                        <i class="bi bi-person-x me-1"></i>Deactivate Account
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── System Overview ── -->
+<div class="section-label"><i class="bi bi-speedometer2 me-1"></i> System Overview</div>
+<div class="row g-3 mb-3 animate-in">
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-value">{{ total_employees }}</div>
+            <div class="stat-label">Active Employees</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-building"></i></div>
+            <div class="stat-value">{{ total_departments }}</div>
+            <div class="stat-label">Departments</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#fff8e1;color:#f57f17;"><i class="bi bi-hourglass-split"></i></div>
+            <div class="stat-value">{{ pending_manager }}</div>
+            <div class="stat-label">Awaiting Manager</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#e0f7fa;color:#088395;"><i class="bi bi-clipboard2-check-fill"></i></div>
+            <div class="stat-value">{{ pending_hr }}</div>
+            <div class="stat-label">Awaiting HR</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
+            <div class="stat-value">{{ pending_director }}</div>
+            <div class="stat-label">Awaiting Director</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-check2-all"></i></div>
+            <div class="stat-value">{{ approved_year }}</div>
+            <div class="stat-label">Approved {{ year }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Discipline row — compact inline -->
+<div class="row g-3 mb-4 animate-in delay-1">
+    <div class="col-sm-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="card p-3 d-flex flex-row align-items-center gap-3" style="border-left:3px solid #f59e0b;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#fff8e1;color:#d97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                    <div style="font-size:1.3rem;font-weight:800;color:#d97706;line-height:1;">{{ discipline_warned }}</div>
+                    <div style="font-size:0.72rem;color:#6b7a8d;">Employees Warned</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="card p-3 d-flex flex-row align-items-center gap-3" style="border-left:3px solid #374151;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#f3f4f6;color:#374151;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-person-slash"></i>
+                </div>
+                <div>
+                    <div style="font-size:1.3rem;font-weight:800;color:#374151;line-height:1;">{{ discipline_suspended }}</div>
+                    <div style="font-size:0.72rem;color:#6b7a8d;">Suspensions</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="card p-3 d-flex flex-row align-items-center gap-3" style="border-left:3px solid #dc2626;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#fce4ec;color:#dc2626;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-person-x-fill"></i>
+                </div>
+                <div>
+                    <div style="font-size:1.3rem;font-weight:800;color:#dc2626;line-height:1;">{{ discipline_dismissed }}</div>
+                    <div style="font-size:0.72rem;color:#6b7a8d;">Dismissals</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- ══════════════════════ CONTRACTS ══════════════════════ -->
+<div class="section-label"><i class="bi bi-file-earmark-person me-1"></i> Contract Overview</div>
 
 <!-- Contract KPI Strip -->
-<div class="metric-row mb-4 animate-in">
-    <a href="{% url 'contracts:list' %}" class="text-decoration-none">
-        <div class="stat-card" style="border-top:3px solid #0284c7;">
-            <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;"><i class="bi bi-file-earmark-text-fill"></i></div>
-            <div class="stat-value">{{ contract_total_active }}</div>
-            <div class="stat-label">Active Contracts</div>
-        </div>
-    </a>
-    <a href="{% url 'contracts:list' %}?type=CDI" class="text-decoration-none">
-        <div class="stat-card" style="border-top:3px solid #16a34a;">
-            <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-infinity"></i></div>
-            <div class="stat-value">{{ contract_total_cdi }}</div>
-            <div class="stat-label">CDI (Permanent)</div>
-        </div>
-    </a>
-    <a href="{% url 'contracts:list' %}?type=CDD" class="text-decoration-none">
-        <div class="stat-card" style="border-top:3px solid #ca8a04;">
-            <div class="stat-icon" style="background:#fef9c3;color:#ca8a04;"><i class="bi bi-calendar-range"></i></div>
-            <div class="stat-value">{{ contract_total_cdd }}</div>
-            <div class="stat-label">CDD (Fixed Term)</div>
-        </div>
-    </a>
-    <div class="stat-card {% if contracts_expiring_30 %}animate-in{% endif %}" style="border-top:3px solid {% if contracts_expiring_30 %}#dc2626{% else %}#e5e7eb{% endif %};">
-        <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-alarm-fill"></i></div>
-        <div class="stat-value" style="color:{% if contracts_expiring_30 %}#dc2626{% endif %};">{{ contracts_expiring_30|length }}</div>
-        <div class="stat-label">Expiring ≤ 30 days</div>
+<div class="row g-3 mb-4 animate-in">
+    <div class="col-6 col-sm-4 col-lg-2">
+        <a href="{% url 'contracts:list' %}" class="text-decoration-none">
+            <div class="stat-card text-center" style="border-top:3px solid #0284c7;">
+                <div class="stat-icon mx-auto" style="background:#e0f2fe;color:#0284c7;"><i class="bi bi-file-earmark-text-fill"></i></div>
+                <div class="stat-value">{{ contract_total_active }}</div>
+                <div class="stat-label">Active Contracts</div>
+            </div>
+        </a>
     </div>
-    <div class="stat-card {% if contracts_expired_active %}animate-in{% endif %}" style="border-top:3px solid {% if contracts_expired_active %}#374151{% else %}#e5e7eb{% endif %};">
-        <div class="stat-icon" style="background:#f3f4f6;color:#374151;"><i class="bi bi-x-circle-fill"></i></div>
-        <div class="stat-value" style="color:{% if contracts_expired_active %}#dc2626{% endif %};">{{ contracts_expired_active|length }}</div>
-        <div class="stat-label">Expired (Active)</div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <a href="{% url 'contracts:list' %}?type=CDI" class="text-decoration-none">
+            <div class="stat-card text-center" style="border-top:3px solid #16a34a;">
+                <div class="stat-icon mx-auto" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-infinity"></i></div>
+                <div class="stat-value">{{ contract_total_cdi }}</div>
+                <div class="stat-label">CDI (Permanent)</div>
+            </div>
+        </a>
     </div>
-    <div class="stat-card" style="border-top:3px solid {% if contracts_near_retirement %}#d97706{% else %}#e5e7eb{% endif %};">
-        <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="bi bi-hourglass-split"></i></div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <a href="{% url 'contracts:list' %}?type=CDD" class="text-decoration-none">
+            <div class="stat-card text-center" style="border-top:3px solid #ca8a04;">
+                <div class="stat-icon mx-auto" style="background:#fef9c3;color:#ca8a04;"><i class="bi bi-calendar-range"></i></div>
+                <div class="stat-value">{{ contract_total_cdd }}</div>
+                <div class="stat-label">CDD (Fixed Term)</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center" style="border-top:3px solid {% if contracts_expiring_30 %}#dc2626{% else %}#e5e7eb{% endif %};">
+            <div class="stat-icon mx-auto" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-alarm-fill"></i></div>
+            <div class="stat-value" style="color:{% if contracts_expiring_30 %}#dc2626{% endif %};">{{ contracts_expiring_30|length }}</div>
+            <div class="stat-label">Expiring ≤ 30 days</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center" style="border-top:3px solid {% if contracts_expired_active %}#374151{% else %}#e5e7eb{% endif %};">
+            <div class="stat-icon mx-auto" style="background:#f3f4f6;color:#374151;"><i class="bi bi-x-circle-fill"></i></div>
+            <div class="stat-value" style="color:{% if contracts_expired_active %}#dc2626{% endif %};">{{ contracts_expired_active|length }}</div>
+            <div class="stat-label">Expired (Active)</div>
+        </div>
+    </div>
+    <div class="stat-card text-center col-6 col-sm-4 col-lg-2" style="border-top:3px solid {% if contracts_near_retirement %}#d97706{% else %}#e5e7eb{% endif %};">
+        <div class="stat-icon mx-auto" style="background:#fef3c7;color:#d97706;"><i class="bi bi-hourglass-split"></i></div>
         <div class="stat-value" style="color:{% if contracts_near_retirement %}#d97706{% endif %};">{{ contracts_near_retirement|length }}</div>
         <div class="stat-label">Near Retirement</div>
     </div>
-    {% if contract_avg_age %}
-    <div class="stat-card" style="border-top:3px solid #7c3aed;">
-        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-person-badge"></i></div>
-        <div class="stat-value">{{ contract_avg_age }}</div>
-        <div class="stat-label">Avg. Staff Age</div>
-    </div>
-    {% endif %}
 </div>
 
-<!-- Expired / Expiry Alerts + Near Retirement -->
+<!-- Contract Alerts + Near Retirement -->
 {% if contracts_expired_active or contracts_expiring_30 or contracts_expiring_60 or contracts_expiring_90 or contracts_near_retirement %}
 <div class="row g-4 mb-4 animate-in">
-
-    <!-- Expiry Alerts -->
     <div class="col-lg-7">
         <div class="card h-100" style="border:1.5px solid #fca5a5;">
             <div class="card-header" style="background:#fff8f8;border-color:#fca5a5;">
-                <span style="color:#b91c1c;font-weight:700;">
-                    <i class="bi bi-alarm-fill me-2"></i>Action Required — Expiring Contracts
-                </span>
+                <span style="color:#b91c1c;font-weight:700;"><i class="bi bi-alarm-fill me-2"></i>Action Required — Expiring Contracts</span>
             </div>
             <div class="card-body p-0" style="max-height:380px;overflow-y:auto;">
-
                 {% if contracts_expired_active %}
                 <div class="px-3 pt-3 pb-1">
                     <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#dc2626;margin-bottom:6px;">
@@ -103,9 +204,7 @@
                     {% for c in contracts_expired_active %}
                     <div class="d-flex align-items-center gap-2 py-2" style="border-bottom:1px solid #fef2f2;">
                         <div style="flex:1;min-width:0;">
-                            <a href="{% url 'contracts:detail' c.pk %}" class="fw-600 text-decoration-none" style="font-size:.85rem;color:#0d1b2a;">
-                                {{ c.employee.get_full_name }}
-                            </a>
+                            <a href="{% url 'contracts:detail' c.pk %}" class="fw-600 text-decoration-none" style="font-size:.85rem;color:#0d1b2a;">{{ c.employee.get_full_name }}</a>
                             <div style="font-size:.72rem;color:#9ab4c0;">{{ c.employee.department|default:"No dept" }} · {{ c.employee.employee_id }} · expired {{ c.end_date|date:"d M Y" }}</div>
                         </div>
                         <a href="{% url 'contracts:detail' c.pk %}" class="btn btn-sm btn-danger" style="white-space:nowrap;font-size:.75rem;">Renew Now</a>
@@ -113,7 +212,6 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-
                 {% if contracts_expiring_30 %}
                 <div class="px-3 pt-3 pb-1">
                     <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#dc2626;margin-bottom:6px;">
@@ -129,14 +227,11 @@
                             <a href="{% url 'contracts:detail' c.pk %}" class="fw-600 text-decoration-none" style="font-size:.85rem;color:#0d1b2a;">{{ c.employee.get_full_name }}</a>
                             <div style="font-size:.72rem;color:#9ab4c0;">{{ c.employee.department|default:"No dept" }} · ends {{ c.end_date|date:"d M Y" }}</div>
                         </div>
-                        <a href="{% url 'contracts:detail' c.pk %}" class="btn btn-sm btn-outline-danger" style="white-space:nowrap;font-size:.72rem;">
-                            <i class="bi bi-arrow-repeat me-1"></i>Renew
-                        </a>
+                        <a href="{% url 'contracts:detail' c.pk %}" class="btn btn-sm btn-outline-danger" style="white-space:nowrap;font-size:.72rem;"><i class="bi bi-arrow-repeat me-1"></i>Renew</a>
                     </div>
                     {% endfor %}
                 </div>
                 {% endif %}
-
                 {% if contracts_expiring_60 %}
                 <div class="px-3 pt-3 pb-1">
                     <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#d97706;margin-bottom:6px;">
@@ -157,7 +252,6 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-
                 {% if contracts_expiring_90 %}
                 <div class="px-3 pt-3 pb-2">
                     <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7a8d;margin-bottom:6px;">
@@ -174,7 +268,6 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-
                 {% if not contracts_expired_active and not contracts_expiring_30 and not contracts_expiring_60 and not contracts_expiring_90 %}
                 <div class="text-center py-5">
                     <i class="bi bi-check-circle-fill fs-2 d-block mb-2" style="color:#22c55e;"></i>
@@ -184,14 +277,10 @@
             </div>
         </div>
     </div>
-
-    <!-- Near Retirement -->
     <div class="col-lg-5">
         <div class="card h-100" style="border:1.5px solid #fcd34d;">
             <div class="card-header" style="background:#fffbeb;border-color:#fcd34d;">
-                <span style="color:#b45309;font-weight:700;">
-                    <i class="bi bi-hourglass-split me-2"></i>Approaching Retirement (age 60)
-                </span>
+                <span style="color:#b45309;font-weight:700;"><i class="bi bi-hourglass-split me-2"></i>Approaching Retirement (age 60)</span>
                 {% if contracts_near_retirement %}<span class="badge bg-warning text-dark ms-2">{{ contracts_near_retirement|length }}</span>{% endif %}
             </div>
             <div class="card-body p-0" style="max-height:380px;overflow-y:auto;">
@@ -203,9 +292,7 @@
                     </div>
                     <div style="flex:1;min-width:0;">
                         <a href="{% url 'accounts:employee_edit' emp.pk %}" class="fw-600 text-decoration-none d-block" style="font-size:.85rem;color:#0d1b2a;">{{ emp.get_full_name }}</a>
-                        <div style="font-size:.72rem;color:#9ab4c0;">
-                            {{ emp.department|default:"No dept" }} · {{ emp.employee_id }}
-                        </div>
+                        <div style="font-size:.72rem;color:#9ab4c0;">{{ emp.department|default:"No dept" }} · {{ emp.employee_id }}</div>
                         <div style="font-size:.72rem;margin-top:2px;">
                             {% with ytr=emp.years_to_retirement %}
                             {% if ytr == 0 %}
@@ -233,59 +320,8 @@
 </div>
 {% endif %}
 
-<!-- Years of Service -->
+<!-- Contract: Department Breakdown + Long Service -->
 <div class="row g-4 mb-4 animate-in">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#0284c7;"></i>Years of Service Breakdown</div>
-            <div class="card-body p-4">
-                <div class="row g-3">
-                {% for s in contract_service_dist %}
-                <div class="col-md-4">
-                    <div class="d-flex justify-content-between mb-1">
-                        <div style="font-size:.82rem;font-weight:600;">{{ s.label }}</div>
-                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ s.count }}</strong> &nbsp;<span style="font-size:.7rem;">{{ s.pct }}%</span></div>
-                    </div>
-                    <div class="progress" style="height:7px;background:#f0f4f8;">
-                        <div class="progress-bar" style="width:{{ s.pct }}%;background:#0284c7;border-radius:4px;"></div>
-                    </div>
-                </div>
-                {% endfor %}
-                {% if not contract_total_active %}<div class="col-12 text-center text-muted py-3" style="font-size:.85rem;">No active contracts yet.</div>{% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Age Distribution + Department Breakdown -->
-<div class="row g-4 mb-4 animate-in">
-    <div class="col-lg-5">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="bi bi-bar-chart-fill me-2" style="color:#d97706;"></i>
-                Age Distribution {% if contract_avg_age %}<small class="text-muted fw-normal ms-1">avg {{ contract_avg_age }} yrs</small>{% endif %}
-            </div>
-            <div class="card-body p-4">
-                {% for a in contract_age_dist %}
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <div style="font-size:.82rem;font-weight:600;">
-                            {{ a.label }}
-                            {% if a.danger %}<span class="badge bg-warning text-dark ms-1" style="font-size:.6rem;">At risk</span>{% endif %}
-                        </div>
-                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ a.count }}</strong> &nbsp;<span style="font-size:.7rem;">{{ a.pct }}%</span></div>
-                    </div>
-                    <div class="progress" style="height:7px;background:#f0f4f8;">
-                        <div class="progress-bar" style="width:{{ a.pct }}%;background:{% if a.danger %}#d97706{% else %}#0891b2{% endif %};border-radius:4px;"></div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="text-center text-muted py-3" style="font-size:.85rem;">No date-of-birth data yet. Add via employee profiles.</div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
     <div class="col-lg-7">
         <div class="card h-100">
             <div class="card-header"><i class="bi bi-building me-2" style="color:#059669;"></i>Contracts by Department</div>
@@ -312,28 +348,20 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- Long-Service + Recent Activity -->
-<div class="row g-4 mb-4 animate-in">
-    <div class="col-lg-6">
-        <div class="card">
+    <div class="col-lg-5">
+        <div class="card h-100">
             <div class="card-header"><i class="bi bi-trophy-fill me-2" style="color:#d97706;"></i>Longest-Serving Staff (CDI)</div>
             {% if contract_long_service %}
             <div class="list-group list-group-flush">
                 {% for c in contract_long_service %}
                 <a href="{% url 'contracts:detail' c.pk %}" class="list-group-item list-group-item-action px-4 py-2 text-decoration-none">
                     <div class="d-flex align-items-center gap-3">
-                        <div style="width:26px;text-align:center;font-size:.82rem;font-weight:800;color:{% if forloop.counter == 1 %}#d97706{% elif forloop.counter == 2 %}#6b7a8d{% elif forloop.counter == 3 %}#b45309{% else %}#c4d4de{% endif %};">
-                            #{{ forloop.counter }}
-                        </div>
+                        <div style="width:26px;text-align:center;font-size:.82rem;font-weight:800;color:{% if forloop.counter == 1 %}#d97706{% elif forloop.counter == 2 %}#6b7a8d{% elif forloop.counter == 3 %}#b45309{% else %}#c4d4de{% endif %};">#{{ forloop.counter }}</div>
                         <div style="flex:1;min-width:0;">
                             <div class="fw-600" style="font-size:.85rem;color:#0d1b2a;">{{ c.employee.get_full_name }}</div>
                             <div style="font-size:.72rem;color:#9ab4c0;">{{ c.employee.department|default:"No dept" }} · since {{ c.start_date|date:"Y" }}</div>
                         </div>
-                        <div class="text-end">
-                            <span class="badge bg-primary" style="font-size:.72rem;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</span>
-                        </div>
+                        <span class="badge bg-primary" style="font-size:.72rem;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</span>
                     </div>
                 </a>
                 {% endfor %}
@@ -343,13 +371,17 @@
             {% endif %}
         </div>
     </div>
-    <div class="col-lg-6">
+</div>
+
+<!-- Recent Contract Activity -->
+<div class="row g-4 mb-4 animate-in">
+    <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-activity me-2" style="color:#0284c7;"></i>Recent Contract Activity</span>
                 <a href="{% url 'contracts:list' %}" class="btn btn-sm btn-outline-primary">All Contracts</a>
             </div>
-            <div class="list-group list-group-flush" style="max-height:340px;overflow-y:auto;">
+            <div class="list-group list-group-flush" style="max-height:260px;overflow-y:auto;">
                 {% for c in contract_recent_activity %}
                 <a href="{% url 'contracts:detail' c.pk %}" class="list-group-item list-group-item-action px-3 py-2 text-decoration-none">
                     <div class="d-flex align-items-center gap-2">
@@ -380,215 +412,78 @@
     </div>
 </div>
 
-<!-- ── Dismissal Alert ── -->
-{% if dismissal_alert %}
-<div class="alert alert-danger mb-4" style="border-left:4px solid #dc3545;">
-    <div class="d-flex align-items-start gap-3">
-        <i class="bi bi-exclamation-octagon-fill fs-4 mt-1 text-danger flex-shrink-0"></i>
-        <div>
-            <strong>Action Required — Dismissal Notices</strong>
-            <p class="mb-2 mt-1" style="font-size:0.875rem;">The following employees have been dismissed and their accounts must be deactivated:</p>
-            <ul class="mb-0" style="font-size:0.875rem;">
-                {% for d in dismissal_alert %}
-                <li>
-                    <strong>{{ d.employee.get_full_name }}</strong> — {{ d.employee.employee_id }}
-                    <span class="text-muted">(dismissed {{ d.date_issued }})</span>
-                    <a href="/accounts/employees/{{ d.employee.pk }}/edit/" class="ms-2 text-danger fw-bold" style="font-size:0.8rem;">
-                        <i class="bi bi-person-x me-1"></i>Deactivate Account
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
+<!-- ══════════════════════ LEAVE APPROVALS ══════════════════════ -->
+<div class="section-label"><i class="bi bi-clipboard2-check me-1"></i> Leave Approvals Pipeline</div>
+<div class="row g-4 mb-4 animate-in delay-2">
+    <!-- HR Approvals -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clipboard2-check me-2" style="color:#088395;"></i>Awaiting HR Review
+                    <span class="badge bg-primary ms-2">{{ pending_hr }}</span>
+                </span>
+                <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Employee</th><th>Leave Type</th><th>Days</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for req in pending_hr_requests %}
+                        <tr>
+                            <td>
+                                <div style="font-weight:600;font-size:0.85rem;">{{ req.employee.get_full_name }}</div>
+                                <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.department|default:"—" }}</div>
+                            </td>
+                            <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                            <td><strong>{{ req.total_days }}d</strong></td>
+                            <td><a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-primary">Review</a></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i>All clear
+                        </td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-{% endif %}
-
-<!-- ── System Overview ── -->
-<div class="section-label"><i class="bi bi-speedometer2 me-1"></i> System Overview</div>
-<div class="metric-row mb-4 animate-in">
-    <div class="stat-card">
-        <div class="stat-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
-        <div class="stat-value">{{ total_employees }}</div>
-        <div class="stat-label">Active Employees</div>
-        <a href="{% url 'accounts:employee_list' %}" class="btn btn-sm btn-outline-primary mt-3 w-100">Manage</a>
-    </div>
-    <div class="stat-card delay-1">
-        <div class="stat-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-building"></i></div>
-        <div class="stat-value">{{ total_departments }}</div>
-        <div class="stat-label">Departments</div>
-        <a href="{% url 'accounts:department_list' %}" class="btn btn-sm btn-outline-success mt-3 w-100">Manage</a>
-    </div>
-    <div class="stat-card delay-1">
-        <div class="stat-icon" style="background:#fff8e1;color:#f57f17;"><i class="bi bi-hourglass-split"></i></div>
-        <div class="stat-value">{{ pending_manager }}</div>
-        <div class="stat-label">Awaiting Manager</div>
-    </div>
-    <div class="stat-card delay-2">
-        <div class="stat-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-clipboard2-check-fill"></i></div>
-        <div class="stat-value">{{ pending_hr }}</div>
-        <div class="stat-label">Awaiting HR</div>
-    </div>
-    <div class="stat-card delay-2">
-        <div class="stat-icon" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
-        <div class="stat-value">{{ pending_director }}</div>
-        <div class="stat-label">Awaiting Director</div>
-    </div>
-    <div class="stat-card delay-3">
-        <div class="stat-icon" style="background:#e0f7fa;color:#088395;"><i class="bi bi-check2-all"></i></div>
-        <div class="stat-value">{{ approved_year }}</div>
-        <div class="stat-label">Approved This Year</div>
-    </div>
-    <div class="stat-card delay-4">
-        <div class="stat-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
-        <div class="stat-value">{{ rejected_year }}</div>
-        <div class="stat-label">Rejected This Year</div>
-    </div>
-</div>
-
-<!-- ── Discipline Overview ── -->
-<div class="section-label"><i class="bi bi-shield-exclamation me-1"></i> Discipline Overview</div>
-<div class="row g-3 mb-4 animate-in delay-1">
-    <div class="col-sm-4">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #f59e0b;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#fff8e1;color:#d97706;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#d97706;">{{ discipline_warned }}</div>
-                        <div class="stat-label">Employees Warned</div>
-                    </div>
-                </div>
+    <!-- Director Approvals -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-shield-check me-2" style="color:#0A4D68;"></i>Awaiting Director Approval
+                    <span class="badge bg-primary ms-2">{{ pending_director }}</span>
+                </span>
+                <a href="{% url 'leaves:director_approvals' %}" class="btn btn-sm btn-primary">View All</a>
             </div>
-        </a>
-    </div>
-    <div class="col-sm-4">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #374151;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#f3f4f6;color:#374151;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-person-slash"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#374151;">{{ discipline_suspended }}</div>
-                        <div class="stat-label">Suspended / Upcoming</div>
-                    </div>
-                </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Employee</th><th>Leave Type</th><th>Days</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for req in awaiting_director %}
+                        <tr>
+                            <td>
+                                <div style="font-weight:600;font-size:0.85rem;">{{ req.employee.get_full_name }}</div>
+                                <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.department|default:"—" }}</div>
+                            </td>
+                            <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                            <td><strong>{{ req.total_days }}d</strong></td>
+                            <td><a href="{% url 'leaves:director_action' req.pk %}" class="btn btn-sm btn-primary">Decide</a></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i>All clear
+                        </td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </a>
-    </div>
-    <div class="col-sm-4">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #dc2626;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#fce4ec;color:#dc2626;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-person-x-fill"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#dc2626;">{{ discipline_dismissed }}</div>
-                        <div class="stat-label">Dismissals</div>
-                    </div>
-                </div>
-            </div>
-        </a>
-    </div>
-</div>
-
-<!-- ── Pending HR Approvals ── -->
-<div class="section-label"><i class="bi bi-clipboard2-check me-1"></i> Pending HR Approvals</div>
-<div class="card mb-4 animate-in delay-2">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-clipboard2-check me-2" style="color:#088395;"></i>Awaiting HR Review
-            <span class="badge bg-primary ms-2">{{ pending_hr }}</span>
-        </span>
-        <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm btn-primary">View All</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th>Employee</th>
-                    <th>Department</th>
-                    <th>Leave Type</th>
-                    <th>Period</th>
-                    <th>Days</th>
-                    <th>Manager</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for req in pending_hr_requests %}
-                <tr>
-                    <td>
-                        <div style="font-weight:600;font-size:0.875rem;">{{ req.employee.get_full_name }}</div>
-                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.employee_id }}</div>
-                    </td>
-                    <td style="font-size:0.82rem;">{{ req.employee.department|default:"—" }}</td>
-                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
-                    <td style="font-size:0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
-                    <td><strong>{{ req.total_days }}d</strong></td>
-                    <td style="font-size:0.78rem;color:#6b7a8d;">
-                        {% if req.manager_action_by %}{{ req.manager_action_by.get_full_name }}{% else %}—{% endif %}
-                    </td>
-                    <td><a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-primary">Review</a></td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="7" class="text-center text-muted py-4">
-                    <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>No pending HR approvals
-                </td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- ── Awaiting Director ── -->
-<div class="section-label"><i class="bi bi-shield-check me-1"></i> Awaiting Director Approval</div>
-<div class="card mb-4 animate-in delay-2">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-shield-check me-2" style="color:#0A4D68;"></i>Pending Final Approval
-            <span class="badge bg-primary ms-2">{{ pending_director }}</span>
-        </span>
-        <a href="{% url 'leaves:director_approvals' %}" class="btn btn-sm btn-primary">View All</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th>Employee</th>
-                    <th>Department</th>
-                    <th>Leave Type</th>
-                    <th>Period</th>
-                    <th>Days</th>
-                    <th>HR Approved By</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for req in awaiting_director %}
-                <tr>
-                    <td>
-                        <div style="font-weight:600;font-size:0.875rem;">{{ req.employee.get_full_name }}</div>
-                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.employee_id }}</div>
-                    </td>
-                    <td style="font-size:0.82rem;">{{ req.employee.department|default:"—" }}</td>
-                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
-                    <td style="font-size:0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
-                    <td><strong>{{ req.total_days }}d</strong></td>
-                    <td style="font-size:0.78rem;color:#6b7a8d;">
-                        {% if req.hr_action_by %}{{ req.hr_action_by.get_full_name }}{% else %}—{% endif %}
-                    </td>
-                    <td><a href="{% url 'leaves:director_action' req.pk %}" class="btn btn-sm btn-primary">Decide</a></td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="7" class="text-center text-muted py-4">
-                    <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>No requests awaiting director approval
-                </td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        </div>
     </div>
 </div>
 
@@ -597,8 +492,9 @@
 <div class="row g-4 mb-4 animate-in delay-3">
     <div class="col-lg-8">
         <div class="card h-100">
-            <div class="card-header">
-                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Leave Approvals — {{ year }}
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Leave Approvals — {{ year }}</span>
+                <span class="badge" style="background:#e0f2fe;color:#0284c7;">{{ approved_year }} total</span>
             </div>
             <div class="card-body p-4">
                 <canvas id="monthlyChart" height="100"></canvas>
@@ -607,14 +503,14 @@
     </div>
     <div class="col-lg-4">
         <div class="card h-100">
-            <div class="card-header">
-                <span class="pending-pulse"></span>On Leave Today
-                <span class="badge bg-danger ms-2">{{ on_leave_now|length }}</span>
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><span class="pending-pulse"></span>On Leave Today</span>
+                <span class="badge bg-danger">{{ on_leave_now|length }}</span>
             </div>
             <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
                 {% for req in on_leave_now %}
                 <div class="d-flex align-items-center gap-2 py-2 border-bottom">
-                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ req.employee.user.first_name|first|upper }}
                     </div>
                     <div>
@@ -663,13 +559,13 @@
     <div class="col-lg-6">
         <div class="card h-100">
             <div class="card-header" style="color:#e53e3e;">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>Low Leave Balance (≤3 days)
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Low Leave Balance (≤ 3 days)
             </div>
             <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
                 {% if low_balance %}
                 {% for b in low_balance %}
                 <div class="d-flex align-items-center gap-2 py-2 border-bottom">
-                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#e53e3e,#c62828);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#e53e3e,#c62828);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ b.employee.user.first_name|first|upper }}
                     </div>
                     <div class="flex-grow-1">
@@ -690,12 +586,13 @@
     </div>
 </div>
 
-<!-- ── Staff & System ── -->
-<div class="section-label"><i class="bi bi-people me-1"></i> Staff & System</div>
+<!-- ── Staff & Organization ── -->
+<div class="section-label"><i class="bi bi-people me-1"></i> Staff & Organization</div>
 <div class="row g-4 animate-in delay-4">
 
+    <!-- Quick Actions -->
     <div class="col-lg-3">
-        <div class="card mb-4">
+        <div class="card mb-3">
             <div class="card-header"><i class="bi bi-lightning-charge me-2" style="color:#0891a8;"></i>Quick Actions</div>
             <div class="card-body p-3">
                 <a href="{% url 'accounts:employee_create' %}" class="btn btn-primary w-100 mb-2">
@@ -731,6 +628,7 @@
         </div>
     </div>
 
+    <!-- Departments -->
     <div class="col-lg-3">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -753,19 +651,20 @@
         </div>
     </div>
 
+    <!-- Recently Added -->
     <div class="col-lg-3">
-        <div class="card mb-4">
+        <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-person-check me-2"></i>Recently Added</span>
                 <a href="{% url 'accounts:employee_list' %}" class="btn btn-sm btn-outline-primary">All</a>
             </div>
-            <div class="card-body p-3" style="max-height:220px;overflow-y:auto;">
+            <div class="card-body p-3" style="max-height:260px;overflow-y:auto;">
                 {% for emp in recent_employees %}
                 <div class="d-flex align-items-center gap-2 py-2 border-bottom">
                     <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#05BFDB,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ emp.user.first_name|first|upper }}
                     </div>
-                    <div class="flex-grow-1 min-w-0">
+                    <div class="flex-grow-1" style="min-width:0;">
                         <div style="font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ emp.user.get_full_name }}</div>
                         <div style="font-size:0.7rem;color:#6b7a8d;">{{ emp.department|default:"No dept" }} · {{ emp.get_role_display }}</div>
                     </div>
@@ -777,6 +676,7 @@
         </div>
     </div>
 
+    <!-- Recent System Activity -->
     <div class="col-lg-3">
         <div class="card">
             <div class="card-header"><i class="bi bi-activity me-2"></i>Recent System Activity</div>
@@ -787,7 +687,7 @@
                     <div style="width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;{% if log.action_flag == 1 %}background:#e8f5e9;color:#2e7d32;{% elif log.action_flag == 3 %}background:#fce4ec;color:#c62828;{% else %}background:#fff8e1;color:#f57f17;{% endif %}">
                         <i class="bi bi-{% if log.action_flag == 1 %}plus{% elif log.action_flag == 3 %}trash{% else %}pencil{% endif %}"></i>
                     </div>
-                    <div class="flex-grow-1 min-w-0">
+                    <div class="flex-grow-1" style="min-width:0;">
                         <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ log.get_change_message|truncatechars:50 }}</div>
                         <div style="color:#6b7a8d;font-size:0.7rem;">{{ log.user.username }} · {{ log.action_time|date:"M d, H:i" }}</div>
                     </div>

@@ -237,16 +237,47 @@
                 </p>
                 <div class="row g-4">
 
+                    <!-- Year-End Reset -->
+                    <div class="col-lg-4">
+                        <div style="border:1px solid #fde68a;border-radius:12px;padding:20px;background:#fffdf0;height:100%;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-calendar-check-fill fs-5" style="color:#92400e;"></i>
+                                <strong style="color:#92400e;">Year-End Reset</strong>
+                            </div>
+                            <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
+                                Clears all <strong>leave requests</strong> and <strong>leave balances</strong> only.<br>
+                                Use this at the start of a new leave year so every employee begins fresh.<br>
+                                <span style="color:#059669;font-weight:600;">Keeps:</span>
+                                staff, contracts, discipline records, notifications, departments, leave types.
+                            </p>
+                            <form method="post" action="{% url 'dashboard:factory_reset_yearend' %}"
+                                  onsubmit="return validateReset(this, 'NEW YEAR RESET');">
+                                {% csrf_token %}
+                                <label class="form-label" style="font-size:.8rem;font-weight:600;">
+                                    Type <code>NEW YEAR RESET</code> to confirm
+                                </label>
+                                <input type="text" name="confirm_text" class="form-control mb-3"
+                                       placeholder="NEW YEAR RESET" autocomplete="off"
+                                       style="font-size:.85rem;border-color:#fde68a;">
+                                <button type="submit" class="btn w-100"
+                                        style="background:#92400e;color:white;border:none;font-size:.85rem;">
+                                    <i class="bi bi-calendar-check me-1"></i>Year-End Reset
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
                     <!-- Soft Reset -->
-                    <div class="col-lg-6">
-                        <div style="border:1px solid #fca5a5;border-radius:12px;padding:20px;background:#fff8f8;">
+                    <div class="col-lg-4">
+                        <div style="border:1px solid #fca5a5;border-radius:12px;padding:20px;background:#fff8f8;height:100%;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="bi bi-eraser-fill fs-5" style="color:#b91c1c;"></i>
-                                <strong style="color:#b91c1c;">Soft Reset — Clear Leave Data</strong>
+                                <strong style="color:#b91c1c;">Soft Reset — Clear All Activity</strong>
                             </div>
                             <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
                                 Deletes all <strong>leave requests</strong>, <strong>leave balances</strong>,
-                                <strong>discipline records</strong>, and <strong>all contract data</strong> (contracts &amp; notifications).<br>
+                                <strong>discipline records</strong>, <strong>contracts</strong>, and <strong>notifications</strong>.<br>
+                                Use this before going live after testing, or for a full activity wipe.<br>
                                 <span style="color:#059669;font-weight:600;">Keeps:</span>
                                 all user accounts, employee profiles, departments, and leave types.
                             </p>
@@ -260,15 +291,15 @@
                                        placeholder="RESET LEAVE DATA" autocomplete="off"
                                        style="font-size:.85rem;border-color:#fca5a5;">
                                 <button type="submit" class="btn btn-danger w-100" style="font-size:.85rem;">
-                                    <i class="bi bi-eraser me-1"></i>Clear All Leave Data
+                                    <i class="bi bi-eraser me-1"></i>Clear All Activity Data
                                 </button>
                             </form>
                         </div>
                     </div>
 
                     <!-- Full Factory Reset -->
-                    <div class="col-lg-6">
-                        <div style="border:2px solid #dc2626;border-radius:12px;padding:20px;background:#fff1f2;">
+                    <div class="col-lg-4">
+                        <div style="border:2px solid #dc2626;border-radius:12px;padding:20px;background:#fff1f2;height:100%;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="bi bi-fire fs-5" style="color:#7f1d1d;"></i>
                                 <strong style="color:#7f1d1d;">Full Factory Reset</strong>

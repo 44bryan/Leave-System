@@ -1,175 +1,188 @@
 {% extends 'base.html' %}
-{% load i18n %}
-{% block title %}{% trans "HR Dashboard" %} — LeaveDesk{% endblock %}
-{% block page_title %}{% trans "HR Dashboard" %}{% endblock %}
+{% block title %}HR Dashboard — LeaveDesk{% endblock %}
+{% block page_title %}HR Dashboard{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'dashboard:tracker' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-table me-1"></i> {% trans "Leave Tracker" %}
+    <i class="bi bi-table me-1"></i> Leave Tracker
 </a>
 <a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-shield-exclamation me-1"></i> {% trans "Issue Notice" %}
+    <i class="bi bi-shield-exclamation me-1"></i> Issue Notice
 </a>
-<a href="{% url 'leaves:hr_approvals' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-clipboard2-check me-1"></i> {% trans "HR Approvals" %}
+<a href="{% url 'leaves:hr_approvals' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-clipboard2-check me-1"></i> HR Approvals
+    {% if pending_hr > 0 %}<span class="badge bg-warning text-dark ms-1">{{ pending_hr }}</span>{% endif %}
 </a>
 {% endblock %}
 
 {% block content %}
 
+<!-- ── Birthday Banners ── -->
 {% if today_birthdays %}
-<!-- ── Today's Birthdays Banner ── -->
-<div class="p-3 rounded-3 text-white mb-4 animate-in"
-     style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-    <span style="font-size:2rem;line-height:1;">🎂</span>
+<div class="p-3 rounded-3 text-white mb-4 animate-in" style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <span style="font-size:2rem;">🎂</span>
     <div style="flex:1;">
         <div style="font-size:0.9rem;font-weight:800;">Birthday{% if today_birthdays|length > 1 %}s{% endif %} Today!</div>
         <div style="font-size:0.82rem;opacity:0.92;">
-            {% for e in today_birthdays %}
-                <strong>{{ e.get_full_name }}</strong>{% if e.department %} ({{ e.department }}){% endif %}{% if not forloop.last %}, {% endif %}
-            {% endfor %}
+            {% for e in today_birthdays %}<strong>{{ e.get_full_name }}</strong>{% if e.department %} ({{ e.department }}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}
         </div>
     </div>
-    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm"
-       style="background:rgba(255,255,255,0.22);color:#fff;border:1px solid rgba(255,255,255,0.4);font-size:0.78rem;">
-        <i class="bi bi-cake2 me-1"></i>Birthday Calendar
-    </a>
+    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm" style="background:rgba(255,255,255,0.22);color:#fff;border:1px solid rgba(255,255,255,0.4);font-size:0.78rem;"><i class="bi bi-cake2 me-1"></i>Birthday Calendar</a>
 </div>
 {% elif this_month_birthdays %}
-<!-- ── Upcoming birthdays this month (no birthday today) ── -->
-<div class="p-3 rounded-3 mb-4 animate-in"
-     style="background:#fffbeb;border:1.5px solid #fcd34d;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-    <span style="font-size:1.6rem;line-height:1;">🎁</span>
+<div class="p-3 rounded-3 mb-4 animate-in" style="background:#fffbeb;border:1.5px solid #fcd34d;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <span style="font-size:1.6rem;">🎁</span>
     <div style="flex:1;">
-        <div style="font-size:0.82rem;font-weight:700;color:#92400e;">
-            Upcoming Birthdays This Month — {{ this_month_birthdays|length }} staff
-        </div>
+        <div style="font-size:0.82rem;font-weight:700;color:#92400e;">Upcoming Birthdays This Month — {{ this_month_birthdays|length }} staff</div>
         <div style="font-size:0.78rem;color:#78350f;">
-            {% for e in this_month_birthdays|slice:":5" %}
-                {{ e.user.first_name }} {{ e.user.last_name|slice:":1" }}. ({{ e.date_of_birth|date:"d" }}){% if not forloop.last %}, {% endif %}
-            {% endfor %}
+            {% for e in this_month_birthdays|slice:":5" %}{{ e.user.first_name }} {{ e.user.last_name|slice:":1" }}. ({{ e.date_of_birth|date:"d" }}){% if not forloop.last %}, {% endif %}{% endfor %}
             {% if this_month_birthdays|length > 5 %} +{{ this_month_birthdays|length|add:"-5" }} more{% endif %}
         </div>
     </div>
-    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm"
-       style="background:#f59e0b;color:#fff;border:none;font-size:0.78rem;font-weight:600;">
-        <i class="bi bi-cake2 me-1"></i>View All
-    </a>
+    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none;font-size:0.78rem;font-weight:600;"><i class="bi bi-cake2 me-1"></i>View All</a>
 </div>
 {% endif %}
 
-<!-- ── Leave Overview ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-calendar-check me-1"></i> {% trans "Leave Overview" %}
-</div>
-<div class="metric-row mb-4 animate-in">
-    <div class="stat-card">
-        <div class="stat-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
-        <div class="stat-value">{{ total_employees }}</div>
-        <div class="stat-label">{% trans "Active Employees" %}</div>
+<!-- ── Summary ── -->
+<div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> Summary</div>
+<div class="row g-3 mb-3 animate-in">
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-value">{{ total_employees }}</div>
+            <div class="stat-label">Active Staff</div>
+        </div>
     </div>
-    <div class="stat-card delay-1">
-        <div class="stat-icon" style="background:#fff8e1;color:#f57f17;"><i class="bi bi-hourglass-split"></i></div>
-        <div class="stat-value">{{ pending_manager }}</div>
-        <div class="stat-label">{% trans "Awaiting Manager" %}</div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#fff8e1;color:#f57f17;"><i class="bi bi-hourglass-split"></i></div>
+            <div class="stat-value">{{ pending_manager }}</div>
+            <div class="stat-label">Awaiting Manager</div>
+        </div>
     </div>
-    <div class="stat-card delay-2">
-        <div class="stat-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-clipboard2-check-fill"></i></div>
-        <div class="stat-value">{{ pending_hr }}</div>
-        <div class="stat-label">{% trans "Awaiting HR Approval" %}</div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center" style="border-top:3px solid #0891b2;">
+            <div class="stat-icon mx-auto" style="background:#e0f7fa;color:#0891b2;"><i class="bi bi-clipboard2-check-fill"></i></div>
+            <div class="stat-value" style="color:#0891b2;">{{ pending_hr }}</div>
+            <div class="stat-label">Awaiting HR</div>
+        </div>
     </div>
-    <div class="stat-card delay-2">
-        <div class="stat-icon" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
-        <div class="stat-value">{{ pending_director }}</div>
-        <div class="stat-label">{% trans "Awaiting Director" %}</div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
+            <div class="stat-value">{{ pending_director }}</div>
+            <div class="stat-label">Awaiting Director</div>
+        </div>
     </div>
-    <div class="stat-card delay-3">
-        <div class="stat-icon" style="background:#e0f7fa;color:#088395;"><i class="bi bi-check2-all"></i></div>
-        <div class="stat-value">{{ approved_year }}</div>
-        <div class="stat-label">{% trans "Approved This Year" %}</div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-check2-all"></i></div>
+            <div class="stat-value">{{ approved_year }}</div>
+            <div class="stat-label">Approved {{ year }}</div>
+        </div>
     </div>
-    <div class="stat-card delay-4">
-        <div class="stat-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
-        <div class="stat-value">{{ rejected_year }}</div>
-        <div class="stat-label">{% trans "Rejected This Year" %}</div>
+    <div class="col-6 col-sm-4 col-lg-2">
+        <div class="stat-card text-center">
+            <div class="stat-icon mx-auto" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
+            <div class="stat-value">{{ rejected_year }}</div>
+            <div class="stat-label">Rejected {{ year }}</div>
+        </div>
     </div>
 </div>
 
-<!-- ── Discipline Overview ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-shield-exclamation me-1"></i> {% trans "Discipline Overview" %}
-</div>
+<!-- Discipline — compact inline row -->
 <div class="row g-3 mb-4 animate-in delay-1">
     <div class="col-sm-4">
         <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #f59e0b;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#fff8e1;color:#d97706;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#d97706;">{{ discipline_warned }}</div>
-                        <div class="stat-label">{% trans "Employees Warned" %}</div>
-                    </div>
+            <div class="card p-3 d-flex flex-row align-items-center gap-3" style="border-left:3px solid #f59e0b;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#fff8e1;color:#d97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                    <div style="font-size:1.3rem;font-weight:800;color:#d97706;line-height:1;">{{ discipline_warned }}</div>
+                    <div style="font-size:0.72rem;color:#6b7a8d;">Employees Warned</div>
                 </div>
             </div>
         </a>
     </div>
     <div class="col-sm-4">
         <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #374151;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#f3f4f6;color:#374151;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-person-slash"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#374151;">{{ discipline_suspended }}</div>
-                        <div class="stat-label">{% trans "Suspended / Upcoming" %}</div>
-                    </div>
+            <div class="card p-3 d-flex flex-row align-items-center gap-3" style="border-left:3px solid #374151;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#f3f4f6;color:#374151;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-person-slash"></i>
+                </div>
+                <div>
+                    <div style="font-size:1.3rem;font-weight:800;color:#374151;line-height:1;">{{ discipline_suspended }}</div>
+                    <div style="font-size:0.72rem;color:#6b7a8d;">Suspensions</div>
                 </div>
             </div>
         </a>
     </div>
     <div class="col-sm-4">
         <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card" style="border-top:3px solid #dc2626;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon mb-0" style="background:#fce4ec;color:#dc2626;width:44px;height:44px;border-radius:12px;flex-shrink:0;">
-                        <i class="bi bi-person-x-fill"></i>
-                    </div>
-                    <div>
-                        <div class="stat-value" style="color:#dc2626;">{{ discipline_dismissed }}</div>
-                        <div class="stat-label">{% trans "Dismissals" %}</div>
-                    </div>
+            <div class="card p-3 d-flex flex-row align-items-center gap-3" style="border-left:3px solid #dc2626;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#fce4ec;color:#dc2626;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-person-x-fill"></i>
+                </div>
+                <div>
+                    <div style="font-size:1.3rem;font-weight:800;color:#dc2626;line-height:1;">{{ discipline_dismissed }}</div>
+                    <div style="font-size:0.72rem;color:#6b7a8d;">Dismissals</div>
                 </div>
             </div>
         </a>
+    </div>
+</div>
+
+<!-- ── Approval Pipeline ── -->
+<div class="section-label"><i class="bi bi-diagram-3 me-1"></i> Approval Pipeline</div>
+<div class="row g-3 mb-4 animate-in delay-1">
+    <div class="col-md-4">
+        <div class="card p-3 h-100" style="border-left:4px solid #f57f17;">
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;font-weight:700;">Step 1 — Manager Review</div>
+            <div style="font-size:2.2rem;font-weight:800;color:#f57f17;line-height:1.2;margin:6px 0;">{{ pending_manager }}</div>
+            <div style="font-size:0.78rem;color:#6b7a8d;">requests awaiting manager</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 h-100" style="border-left:4px solid #0891b2;{% if pending_hr > 0 %}background:#f0fdff;{% endif %}">
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;font-weight:700;">Step 2 — HR Review</div>
+            <div style="font-size:2.2rem;font-weight:800;color:#0891b2;line-height:1.2;margin:6px 0;">{{ pending_hr }}</div>
+            <div style="font-size:0.78rem;color:#6b7a8d;">awaiting your review</div>
+            {% if pending_hr > 0 %}
+            <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm btn-primary mt-2">Review Now <i class="bi bi-arrow-right ms-1"></i></a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 h-100" style="border-left:4px solid #7c3aed;">
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;font-weight:700;">Step 3 — Director Approval</div>
+            <div style="font-size:2.2rem;font-weight:800;color:#7c3aed;line-height:1.2;margin:6px 0;">{{ pending_director }}</div>
+            <div style="font-size:0.78rem;color:#6b7a8d;">awaiting final approval</div>
+        </div>
     </div>
 </div>
 
 <!-- ── Action Required ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-clipboard2-check me-1"></i> {% trans "Action Required" %}
-</div>
+<div class="section-label"><i class="bi bi-clipboard2-check me-1"></i> Action Required</div>
 <div class="card mb-4 animate-in delay-2">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-clipboard2-check me-2" style="color:#088395;"></i>{% trans "Pending HR Approvals" %}
+        <span><i class="bi bi-clipboard2-check me-2" style="color:#088395;"></i>Pending HR Approvals
             <span class="badge bg-primary ms-2">{{ pending_hr }}</span>
         </span>
-        <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm btn-primary">{% trans "View All" %}</a>
+        <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm btn-primary">View All</a>
     </div>
     <div class="table-responsive">
         <table class="table mb-0">
             <thead>
                 <tr>
-                    <th>{% trans "Employee" %}</th>
-                    <th>{% trans "Department" %}</th>
-                    <th>{% trans "Leave Type" %}</th>
-                    <th>{% trans "Period" %}</th>
-                    <th>{% trans "Days" %}</th>
-                    <th>{% trans "Manager" %}</th>
-                    <th>{% trans "Action" %}</th>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Leave Type</th>
+                    <th>Period</th>
+                    <th>Days</th>
+                    <th>Manager</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -188,7 +201,7 @@
                     </td>
                     <td>
                         <a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-check2-circle me-1"></i>{% trans "Review" %}
+                            <i class="bi bi-check2-circle me-1"></i>Review
                         </a>
                     </td>
                 </tr>
@@ -196,7 +209,7 @@
                 <tr>
                     <td colspan="7" class="text-center text-muted py-4">
                         <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>
-                        {% trans "No pending HR approvals" %}
+                        No pending HR approvals — all clear!
                     </td>
                 </tr>
                 {% endfor %}
@@ -205,15 +218,14 @@
     </div>
 </div>
 
-<!-- ── Activity ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-activity me-1"></i> {% trans "Leave Activity" %}
-</div>
+<!-- ── Leave Activity ── -->
+<div class="section-label"><i class="bi bi-activity me-1"></i> Leave Activity</div>
 <div class="row g-4 mb-4">
     <div class="col-lg-8 animate-in delay-2">
         <div class="card h-100">
-            <div class="card-header">
-                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>{% trans "Monthly Leave Approvals" %} — {{ year }}
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Leave Approvals — {{ year }}</span>
+                <span class="badge" style="background:#e0f2fe;color:#0284c7;">{{ approved_year }} total</span>
             </div>
             <div class="card-body p-4">
                 <canvas id="monthlyChart" height="100"></canvas>
@@ -222,25 +234,25 @@
     </div>
     <div class="col-lg-4 animate-in delay-3">
         <div class="card h-100">
-            <div class="card-header">
-                <span class="pending-pulse"></span>{% trans "On Leave Today" %}
-                <span class="badge bg-danger ms-2">{{ on_leave_now|length }}</span>
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><span class="pending-pulse"></span>On Leave Today</span>
+                <span class="badge bg-danger">{{ on_leave_now|length }}</span>
             </div>
             <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
                 {% for req in on_leave_now %}
                 <div class="d-flex align-items-center gap-2 py-2 border-bottom">
-                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ req.employee.user.first_name|first|upper }}
                     </div>
                     <div class="flex-grow-1">
                         <div style="font-size:0.85rem;font-weight:600;">{{ req.employee.get_full_name }}</div>
-                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.leave_type }} · {% trans "Back" %} {{ req.end_date }}</div>
+                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.leave_type }} · Back {{ req.end_date }}</div>
                     </div>
                 </div>
                 {% empty %}
                 <div class="text-center py-4 text-muted">
                     <i class="bi bi-check-circle fs-2 d-block mb-2"></i>
-                    <small>{% trans "All staff are in today" %}</small>
+                    <small>All staff are in today</small>
                 </div>
                 {% endfor %}
             </div>
@@ -249,13 +261,11 @@
 </div>
 
 <!-- ── Analytics ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-graph-up me-1"></i> {% trans "Analytics" %}
-</div>
-<div class="row g-4 animate-in delay-3">
-    <div class="col-lg-6">
+<div class="section-label"><i class="bi bi-graph-up me-1"></i> Analytics</div>
+<div class="row g-4 mb-4">
+    <div class="col-lg-6 animate-in delay-3">
         <div class="card h-100">
-            <div class="card-header"><i class="bi bi-building me-2"></i>{% trans "Department Leave Activity" %}</div>
+            <div class="card-header"><i class="bi bi-building me-2"></i>Department Leave Activity</div>
             <div class="card-body p-3">
                 {% for dept in dept_stats %}
                 {% if dept.total_requests > 0 %}
@@ -272,21 +282,21 @@
                 </div>
                 {% endif %}
                 {% empty %}
-                <div class="text-center text-muted py-3"><small>{% trans "No department data yet" %}</small></div>
+                <div class="text-center text-muted py-3"><small>No department data yet</small></div>
                 {% endfor %}
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-6 animate-in delay-4">
         <div class="card h-100">
             <div class="card-header" style="color:#e53e3e;">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>{% trans "Low Leave Balance (≤3 days)" %}
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Low Leave Balance (≤ 3 days)
             </div>
             <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
                 {% if low_balance %}
                 {% for b in low_balance %}
                 <div class="d-flex align-items-center gap-2 py-2 border-bottom">
-                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#e53e3e,#c62828);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#e53e3e,#c62828);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ b.employee.user.first_name|first|upper }}
                     </div>
                     <div class="flex-grow-1">
@@ -299,7 +309,7 @@
                 {% else %}
                 <div class="text-center py-4 text-muted">
                     <i class="bi bi-emoji-smile fs-2 d-block mb-2"></i>
-                    <small>{% trans "All employees have healthy leave balances" %}</small>
+                    <small>All employees have healthy leave balances</small>
                 </div>
                 {% endif %}
             </div>
@@ -312,16 +322,9 @@
 {% endblock %}
 
 {% block extra_css %}
-.metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
-.pending-pulse {
-    display:inline-block; width:8px; height:8px;
-    background:#e53e3e; border-radius:50%;
-    animation:pulse 1.5s infinite; margin-right:6px;
-}
-@keyframes pulse {
-    0%,100%{opacity:1;transform:scale(1);}
-    50%{opacity:0.5;transform:scale(1.4);}
-}
+.section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
+.pending-pulse { display:inline-block;width:8px;height:8px;background:#e53e3e;border-radius:50%;animation:pulse 1.5s infinite;margin-right:6px; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.4);} }
 {% endblock %}
 
 {% block extra_js %}

@@ -1140,6 +1140,7 @@ def factory_reset_soft(request):
     from django.db import transaction
     from discipline.models import DisciplineRecord
     from contracts.models import Contract, ContractNotification
+    from notifications.models import Notification
 
     if request.method != 'POST':
         return redirect('dashboard:admin_settings')
@@ -1155,10 +1156,41 @@ def factory_reset_soft(request):
         DisciplineRecord.objects.all().delete()
         ContractNotification.objects.all().delete()
         Contract.objects.all().delete()
+        Notification.objects.all().delete()
 
     messages.success(
         request,
-        "Soft reset complete. All leave requests, balances, discipline records, and contracts have been cleared. "
+        "Soft reset complete. All leave requests, balances, discipline records, contracts, and notifications have been cleared. "
         "User accounts, employee profiles, departments, and leave types are intact."
+    )
+    return redirect('dashboard:admin_settings')
+
+
+@superuser_required_view
+def factory_reset_yearend(request):
+    """
+    Year-End Reset: clears only leave requests and leave balances.
+    Keeps all employee profiles, departments, leave types, contracts,
+    discipline records, and notifications intact.
+    """
+    from django.contrib import messages
+    from django.db import transaction
+
+    if request.method != 'POST':
+        return redirect('dashboard:admin_settings')
+
+    confirm = request.POST.get('confirm_text', '').strip()
+    if confirm != 'NEW YEAR RESET':
+        messages.error(request, "Confirmation text did not match. Reset cancelled.")
+        return redirect('dashboard:admin_settings')
+
+    with transaction.atomic():
+        LeaveRequest.objects.all().delete()
+        LeaveBalance.objects.all().delete()
+
+    messages.success(
+        request,
+        "Year-End reset complete. All leave requests and balances have been cleared. "
+        "Staff, contracts, discipline records, and notifications are untouched."
     )
     return redirect('dashboard:admin_settings')
