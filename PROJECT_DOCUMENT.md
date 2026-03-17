@@ -484,3 +484,28 @@ Then open: **http://127.0.0.1:8000**
   - "My Discipline Record" sidebar link hidden from interns (`{% if not user.employee.is_intern %}`)
   - Leave submission: interns bypass manager approval — leave auto-advances to `manager_approved` on submission, HR notified directly with "[Intern Leave Request]" label
   - Admins (CEO, Finance Director, Admin Director, System Admin, Superuser) can still see all intern data
+
+### 2026-03-17
+
+- **Intern registration fields** — `school_name` and `speciality` added to `Employee` model (migration `0010_add_intern_school_speciality`)
+  - Both `EmployeeCreateForm` and `EmployeeEditForm` include the new fields in `fields` list and `widgets` dict
+  - `employee_form.html`: new "Internship Details" section (`#intern-fields-section`) shown/hidden via JS when INTERN contract type OR intern role is selected
+
+- **Internship type** — `internship_type` field added to `Contract` model (migration `0004_add_internship_type`)
+  - Choices: Academic / Professional / Vocational / Observation / Other
+  - `issue_contract.html` now has all 4 contract type radios (CDD / CDI / INTERN / WACS) with tinted cards; internship_type dropdown appears only when INTERN is selected
+  - `contracts/views.py` `issue_contract` saves `internship_type` from POST when contract_type == 'INTERN'
+  - `my_contract.html` shows internship type, school, and speciality in the intern info card
+
+- **Auto-deactivate expired interns/WACS** — `_process_expired_interns()` in `dashboard/views.py`
+  - On every dashboard page load: finds active INTERN/WACS contracts with `end_date < today`, marks them `expired`, deactivates the user account (`is_active=False`)
+  - Same behavior as dismissed employees — account preserved, just deactivated; HR can still view stats
+
+- **French i18n** — full translation infrastructure enabled
+  - `USE_I18N = True`, `LocaleMiddleware` added to MIDDLEWARE (after SessionMiddleware)
+  - `LANGUAGES = [('en', 'English'), ('fr', 'Français')]`
+  - `LOCALE_PATHS = [BASE_DIR / 'locale']`
+  - `locale/fr/LC_MESSAGES/django.po` — comprehensive French translations for all key UI strings
+  - Language switcher (EN / FR buttons) added to settings dropdown in topbar
+  - `path('i18n/', include('django.conf.urls.i18n'))` added to `urls.py` for `set_language` endpoint
+  - **Note:** On Railway (Linux), `python manage.py compilemessages` runs automatically; locally requires GNU gettext (`msgfmt`) to be installed
