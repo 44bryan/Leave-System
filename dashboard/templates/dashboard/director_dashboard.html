@@ -49,27 +49,9 @@
     <div class="col-6 col-sm-4 col-lg">
         <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
             <div class="stat-card text-center" style="border-top:3px solid #f59e0b;">
-                <div class="stat-icon mx-auto" style="background:#fff8e1;color:#d97706;"><i class="bi bi-exclamation-triangle-fill"></i></div>
-                <div class="stat-value" style="color:#d97706;">{{ discipline_warned }}</div>
-                <div class="stat-label">Warned</div>
-            </div>
-        </a>
-    </div>
-    <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card text-center" style="border-top:3px solid #374151;">
-                <div class="stat-icon mx-auto" style="background:#f3f4f6;color:#374151;"><i class="bi bi-person-slash"></i></div>
-                <div class="stat-value" style="color:#374151;">{{ discipline_suspended }}</div>
-                <div class="stat-label">Suspended</div>
-            </div>
-        </a>
-    </div>
-    <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card text-center" style="border-top:3px solid #dc2626;">
-                <div class="stat-icon mx-auto" style="background:#fce4ec;color:#dc2626;"><i class="bi bi-person-x-fill"></i></div>
-                <div class="stat-value" style="color:#dc2626;">{{ discipline_dismissed }}</div>
-                <div class="stat-label">Dismissed</div>
+                <div class="stat-icon mx-auto" style="background:#fff8e1;color:#d97706;"><i class="bi bi-shield-exclamation"></i></div>
+                <div class="stat-value" style="color:#d97706;">{{ discipline_warned|add:discipline_suspended|add:discipline_dismissed }}</div>
+                <div class="stat-label">Discipline Cases</div>
             </div>
         </a>
     </div>
@@ -137,7 +119,6 @@
         <div class="card h-100">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Leave Approvals — {{ year }}</span>
-                <span class="badge" style="background:#e0f2fe;color:#0284c7;">{{ approved_year }} total</span>
             </div>
             <div class="card-body p-4">
                 <canvas id="monthlyChart" height="100"></canvas>
