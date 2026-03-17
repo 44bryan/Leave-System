@@ -25,6 +25,20 @@ def submit_leave(request):
         messages.error(request, "Employee profile not found.")
         return redirect('dashboard:home')
 
+    # Block suspended employees from applying for leave
+    from datetime import date as _date
+    from discipline.models import DisciplineRecord
+    today = _date.today()
+    active_suspension = DisciplineRecord.objects.filter(
+        employee=employee,
+        action_type='suspension',
+        suspension_start__lte=today,
+        suspension_end__gte=today,
+    ).first()
+    if active_suspension:
+        messages.error(request, f"You cannot apply for leave while suspended (until {active_suspension.suspension_end.strftime('%d %B %Y')}).")
+        return redirect('dashboard:home')
+
     # Get or create balance
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=date.today().year,
