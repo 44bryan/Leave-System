@@ -249,6 +249,7 @@ def issue_contract(request):
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date') or None
         notes = request.POST.get('notes', '')
+        internship_type = request.POST.get('internship_type', '') if contract_type == 'INTERN' else ''
 
         if not emp_id or not contract_type or not start_date:
             messages.error(request, "Employee, contract type, and start date are required.")
@@ -271,6 +272,7 @@ def issue_contract(request):
         contract = Contract.objects.create(
             employee=emp,
             contract_type=contract_type,
+            internship_type=internship_type,
             start_date=start_date,
             end_date=end_date,
             notes=notes,

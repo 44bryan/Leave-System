@@ -65,7 +65,7 @@ class EmployeeCreateForm(forms.ModelForm):
     )
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -80,6 +80,8 @@ class EmployeeCreateForm(forms.ModelForm):
             'nationality': forms.TextInput(attrs={'class': 'form-control'}),
             'contract_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. CTR-2024-001'}),
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'school_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. University of Yaoundé I'}),
+            'speciality': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Medicine, Nursing, Ophthalmology'}),
         }
 
     def clean_staff_category(self):
@@ -117,7 +119,7 @@ class EmployeeEditForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'is_active']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality', 'is_active']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -132,6 +134,8 @@ class EmployeeEditForm(forms.ModelForm):
             'nationality': forms.TextInput(attrs={'class': 'form-control'}),
             'contract_number': forms.TextInput(attrs={'class': 'form-control'}),
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'school_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. University of Yaoundé I'}),
+            'speciality': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Medicine, Nursing, Ophthalmology'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

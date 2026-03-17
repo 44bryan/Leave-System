@@ -955,6 +955,16 @@
                     <li><a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}"><i class="bi bi-sliders me-2" style="color:#0891a8;"></i>System Settings</a></li>
                     {% endif %}
                     <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <div class="px-3 py-2" style="font-size:.78rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.08em;">Language</div>
+                        <form action="{% url 'set_language' %}" method="post" class="px-3 pb-2 d-flex gap-2">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <button type="submit" name="language" value="en" class="btn btn-sm {% if LANGUAGE_CODE == 'en' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="font-size:.75rem;padding:2px 10px;">EN</button>
+                            <button type="submit" name="language" value="fr" class="btn btn-sm {% if LANGUAGE_CODE == 'fr' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="font-size:.75rem;padding:2px 10px;">FR</button>
+                        </form>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}" data-no-suspend><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}</a></li>
                 </ul>
             </div>

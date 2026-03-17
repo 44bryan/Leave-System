@@ -254,8 +254,29 @@ def admin_dashboard(request):
     })
 
 
+def _process_expired_interns():
+    """Deactivate intern/WACS accounts whose contract end_date has passed and contract is not renewed/extended."""
+    try:
+        from contracts.models import Contract as _Contract
+        expired_contracts = _Contract.objects.filter(
+            contract_type__in=['INTERN', 'WACS'],
+            status='active',
+            end_date__lt=date.today(),
+        ).select_related('employee', 'employee__user')
+        for contract in expired_contracts:
+            contract.status = 'expired'
+            contract.save(update_fields=['status'])
+            emp = contract.employee
+            if emp.user.is_active:
+                emp.user.is_active = False
+                emp.user.save(update_fields=['is_active'])
+    except Exception:
+        pass
+
+
 @login_required
 def home(request):
+    _process_expired_interns()
     # After a full factory reset the admin password is 'admin' — force change immediately
     if request.user.is_superuser and request.user.check_password('admin'):
         from django.contrib import messages

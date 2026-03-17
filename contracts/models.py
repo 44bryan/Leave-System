@@ -11,6 +11,13 @@ class Contract(models.Model):
         ('INTERN', 'Internship Contract'),
         ('WACS',   'WACS Residency / Trainee Programme'),
     ]
+    INTERNSHIP_TYPE_CHOICES = [
+        ('academic',     'Academic Internship'),
+        ('professional', 'Professional Internship'),
+        ('vocational',   'Vocational / Technical Internship'),
+        ('observation',  'Observation / Discovery Internship'),
+        ('other',        'Other'),
+    ]
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('expired', 'Expired'),
@@ -29,6 +36,10 @@ class Contract(models.Model):
         help_text="Required for CDD. Leave blank for CDI (permanent)."
     )
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='active')
+    internship_type = models.CharField(
+        max_length=20, choices=INTERNSHIP_TYPE_CHOICES, blank=True, default='',
+        help_text='Type of internship — only applicable for INTERN contracts'
+    )
     notes = models.TextField(blank=True)
 
     # Renewal chain — points to the contract this one replaced
@@ -56,15 +67,19 @@ class Contract(models.Model):
     # ── Computed properties ──────────────────────────────────────────────────
 
     @property
+    def _has_end_date(self):
+        return self.contract_type in ('CDD', 'INTERN', 'WACS') and self.end_date
+
+    @property
     def days_remaining(self):
-        if self.contract_type != 'CDD' or not self.end_date:
+        if not self._has_end_date:
             return None
         delta = (self.end_date - date.today()).days
         return max(0, delta)
 
     @property
     def months_remaining(self):
-        if self.contract_type != 'CDD' or not self.end_date:
+        if not self._has_end_date:
             return None
         today = date.today()
         if self.end_date <= today:
@@ -76,14 +91,14 @@ class Contract(models.Model):
 
     @property
     def is_expired(self):
-        if self.contract_type == 'CDD' and self.end_date:
+        if self._has_end_date:
             return self.end_date < date.today()
         return False
 
     @property
     def is_expiring_soon(self):
-        """True if CDD expires within 60 days."""
-        if self.contract_type != 'CDD' or not self.end_date:
+        """True if contract expires within 60 days."""
+        if not self._has_end_date:
             return False
         return 0 < self.days_remaining <= 60
 

@@ -133,6 +133,35 @@
                             {{ form.qualifications }}
                             <div class="form-text">Academic / professional qualifications</div>
                         </div>
+                    </div>
+
+                    <!-- Intern-specific fields (shown only for INTERN role/contract type) -->
+                    <div id="intern-fields-section" class="d-none">
+                        <hr class="my-3">
+                        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
+                            <i class="bi bi-mortarboard me-1"></i> Internship Details
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">School / University</label>
+                                {{ form.school_name }}
+                                <div class="form-text">Name of institution the intern is from</div>
+                                {% if form.school_name.errors %}
+                                <div class="text-danger" style="font-size:0.8rem;">{{ form.school_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Field of Study / Speciality</label>
+                                {{ form.speciality }}
+                                <div class="form-text">e.g. Medicine, Nursing, Ophthalmology</div>
+                                {% if form.speciality.errors %}
+                                <div class="text-danger" style="font-size:0.8rem;">{{ form.speciality.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
                         {% if employee %}
                         <div class="col-md-6">
                             <label class="form-label">{% trans "Active" %}</label>
@@ -234,32 +263,38 @@
 
 // Smart contract-type behaviour
 (function() {
-    const ctSelect     = document.getElementById('id_contract_type');
-    const roleSelect   = document.getElementById('id_role');
-    const endWrap      = document.getElementById('end-date-wrap');
-    const endInput     = document.getElementById('id_contract_end_date');
-    const internNotice = document.getElementById('intern-notice');
-    const optionalCols = document.querySelectorAll('.optional-field');
+    const ctSelect        = document.getElementById('id_contract_type');
+    const roleSelect      = document.getElementById('id_role');
+    const endWrap         = document.getElementById('end-date-wrap');
+    const endInput        = document.getElementById('id_contract_end_date');
+    const internNotice    = document.getElementById('intern-notice');
+    const internSection   = document.getElementById('intern-fields-section');
+    const optionalCols    = document.querySelectorAll('.optional-field');
 
-    if (!ctSelect) return;
+    if (!ctSelect && !roleSelect) return;
 
     // Auto-role mapping
     const ROLE_MAP = { INTERN: 'intern', WACS: 'wacs_resident' };
 
+    function isInternSelected() {
+        const ct   = ctSelect   ? ctSelect.value   : '';
+        const role = roleSelect ? roleSelect.value : '';
+        return ct === 'INTERN' || role === 'intern';
+    }
+
     function update() {
-        const ct = ctSelect.value;
+        const ct       = ctSelect   ? ctSelect.value   : '';
         const needsEnd = ['CDD','INTERN','WACS'].includes(ct);
-        const isIntern = ct === 'INTERN';
+        const isIntern = isInternSelected();
 
         // End date: required/visible for fixed-term contracts
         if (endWrap)  endWrap.style.opacity = needsEnd ? '1' : '0.45';
         if (endInput) endInput.required = needsEnd;
 
-        // Auto-set role
-        if (roleSelect && ROLE_MAP[ct]) {
+        // Auto-set role when contract type changes
+        if (ctSelect && roleSelect && ROLE_MAP[ct]) {
             roleSelect.value = ROLE_MAP[ct];
-        } else if (roleSelect && !ROLE_MAP[ct] && (roleSelect.value === 'intern' || roleSelect.value === 'wacs_resident')) {
-            // If user switched away from INTERN/WACS, reset role to employee
+        } else if (ctSelect && roleSelect && !ROLE_MAP[ct] && (roleSelect.value === 'intern' || roleSelect.value === 'wacs_resident')) {
             roleSelect.value = 'employee';
         }
 
@@ -278,9 +313,15 @@
                 }
             });
         });
+
+        // Show/hide internship-specific fields (school & speciality)
+        if (internSection) {
+            internSection.classList.toggle('d-none', !isIntern);
+        }
     }
 
-    ctSelect.addEventListener('change', update);
+    if (ctSelect)   ctSelect.addEventListener('change', update);
+    if (roleSelect) roleSelect.addEventListener('change', update);
     update();
 })();
 </script>

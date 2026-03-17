@@ -35,20 +35,53 @@
 
             <div class="mb-3">
                 <label class="form-label fw-600">Contract Type <span class="text-danger">*</span></label>
-                <div class="d-flex gap-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="contract_type" id="type_cdd" value="CDD" checked onchange="toggleEndDate()">
-                        <label class="form-check-label" for="type_cdd">
-                            <strong>CDD</strong> — Fixed Term <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
-                        </label>
+                <div class="row g-2">
+                    <div class="col-sm-6">
+                        <div class="form-check p-3 rounded border" style="background:#f8fafc;">
+                            <input class="form-check-input" type="radio" name="contract_type" id="type_cdd" value="CDD" checked onchange="updateContractForm()">
+                            <label class="form-check-label" for="type_cdd">
+                                <strong>CDD</strong> — Fixed Term <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                            </label>
+                        </div>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="contract_type" id="type_cdi" value="CDI" onchange="toggleEndDate()">
-                        <label class="form-check-label" for="type_cdi">
-                            <strong>CDI</strong> — Permanent <span class="text-muted" style="font-size:.8rem;">(no end date)</span>
-                        </label>
+                    <div class="col-sm-6">
+                        <div class="form-check p-3 rounded border" style="background:#f8fafc;">
+                            <input class="form-check-input" type="radio" name="contract_type" id="type_cdi" value="CDI" onchange="updateContractForm()">
+                            <label class="form-check-label" for="type_cdi">
+                                <strong>CDI</strong> — Permanent <span class="text-muted" style="font-size:.8rem;">(no end date)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-check p-3 rounded border" style="background:#f0fdf4;">
+                            <input class="form-check-input" type="radio" name="contract_type" id="type_intern" value="INTERN" onchange="updateContractForm()">
+                            <label class="form-check-label" for="type_intern">
+                                <strong>INTERN</strong> — Internship <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-check p-3 rounded border" style="background:#fdf4ff;">
+                            <input class="form-check-input" type="radio" name="contract_type" id="type_wacs" value="WACS" onchange="updateContractForm()">
+                            <label class="form-check-label" for="type_wacs">
+                                <strong>WACS</strong> — Residency / Trainee <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Internship type dropdown — only shown for INTERN -->
+            <div class="mb-3 d-none" id="internship-type-wrap">
+                <label class="form-label fw-600">Internship Type <span class="text-danger">*</span></label>
+                <select name="internship_type" id="internship-type-select" class="form-select">
+                    <option value="">— Select Internship Type —</option>
+                    <option value="academic">Academic Internship</option>
+                    <option value="professional">Professional Internship</option>
+                    <option value="vocational">Vocational / Technical Internship</option>
+                    <option value="observation">Observation / Discovery Internship</option>
+                    <option value="other">Other</option>
+                </select>
             </div>
 
             <div class="row g-3 mb-3">
@@ -57,7 +90,7 @@
                     <input type="date" name="start_date" class="form-control" required>
                 </div>
                 <div class="col-sm-6" id="end-date-wrap">
-                    <label class="form-label fw-600">End Date <span class="text-danger">*</span> <small class="text-muted fw-normal">(CDD only)</small></label>
+                    <label class="form-label fw-600">End Date <span class="text-danger">*</span> <small class="text-muted fw-normal" id="end-date-label">(CDD / INTERN / WACS)</small></label>
                     <input type="date" name="end_date" id="end-date-input" class="form-control" required>
                 </div>
             </div>
@@ -80,14 +113,28 @@
 </div>
 
 <script>
-function toggleEndDate() {
-    const isCDI = document.getElementById('type_cdi').checked;
-    const wrap = document.getElementById('end-date-wrap');
+function updateContractForm() {
+    const selected = document.querySelector('input[name="contract_type"]:checked');
+    const ct       = selected ? selected.value : 'CDD';
+    const isCDI    = ct === 'CDI';
+    const isIntern = ct === 'INTERN';
+
+    // End date
+    const wrap  = document.getElementById('end-date-wrap');
     const input = document.getElementById('end-date-input');
     wrap.style.opacity = isCDI ? '0.4' : '1';
-    input.required = !isCDI;
-    input.disabled = isCDI;
+    input.required  = !isCDI;
+    input.disabled  = isCDI;
     if (isCDI) input.value = '';
+
+    // Internship type dropdown
+    const itWrap   = document.getElementById('internship-type-wrap');
+    const itSelect = document.getElementById('internship-type-select');
+    itWrap.classList.toggle('d-none', !isIntern);
+    itSelect.required = isIntern;
+    if (!isIntern) itSelect.value = '';
 }
+// Run on load
+updateContractForm();
 </script>
 {% endblock %}

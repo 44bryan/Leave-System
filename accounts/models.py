@@ -63,6 +63,9 @@ class Employee(models.Model):
     qualifications = models.TextField(blank=True, default='', help_text='Academic and professional qualifications')
     is_active = models.BooleanField(default=True)
     dismissal_date = models.DateField(null=True, blank=True, help_text='Date dismissal was issued — account deactivated after 14 days')
+    # Intern-specific fields
+    school_name = models.CharField(max_length=200, blank=True, default='', help_text='Name of university or school (interns only)')
+    speciality = models.CharField(max_length=200, blank=True, default='', help_text='Field of study or speciality (interns only)')
 
     class Meta:
         ordering = ['user__last_name', 'user__first_name']

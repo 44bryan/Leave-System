@@ -610,3 +610,26 @@ msgstr "%(total)s jours au total"
 
 msgid "%(days)s days remaining"
 msgstr "%(days)s jours restants"
+
+# topbar language switcher / settings
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Language"
+msgstr "Langue"
+
+# Non-deductible leave
+msgid "Deductible Leave"
+msgstr "Congés Déductibles"
+
+msgid "Non-Deductible Leaves"
+msgstr "Congés Non Déductibles"
+
+msgid "Total available (days)"
+msgstr "Total disponible (jours)"
+
+msgid "Days taken (no balance impact)"
+msgstr "Jours pris (sans impact sur le solde)"
+
+msgid "None taken yet this year."
+msgstr "Aucun pris cette année."
