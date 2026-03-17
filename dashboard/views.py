@@ -254,6 +254,52 @@ def admin_dashboard(request):
     })
 
 
+def _send_birthday_notifications():
+    """Send a Happy Birthday notification to every employee whose birthday is today.
+    Only fires once per year — checked by looking for an existing birthday notification
+    sent today for that employee.
+    """
+    try:
+        from accounts.models import Employee as _Emp
+        from notifications.utils import notify
+        from notifications.models import Notification
+
+        today = date.today()
+        birthday_employees = _Emp.objects.filter(
+            is_active=True,
+            date_of_birth__isnull=False,
+            date_of_birth__month=today.month,
+            date_of_birth__day=today.day,
+        ).select_related('user')
+
+        for emp in birthday_employees:
+            # Skip if already sent today
+            already_sent = Notification.objects.filter(
+                recipient=emp.user,
+                notification_type='birthday',
+                created_at__date=today,
+            ).exists()
+            if already_sent:
+                continue
+
+            age = today.year - emp.date_of_birth.year
+            notify(
+                emp.user,
+                title='🎂 Happy Birthday!',
+                message=(
+                    f"Wishing you a very Happy Birthday, {emp.user.first_name or emp.get_full_name()}! "
+                    f"On behalf of the entire Magrabi ICO Cameroon Eye Institute family, "
+                    f"we hope your {age}{'st' if age == 1 else 'nd' if age == 2 else 'rd' if age == 3 else 'th'} birthday is filled with joy and wonderful memories. "
+                    f"Thank you for your dedication and hard work. "
+                    f"Have a fantastic day! 🎉"
+                ),
+                notification_type='birthday',
+                url='/accounts/profile/',
+            )
+    except Exception:
+        pass
+
+
 def _process_expired_interns():
     """Deactivate intern/WACS accounts whose contract end_date has passed and contract is not renewed/extended."""
     try:
@@ -277,6 +323,7 @@ def _process_expired_interns():
 @login_required
 def home(request):
     _process_expired_interns()
+    _send_birthday_notifications()
     # After a full factory reset the admin password is 'admin' — force change immediately
     if request.user.is_superuser and request.user.check_password('admin'):
         from django.contrib import messages
@@ -335,6 +382,12 @@ def employee_dashboard(request, employee):
         suspension_end__gte=today,
     ).first()
 
+    is_own_birthday = (
+        employee.date_of_birth is not None
+        and employee.date_of_birth.month == today.month
+        and employee.date_of_birth.day == today.day
+    )
+
     return render(request, 'dashboard/employee_dashboard.html', {
         'employee': employee,
         'balance': balance,
@@ -344,6 +397,7 @@ def employee_dashboard(request, employee):
         'today': today,
         'discipline_notices': discipline_notices,
         'active_suspension': active_suspension,
+        'is_own_birthday': is_own_birthday,
     })
 
 
@@ -529,6 +583,25 @@ def hr_dashboard(request, employee):
 
     _contract_ctx = _build_contract_analytics(today, year)
 
+    # Birthday data for HR dashboard
+    from accounts.models import Employee as _EmpBday
+    today_birthdays = list(
+        _EmpBday.objects.filter(
+            is_active=True,
+            date_of_birth__isnull=False,
+            date_of_birth__month=today.month,
+            date_of_birth__day=today.day,
+        ).select_related('user', 'department')
+    )
+    this_month_birthdays = sorted(
+        _EmpBday.objects.filter(
+            is_active=True,
+            date_of_birth__isnull=False,
+            date_of_birth__month=today.month,
+        ).exclude(date_of_birth__day=today.day).select_related('user', 'department'),
+        key=lambda e: e.date_of_birth.day
+    )
+
     return render(request, 'dashboard/hr_dashboard.html', {
         'employee': employee,
         'total_employees': total_employees,
@@ -549,6 +622,8 @@ def hr_dashboard(request, employee):
         'discipline_warned': discipline_warned,
         'discipline_suspended': discipline_suspended,
         'discipline_dismissed': discipline_dismissed,
+        'today_birthdays': today_birthdays,
+        'this_month_birthdays': this_month_birthdays,
         **_contract_ctx,
     })
 

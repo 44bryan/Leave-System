@@ -18,6 +18,47 @@
 
 {% block content %}
 
+{% if today_birthdays %}
+<!-- ── Today's Birthdays Banner ── -->
+<div class="p-3 rounded-3 text-white mb-4 animate-in"
+     style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <span style="font-size:2rem;line-height:1;">🎂</span>
+    <div style="flex:1;">
+        <div style="font-size:0.9rem;font-weight:800;">Birthday{% if today_birthdays|length > 1 %}s{% endif %} Today!</div>
+        <div style="font-size:0.82rem;opacity:0.92;">
+            {% for e in today_birthdays %}
+                <strong>{{ e.get_full_name }}</strong>{% if e.department %} ({{ e.department }}){% endif %}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm"
+       style="background:rgba(255,255,255,0.22);color:#fff;border:1px solid rgba(255,255,255,0.4);font-size:0.78rem;">
+        <i class="bi bi-cake2 me-1"></i>Birthday Calendar
+    </a>
+</div>
+{% elif this_month_birthdays %}
+<!-- ── Upcoming birthdays this month (no birthday today) ── -->
+<div class="p-3 rounded-3 mb-4 animate-in"
+     style="background:#fffbeb;border:1.5px solid #fcd34d;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <span style="font-size:1.6rem;line-height:1;">🎁</span>
+    <div style="flex:1;">
+        <div style="font-size:0.82rem;font-weight:700;color:#92400e;">
+            Upcoming Birthdays This Month — {{ this_month_birthdays|length }} staff
+        </div>
+        <div style="font-size:0.78rem;color:#78350f;">
+            {% for e in this_month_birthdays|slice:":5" %}
+                {{ e.user.first_name }} {{ e.user.last_name|slice:":1" }}. ({{ e.date_of_birth|date:"d" }}){% if not forloop.last %}, {% endif %}
+            {% endfor %}
+            {% if this_month_birthdays|length > 5 %} +{{ this_month_birthdays|length|add:"-5" }} more{% endif %}
+        </div>
+    </div>
+    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm"
+       style="background:#f59e0b;color:#fff;border:none;font-size:0.78rem;font-weight:600;">
+        <i class="bi bi-cake2 me-1"></i>View All
+    </a>
+</div>
+{% endif %}
+
 <!-- ── Leave Overview ── -->
 <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
     <i class="bi bi-calendar-check me-1"></i> {% trans "Leave Overview" %}
