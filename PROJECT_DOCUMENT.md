@@ -269,6 +269,15 @@ Then open: **http://127.0.0.1:8000**
 
 ## Change Log
 
+### 2026-03-17
+
+- **Suspension lockout — phone/tablet fix** (`templates/base.html`)
+  - When suspended, the page content is now **fully replaced** by a clean "Account Suspended" card instead of showing the normal page. Eliminates any risk of accessing actions on mobile/tablet.
+  - The suspension card shows only two buttons: "View Notifications" and "Sign Out".
+  - The red suspension banner wraps correctly on small screens and includes an inline "Sign Out" button.
+  - Suspension JS now sweeps ALL `<a>`, `<button>`, and `<input[type=submit]>` elements on the page and removes `href` attributes so mobile long-press cannot navigate either.
+  - `data-no-suspend` added to: notification bell, each notification item link, "View All Notifications", both suspension card buttons.
+
 ### 2026-03-16
 
 - **New Employee fields** — `sex` (M/F), `nationality`, `contract_number`, `qualifications` added to `Employee` model
