@@ -252,6 +252,40 @@ def department_delete(request, pk):
 
 
 @login_required
+def upload_signature(request):
+    """Allow any logged-in employee to upload their own signature from their profile page."""
+    if request.method != 'POST':
+        return redirect('accounts:profile')
+    try:
+        employee = request.user.employee
+    except Employee.DoesNotExist:
+        messages.error(request, "No employee profile found.")
+        return redirect('accounts:profile')
+
+    sig_file = request.FILES.get('signature')
+    if not sig_file:
+        messages.error(request, "No file selected.")
+        return redirect('accounts:profile')
+
+    from django.core.files.base import ContentFile
+    import os
+    processed = process_signature(sig_file)
+    if not processed:
+        messages.error(request, "Could not process signature. Please upload a clear image or PDF.")
+        return redirect('accounts:profile')
+
+    if employee.signature:
+        try:
+            employee.signature.delete(save=False)
+        except Exception:
+            pass
+    fname = os.path.splitext(sig_file.name)[0] + '_sig.png'
+    employee.signature.save(fname, ContentFile(processed.read()), save=True)
+    messages.success(request, "Signature uploaded successfully. It will now appear on your approved leave documents.")
+    return redirect('accounts:profile')
+
+
+@login_required
 def change_password(request):
     """Allows any logged-in user to change their own password."""
     from django.contrib.auth import update_session_auth_hash

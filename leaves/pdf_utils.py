@@ -76,9 +76,16 @@ def generate_leave_pdf(leave):
         if not employee_obj or not employee_obj.signature:
             return False
         try:
-            with employee_obj.signature.open('rb') as f:
-                img_data = BytesIO(f.read())
-            img_reader = ImageReader(img_data)
+            # Try filesystem path first (reliable on local dev)
+            try:
+                img_path = employee_obj.signature.path
+                img_reader = ImageReader(img_path)
+            except (NotImplementedError, ValueError, AttributeError):
+                # Fall back to Django storage API (works on Railway/cloud)
+                with employee_obj.signature.open('rb') as f:
+                    img_data = BytesIO(f.read())
+                img_data.seek(0)
+                img_reader = ImageReader(img_data)
             c.drawImage(img_reader, x, y - max_h + 1*mm, width=max_w, height=max_h,
                         preserveAspectRatio=True, mask='auto')
             return True
