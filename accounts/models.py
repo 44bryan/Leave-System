@@ -67,7 +67,7 @@ class Employee(models.Model):
         help_text='Official contract reference number'
     )
     qualifications = models.TextField(blank=True, default='', help_text='Academic and professional qualifications')
-    signature = models.ImageField(upload_to='signatures/', null=True, blank=True, help_text='Scanned signature image used on official PDF forms')
+    signature = models.FileField(upload_to='signatures/', null=True, blank=True, help_text='Scanned signature image used on official PDF forms')
     is_active = models.BooleanField(default=True)
     dismissal_date = models.DateField(null=True, blank=True, help_text='Date dismissal was issued — account deactivated after 14 days')
     # Intern-specific fields
