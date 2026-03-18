@@ -8,8 +8,8 @@ class Contract(models.Model):
     CONTRACT_TYPE_CHOICES = [
         ('CDI',    'CDI — Permanent (Contrat à Durée Indéterminée)'),
         ('CDD',    'CDD — Fixed Term (Contrat à Durée Déterminée)'),
-        ('INTERN', 'Internship Contract'),
-        ('WACS',   'WACS Residency / Trainee Programme'),
+        ('INTERN', 'Internship'),
+        ('WACS',   'Residents'),
     ]
     INTERNSHIP_TYPE_CHOICES = [
         ('academic',     'Academic Internship'),

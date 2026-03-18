@@ -31,14 +31,14 @@
         <div class="stat-card" style="border-top:3px solid #0891b2;">
             <div class="stat-icon" style="background:#cffafe;color:#0891b2;"><i class="bi bi-mortarboard-fill"></i></div>
             <div class="stat-value">{{ contract_total_intern }}</div>
-            <div class="stat-label">Interns</div>
+            <div class="stat-label">Internship</div>
         </div>
     </a>
     <a href="{% url 'contracts:list' %}?type=WACS" class="text-decoration-none">
         <div class="stat-card" style="border-top:3px solid #7c3aed;">
             <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-hospital-fill"></i></div>
             <div class="stat-value">{{ contract_total_wacs }}</div>
-            <div class="stat-label">WACS Residents</div>
+            <div class="stat-label">Residents</div>
         </div>
     </a>
     <div class="stat-card" style="border-top:3px solid {% if contracts_expiring_30 %}#dc2626{% else %}#e5e7eb{% endif %};">
@@ -270,7 +270,7 @@
             <div class="table-responsive">
                 <table class="table mb-0">
                     <thead>
-                        <tr><th>Department</th><th class="text-center">CDI</th><th class="text-center">CDD</th><th class="text-center">Intern</th><th class="text-center">WACS</th><th class="text-center">Total</th></tr>
+                        <tr><th>Department</th><th class="text-center">CDI</th><th class="text-center">CDD</th><th class="text-center">Internship</th><th class="text-center">Residents</th><th class="text-center">Total</th></tr>
                     </thead>
                     <tbody>
                         {% for row in contract_dept_breakdown %}

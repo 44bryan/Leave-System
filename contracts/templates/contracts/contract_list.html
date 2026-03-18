@@ -42,14 +42,14 @@
         <div class="stat-card">
             <div class="stat-icon" style="background:#cffafe;color:#0891b2;"><i class="bi bi-mortarboard-fill"></i></div>
             <div class="stat-value">{{ active_intern }}</div>
-            <div class="stat-label">Interns</div>
+            <div class="stat-label">Internship</div>
         </div>
     </a>
     <a href="{% url 'contracts:list' %}?type=WACS" class="text-decoration-none" style="flex:1;min-width:120px;">
         <div class="stat-card">
             <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-hospital-fill"></i></div>
             <div class="stat-value">{{ active_wacs }}</div>
-            <div class="stat-label">WACS Residents</div>
+            <div class="stat-label">Residents</div>
         </div>
     </a>
     {% if expiring_soon_count > 0 %}
