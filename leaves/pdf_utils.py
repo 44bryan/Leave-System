@@ -71,6 +71,20 @@ def generate_leave_pdf(leave):
         c.setLineWidth(width)
         c.rect(x, y, w, h)
 
+    def sig_image(employee_obj, x, y, max_w=40*mm, max_h=8*mm):
+        """Draw signature image if the employee has one, return True; else False."""
+        if not employee_obj or not employee_obj.signature:
+            return False
+        try:
+            path = employee_obj.signature.path
+            if os.path.exists(path):
+                c.drawImage(path, x, y - max_h + 1*mm, width=max_w, height=max_h,
+                            preserveAspectRatio=True, mask='auto')
+                return True
+        except Exception:
+            pass
+        return False
+
     def field(label, value, y, label_w, full_w=None):
         """Draw bold label + underline, write value on underline."""
         fw = full_w or CW
@@ -194,7 +208,8 @@ def generate_leave_pdf(leave):
     B(9)
     c.drawString(LM, y, "Signature (Demandeur/Requestor) :")
     line(LM + 66*mm, y - 1.5, LM + 115*mm)
-    N(9); c.drawString(LM + 67*mm, y, emp.user.get_full_name())
+    if not sig_image(emp, LM + 67*mm, y):
+        N(9); c.drawString(LM + 67*mm, y, emp.user.get_full_name())
     B(9); c.drawString(LM + 117*mm, y, "Date:")
     line(LM + 129*mm, y - 1.5, RM)
     N(9); c.drawString(LM + 130*mm, y, _d(leave.created_at))
@@ -253,7 +268,12 @@ def generate_leave_pdf(leave):
     tfield("Nom/Last name:", uh_last,   cy, LX, 30*mm, LE); cy -= lh
     tfield("Prenoms/ First name:", uh_first, cy, LX, 36*mm, LE); cy -= lh
     tfield("Date:",      uh_date,  cy, LX, 12*mm, LE); cy -= lh
-    tfield("Signature:", uh_name,  cy, LX, 20*mm, LE); cy -= lh + 1*mm
+    uh_emp_obj = leave.unit_head_action_by if leave.unit_head_action_by else leave.manager_action_by
+    B(8); c.drawString(LX, cy, "Signature:")
+    line(LX + 20*mm, cy - 1.5, LE)
+    if not sig_image(uh_emp_obj, LX + 21*mm, cy, max_w=35*mm, max_h=7*mm):
+        N(8); c.drawString(LX + 21*mm, cy, uh_name)
+    cy -= lh + 1*mm
 
     B(8); c.drawString(LX, cy, "Avis/Opinion :")
     cy -= 5*mm
@@ -275,7 +295,11 @@ def generate_leave_pdf(leave):
     tfield("Nom/Last name:",       lm_last,  cy, LX, 30*mm, LE); cy -= lh
     tfield("Prenoms/ First name:", lm_first, cy, LX, 36*mm, LE); cy -= lh
     tfield("Date:",      lm_date,  cy, LX, 12*mm, LE); cy -= lh
-    tfield("Signature:", lm_name,  cy, LX, 20*mm, LE)
+    mgr_emp_obj = leave.manager_action_by
+    B(8); c.drawString(LX, cy, "Signature:")
+    line(LX + 20*mm, cy - 1.5, LE)
+    if not sig_image(mgr_emp_obj, LX + 21*mm, cy, max_w=35*mm, max_h=7*mm):
+        N(8); c.drawString(LX + 21*mm, cy, lm_name)
 
     # ── RIGHT COLUMN ─────────────────────────────────────────────────────────
     hr_emp   = leave.hr_action_by
@@ -297,12 +321,19 @@ def generate_leave_pdf(leave):
     tfield("Au/to:",      _d(leave.end_date),    ry, RX, 14*mm, RE); ry -= lh
     tfield("Reprise /Resume:", resume,            ry, RX, 30*mm, RE); ry -= lh
     tfield("Date:",       hr_date,               ry, RX, 12*mm, RE); ry -= lh
-    tfield("Signature:",  hr_name,               ry, RX, 20*mm, RE); ry -= 6*mm
+    B(8); c.drawString(RX, ry, "Signature:")
+    line(RX + 20*mm, ry - 1.5, RE)
+    if not sig_image(hr_emp, RX + 21*mm, ry, max_w=35*mm, max_h=7*mm):
+        N(8); c.drawString(RX + 21*mm, ry, hr_name)
+    ry -= 6*mm
 
     B(8); c.drawString(RX, ry, "Administrative Director/Directeur Administratif")
     ry -= lh
     tfield("Date:",      dir_date, ry, RX, 12*mm, RE); ry -= lh
-    tfield("Signature:", dir_name, ry, RX, 20*mm, RE)
+    B(8); c.drawString(RX, ry, "Signature:")
+    line(RX + 20*mm, ry - 1.5, RE)
+    if not sig_image(director, RX + 21*mm, ry, max_w=35*mm, max_h=7*mm):
+        N(8); c.drawString(RX + 21*mm, ry, dir_name)
 
     # Outer border + vertical divider drawn last so TABLE_BOTTOM fits all content
     TABLE_BOTTOM = min(cy, ry) - 5 * mm

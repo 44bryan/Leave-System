@@ -185,7 +185,7 @@ def employee_create(request):
 @hr_or_superuser_required
 def employee_edit(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
-    form = EmployeeEditForm(request.POST or None, instance=employee)
+    form = EmployeeEditForm(request.POST or None, request.FILES or None, instance=employee)
     if request.method == 'POST' and form.is_valid():
         form.save()
         messages.success(request, "Employee updated successfully.")
