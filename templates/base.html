@@ -1076,6 +1076,14 @@
                     <i class="bi bi-file-earmark-person"></i> {% trans "My Contract" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'notifications:list' %}" class="nav-link-sidebar {% block nav_notifications %}{% endblock %}">
+                    <i class="bi bi-bell"></i> {% trans "Notifications" %}
+                    {% if notif_unread > 0 %}
+                    <span class="badge bg-danger ms-auto" style="font-size:0.65rem;padding:2px 6px;">{{ notif_unread }}</span>
+                    {% endif %}
+                </a>
+            </li>
         </ul>
     </div>
 
