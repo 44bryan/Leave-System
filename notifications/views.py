@@ -7,11 +7,24 @@ from .models import Notification
 @login_required
 def notification_list(request):
     notifications = request.user.system_notifications.all()
-    # Mark all as read when the page is opened
-    request.user.system_notifications.filter(is_read=False).update(is_read=True)
     return render(request, 'notifications/notification_list.html', {
         'notifications': notifications,
     })
+
+
+@login_required
+def notification_detail(request, pk):
+    notif = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    if not notif.is_read:
+        notif.is_read = True
+        notif.save(update_fields=['is_read'])
+    # Fix legacy URL if needed
+    if notif.url:
+        fixed = _fix_legacy_url(notif.url)
+        if fixed != notif.url:
+            notif.url = fixed
+            notif.save(update_fields=['url'])
+    return render(request, 'notifications/notification_detail.html', {'notif': notif})
 
 
 def _fix_legacy_url(url):

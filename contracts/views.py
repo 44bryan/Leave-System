@@ -36,39 +36,44 @@ def _get_employee(request):
 
 def _contract_issue_message(contract):
     """Return a tailored notification title + message for a newly issued contract."""
+    issued_on = contract.created_at.strftime('%d %b %Y') if contract.created_at else contract.start_date.strftime('%d %b %Y')
     start = contract.start_date.strftime('%d %b %Y')
     end   = contract.end_date.strftime('%d %b %Y') if contract.end_date else None
     ct    = contract.contract_type
+
+    collect_notice = (
+        f" Your physical contract document is ready for collection at the HR Office "
+        f"as of {issued_on}. Please pass by the HR Office at your earliest convenience "
+        f"to sign and collect your copy."
+    )
 
     if ct == 'INTERN':
         title = 'Internship Contract Issued'
         msg = (
             f"An Internship Contract has been issued to you, effective {start}."
             + (f" Your internship ends on {end}." if end else "")
-            + " This contract governs your internship programme. "
-            "Please visit the HR Office to sign and collect your internship contract document."
+            + collect_notice
         )
     elif ct == 'WACS':
-        title = 'WACS Residency Contract Issued'
+        title = 'Residents Contract Issued'
         msg = (
-            f"A WACS Residency / Trainee Programme contract has been issued to you, effective {start}."
+            f"A Residents contract has been issued to you, effective {start}."
             + (f" Programme end date: {end}." if end else "")
-            + " This contract covers your participation in the WACS Residency Programme. "
-            "Please visit the HR Office to sign and collect your contract document."
+            + collect_notice
         )
     elif ct == 'CDI':
         title = 'Permanent Contract (CDI) Issued'
         msg = (
             f"A Permanent (CDI) contract has been issued to you, effective {start}. "
-            "This is an open-ended employment contract with no fixed end date. "
-            "Please visit the HR Office to sign and collect your contract document."
+            "This is an open-ended employment contract with no fixed end date."
+            + collect_notice
         )
     else:  # CDD
         title = 'Fixed-Term Contract (CDD) Issued'
         msg = (
             f"A Fixed-Term (CDD) contract has been issued to you, effective {start}."
             + (f" Contract end date: {end}." if end else "")
-            + " Please visit the HR Office to sign and collect your contract document."
+            + collect_notice
         )
     return title, msg
 
