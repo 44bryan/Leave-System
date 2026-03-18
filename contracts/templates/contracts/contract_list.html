@@ -133,7 +133,15 @@
                     </td>
                     <td style="font-size:.85rem;">{{ c.employee.department|default:"—" }}</td>
                     <td>
-                        {% if c.contract_type == 'CDI' %}
+                        {% if c.employee.role == 'intern' or c.contract_type == 'INTERN' %}
+                        <span class="badge" style="background:#cffafe;color:#0e7490;">
+                            <i class="bi bi-mortarboard me-1"></i>Intern
+                        </span>
+                        {% elif c.employee.role == 'wacs_resident' or c.contract_type == 'WACS' %}
+                        <span class="badge" style="background:#ede9fe;color:#6d28d9;">
+                            <i class="bi bi-hospital me-1"></i>WACS
+                        </span>
+                        {% elif c.contract_type == 'CDI' %}
                         <span class="badge" style="background:#dcfce7;color:#15803d;">
                             <i class="bi bi-infinity me-1"></i>CDI
                         </span>

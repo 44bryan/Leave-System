@@ -308,26 +308,6 @@ def generate_leave_pdf(leave):
     tfield("Date:",      dir_date, ry, RX, 12*mm, RE); ry -= lh
     tfield("Signature:", dir_name, ry, RX, 20*mm, RE)
 
-    # ═════════════════════════════════════════════════════════════════════════
-    # FOOTER
-    # ═════════════════════════════════════════════════════════════════════════
-    line(LM, TABLE_BOTTOM - 2*mm, RM, width=1.0)
-
-    # Institution badge + notice text
-    B(7.5)
-    c.drawString(LM, 27*mm, "EYE INSTITUTE")
-    N(7.5)
-    c.drawString(LM + 23*mm, 27*mm,
-        "Cette fiche remplie doit etre deposee au plus tard 48 heures a l'avance.")
-    c.drawString(LM + 23*mm, 23*mm,
-        "The filled form must be submitted 48 hours in advance by the requester.")
-
-    N(6.5)
-    c.drawString(LM, 17*mm,
-        "Authorisation No /225/A/MINSANTE/SG/DCS/SD/3000  |  T No M0990509/TR652W  |  BGFI Bank")
-    c.drawString(LM, 13*mm,
-        "Address: Obok (route d'Obala)  .  P.O Box: 59223 Yaounde, Cameroon  .  Email: info@magrabicameroon.com")
-
     c.save()
     buf.seek(0)
     return buf
