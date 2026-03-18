@@ -46,6 +46,15 @@
                             {{ leave.reason }}
                         </div>
                     </div>
+                    <div class="col-sm-6">
+                        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#6b7a8d;margin-bottom:4px;">{% trans "Back-up Employee" %}</div>
+                        {% if leave.backup_employee %}
+                        <div style="font-weight:600;">{{ leave.backup_employee.get_full_name }}</div>
+                        <div style="font-size:0.78rem;color:#6b7a8d;">{{ leave.backup_employee.position|default:"Staff" }}</div>
+                        {% else %}
+                        <div style="color:#9ab4c0;font-size:0.85rem;">— Not specified</div>
+                        {% endif %}
+                    </div>
                     {% if leave.supporting_document %}
                     <div class="col-12">
                         <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#6b7a8d;margin-bottom:4px;">{% trans "Document" %}</div>
