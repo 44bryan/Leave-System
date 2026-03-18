@@ -9,7 +9,7 @@ import os
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
-from reportlab.lib.utils import simpleSplit
+from reportlab.lib.utils import simpleSplit, ImageReader
 from reportlab.lib import colors
 
 
@@ -76,11 +76,12 @@ def generate_leave_pdf(leave):
         if not employee_obj or not employee_obj.signature:
             return False
         try:
-            path = employee_obj.signature.path
-            if os.path.exists(path):
-                c.drawImage(path, x, y - max_h + 1*mm, width=max_w, height=max_h,
-                            preserveAspectRatio=True, mask='auto')
-                return True
+            with employee_obj.signature.open('rb') as f:
+                img_data = BytesIO(f.read())
+            img_reader = ImageReader(img_data)
+            c.drawImage(img_reader, x, y - max_h + 1*mm, width=max_w, height=max_h,
+                        preserveAspectRatio=True, mask='auto')
+            return True
         except Exception:
             pass
         return False
