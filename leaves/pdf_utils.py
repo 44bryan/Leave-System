@@ -271,12 +271,18 @@ def generate_leave_pdf(leave):
     cy -= 6*mm
 
     # divider between "Unit Head" and "Line Manager"
-    line(LM, cy + 2*mm, MID_X, width=0.5)
+    line(LM, cy + 4*mm, MID_X, width=0.5)
+    cy -= 2*mm
+
+    # Line Manager section: fill with manager info when no separate unit head
+    lm_last  = mgr_last
+    lm_first = mgr_first
+    lm_date  = mgr_date
 
     B(8); c.drawString(LX, cy, "Line Manager/Superviseur"); cy -= lh
-    tfield("Nom/Last name:",       "", cy, LX, 30*mm, LE); cy -= lh
-    tfield("Prenoms/ First name:", "", cy, LX, 36*mm, LE); cy -= lh
-    tfield("Date and Signature",   "", cy, LX, 35*mm, LE)
+    tfield("Nom/Last name:",       lm_last,  cy, LX, 30*mm, LE); cy -= lh
+    tfield("Prenoms/ First name:", lm_first, cy, LX, 36*mm, LE); cy -= lh
+    tfield("Date and Signature",   lm_date,  cy, LX, 35*mm, LE)
 
     # ── RIGHT COLUMN ─────────────────────────────────────────────────────────
     hr_emp   = leave.hr_action_by
@@ -301,7 +307,8 @@ def generate_leave_pdf(leave):
     tfield("Signature:",  hr_name,               ry, RX, 20*mm, RE); ry -= 6*mm
 
     # divider above Administrative Director
-    line(MID_X, ry + 2*mm, RM, width=0.5)
+    line(MID_X, ry + 4*mm, RM, width=0.5)
+    ry -= 2*mm
 
     B(8); c.drawString(RX, ry, "Administrative Director/Directeur Administratif")
     ry -= lh
