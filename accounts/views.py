@@ -186,18 +186,24 @@ def employee_create(request):
 @hr_or_superuser_required
 def employee_edit(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
-    form = EmployeeEditForm(request.POST or None, request.FILES or None, instance=employee)
+    form = EmployeeEditForm(request.POST or None, instance=employee)
     if request.method == 'POST' and form.is_valid():
-        emp_obj = form.save(commit=False)
+        emp_obj = form.save()
+        # Handle signature upload separately from the form
         sig_file = request.FILES.get('signature')
         if sig_file:
+            from django.core.files.base import ContentFile
+            import os
             processed = process_signature(sig_file)
             if processed:
-                from django.core.files.base import ContentFile
-                import os
-                old_name = os.path.splitext(sig_file.name)[0]
-                emp_obj.signature.save(f"{old_name}_sig.png", ContentFile(processed.read()), save=False)
-        emp_obj.save()
+                # Delete old signature file if exists
+                if emp_obj.signature:
+                    try:
+                        emp_obj.signature.delete(save=False)
+                    except Exception:
+                        pass
+                fname = os.path.splitext(sig_file.name)[0] + '_sig.png'
+                emp_obj.signature.save(fname, ContentFile(processed.read()), save=True)
         messages.success(request, "Employee updated successfully.")
         return redirect('accounts:employee_list')
 
