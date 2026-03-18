@@ -95,42 +95,42 @@
         <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
             <div class="hr-kpi-value">{{ total_employees }}</div>
-            <div class="hr-kpi-label">Active Staff</div>
+            <div class="hr-kpi-label">Total Active Staff</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card" style="{% if pending_hr > 0 %}background:linear-gradient(135deg,#e0f7fa,#f0fdff);border-color:#0891b2;{% endif %}">
             <div class="hr-kpi-icon" style="background:#e0f7fa;color:#0891b2;"><i class="bi bi-clipboard2-check-fill"></i></div>
             <div class="hr-kpi-value" style="{% if pending_hr > 0 %}color:#0891b2;{% endif %}">{{ pending_hr }}</div>
-            <div class="hr-kpi-label">My Pending Reviews</div>
+            <div class="hr-kpi-label">Pending HR Review</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-check2-all"></i></div>
             <div class="hr-kpi-value">{{ approved_year }}</div>
-            <div class="hr-kpi-label">Approved {{ year }}</div>
+            <div class="hr-kpi-label">Leaves Approved in {{ year }}</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
             <div class="hr-kpi-value">{{ rejected_year }}</div>
-            <div class="hr-kpi-label">Rejected {{ year }}</div>
+            <div class="hr-kpi-label">Leaves Rejected in {{ year }}</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#fff3e0;color:#e65100;"><i class="bi bi-airplane-fill"></i></div>
             <div class="hr-kpi-value">{{ on_leave_now|length }}</div>
-            <div class="hr-kpi-label">On Leave Today</div>
+            <div class="hr-kpi-label">Staff on Leave Today</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card" style="{% if low_balance %}border-color:#fca5a5;{% endif %}">
             <div class="hr-kpi-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-battery-half"></i></div>
             <div class="hr-kpi-value" style="{% if low_balance %}color:#dc2626;{% endif %}">{{ low_balance|length }}</div>
-            <div class="hr-kpi-label">Low Balance Alerts</div>
+            <div class="hr-kpi-label">Low Leave Balance (≤ 3 days)</div>
         </div>
     </div>
 </div>
