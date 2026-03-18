@@ -1,6 +1,6 @@
 """
-Generate the official Magrabi Cameroon Eye Institute
-Leave Authorisation PDF for fully approved leave requests.
+Generate a PDF that replicates the official Magrabi Cameroon Eye Institute
+"Autorisation d'Absence" paper form, with all fields pre-filled from the system.
 """
 from io import BytesIO
 from datetime import timedelta
@@ -11,7 +11,10 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit
 
 
-def _fmt_date(d):
+# ── helpers ──────────────────────────────────────────────────────────────────
+
+def _d(d):
+    """Format a date or datetime as DD/MM/YYYY, or return empty string."""
     if d is None:
         return ""
     if hasattr(d, "date"):
@@ -19,321 +22,291 @@ def _fmt_date(d):
     return d.strftime("%d/%m/%Y")
 
 
-def _resume_date(end_date):
-    """First working day (not Sunday) after end_date."""
+def _resume(end_date):
+    """First working day (skip Sunday) after end_date."""
     d = end_date + timedelta(days=1)
-    while d.weekday() == 6:  # skip Sunday
+    while d.weekday() == 6:
         d += timedelta(days=1)
     return d
 
 
+# ── main generator ────────────────────────────────────────────────────────────
+
 def generate_leave_pdf(leave):
-    """Return a BytesIO containing the PDF for this LeaveRequest."""
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
-    W, H = A4   # 595.28 x 841.89 pt
+    W, H = A4          # 595.28 × 841.89 pt
 
     emp  = leave.employee
     year = leave.start_date.year
 
-    # ── Leave balance ────────────────────────────────────────────────────────
+    # leave balance
     try:
-        bal = emp.leave_balances.get(year=year)
-        total_avail  = bal.total_available
-        carried      = bal.carried_forward
+        bal         = emp.leave_balances.get(year=year)
+        total_avail = str(bal.total_available)
     except Exception:
         total_avail = ""
-        carried     = ""
 
-    # ── Helper shortcuts ─────────────────────────────────────────────────────
-    L = 20 * mm       # left margin
-    R = W - 20 * mm   # right margin
-    MID = W / 2       # page centre
+    # margins
+    LM = 18 * mm    # left margin
+    RM = W - 18 * mm  # right margin
+    CW = RM - LM      # content width  ≈ 159 mm
 
-    def bold(size=9):
-        c.setFont("Helvetica-Bold", size)
+    # ── convenience drawers ───────────────────────────────────────────────────
 
-    def normal(size=9):
-        c.setFont("Helvetica", size)
+    def B(size=10):   c.setFont("Helvetica-Bold",   size)
+    def N(size=10):   c.setFont("Helvetica",        size)
+    def BI(size=9):   c.setFont("Helvetica-BoldOblique", size)
 
-    def label_line(label, value, y, label_x=None, value_x=None, line_end=None):
-        """Draw bold label + value + underline."""
-        lx = label_x if label_x is not None else L
-        vx = value_x if value_x is not None else lx + (len(label) * 5.2 * mm / 10)
-        le = line_end if line_end is not None else R
-        bold(9.5)
-        c.drawString(lx, y, label)
-        normal(9.5)
+    def line(x1, y, x2, width=0.6):
+        c.setLineWidth(width)
+        c.line(x1, y, x2, y)
+
+    def vline(x, y1, y2, width=0.6):
+        c.setLineWidth(width)
+        c.line(x, y1, x, y2)
+
+    def rect(x, y, w, h, width=0.8):
+        c.setLineWidth(width)
+        c.rect(x, y, w, h)
+
+    def field(label, value, y, label_w, full_w=None):
+        """Draw bold label + underline, write value on underline."""
+        fw = full_w or CW
+        B(9.5)
+        c.drawString(LM, y, label)
+        vx = LM + label_w          # where underline starts
+        ex = LM + fw               # where underline ends
+        line(vx, y - 1.5, ex)
+        N(9.5)
         if value:
-            c.drawString(vx + 1 * mm, y, str(value))
-        c.setLineWidth(0.5)
-        c.line(vx, y - 1.5, le, y - 1.5)
+            # write value slightly inside the underline
+            c.drawString(vx + 2 * mm, y, str(value))
 
-    # ════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════
     # HEADER
-    # ════════════════════════════════════════════════════════════════════════
-    bold(10)
-    c.drawRightString(R, H - 15 * mm, "MAGRABI CAMEROON")
-    c.drawRightString(R, H - 20 * mm, "EYE INSTITUTE")
+    # ═════════════════════════════════════════════════════════════════════════
+    y = H - 14 * mm
 
-    # Horizontal rule under institution name
-    c.setLineWidth(1.0)
-    c.line(L, H - 23 * mm, R, H - 23 * mm)
+    # Institution name — top right
+    B(9)
+    c.drawRightString(RM, y,         "MAGRABI CAMEROON")
+    c.drawRightString(RM, y - 5*mm, "EYE INSTITUTE")
 
-    bold(13)
-    c.drawCentredString(MID, H - 31 * mm, "DEMANDE / REQUEST")
-    bold(11)
-    c.drawCentredString(MID, H - 38 * mm, "AUTORISATION D'ABSENCE / AUTHORISATION OF ABSENCE")
+    # Thick horizontal rule below header area
+    line(LM, H - 22 * mm, RM, width=1.5)
 
-    # ════════════════════════════════════════════════════════════════════════
-    # NUMBERED FIELDS
-    # ════════════════════════════════════════════════════════════════════════
-    LH = 9.5 * mm   # line height
-    y  = H - 50 * mm
+    # Title block — centred
+    B(13)
+    c.drawCentredString(W / 2, H - 29 * mm, "DEMANDE / REQUEST")
+    B(11)
+    c.drawCentredString(W / 2, H - 36 * mm,
+                        "AUTORISATION D'ABSENCE / AUTHORISATION OF ABSENCE")
+
+    # ═════════════════════════════════════════════════════════════════════════
+    # NUMBERED FIELDS  (1 – 12)
+    # ═════════════════════════════════════════════════════════════════════════
+    LH = 9 * mm    # line height
+    y  = H - 47 * mm
 
     # 1. Last name
-    bold(9.5); c.drawString(L, y, "1.  Nom/Last name:")
-    normal(9.5); c.drawString(L + 46 * mm, y, emp.user.last_name.upper())
-    c.line(L + 45 * mm, y - 1.5, R, y - 1.5)
+    field("1.   Nom/Last name:", emp.user.last_name.upper(), y, 44*mm)
     y -= LH
 
     # 2. First name
-    bold(9.5); c.drawString(L, y, "2.  Prénoms/First Name:")
-    normal(9.5); c.drawString(L + 55 * mm, y, emp.user.first_name)
-    c.line(L + 54 * mm, y - 1.5, R, y - 1.5)
+    field("2.   Prénoms/First Name:", emp.user.first_name, y, 53*mm)
     y -= LH
 
     # 3. Position
-    bold(9.5); c.drawString(L, y, "3.  Poste/Position:")
-    normal(9.5); c.drawString(L + 48 * mm, y, emp.position or "")
-    c.line(L + 47 * mm, y - 1.5, R, y - 1.5)
+    field("3.   Poste/Position:", emp.position or "", y, 42*mm)
     y -= LH
 
     # 4. Hiring date
-    bold(9.5); c.drawString(L, y, "4.  Date d'embauche/Hiring Date:")
-    normal(9.5); c.drawString(L + 72 * mm, y, _fmt_date(emp.date_joined_company))
-    c.line(L + 71 * mm, y - 1.5, R, y - 1.5)
+    field("4.   Date d'embauche/Hiring Date:", _d(emp.date_joined_company), y, 70*mm)
     y -= LH
 
     # 5. Leave type
-    bold(9.5); c.drawString(L, y, "5.  Type: Congé Annuel/Annual Leave Days:")
-    normal(9.5); c.drawString(L + 91 * mm, y, leave.leave_type.name)
-    c.line(L + 90 * mm, y - 1.5, R, y - 1.5)
+    field("5.   Type: Congé Annuel/Annual Leave Days:", leave.leave_type.name, y, 89*mm)
     y -= LH
 
-    # 6. Accrued from/to (year boundaries)
-    bold(9.5); c.drawString(L, y, "6.  Accrued De/From:")
-    normal(9.5); c.drawString(L + 48 * mm, y, f"01/01/{year}")
-    c.line(L + 47 * mm, y - 1.5, L + 78 * mm, y - 1.5)
-    bold(9.5); c.drawString(L + 80 * mm, y, "A/to")
-    normal(9.5); c.drawString(L + 90 * mm, y, f"31/12/{year}")
-    c.line(L + 89 * mm, y - 1.5, R, y - 1.5)
+    # 6. Accrued From … to …   (split field)
+    B(9.5); c.drawString(LM, y, "6.   Accrued De/From:")
+    x1 = LM + 47 * mm
+    x2 = LM + 80 * mm
+    x3 = LM + 88 * mm
+    line(x1, y - 1.5, x2)
+    N(9.5); c.drawString(x1 + 1*mm, y, f"01/01/{year}")
+    B(9.5); c.drawString(x2 + 2*mm, y, "A/to")
+    line(x3, y - 1.5, RM)
+    N(9.5); c.drawString(x3 + 1*mm, y, f"31/12/{year}")
     y -= LH
 
     # 7. Accumulated days
-    bold(9.5); c.drawString(L, y, "7.  Jour Accumuler/Accumulated Days:")
-    normal(9.5); c.drawString(L + 82 * mm, y, str(total_avail))
-    c.line(L + 81 * mm, y - 1.5, R, y - 1.5)
+    field("7.   Jour Accumuler/Accumulated Days:", total_avail, y, 80*mm)
     y -= LH
 
     # 8. Days requested
-    bold(9.5); c.drawString(L, y, "8.  Nombre de jours sollicités/Number of days requested:")
-    normal(9.5); c.drawString(L + 120 * mm, y, str(leave.total_days))
-    c.line(L + 119 * mm, y - 1.5, R, y - 1.5)
+    field("8.   Nombre de jours sollicités/Number of days requested:",
+          str(leave.total_days), y, 118*mm)
     y -= LH
 
-    # 9. From / to dates
-    bold(9.5); c.drawString(L, y, "9.  De/From")
-    normal(9.5); c.drawString(L + 27 * mm, y, _fmt_date(leave.start_date))
-    c.line(L + 26 * mm, y - 1.5, L + 75 * mm, y - 1.5)
-    bold(9.5); c.drawString(L + 77 * mm, y, "to")
-    normal(9.5); c.drawString(L + 83 * mm, y, _fmt_date(leave.end_date))
-    c.line(L + 82 * mm, y - 1.5, R, y - 1.5)
+    # 9. From … to …   (split field)
+    B(9.5); c.drawString(LM, y, "9.   De/From")
+    xa = LM + 27 * mm
+    xb = LM + 75 * mm
+    xc = LM + 82 * mm
+    line(xa, y - 1.5, xb)
+    N(9.5); c.drawString(xa + 1*mm, y, _d(leave.start_date))
+    B(9.5); c.drawString(xb + 2*mm, y, "to")
+    line(xc, y - 1.5, RM)
+    N(9.5); c.drawString(xc + 1*mm, y, _d(leave.end_date))
     y -= LH
 
-    # 10. Reason (can be multi-line)
-    bold(9.5); c.drawString(L, y, "10. Motif de la demande/Reason of the Request:")
-    y -= 7 * mm
-    reason_text = leave.reason or ""
-    lines = simpleSplit(reason_text, "Helvetica", 9.5, R - L - 2 * mm)
-    normal(9.5)
-    for i in range(2):          # max 2 lines on form
-        text = lines[i] if i < len(lines) else ""
-        c.drawString(L, y, text)
-        c.line(L, y - 1.5, R, y - 1.5)
-        y -= 7 * mm
-    y -= 2 * mm
+    # 10. Reason  (label on its own line, two underlines below)
+    B(9.5); c.drawString(LM, y, "10.  Motif de la demande/Reason of the Request:")
+    y -= 6.5 * mm
+    reason = leave.reason or ""
+    wraps  = simpleSplit(reason, "Helvetica", 9.5, CW - 4*mm)
+    for i in range(2):
+        txt = wraps[i] if i < len(wraps) else ""
+        line(LM, y - 1.5, RM)
+        N(9.5); c.drawString(LM + 1*mm, y, txt)
+        y -= 6.5 * mm
+    y -= 1 * mm
 
     # 11. Deductible
-    deductible_val = "Yes / Oui" if leave.leave_type.is_deductible else "No / Non"
-    bold(9.5); c.drawString(L, y, "11. Deductible des congés annuels/Deductible to annual leaves:")
-    normal(9.5); c.drawString(L + 128 * mm, y, deductible_val)
-    c.line(L + 127 * mm, y - 1.5, R, y - 1.5)
+    ded = "Yes / Oui" if leave.leave_type.is_deductible else "No / Non"
+    field("11.  Deductible des congés annuels/Deductible to annual leaves:", ded, y, 125*mm)
     y -= LH
 
     # 12. Back-up employee
-    bold(9.5); c.drawString(L, y, "12. Back-up employee/Remplaçant:")
-    c.line(L + 72 * mm, y - 1.5, R, y - 1.5)
-    y -= LH + 3 * mm
+    field("12.  Back-up employee/Remplaçant:", "", y, 70*mm)
+    y -= LH + 2 * mm
 
-    # ── Requestor signature line ─────────────────────────────────────────────
-    bold(9); c.drawString(L, y, "Signature (Demandeur/Requestor):")
-    c.line(L + 68 * mm, y - 1.5, L + 120 * mm, y - 1.5)
-    bold(9); c.drawString(L + 122 * mm, y, "Date:")
-    normal(9); c.drawString(L + 133 * mm, y, _fmt_date(leave.created_at))
-    c.line(L + 132 * mm, y - 1.5, R, y - 1.5)
-    y -= 8 * mm
+    # ── Requestor signature line ──────────────────────────────────────────────
+    B(9)
+    c.drawString(LM, y, "Signature (Demandeur/Requestor):")
+    line(LM + 66*mm, y - 1.5, LM + 115*mm)
+    c.drawString(LM + 117*mm, y, "Date:")
+    line(LM + 129*mm, y - 1.5, RM)
+    N(9); c.drawString(LM + 130*mm, y, _d(leave.created_at))
+    y -= 7 * mm
 
-    # ════════════════════════════════════════════════════════════════════════
-    # APPROVAL TABLE  (two-column box)
-    # ════════════════════════════════════════════════════════════════════════
-    table_top    = y - 2 * mm
-    table_bottom = 35 * mm
+    # ═════════════════════════════════════════════════════════════════════════
+    # APPROVAL TABLE
+    # ═════════════════════════════════════════════════════════════════════════
+    TABLE_TOP    = y - 1 * mm
+    TABLE_BOTTOM = 33 * mm
+    TABLE_H      = TABLE_TOP - TABLE_BOTTOM
+    MID_X        = LM + CW / 2       # vertical divider
 
-    # Outer box + vertical divider
-    c.setLineWidth(1.2)
-    c.rect(L, table_bottom, R - L, table_top - table_bottom)
-    c.line(MID, table_top, MID, table_bottom)
+    # Outer border
+    rect(LM, TABLE_BOTTOM, CW, TABLE_H, width=1.5)
+
+    # Vertical divider
+    vline(MID_X, TABLE_TOP, TABLE_BOTTOM, width=1.0)
 
     # Column header row
-    header_y = table_top - 8 * mm
-    c.setLineWidth(0.8)
-    c.line(L, header_y, R, header_y)
-    bold(10)
-    c.drawCentredString((L + MID) / 2,  header_y + 2.5 * mm, "Superviseur /Line-Manager")
-    c.drawCentredString((MID + R) / 2,  header_y + 2.5 * mm, "Responsible RH/HR Manager")
+    HDR_H   = 9 * mm
+    HDR_Y   = TABLE_TOP - HDR_H
+    line(LM, HDR_Y, RM, width=1.0)
 
-    # ── LEFT column ──────────────────────────────────────────────────────────
-    mgr       = leave.manager_action_by
-    mgr_last  = mgr.user.last_name.upper()  if mgr else ""
-    mgr_first = mgr.user.first_name         if mgr else ""
-    mgr_date  = _fmt_date(leave.manager_action_date)
-    approved_by_mgr = leave.status not in (
-        "rejected_manager", "pending", "cancelled"
-    )
+    B(10)
+    c.drawCentredString((LM + MID_X) / 2, HDR_Y + 3*mm, "Superviseur /Line-Manager")
+    c.drawCentredString((MID_X + RM)  / 2, HDR_Y + 3*mm, "Responsible RH/HR Manager")
 
-    lx = L + 3 * mm
-    cy = header_y - 6 * mm
-    lh = 6 * mm
-    line_end_L = MID - 5 * mm
+    # ── helper for inside-table fields ───────────────────────────────────────
+    def tfield(label, value, y, lx, label_w, ex):
+        B(8)
+        c.drawString(lx, y, label)
+        line(lx + label_w, y - 1.5, ex)
+        N(8)
+        if value:
+            c.drawString(lx + label_w + 1*mm, y, str(value))
 
-    bold(8.5); c.drawString(lx, cy, "Unit Head:")
+    # ── LEFT COLUMN  ─────────────────────────────────────────────────────────
+    mgr        = leave.manager_action_by
+    mgr_last   = mgr.user.last_name.upper() if mgr else ""
+    mgr_first  = mgr.user.first_name        if mgr else ""
+    mgr_date   = _d(leave.manager_action_date)
+    approved   = leave.status not in ("rejected_manager", "pending", "cancelled")
+    LX         = LM + 2*mm
+    LE         = MID_X - 3*mm
+    cy         = HDR_Y - 5*mm
+    lh         = 6 * mm
+
+    B(8); c.drawString(LX, cy, "Unit Head:")
     cy -= lh
-    bold(8.5); c.drawString(lx, cy, "Nom/Last name:")
-    normal(8.5); c.drawString(lx + 34 * mm, cy, mgr_last)
-    c.setLineWidth(0.5); c.line(lx + 33 * mm, cy - 1.5, line_end_L, cy - 1.5)
-    cy -= lh
-    bold(8.5); c.drawString(lx, cy, "Prénoms/First name:")
-    normal(8.5); c.drawString(lx + 40 * mm, cy, mgr_first)
-    c.line(lx + 39 * mm, cy - 1.5, line_end_L, cy - 1.5)
-    cy -= lh
-    bold(8.5); c.drawString(lx, cy, "Date and Signature")
-    normal(8.5); c.drawString(lx + 39 * mm, cy, mgr_date)
-    c.line(lx + 38 * mm, cy - 1.5, line_end_L, cy - 1.5)
-    cy -= lh + 2 * mm
-    bold(8.5); c.drawString(lx, cy, "Avis/Opinion:")
-    cy -= 5 * mm
-    opinion_fav = "Favorable/Favourable:  ✓" if approved_by_mgr else "Favorable/Favourable:  ___"
-    opinion_unf = "Défavorable/unfavourable:  ___" if approved_by_mgr else "Défavorable/unfavourable:  ✓"
-    bold(8.5)
-    c.drawString(lx + 4 * mm, cy, opinion_fav)
-    cy -= 5 * mm
-    c.drawString(lx + 4 * mm, cy, opinion_unf)
-    cy -= 7 * mm
 
-    # Divider between Unit Head and Line Manager
-    c.setLineWidth(0.4)
-    c.line(L, cy + 3 * mm, MID, cy + 3 * mm)
+    tfield("Nom/Last name:", mgr_last,   cy, LX, 30*mm, LE); cy -= lh
+    tfield("Prénoms/ First name:", mgr_first, cy, LX, 36*mm, LE); cy -= lh
+    tfield("Date and Signature",  mgr_date,  cy, LX, 35*mm, LE); cy -= lh + 1*mm
 
-    bold(8.5); c.drawString(lx, cy, "Line Manager/Superviseur")
-    cy -= lh
-    bold(8.5); c.drawString(lx, cy, "Nom/Last name:")
-    c.setLineWidth(0.5); c.line(lx + 33 * mm, cy - 1.5, line_end_L, cy - 1.5)
-    cy -= lh
-    bold(8.5); c.drawString(lx, cy, "Prénoms/First name:")
-    c.line(lx + 39 * mm, cy - 1.5, line_end_L, cy - 1.5)
-    cy -= lh
-    bold(8.5); c.drawString(lx, cy, "Date and Signature")
-    c.line(lx + 38 * mm, cy - 1.5, line_end_L, cy - 1.5)
+    B(8); c.drawString(LX, cy, "Avis/Opinion :")
+    cy -= 5*mm
+    fav = "\u2611 Favorable/ Favourable:" if approved else "\u2610 Favorable/ Favourable:"
+    unf = "\u2610 Défavorable/unfavourable:" if approved else "\u2611 Défavorable/unfavourable:"
+    B(8)
+    c.drawString(LX + 3*mm, cy, fav);  cy -= 5*mm
+    c.drawString(LX + 3*mm, cy, unf);  cy -= 6*mm
 
-    # ── RIGHT column ─────────────────────────────────────────────────────────
-    hr_emp    = leave.hr_action_by
-    hr_name   = hr_emp.user.get_full_name() if hr_emp else ""
-    hr_date   = _fmt_date(leave.hr_action_date)
-    director  = leave.director_action_by
-    dir_name  = director.user.get_full_name() if director else ""
-    dir_date  = _fmt_date(leave.director_action_date)
-    resume    = _resume_date(leave.end_date)
+    # divider between "Unit Head" and "Line Manager"
+    line(LM, cy + 2*mm, MID_X, width=0.5)
 
-    rx = MID + 3 * mm
-    ry = header_y - 6 * mm
-    line_end_R = R - 3 * mm
+    B(8); c.drawString(LX, cy, "Line Manager/Superviseur"); cy -= lh
+    tfield("Nom/Last name:",       "", cy, LX, 30*mm, LE); cy -= lh
+    tfield("Prénoms/ First name:", "", cy, LX, 36*mm, LE); cy -= lh
+    tfield("Date and Signature",   "", cy, LX, 35*mm, LE)
 
-    bold(8.5); c.drawString(rx, ry, "Nombre de jours accordés")
-    ry -= 5 * mm
-    bold(8.5); c.drawString(rx, ry, "Number of days granted:")
-    normal(8.5)
-    granted = str(leave.total_days) if leave.status == "approved" else ""
-    c.drawString(rx + 44 * mm, ry, granted)
-    c.setLineWidth(0.5); c.line(rx + 43 * mm, ry - 1.5, line_end_R, ry - 1.5)
+    # ── RIGHT COLUMN ─────────────────────────────────────────────────────────
+    hr_emp   = leave.hr_action_by
+    hr_name  = hr_emp.user.get_full_name() if hr_emp else ""
+    hr_date  = _d(leave.hr_action_date)
+    director = leave.director_action_by
+    dir_name = director.user.get_full_name() if director else ""
+    dir_date = _d(leave.director_action_date)
+    granted  = str(leave.total_days) if leave.status == "approved" else ""
+    resume   = _d(_resume(leave.end_date))
+
+    RX  = MID_X + 2*mm
+    RE  = RM - 3*mm
+    ry  = HDR_Y - 5*mm
+
+    B(8); c.drawString(RX, ry, "Nombre de jours accordés"); ry -= 4*mm
+    tfield("Number of days granted:", granted, ry, RX, 42*mm, RE); ry -= lh
+    tfield("Du/From:",    _d(leave.start_date),  ry, RX, 18*mm, RE); ry -= lh
+    tfield("Au/to:",      _d(leave.end_date),    ry, RX, 14*mm, RE); ry -= lh
+    tfield("Reprise /Resume:", resume,            ry, RX, 30*mm, RE); ry -= lh
+    tfield("Date:",       hr_date,               ry, RX, 12*mm, RE); ry -= lh
+    tfield("Signature:",  hr_name,               ry, RX, 20*mm, RE); ry -= 6*mm
+
+    # divider above Administrative Director
+    line(MID_X, ry + 2*mm, RM, width=0.5)
+
+    B(8); c.drawString(RX, ry, "Administrative Director/Directeur Administrative")
     ry -= lh
+    tfield("Date:",      dir_date, ry, RX, 12*mm, RE); ry -= lh
+    tfield("Signature:", dir_name, ry, RX, 20*mm, RE)
 
-    bold(8.5); c.drawString(rx, ry, "Du/From:")
-    normal(8.5); c.drawString(rx + 19 * mm, ry, _fmt_date(leave.start_date))
-    c.line(rx + 18 * mm, ry - 1.5, line_end_R, ry - 1.5)
-    ry -= lh
-
-    bold(8.5); c.drawString(rx, ry, "Au/to:")
-    normal(8.5); c.drawString(rx + 14 * mm, ry, _fmt_date(leave.end_date))
-    c.line(rx + 13 * mm, ry - 1.5, line_end_R, ry - 1.5)
-    ry -= lh
-
-    bold(8.5); c.drawString(rx, ry, "Reprise/Resume:")
-    normal(8.5); c.drawString(rx + 33 * mm, ry, _fmt_date(resume))
-    c.line(rx + 32 * mm, ry - 1.5, line_end_R, ry - 1.5)
-    ry -= lh
-
-    bold(8.5); c.drawString(rx, ry, "Date:")
-    normal(8.5); c.drawString(rx + 13 * mm, ry, hr_date)
-    c.line(rx + 12 * mm, ry - 1.5, line_end_R, ry - 1.5)
-    ry -= lh
-
-    bold(8.5); c.drawString(rx, ry, "Signature:")
-    normal(8.5); c.drawString(rx + 22 * mm, ry, hr_name)
-    c.line(rx + 21 * mm, ry - 1.5, line_end_R, ry - 1.5)
-    ry -= 7 * mm
-
-    # Divider before Administrative Director
-    c.setLineWidth(0.4)
-    c.line(MID, ry + 3 * mm, R, ry + 3 * mm)
-
-    bold(8.5); c.drawString(rx, ry, "Administrative Director/Directeur Administratif")
-    ry -= lh
-    bold(8.5); c.drawString(rx, ry, "Date:")
-    normal(8.5); c.drawString(rx + 13 * mm, ry, dir_date)
-    c.setLineWidth(0.5); c.line(rx + 12 * mm, ry - 1.5, line_end_R, ry - 1.5)
-    ry -= lh
-    bold(8.5); c.drawString(rx, ry, "Signature:")
-    normal(8.5); c.drawString(rx + 22 * mm, ry, dir_name)
-    c.line(rx + 21 * mm, ry - 1.5, line_end_R, ry - 1.5)
-
-    # ════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════
     # FOOTER
-    # ════════════════════════════════════════════════════════════════════════
-    c.setLineWidth(0.5)
-    c.line(L, table_bottom - 3 * mm, R, table_bottom - 3 * mm)
+    # ═════════════════════════════════════════════════════════════════════════
+    line(LM, TABLE_BOTTOM - 2*mm, RM, width=1.0)
 
-    normal(7.5)
-    c.drawString(L, 28 * mm,
+    # Institution badge + notice text
+    B(7.5)
+    c.drawString(LM, 27*mm, "EYE INSTITUTE")
+    N(7.5)
+    c.drawString(LM + 23*mm, 27*mm,
         "Cette fiche remplie doit être déposée au plus tard 48 heures à l'avance.")
-    c.drawString(L, 24 * mm,
+    c.drawString(LM + 23*mm, 23*mm,
         "The filled form must be submitted 48 hours in advance by the requester.")
 
-    normal(6.5)
-    c.drawString(L, 18 * mm,
+    N(6.5)
+    c.drawString(LM, 17*mm,
         "Authorisation No /225/A/MINSANTE/SG/DCS/SD/3000  |  T No M0990509/TR652W  |  BGFI Bank")
-    c.drawString(L, 14 * mm,
-        "Address: Obok (route d'Obala)  ·  P.O Box: 59223 Yaoundé Cameroon  ·  Email: info@magrabicameroon.com")
+    c.drawString(LM, 13*mm,
+        "Address: Obok (route d'Obala)  ·  P.O Box: 59223 Yaoundé, Cameroon  ·  Email: info@magrabicameroon.com")
 
     c.save()
     buf.seek(0)
