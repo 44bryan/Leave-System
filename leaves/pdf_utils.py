@@ -56,7 +56,6 @@ def generate_leave_pdf(leave):
 
     def B(size=10):   c.setFont("Helvetica-Bold",   size)
     def N(size=10):   c.setFont("Helvetica",        size)
-    def BI(size=9):   c.setFont("Helvetica-BoldOblique", size)
 
     def line(x1, y, x2, width=0.6):
         c.setLineWidth(width)
@@ -114,19 +113,19 @@ def generate_leave_pdf(leave):
     y -= LH
 
     # 2. First name
-    field("2.   Prénoms/First Name:", emp.user.first_name, y, 53*mm)
+    field("2.   Prenoms /First Name :", emp.user.first_name, y, 55*mm)
     y -= LH
 
     # 3. Position
-    field("3.   Poste/Position:", emp.position or "", y, 42*mm)
+    field("3.   Poste/Position :", emp.position or "", y, 44*mm)
     y -= LH
 
     # 4. Hiring date
-    field("4.   Date d'embauche/Hiring Date:", _d(emp.date_joined_company), y, 70*mm)
+    field("4.   Date d'embauche/Hiring Date", _d(emp.date_joined_company), y, 67*mm)
     y -= LH
 
     # 5. Leave type
-    field("5.   Type: Congé Annuel/Annual Leave Days:", leave.leave_type.name, y, 89*mm)
+    field("5.   Type: Conge Annuel/ Annual Leave Days:", leave.leave_type.name, y, 89*mm)
     y -= LH
 
     # 6. Accrued From … to …   (split field)
@@ -142,11 +141,11 @@ def generate_leave_pdf(leave):
     y -= LH
 
     # 7. Accumulated days
-    field("7.   Jour Accumuler/Accumulated Days:", total_avail, y, 80*mm)
+    field("7.   Jour Accumuler /Accumulated Days:", total_avail, y, 80*mm)
     y -= LH
 
     # 8. Days requested
-    field("8.   Nombre de jours sollicités/Number of days requested:",
+    field("8.   Nombre de jours sollicites/Number of days requested:",
           str(leave.total_days), y, 118*mm)
     y -= LH
 
@@ -176,16 +175,16 @@ def generate_leave_pdf(leave):
 
     # 11. Deductible
     ded = "Yes / Oui" if leave.leave_type.is_deductible else "No / Non"
-    field("11.  Deductible des congés annuels/Deductible to annual leaves:", ded, y, 125*mm)
+    field("11.  Deductible des conges annuels/Deductible to annual leaves :", ded, y, 125*mm)
     y -= LH
 
     # 12. Back-up employee
-    field("12.  Back-up employee/Remplaçant:", "", y, 70*mm)
+    field("12.  Back-up employee/Remplacant :", "", y, 70*mm)
     y -= LH + 2 * mm
 
     # ── Requestor signature line ──────────────────────────────────────────────
     B(9)
-    c.drawString(LM, y, "Signature (Demandeur/Requestor):")
+    c.drawString(LM, y, "Signature (Demandeur/Requestor) :")
     line(LM + 66*mm, y - 1.5, LM + 115*mm)
     c.drawString(LM + 117*mm, y, "Date:")
     line(LM + 129*mm, y - 1.5, RM)
@@ -229,7 +228,6 @@ def generate_leave_pdf(leave):
     mgr_last   = mgr.user.last_name.upper() if mgr else ""
     mgr_first  = mgr.user.first_name        if mgr else ""
     mgr_date   = _d(leave.manager_action_date)
-    approved   = leave.status not in ("rejected_manager", "pending", "cancelled")
     LX         = LM + 2*mm
     LE         = MID_X - 3*mm
     cy         = HDR_Y - 5*mm
@@ -239,23 +237,25 @@ def generate_leave_pdf(leave):
     cy -= lh
 
     tfield("Nom/Last name:", mgr_last,   cy, LX, 30*mm, LE); cy -= lh
-    tfield("Prénoms/ First name:", mgr_first, cy, LX, 36*mm, LE); cy -= lh
+    tfield("Prenoms/ First name:", mgr_first, cy, LX, 36*mm, LE); cy -= lh
     tfield("Date and Signature",  mgr_date,  cy, LX, 35*mm, LE); cy -= lh + 1*mm
 
     B(8); c.drawString(LX, cy, "Avis/Opinion :")
     cy -= 5*mm
-    fav = "\u2611 Favorable/ Favourable:" if approved else "\u2610 Favorable/ Favourable:"
-    unf = "\u2610 Défavorable/unfavourable:" if approved else "\u2611 Défavorable/unfavourable:"
     B(8)
-    c.drawString(LX + 3*mm, cy, fav);  cy -= 5*mm
-    c.drawString(LX + 3*mm, cy, unf);  cy -= 6*mm
+    c.drawString(LX + 4*mm, cy, "Favorable/ Favourable:")
+    line(LX + 4*mm + 52*mm, cy - 1.5, LE)
+    cy -= 5*mm
+    c.drawString(LX + 4*mm, cy, "Defavorable/unfavourable:")
+    line(LX + 4*mm + 55*mm, cy - 1.5, LE)
+    cy -= 6*mm
 
     # divider between "Unit Head" and "Line Manager"
     line(LM, cy + 2*mm, MID_X, width=0.5)
 
     B(8); c.drawString(LX, cy, "Line Manager/Superviseur"); cy -= lh
     tfield("Nom/Last name:",       "", cy, LX, 30*mm, LE); cy -= lh
-    tfield("Prénoms/ First name:", "", cy, LX, 36*mm, LE); cy -= lh
+    tfield("Prenoms/ First name:", "", cy, LX, 36*mm, LE); cy -= lh
     tfield("Date and Signature",   "", cy, LX, 35*mm, LE)
 
     # ── RIGHT COLUMN ─────────────────────────────────────────────────────────
@@ -272,7 +272,7 @@ def generate_leave_pdf(leave):
     RE  = RM - 3*mm
     ry  = HDR_Y - 5*mm
 
-    B(8); c.drawString(RX, ry, "Nombre de jours accordés"); ry -= 4*mm
+    B(8); c.drawString(RX, ry, "Nombre de jours accordes"); ry -= 4*mm
     tfield("Number of days granted:", granted, ry, RX, 42*mm, RE); ry -= lh
     tfield("Du/From:",    _d(leave.start_date),  ry, RX, 18*mm, RE); ry -= lh
     tfield("Au/to:",      _d(leave.end_date),    ry, RX, 14*mm, RE); ry -= lh
@@ -283,7 +283,7 @@ def generate_leave_pdf(leave):
     # divider above Administrative Director
     line(MID_X, ry + 2*mm, RM, width=0.5)
 
-    B(8); c.drawString(RX, ry, "Administrative Director/Directeur Administrative")
+    B(8); c.drawString(RX, ry, "Administrative Director/Directeur Administratif")
     ry -= lh
     tfield("Date:",      dir_date, ry, RX, 12*mm, RE); ry -= lh
     tfield("Signature:", dir_name, ry, RX, 20*mm, RE)
@@ -298,7 +298,7 @@ def generate_leave_pdf(leave):
     c.drawString(LM, 27*mm, "EYE INSTITUTE")
     N(7.5)
     c.drawString(LM + 23*mm, 27*mm,
-        "Cette fiche remplie doit être déposée au plus tard 48 heures à l'avance.")
+        "Cette fiche remplie doit etre deposee au plus tard 48 heures a l'avance.")
     c.drawString(LM + 23*mm, 23*mm,
         "The filled form must be submitted 48 hours in advance by the requester.")
 
@@ -306,7 +306,7 @@ def generate_leave_pdf(leave):
     c.drawString(LM, 17*mm,
         "Authorisation No /225/A/MINSANTE/SG/DCS/SD/3000  |  T No M0990509/TR652W  |  BGFI Bank")
     c.drawString(LM, 13*mm,
-        "Address: Obok (route d'Obala)  ·  P.O Box: 59223 Yaoundé, Cameroon  ·  Email: info@magrabicameroon.com")
+        "Address: Obok (route d'Obala)  .  P.O Box: 59223 Yaounde, Cameroon  .  Email: info@magrabicameroon.com")
 
     c.save()
     buf.seek(0)
