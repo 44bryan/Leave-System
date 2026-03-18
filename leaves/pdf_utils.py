@@ -272,6 +272,10 @@ def generate_leave_pdf(leave):
     line(LX + 4*mm + 55*mm, cy - 1.5, LE)
     cy -= 6*mm
 
+    # divider between "Unit Head" and "Line Manager"
+    line(LM, cy + 4*mm, MID_X, width=0.5)
+    cy -= 2*mm
+
     # Line Manager section: fill with manager info when no separate unit head
     lm_last  = mgr_last
     lm_first = mgr_first
@@ -305,6 +309,10 @@ def generate_leave_pdf(leave):
     tfield("Reprise /Resume:", resume,            ry, RX, 30*mm, RE); ry -= lh
     tfield("Date:",       hr_date,               ry, RX, 12*mm, RE); ry -= lh
     tfield("Signature:",  hr_name,               ry, RX, 20*mm, RE); ry -= 6*mm
+
+    # divider above Administrative Director
+    line(MID_X, ry + 4*mm, RM, width=0.5)
+    ry -= 2*mm
 
     B(8); c.drawString(RX, ry, "Administrative Director/Directeur Administratif")
     ry -= lh
