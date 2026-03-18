@@ -76,18 +76,33 @@ def generate_leave_pdf(leave):
         if not employee_obj or not employee_obj.signature:
             return False
         try:
-            # Try filesystem path first (reliable on local dev)
+            from PIL import Image as PILImage
+            import io as _io
+            # Load image via PIL (handles RGBA, path issues, format variations)
             try:
-                img_path = employee_obj.signature.path
-                img_reader = ImageReader(img_path)
-            except (NotImplementedError, ValueError, AttributeError):
-                # Fall back to Django storage API (works on Railway/cloud)
+                pil_img = PILImage.open(employee_obj.signature.path)
+            except (NotImplementedError, ValueError, AttributeError, Exception):
                 with employee_obj.signature.open('rb') as f:
-                    img_data = BytesIO(f.read())
-                img_data.seek(0)
-                img_reader = ImageReader(img_data)
+                    raw = _io.BytesIO(f.read())
+                raw.seek(0)
+                pil_img = PILImage.open(raw)
+            pil_img.load()  # force full load before file handle may close
+
+            # Composite transparent PNG onto white so ReportLab draws cleanly
+            if pil_img.mode in ('RGBA', 'LA', 'P'):
+                pil_img = pil_img.convert('RGBA')
+                bg = PILImage.new('RGBA', pil_img.size, (255, 255, 255, 255))
+                bg.paste(pil_img, mask=pil_img.split()[3])
+                pil_img = bg.convert('RGB')
+            else:
+                pil_img = pil_img.convert('RGB')
+
+            out = _io.BytesIO()
+            pil_img.save(out, format='PNG')
+            out.seek(0)
+            img_reader = ImageReader(out)
             c.drawImage(img_reader, x, y - max_h + 1*mm, width=max_w, height=max_h,
-                        preserveAspectRatio=True, mask='auto')
+                        preserveAspectRatio=True)
             return True
         except Exception:
             pass
