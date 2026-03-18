@@ -114,6 +114,7 @@ def submit_leave(request):
             if overlapping.exists():
                 messages.error(request, "You already have a leave request for overlapping dates.")
             else:
+                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
                 leave.save()
                 if employee.is_intern():
                     # Interns skip manager step — go directly to HR

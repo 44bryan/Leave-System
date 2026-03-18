@@ -95,8 +95,38 @@
                     <div class="alert alert-danger">{{ form.non_field_errors }}</div>
                     {% endif %}
 
+                    <!-- Requestor Signature -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-pen me-1" style="color:#0891a8;"></i>
+                            {% trans "Your Signature" %} <span class="text-danger">*</span>
+                        </label>
+                        <input type="hidden" name="signature_data" id="signatureData">
+                        <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #cbd5e0;">
+                            <div style="font-size:0.78rem;color:#6b7a8d;margin-bottom:8px;">
+                                Sign below to confirm you are requesting this leave. Your signature will appear on the official leave document.
+                            </div>
+                            <div style="position:relative;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;">
+                                <canvas id="sigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
+                                <div id="sigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:0.85rem;pointer-events:none;user-select:none;text-align:center;">
+                                    <i class="bi bi-pen" style="font-size:1.4rem;display:block;margin-bottom:4px;"></i>
+                                    Draw your signature here
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span id="sigError" class="text-danger small" style="display:none;">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Please draw your signature before submitting.
+                                </span>
+                                <span></span>
+                                <button type="button" id="clearSig" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eraser me-1"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary px-4">
+                        <button type="submit" class="btn btn-primary px-4" id="submitBtn">
                             <i class="bi bi-send-check me-2"></i>{% trans "Submit Request" %}
                         </button>
                         <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary px-4">{% trans "Cancel" %}</a>
@@ -225,5 +255,50 @@ function updateDeductibleIndicator() {
 leaveTypeEl.addEventListener('change', updateDeductibleIndicator);
 // Run on page load in case a value is already selected (e.g. form re-render after error)
 updateDeductibleIndicator();
+
+// ── Requestor Signature Pad ───────────────────────────────────────────────────
+const canvas      = document.getElementById('sigCanvas');
+const placeholder = document.getElementById('sigPlaceholder');
+const dataInput   = document.getElementById('signatureData');
+const sigError    = document.getElementById('sigError');
+let signaturePad  = null;
+
+function initPad() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const rect  = canvas.getBoundingClientRect();
+    canvas.width  = rect.width  * ratio;
+    canvas.height = 140 * ratio;
+    canvas.style.height = '140px';
+    canvas.getContext('2d').scale(ratio, ratio);
+    if (signaturePad) signaturePad.off();
+    signaturePad = new SignaturePad(canvas, { minWidth: 1, maxWidth: 3, penColor: '#0a2d45' });
+    signaturePad.addEventListener('beginStroke', () => {
+        placeholder.style.display = 'none';
+        sigError.style.display    = 'none';
+    });
+}
+window.addEventListener('load', initPad);
+window.addEventListener('resize', () => {
+    if (!signaturePad) return;
+    const data = signaturePad.toData();
+    initPad();
+    signaturePad.fromData(data);
+    if (!data.length) placeholder.style.display = 'block';
+});
+
+document.getElementById('clearSig').addEventListener('click', () => {
+    if (signaturePad) { signaturePad.clear(); placeholder.style.display = 'block'; }
+});
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    if (!signaturePad || signaturePad.isEmpty()) {
+        e.preventDefault();
+        sigError.style.display = 'inline';
+        canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
+    dataInput.value = signaturePad.toDataURL('image/png');
+});
 </script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 {% endblock %}

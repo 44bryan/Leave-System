@@ -58,6 +58,11 @@
                         <div class="timeline-dot" style="background:#088395;"></div>
                         <div class="fw-semibold" style="font-size:.85rem;">{% trans "Request Submitted" %}</div>
                         <div class="text-muted" style="font-size:.75rem;">{{ leave.created_at|date:"M d, Y H:i" }} · by {{ leave.employee.get_full_name }}</div>
+                        {% if leave.employee.signature %}
+                        <div class="mt-1" style="background:#f8fafc;border-radius:8px;padding:5px 10px;display:inline-block;">
+                            <img src="{{ leave.employee.signature.url }}" alt="Signature" style="max-height:34px;max-width:130px;vertical-align:middle;">
+                        </div>
+                        {% endif %}
                     </div>
 
                     {% if leave.unit_head_action_by %}
