@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db import transaction
 from .models import Employee, Department
 from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm
+from .signature_utils import process_signature
 
 
 def login_view(request):
@@ -187,7 +188,16 @@ def employee_edit(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
     form = EmployeeEditForm(request.POST or None, request.FILES or None, instance=employee)
     if request.method == 'POST' and form.is_valid():
-        form.save()
+        emp_obj = form.save(commit=False)
+        sig_file = request.FILES.get('signature')
+        if sig_file:
+            processed = process_signature(sig_file)
+            if processed:
+                from django.core.files.base import ContentFile
+                import os
+                old_name = os.path.splitext(sig_file.name)[0]
+                emp_obj.signature.save(f"{old_name}_sig.png", ContentFile(processed.read()), save=False)
+        emp_obj.save()
         messages.success(request, "Employee updated successfully.")
         return redirect('accounts:employee_list')
 

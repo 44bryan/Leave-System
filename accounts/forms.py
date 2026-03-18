@@ -83,7 +83,7 @@ class EmployeeCreateForm(forms.ModelForm):
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'school_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. University of Yaoundé I'}),
             'speciality': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Medicine, Nursing, Ophthalmology'}),
-            'signature': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'signature': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*,.pdf'}),
         }
 
     def clean_staff_category(self):
@@ -138,7 +138,7 @@ class EmployeeEditForm(forms.ModelForm):
             'contract_number': forms.TextInput(attrs={'class': 'form-control'}),
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'school_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. University of Yaoundé I'}),
-            'signature': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'signature': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*,.pdf'}),
             'speciality': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Medicine, Nursing, Ophthalmology'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
