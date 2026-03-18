@@ -110,11 +110,8 @@
                     <i class="bi bi-arrow-left me-1"></i>{% trans "Go Back" %}
                 </a>
                 {% if leave.status == 'approved' %}
-                <a href="{% url 'leaves:print_leave' leave.pk %}" target="_blank" class="btn btn-success w-100 mb-2">
-                    <i class="bi bi-printer me-1"></i>{% trans "Print Approval Letter" %}
-                </a>
-                <a href="{% url 'leaves:pdf_leave' leave.pk %}" class="btn btn-primary w-100 mb-2">
-                    <i class="bi bi-file-earmark-pdf me-1"></i>Download Official PDF Form
+                <a href="{% url 'leaves:pdf_leave' leave.pk %}" class="btn btn-success w-100 mb-2">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download Official Form" %}
                 </a>
                 {% endif %}
                 {% if leave.can_cancel and leave.employee == request.user.employee %}
