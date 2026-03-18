@@ -89,21 +89,13 @@ def generate_leave_pdf(leave):
     # ═════════════════════════════════════════════════════════════════════════
     y = H - 14 * mm
 
-    # Logo — top right
-    BLUE = colors.HexColor("#1a6fa0")
+    # Logo — top left, large (logo already contains the institute name)
     logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "LOGO.png")
     if os.path.exists(logo_path):
-        LOGO_SIZE = 18 * mm
-        c.drawImage(logo_path, RM - LOGO_SIZE, y - 10*mm, width=LOGO_SIZE, height=LOGO_SIZE,
+        LOGO_W = 55 * mm
+        LOGO_H = 20 * mm
+        c.drawImage(logo_path, LM, y - 12*mm, width=LOGO_W, height=LOGO_H,
                     preserveAspectRatio=True, mask='auto')
-
-    # Institution name — top right, in blue, next to logo
-    c.setFillColor(BLUE)
-    B(10)
-    c.drawRightString(RM - 20*mm, y,        "MAGRABI ICO CAMEROON")
-    B(9)
-    c.drawRightString(RM - 20*mm, y - 5*mm, "EYE INSTITUTE")
-    c.setFillColor(colors.black)
 
     # Thick horizontal rule below header area
     line(LM, H - 22 * mm, RM, width=1.5)
