@@ -87,31 +87,33 @@ def generate_leave_pdf(leave):
     # ═════════════════════════════════════════════════════════════════════════
     # HEADER
     # ═════════════════════════════════════════════════════════════════════════
-    y = H - 14 * mm
 
-    # Logo — top left, large (logo already contains the institute name)
+    # Logo — top left, sized to sit cleanly above the rule line
     logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "LOGO.png")
+    RULE_Y = H - 28 * mm   # rule sits here — pushed down to give logo room
     if os.path.exists(logo_path):
-        LOGO_W = 55 * mm
-        LOGO_H = 20 * mm
-        c.drawImage(logo_path, LM, y - 12*mm, width=LOGO_W, height=LOGO_H,
+        LOGO_H = 22 * mm
+        LOGO_W = 60 * mm
+        # Bottom of logo = 3 mm above the rule line
+        logo_y = RULE_Y + 3 * mm
+        c.drawImage(logo_path, LM, logo_y, width=LOGO_W, height=LOGO_H,
                     preserveAspectRatio=True, mask='auto')
 
-    # Thick horizontal rule below header area
-    line(LM, H - 22 * mm, RM, width=1.5)
+    # Thick horizontal rule
+    line(LM, RULE_Y, RM, width=1.5)
 
-    # Title block — centred
+    # Title block — centred, below the rule
     B(13)
-    c.drawCentredString(W / 2, H - 29 * mm, "DEMANDE / REQUEST")
+    c.drawCentredString(W / 2, RULE_Y - 8 * mm, "DEMANDE / REQUEST")
     B(11)
-    c.drawCentredString(W / 2, H - 36 * mm,
+    c.drawCentredString(W / 2, RULE_Y - 15 * mm,
                         "AUTORISATION D'ABSENCE / AUTHORISATION OF ABSENCE")
 
     # ═════════════════════════════════════════════════════════════════════════
     # NUMBERED FIELDS  (1 – 12)
     # ═════════════════════════════════════════════════════════════════════════
     LH = 9 * mm    # line height
-    y  = H - 47 * mm
+    y  = RULE_Y - 26 * mm
 
     # 1. Last name
     field("1.   Nom/Last name:", emp.user.last_name.upper(), y, 44*mm)
