@@ -86,8 +86,8 @@
                                 <i class="bi bi-eye"></i>
                             </a>
                             {% if req.status == 'approved' %}
-                            <a href="{% url 'leaves:print_leave' req.pk %}" target="_blank" class="btn btn-sm btn-outline-success" title="Print Approval Letter">
-                                <i class="bi bi-printer"></i>
+                            <a href="{% url 'leaves:pdf_leave' req.pk %}" class="btn btn-sm btn-outline-success" title="Download Official Form">
+                                <i class="bi bi-file-earmark-pdf"></i>
                             </a>
                             {% endif %}
                         </div>
