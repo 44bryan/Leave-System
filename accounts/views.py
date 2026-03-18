@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.db import transaction
 from .models import Employee, Department
 from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm
-from .signature_utils import process_signature
 
 
 def login_view(request):
@@ -252,37 +251,36 @@ def department_delete(request, pk):
 
 
 @login_required
-def upload_signature(request):
-    """Allow any logged-in employee to upload their own signature from their profile page."""
+def set_employee_signature(request, pk):
+    """Superuser-only: draw and save a signature on behalf of a key approver."""
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('accounts:employee_list')
     if request.method != 'POST':
-        return redirect('accounts:profile')
-    try:
-        employee = request.user.employee
-    except Employee.DoesNotExist:
-        messages.error(request, "No employee profile found.")
-        return redirect('accounts:profile')
+        return redirect('accounts:employee_edit', pk=pk)
 
-    sig_file = request.FILES.get('signature')
-    if not sig_file:
-        messages.error(request, "No file selected.")
-        return redirect('accounts:profile')
+    employee = get_object_or_404(Employee, pk=pk)
+    b64_data = request.POST.get('signature_data', '')
 
+    if not b64_data or not b64_data.startswith('data:image/png;base64,'):
+        messages.error(request, "No signature drawn.")
+        return redirect('accounts:employee_edit', pk=pk)
+
+    import base64
     from django.core.files.base import ContentFile
-    import os
-    processed = process_signature(sig_file)
-    if not processed:
-        messages.error(request, "Could not process signature. Please upload a clear image or PDF.")
-        return redirect('accounts:profile')
-
-    if employee.signature:
-        try:
-            employee.signature.delete(save=False)
-        except Exception:
-            pass
-    fname = os.path.splitext(sig_file.name)[0] + '_sig.png'
-    employee.signature.save(fname, ContentFile(processed.read()), save=True)
-    messages.success(request, "Signature uploaded successfully. It will now appear on your approved leave documents.")
-    return redirect('accounts:profile')
+    try:
+        raw = base64.b64decode(b64_data.split(',', 1)[1])
+        if employee.signature:
+            try:
+                employee.signature.delete(save=False)
+            except Exception:
+                pass
+        fname = f"{employee.employee_id}_sig.png"
+        employee.signature.save(fname, ContentFile(raw), save=True)
+        messages.success(request, f"Signature saved for {employee.get_full_name()}.")
+    except Exception:
+        messages.error(request, "Could not save signature. Please try again.")
+    return redirect('accounts:employee_edit', pk=pk)
 
 
 @login_required

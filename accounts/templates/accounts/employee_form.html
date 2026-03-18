@@ -211,27 +211,6 @@
                     </div>
                     {% endif %}
 
-                    <!-- Signature Upload -->
-                    <hr class="my-4">
-                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
-                        <i class="bi bi-pen me-1"></i> Signature
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Upload Signature <span class="text-muted small">(optional)</span></label>
-                            {{ form.signature }}
-                            <div class="form-text">Upload a scanned signature as an image (PNG, JPG) or PDF. The white background is removed automatically — only the signature stroke will appear on the leave form.</div>
-                        </div>
-                        {% if employee and employee.signature %}
-                        <div class="col-md-6 d-flex align-items-center">
-                            <div>
-                                <div class="form-text mb-1">Current signature:</div>
-                                <img src="{{ employee.signature.url }}" alt="Signature"
-                                     style="max-height:60px;max-width:220px;border:1px solid #e2e8f0;border-radius:6px;padding:6px;background:#fff;">
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
 
                     {% if form.errors %}
                     <div class="alert alert-danger mt-3">
@@ -358,6 +337,64 @@
         </div>
     </div>
 </div>
+{% if employee and request.user.is_superuser %}
+<!-- ─── SIGNATURE PANEL (superuser only) ─── -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-9">
+        <div class="card animate-in delay-2" style="border-color:#cde8ef;">
+            <div class="card-header" style="background:#f0fafc;border-color:#cde8ef;">
+                <i class="bi bi-pen me-2" style="color:#0891a8;"></i>
+                <strong>Official Signature</strong>
+                <span class="ms-2 badge bg-secondary" style="font-size:.7rem;">Superuser only</span>
+            </div>
+            <div class="card-body p-4">
+                <p style="font-size:.82rem;color:#6b7a8d;margin-bottom:16px;">
+                    Draw this employee's signature below. It will appear automatically on all leave authorisation PDFs they approve.
+                    {% if employee.signature %}The current signature (shown on the right) will be replaced.{% endif %}
+                </p>
+                <div class="row g-4 align-items-start">
+                    <div class="col-md-{% if employee.signature %}7{% else %}12{% endif %}">
+                        <form method="post" action="{% url 'accounts:set_employee_signature' employee.pk %}" id="sigAdminForm" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="signature_data" id="adminSigData">
+                            <div style="background:#fff;border-radius:10px;border:1.5px solid #cbd5e0;overflow:hidden;position:relative;">
+                                <canvas id="adminSigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
+                                <div id="adminSigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:.85rem;pointer-events:none;user-select:none;text-align:center;">
+                                    <i class="bi bi-pen" style="font-size:1.5rem;display:block;margin-bottom:4px;"></i>
+                                    Draw signature here
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span id="adminSigError" class="text-danger small" style="display:none;">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Please draw the signature first.
+                                </span>
+                                <span></span>
+                                <div class="d-flex gap-2">
+                                    <button type="button" id="clearAdminSig" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eraser me-1"></i>Clear
+                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-primary" id="saveAdminSig">
+                                        <i class="bi bi-check-circle me-1"></i>Save Signature
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    {% if employee.signature %}
+                    <div class="col-md-5">
+                        <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;margin-bottom:8px;">Current Signature on File</div>
+                        <div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;">
+                            <img src="{{ employee.signature.url }}" alt="Current Signature"
+                                 style="max-height:70px;max-width:100%;border-radius:6px;">
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endif %}
 {% endblock %}
 
@@ -450,5 +487,55 @@
     if (roleSelect) roleSelect.addEventListener('change', update);
     update();
 })();
+
+// ── Admin Signature Pad ───────────────────────────────────────────────────────
+(function() {
+    const canvas      = document.getElementById('adminSigCanvas');
+    if (!canvas) return;  // not a superuser or not edit mode
+    const placeholder = document.getElementById('adminSigPlaceholder');
+    const dataInput   = document.getElementById('adminSigData');
+    const errSpan     = document.getElementById('adminSigError');
+    let pad = null;
+
+    function initPad() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const rect  = canvas.getBoundingClientRect();
+        canvas.width  = rect.width  * ratio;
+        canvas.height = 140 * ratio;
+        canvas.style.height = '140px';
+        canvas.getContext('2d').scale(ratio, ratio);
+        if (pad) pad.off();
+        pad = new SignaturePad(canvas, { minWidth: 1, maxWidth: 3, penColor: '#0a2d45' });
+        pad.addEventListener('beginStroke', () => {
+            placeholder.style.display = 'none';
+            errSpan.style.display = 'none';
+        });
+    }
+
+    // Delay init until library is loaded and layout is settled
+    window.addEventListener('load', initPad);
+    window.addEventListener('resize', () => {
+        if (!pad) return;
+        const data = pad.toData();
+        initPad();
+        pad.fromData(data);
+        if (!data.length) placeholder.style.display = 'block';
+    });
+
+    document.getElementById('clearAdminSig').addEventListener('click', () => {
+        if (pad) { pad.clear(); placeholder.style.display = 'block'; }
+    });
+
+    document.getElementById('sigAdminForm').addEventListener('submit', function(e) {
+        if (!pad || pad.isEmpty()) {
+            e.preventDefault();
+            errSpan.style.display = 'inline';
+            canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        dataInput.value = pad.toDataURL('image/png');
+    });
+})();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 {% endblock %}

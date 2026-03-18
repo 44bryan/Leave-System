@@ -269,6 +269,29 @@ Then open: **http://127.0.0.1:8000**
 
 ## Change Log
 
+### 2026-03-18
+
+- **Draw-pad digital signatures on approval forms**
+  - Removed file-upload signature from employee profile page and employee edit form entirely
+  - All 4 approval forms (Unit Head, Line Manager, HR, Director) now include a canvas signature drawing pad (`signature_pad` JS library via CDN)
+  - Pad appears only when "Approve" is selected; hidden when "Reject" is selected
+  - Submit is blocked client-side if the approver hasn't drawn a signature
+  - On approve, the drawn PNG is saved to `employee.signature` and used on all future leave PDFs for that approver
+  - `_save_drawn_signature()` helper added to `leaves/views.py`
+  - Removed `upload_signature` view from `accounts/views.py` and URL from `accounts/urls.py`
+
+- **Admin signature management** — superuser can pre-set a signature for any employee
+  - Draw pad panel added to the employee edit form, visible to superusers only (`{% if employee and request.user.is_superuser %}`)
+  - Shows current signature on file (if any) alongside the draw pad
+  - New view `set_employee_signature` in `accounts/views.py` (POST, superuser-only)
+  - New URL: `accounts/employees/<pk>/set-signature/`
+
+- **Signature preview on leave detail page** (`leaves/leave_detail.html`)
+  - Each approver step in the Approval History timeline now shows the approver's signature image if one is on file
+  - Covers: Unit Head, Manager, HR, Director steps
+
+---
+
 ### 2026-03-17
 
 - **Suspension lockout — phone/tablet fix** (`templates/base.html`)

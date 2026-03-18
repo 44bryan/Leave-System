@@ -18,6 +18,25 @@ def get_employee(request):
         return None
 
 
+def _save_drawn_signature(employee, b64_data):
+    """Decode a base64 PNG from the signature pad and save to employee.signature."""
+    import base64
+    from django.core.files.base import ContentFile
+    if not b64_data or not b64_data.startswith('data:image/png;base64,'):
+        return
+    try:
+        raw = base64.b64decode(b64_data.split(',', 1)[1])
+        if employee.signature:
+            try:
+                employee.signature.delete(save=False)
+            except Exception:
+                pass
+        fname = f"{employee.employee_id}_sig.png"
+        employee.signature.save(fname, ContentFile(raw), save=True)
+    except Exception:
+        pass
+
+
 @login_required
 def submit_leave(request):
     employee = get_employee(request)
@@ -223,6 +242,7 @@ def unit_head_action(request, pk):
             leave.unit_head_action_date = timezone.now()
             leave.unit_head_remarks = remarks
             if action == 'approve':
+                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
                 leave.status = LeaveRequest.STATUS_UNIT_HEAD_APPROVED
                 leave.save()
                 messages.success(request, "Leave approved. Forwarded to Line Manager.")
@@ -328,6 +348,7 @@ def manager_action(request, pk):
             leave.manager_action_date = timezone.now()
             leave.manager_remarks = remarks
             if action == 'approve':
+                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
                 leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
                 messages.success(request, "Leave request approved. Forwarded to HR for review.")
                 notify(
@@ -417,6 +438,7 @@ def hr_action(request, pk):
             leave.hr_action_date = timezone.now()
             leave.hr_remarks = remarks
             if action == 'approve':
+                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
                 leave.status = LeaveRequest.STATUS_HR_APPROVED
                 messages.success(request, "Leave request approved by HR. Forwarded to Administration Director.")
                 notify(
@@ -506,6 +528,7 @@ def director_action(request, pk):
             leave.director_action_date = timezone.now()
             leave.director_remarks = remarks
             if action == 'approve':
+                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
                 leave.status = LeaveRequest.STATUS_APPROVED
                 messages.success(request, "Leave request FULLY APPROVED by Administration Director.")
                 notify(

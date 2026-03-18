@@ -107,8 +107,9 @@
                 <i class="bi bi-check2-square me-2"></i>{% trans "Your Decision" %}
             </div>
             <div class="card-body p-4">
-                <form method="post" novalidate>
+                <form method="post" id="decisionForm" novalidate>
                     {% csrf_token %}
+                    <input type="hidden" name="signature_data" id="signatureData">
 
                     <div class="mb-4">
                         <label class="form-label">{% trans "Decision" %} <span class="text-danger">*</span></label>
@@ -135,8 +136,37 @@
                         {{ form.remarks }}
                     </div>
 
+                    <!-- Signature Pad — shown only when Approve is selected -->
+                    <div id="signaturePadSection" style="display:none;" class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-pen me-1" style="color:#0891a8;"></i>
+                            Your Signature <span class="text-danger">*</span>
+                        </label>
+                        <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #cbd5e0;">
+                            <div style="font-size:0.78rem;color:#6b7a8d;margin-bottom:8px;">
+                                Sign below. This signature will appear on the approved leave document and be saved for future approvals.
+                            </div>
+                            <div style="position:relative;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;">
+                                <canvas id="sigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
+                                <div id="sigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:0.85rem;pointer-events:none;user-select:none;">
+                                    <i class="bi bi-pen" style="font-size:1.4rem;display:block;text-align:center;margin-bottom:4px;"></i>
+                                    Draw your signature here
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span id="sigError" class="text-danger small" style="display:none;">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Please draw your signature before approving.
+                                </span>
+                                <span></span>
+                                <button type="button" id="clearSig" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eraser me-1"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary px-4">
+                        <button type="submit" class="btn btn-primary px-4" id="submitBtn">
                             <i class="bi bi-send-check me-2"></i>{% trans "Submit Decision" %}
                         </button>
                         <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary px-4">{% trans "Cancel" %}</a>
@@ -200,23 +230,90 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
-// Visual feedback on radio selection
+// ── Signature Pad setup ───────────────────────────────────────────────────────
+const canvas       = document.getElementById('sigCanvas');
+const placeholder  = document.getElementById('sigPlaceholder');
+const sigDataInput = document.getElementById('signatureData');
+const sigSection   = document.getElementById('signaturePadSection');
+const sigError     = document.getElementById('sigError');
+let signaturePad   = null;
+
+function initPad() {
+    // Set physical pixel size for crisp rendering on HiDPI screens
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const rect  = canvas.getBoundingClientRect();
+    canvas.width  = rect.width  * ratio;
+    canvas.height = 150 * ratio;
+    canvas.style.height = '150px';
+    canvas.getContext('2d').scale(ratio, ratio);
+
+    if (signaturePad) { signaturePad.off(); }
+    signaturePad = new SignaturePad(canvas, {
+        minWidth: 1,
+        maxWidth: 3,
+        penColor: '#0a2d45',
+    });
+
+    signaturePad.addEventListener('beginStroke', () => {
+        placeholder.style.display = 'none';
+        sigError.style.display    = 'none';
+    });
+}
+
+// ── Show / hide pad based on decision radio ───────────────────────────────────
 document.querySelectorAll('input[name="action"]').forEach(radio => {
-    radio.addEventListener('change', function() {
+    radio.addEventListener('change', function () {
+        // Visual feedback on cards
         document.querySelectorAll('.form-check-label').forEach(l => {
             l.style.background = '';
             l.style.color = '';
         });
         const lbl = this.nextElementSibling;
         if (this.value === 'approve') {
-            lbl.style.background = '#e8f5e9';
+            lbl.style.background  = '#e8f5e9';
             lbl.style.borderColor = '#4caf50';
+            sigSection.style.display = 'block';
+            if (!signaturePad) { initPad(); }
         } else {
-            lbl.style.background = '#fce4ec';
+            lbl.style.background  = '#fce4ec';
             lbl.style.borderColor = '#e53e3e';
+            sigSection.style.display = 'none';
         }
     });
+});
+
+// ── Clear button ──────────────────────────────────────────────────────────────
+document.getElementById('clearSig').addEventListener('click', () => {
+    if (signaturePad) {
+        signaturePad.clear();
+        placeholder.style.display = 'block';
+    }
+});
+
+// ── Re-init on window resize so canvas stays sharp ───────────────────────────
+window.addEventListener('resize', () => {
+    if (sigSection.style.display !== 'none' && signaturePad) {
+        const data = signaturePad.toData();
+        initPad();
+        signaturePad.fromData(data);
+        if (data.length === 0) { placeholder.style.display = 'block'; }
+    }
+});
+
+// ── Form submit: validate + attach base64 ────────────────────────────────────
+document.getElementById('decisionForm').addEventListener('submit', function (e) {
+    const action = document.querySelector('input[name="action"]:checked');
+    if (action && action.value === 'approve') {
+        if (!signaturePad || signaturePad.isEmpty()) {
+            e.preventDefault();
+            sigError.style.display = 'inline';
+            sigSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        sigDataInput.value = signaturePad.toDataURL('image/png');
+    }
 });
 </script>
 {% endblock %}

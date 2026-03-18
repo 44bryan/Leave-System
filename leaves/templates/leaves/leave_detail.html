@@ -60,6 +60,24 @@
                         <div class="text-muted" style="font-size:.75rem;">{{ leave.created_at|date:"M d, Y H:i" }} · by {{ leave.employee.get_full_name }}</div>
                     </div>
 
+                    {% if leave.unit_head_action_by %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background:{% if leave.status == 'rejected_unit_head' %}#e53e3e{% else %}#0d6832{% endif %};"></div>
+                        <div class="fw-semibold" style="font-size:.85rem;">
+                            Unit Head {% if leave.status == 'rejected_unit_head' %}Rejected{% else %}Approved{% endif %}
+                        </div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ leave.unit_head_action_date|date:"M d, Y H:i" }} · by {{ leave.unit_head_action_by.get_full_name }}</div>
+                        {% if leave.unit_head_action_by.signature %}
+                        <div class="mt-1" style="background:#f8fafc;border-radius:8px;padding:5px 10px;display:inline-block;">
+                            <img src="{{ leave.unit_head_action_by.signature.url }}" alt="Signature" style="max-height:34px;max-width:130px;vertical-align:middle;">
+                        </div>
+                        {% endif %}
+                        {% if leave.unit_head_remarks %}
+                        <div style="font-size:.78rem;background:#f8fafc;border-radius:8px;padding:8px 10px;margin-top:4px;color:#6b7a8d;">{{ leave.unit_head_remarks }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
                     {% if leave.manager_action_by %}
                     <div class="timeline-item">
                         <div class="timeline-dot" style="background:{% if 'rejected_manager' == leave.status %}#e53e3e{% else %}#0d6832{% endif %};"></div>
@@ -67,6 +85,11 @@
                             Manager {% if leave.status == 'rejected_manager' %}Rejected{% else %}Approved{% endif %}
                         </div>
                         <div class="text-muted" style="font-size:.75rem;">{{ leave.manager_action_date|date:"M d, Y H:i" }} · by {{ leave.manager_action_by.get_full_name }}</div>
+                        {% if leave.manager_action_by.signature %}
+                        <div class="mt-1" style="background:#f8fafc;border-radius:8px;padding:5px 10px;display:inline-block;">
+                            <img src="{{ leave.manager_action_by.signature.url }}" alt="Signature" style="max-height:34px;max-width:130px;vertical-align:middle;">
+                        </div>
+                        {% endif %}
                         {% if leave.manager_remarks %}
                         <div style="font-size:.78rem;background:#f8fafc;border-radius:8px;padding:8px 10px;margin-top:4px;color:#6b7a8d;">{{ leave.manager_remarks }}</div>
                         {% endif %}
@@ -80,6 +103,11 @@
                             HR {% if leave.status == 'rejected_hr' %}Rejected{% else %}Approved{% endif %}
                         </div>
                         <div class="text-muted" style="font-size:.75rem;">{{ leave.hr_action_date|date:"M d, Y H:i" }} · by {{ leave.hr_action_by.get_full_name }}</div>
+                        {% if leave.hr_action_by.signature %}
+                        <div class="mt-1" style="background:#f8fafc;border-radius:8px;padding:5px 10px;display:inline-block;">
+                            <img src="{{ leave.hr_action_by.signature.url }}" alt="Signature" style="max-height:34px;max-width:130px;vertical-align:middle;">
+                        </div>
+                        {% endif %}
                         {% if leave.hr_remarks %}
                         <div style="font-size:.78rem;background:#f8fafc;border-radius:8px;padding:8px 10px;margin-top:4px;color:#6b7a8d;">{{ leave.hr_remarks }}</div>
                         {% endif %}
@@ -93,6 +121,11 @@
                             Director {% if leave.status == 'rejected_director' %}Rejected{% else %}Final Approved{% endif %}
                         </div>
                         <div class="text-muted" style="font-size:.75rem;">{{ leave.director_action_date|date:"M d, Y H:i" }} · by {{ leave.director_action_by.get_full_name }}</div>
+                        {% if leave.director_action_by.signature %}
+                        <div class="mt-1" style="background:#f8fafc;border-radius:8px;padding:5px 10px;display:inline-block;">
+                            <img src="{{ leave.director_action_by.signature.url }}" alt="Signature" style="max-height:34px;max-width:130px;vertical-align:middle;">
+                        </div>
+                        {% endif %}
                         {% if leave.director_remarks %}
                         <div style="font-size:.78rem;background:#f8fafc;border-radius:8px;padding:8px 10px;margin-top:4px;color:#6b7a8d;">{{ leave.director_remarks }}</div>
                         {% endif %}
