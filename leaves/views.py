@@ -424,6 +424,36 @@ def leave_detail(request, pk):
 
 
 @login_required
+def pdf_leave(request, pk):
+    """Download the official leave authorisation form as a filled PDF."""
+    from django.http import HttpResponse
+    from .pdf_utils import generate_leave_pdf
+
+    employee = get_employee(request)
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    if leave.status != LeaveRequest.STATUS_APPROVED:
+        messages.error(request, "Only fully approved leave requests can be downloaded as PDF.")
+        return redirect('leaves:detail', pk=pk)
+
+    can_view = (
+        leave.employee == employee or
+        request.user.is_superuser or
+        (employee and employee.is_hr()) or
+        (employee and employee.is_director())
+    )
+    if not can_view:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    buf = generate_leave_pdf(leave)
+    filename = f"leave_authorisation_{leave.employee.user.last_name}_{leave.start_date}.pdf"
+    response = HttpResponse(buf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
 def print_leave(request, pk):
     employee = get_employee(request)
     leave = get_object_or_404(LeaveRequest, pk=pk)

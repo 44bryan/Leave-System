@@ -16,6 +16,7 @@ urlpatterns = [
     path('director/pending/', views.director_approvals, name='director_approvals'),
     path('director/action/<int:pk>/', views.director_action, name='director_action'),
     path('print/<int:pk>/', views.print_leave, name='print_leave'),
+    path('pdf/<int:pk>/', views.pdf_leave, name='pdf_leave'),
     path('employee/<int:pk>/summary/', views.employee_leave_summary, name='employee_summary'),
     path('admin-override/<int:pk>/', views.admin_override_leave, name='admin_override'),
     path('admin-edit/<int:pk>/', views.admin_edit_leave, name='admin_edit'),
