@@ -57,9 +57,64 @@
     </div>
 </div>
 
+<!-- ── Action Required ── -->
+<div class="section-label"><i class="bi bi-shield-check me-1"></i> Action Required</div>
+<div class="card mb-4 animate-in delay-1">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-shield-check me-2" style="color:#0A4D68;"></i>Requests Awaiting Your Final Approval
+            <span class="badge bg-primary ms-2">{{ pending_director }}</span>
+        </span>
+        <a href="{% url 'leaves:director_approvals' %}" class="btn btn-sm btn-primary">View All</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Leave Type</th>
+                    <th>Period</th>
+                    <th>Days</th>
+                    <th>HR Approved By</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in awaiting_director %}
+                <tr>
+                    <td>
+                        <div style="font-weight:600;font-size:0.875rem;">{{ req.employee.get_full_name }}</div>
+                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.employee_id }}</div>
+                    </td>
+                    <td style="font-size:0.82rem;">{{ req.employee.department|default:"—" }}</td>
+                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                    <td style="font-size:0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
+                    <td><strong>{{ req.total_days }}d</strong></td>
+                    <td style="font-size:0.78rem;color:#6b7a8d;">
+                        {% if req.hr_action_by %}{{ req.hr_action_by.get_full_name }}{% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'leaves:director_action' req.pk %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-shield-check me-1"></i>Decide
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>
+                        No requests awaiting your approval — all clear!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <!-- ── Leave Activity ── -->
 <div class="section-label"><i class="bi bi-activity me-1"></i> Leave Activity</div>
-<div class="row g-4 animate-in delay-1">
+<div class="row g-4 animate-in delay-2">
     <div class="col-lg-8">
         <div class="card h-100">
             <div class="card-header d-flex align-items-center justify-content-between">
