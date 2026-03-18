@@ -1087,6 +1087,18 @@
         </ul>
     </div>
 
+    {% if user.employee.is_unit_head %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">{% trans "Approvals" %}</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:unit_head_approvals' %}" class="nav-link-sidebar {% block nav_unit_head %}{% endblock %}">
+                    <i class="bi bi-person-check"></i> {% trans "Unit Head Queue" %}
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
     {% if user.employee.is_manager %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Approvals" %}</div>
@@ -1094,8 +1106,6 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:manager_approvals' %}" class="nav-link-sidebar {% block nav_manager %}{% endblock %}">
                     <i class="bi bi-person-check"></i> {% trans "Manager Queue" %}
-                    {% with count=user.employee.subordinates.all|length %}
-                    {% endwith %}
                 </a>
             </li>
         </ul>

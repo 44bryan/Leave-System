@@ -23,6 +23,7 @@ _category_validator = RegexValidator(
 class Employee(models.Model):
     ROLE_CHOICES = [
         ('employee', 'Employee'),
+        ('unit_head', 'Unit Head'),
         ('manager', 'Line Manager'),
         ('hr', 'HR Admin'),
         ('admin_director', 'Administration Director'),
@@ -49,6 +50,11 @@ class Employee(models.Model):
     supervisor = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='subordinates'
+    )
+    unit_head = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='unit_head_of',
+        help_text='Optional Unit Head who approves before the Line Manager.'
     )
     position = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20, blank=True)
@@ -78,6 +84,9 @@ class Employee(models.Model):
 
     def is_hr(self):
         return self.role == 'hr'
+
+    def is_unit_head(self):
+        return self.role == 'unit_head'
 
     def is_manager(self):
         return self.role == 'manager'
@@ -125,6 +134,7 @@ class Employee(models.Model):
     def get_role_display_badge(self):
         badges = {
             'employee': 'secondary',
+            'unit_head': 'info',
             'manager': 'primary',
             'hr': 'success',
             'admin_director': 'danger',

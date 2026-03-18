@@ -348,6 +348,8 @@ def home(request):
         return hr_dashboard(request, employee)
     elif employee.is_manager():
         return manager_dashboard(request, employee)
+    elif employee.is_unit_head():
+        return unit_head_dashboard(request, employee)
     else:
         return employee_dashboard(request, employee)
 
@@ -402,15 +404,19 @@ def employee_dashboard(request, employee):
 
 
 def manager_dashboard(request, employee):
+    from django.db.models import Q
     today = date.today()
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=today.year,
         defaults={'total_entitlement': 18}
     )
 
+    # Show 'pending' for employees without unit_head + 'unit_head_approved' for those with unit_head
     pending_approvals = LeaveRequest.objects.filter(
-        status='pending',
         employee__supervisor=employee
+    ).filter(
+        Q(status='pending', employee__unit_head__isnull=True) |
+        Q(status='unit_head_approved')
     ).select_related('employee__user', 'leave_type')
 
     subordinates = employee.subordinates.select_related('user').all()
@@ -427,6 +433,36 @@ def manager_dashboard(request, employee):
         'pending_approvals': pending_approvals,
         'subordinates': subordinates,
         'on_leave_today': on_leave_today,
+    })
+
+
+def unit_head_dashboard(request, employee):
+    today = date.today()
+    balance, _ = LeaveBalance.objects.get_or_create(
+        employee=employee, year=today.year,
+        defaults={'total_entitlement': 18}
+    )
+
+    pending_approvals = LeaveRequest.objects.filter(
+        status='pending',
+        employee__unit_head=employee,
+    ).select_related('employee__user', 'leave_type')
+
+    unit_members = Employee.objects.filter(unit_head=employee, is_active=True).select_related('user')
+    on_leave_today = LeaveRequest.objects.filter(
+        status='approved',
+        employee__unit_head=employee,
+        start_date__lte=today,
+        end_date__gte=today
+    ).select_related('employee__user', 'leave_type')
+
+    return render(request, 'dashboard/manager_dashboard.html', {
+        'employee': employee,
+        'balance': balance,
+        'pending_approvals': pending_approvals,
+        'subordinates': unit_members,
+        'on_leave_today': on_leave_today,
+        'is_unit_head_dashboard': True,
     })
 
 

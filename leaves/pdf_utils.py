@@ -192,7 +192,8 @@ def generate_leave_pdf(leave):
     y -= LH
 
     # 12. Back-up employee
-    field("12.  Back-up employee/Remplacant :", "", y, 70*mm)
+    backup_name = leave.backup_employee.user.get_full_name() if leave.backup_employee else ""
+    field("12.  Back-up employee/Remplacant :", backup_name, y, 70*mm)
     y -= LH + 2 * mm
 
     # ── Requestor signature line ──────────────────────────────────────────────
@@ -237,21 +238,33 @@ def generate_leave_pdf(leave):
             c.drawString(lx + label_w + 1*mm, y, str(value))
 
     # ── LEFT COLUMN  ─────────────────────────────────────────────────────────
-    mgr        = leave.manager_action_by
-    mgr_last   = mgr.user.last_name.upper() if mgr else ""
-    mgr_first  = mgr.user.first_name        if mgr else ""
-    mgr_date   = _d(leave.manager_action_date)
-    LX         = LM + 2*mm
-    LE         = MID_X - 3*mm
-    cy         = HDR_Y - 5*mm
-    lh         = 6 * mm
+    mgr       = leave.manager_action_by
+    mgr_last  = mgr.user.last_name.upper() if mgr else ""
+    mgr_first = mgr.user.first_name        if mgr else ""
+    mgr_date  = _d(leave.manager_action_date)
+
+    # Unit Head: use unit_head_action_by if set; otherwise fall back to manager info
+    uh        = leave.unit_head_action_by
+    if uh:
+        uh_last  = uh.user.last_name.upper()
+        uh_first = uh.user.first_name
+        uh_date  = _d(leave.unit_head_action_date)
+    else:
+        uh_last  = mgr_last
+        uh_first = mgr_first
+        uh_date  = mgr_date
+
+    LX  = LM + 2*mm
+    LE  = MID_X - 3*mm
+    cy  = HDR_Y - 5*mm
+    lh  = 6 * mm
 
     B(8); c.drawString(LX, cy, "Unit Head:")
     cy -= lh
 
-    tfield("Nom/Last name:", mgr_last,   cy, LX, 30*mm, LE); cy -= lh
-    tfield("Prenoms/ First name:", mgr_first, cy, LX, 36*mm, LE); cy -= lh
-    tfield("Date and Signature",  mgr_date,  cy, LX, 35*mm, LE); cy -= lh + 1*mm
+    tfield("Nom/Last name:", uh_last,   cy, LX, 30*mm, LE); cy -= lh
+    tfield("Prenoms/ First name:", uh_first, cy, LX, 36*mm, LE); cy -= lh
+    tfield("Date and Signature",  uh_date,  cy, LX, 35*mm, LE); cy -= lh + 1*mm
 
     B(8); c.drawString(LX, cy, "Avis/Opinion :")
     cy -= 5*mm

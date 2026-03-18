@@ -23,19 +23,23 @@ class LeaveType(models.Model):
 
 class LeaveRequest(models.Model):
     STATUS_PENDING = 'pending'
+    STATUS_UNIT_HEAD_APPROVED = 'unit_head_approved'
     STATUS_MANAGER_APPROVED = 'manager_approved'
     STATUS_HR_APPROVED = 'hr_approved'
     STATUS_APPROVED = 'approved'
+    STATUS_REJECTED_UNIT_HEAD = 'rejected_unit_head'
     STATUS_REJECTED_MANAGER = 'rejected_manager'
     STATUS_REJECTED_HR = 'rejected_hr'
     STATUS_REJECTED_DIRECTOR = 'rejected_director'
     STATUS_CANCELLED = 'cancelled'
 
     STATUS_CHOICES = [
-        (STATUS_PENDING, 'Pending Manager Approval'),
+        (STATUS_PENDING, 'Pending Approval'),
+        (STATUS_UNIT_HEAD_APPROVED, 'Pending Manager Approval'),
         (STATUS_MANAGER_APPROVED, 'Pending HR Approval'),
         (STATUS_HR_APPROVED, 'Pending Director Approval'),
         (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED_UNIT_HEAD, 'Rejected by Unit Head'),
         (STATUS_REJECTED_MANAGER, 'Rejected by Manager'),
         (STATUS_REJECTED_HR, 'Rejected by HR'),
         (STATUS_REJECTED_DIRECTOR, 'Rejected by Director'),
@@ -50,6 +54,19 @@ class LeaveRequest(models.Model):
     reason = models.TextField()
     supporting_document = models.FileField(upload_to='leave_docs/', null=True, blank=True)
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    backup_employee = models.ForeignKey(
+        Employee, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='backup_leaves',
+        help_text='Colleague covering during this leave.'
+    )
+
+    # Unit Head action (optional first step)
+    unit_head_action_by = models.ForeignKey(
+        Employee, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='unit_head_actions'
+    )
+    unit_head_action_date = models.DateTimeField(null=True, blank=True)
+    unit_head_remarks = models.TextField(blank=True)
 
     # Manager action
     manager_action_by = models.ForeignKey(
@@ -104,9 +121,11 @@ class LeaveRequest(models.Model):
     def get_status_badge(self):
         badges = {
             'pending': 'warning',
+            'unit_head_approved': 'info',
             'manager_approved': 'info',
             'hr_approved': 'primary',
             'approved': 'success',
+            'rejected_unit_head': 'danger',
             'rejected_manager': 'danger',
             'rejected_hr': 'danger',
             'rejected_director': 'danger',
@@ -117,9 +136,11 @@ class LeaveRequest(models.Model):
     def get_status_icon(self):
         icons = {
             'pending': 'clock',
+            'unit_head_approved': 'hourglass-split',
             'manager_approved': 'hourglass-split',
             'hr_approved': 'hourglass-split',
             'approved': 'check-circle',
+            'rejected_unit_head': 'x-circle',
             'rejected_manager': 'x-circle',
             'rejected_hr': 'x-circle',
             'rejected_director': 'x-circle',
@@ -128,7 +149,10 @@ class LeaveRequest(models.Model):
         return icons.get(self.status, 'circle')
 
     def can_cancel(self):
-        return self.status in (self.STATUS_PENDING, self.STATUS_MANAGER_APPROVED, self.STATUS_HR_APPROVED)
+        return self.status in (
+            self.STATUS_PENDING, self.STATUS_UNIT_HEAD_APPROVED,
+            self.STATUS_MANAGER_APPROVED, self.STATUS_HR_APPROVED
+        )
 
     def is_active(self):
         from datetime import date

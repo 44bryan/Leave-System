@@ -45,10 +45,41 @@ def submit_leave(request):
         defaults={'total_entitlement': 18}
     )
 
+    # Build backup employee list: same dept, active, not self
+    today_date = date.today()
+    dept_employees = Employee.objects.filter(
+        department=employee.department,
+        is_active=True,
+    ).exclude(pk=employee.pk).select_related('user')
+
+    # Mark who has approved leave overlapping today's date range (we mark them unavailable by default;
+    # JS will update based on selected dates)
+    on_leave_pks = set(
+        LeaveRequest.objects.filter(
+            status='approved',
+            employee__in=dept_employees,
+            start_date__lte=today_date,
+            end_date__gte=today_date,
+        ).values_list('employee_id', flat=True)
+    )
+
+    backup_choices = [
+        {'id': e.pk, 'name': e.get_full_name(), 'unavailable': e.pk in on_leave_pks}
+        for e in dept_employees
+    ]
+
     form = LeaveRequestForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         leave = form.save(commit=False)
         leave.employee = employee
+
+        # Backup employee
+        backup_id = request.POST.get('backup_employee')
+        if backup_id:
+            try:
+                leave.backup_employee = Employee.objects.get(pk=backup_id)
+            except Employee.DoesNotExist:
+                pass
 
         # Validate balance (only for deductible leave types)
         if leave.leave_type.is_deductible and leave.total_days > balance.remaining_days:
@@ -57,7 +88,7 @@ def submit_leave(request):
             # Check for overlapping requests
             overlapping = LeaveRequest.objects.filter(
                 employee=employee,
-                status__in=['pending', 'manager_approved', 'hr_approved', 'approved'],
+                status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved', 'approved'],
                 start_date__lte=leave.end_date,
                 end_date__gte=leave.start_date,
             )
@@ -66,7 +97,7 @@ def submit_leave(request):
             else:
                 leave.save()
                 if employee.is_intern():
-                    # Interns have no line manager — skip manager step, go directly to HR
+                    # Interns skip manager step — go directly to HR
                     leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
                     leave.save(update_fields=['status'])
                     messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Sent directly to HR for review.")
@@ -80,7 +111,19 @@ def submit_leave(request):
                             notification_type='leave_submitted',
                             url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                         )
+                elif employee.unit_head:
+                    # Has unit head — notify unit head first
+                    messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Awaiting Unit Head approval.")
+                    notify(
+                        employee.unit_head.user,
+                        f'New Leave Request — {employee.get_full_name()}',
+                        f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
+                        f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your Unit Head approval.',
+                        notification_type='leave_submitted',
+                        url=reverse('leaves:unit_head_action', kwargs={'pk': leave.pk}),
+                    )
                 else:
+                    # No unit head — notify supervisor (line manager) directly
                     messages.success(request, f"Leave request submitted successfully for {leave.total_days} day(s). Awaiting manager approval.")
                     if employee.supervisor:
                         notify(
@@ -89,7 +132,7 @@ def submit_leave(request):
                             f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
                             f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
                             notification_type='leave_submitted',
-                            url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                            url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
                         )
                 return redirect('leaves:my_requests')
 
@@ -101,6 +144,8 @@ def submit_leave(request):
         'form': form,
         'balance': balance,
         'deductible_map': deductible_map,
+        'backup_choices': backup_choices,
+        'employee': employee,
     })
 
 
@@ -136,6 +181,95 @@ def cancel_request(request, pk):
 
 
 @login_required
+def unit_head_approvals(request):
+    employee = get_employee(request)
+    if not employee or not employee.is_unit_head():
+        messages.error(request, "Access denied. Unit Head role required.")
+        return redirect('dashboard:home')
+
+    pending = LeaveRequest.objects.filter(
+        status=LeaveRequest.STATUS_PENDING,
+        employee__unit_head=employee,
+    ).select_related('employee__user', 'employee__department', 'leave_type')
+
+    return render(request, 'leaves/unit_head_approvals.html', {
+        'pending_requests': pending,
+    })
+
+
+@login_required
+def unit_head_action(request, pk):
+    employee = get_employee(request)
+    if not employee or not employee.is_unit_head():
+        messages.error(request, "Access denied. Unit Head role required.")
+        return redirect('dashboard:home')
+
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    if leave.employee.unit_head != employee and not request.user.is_superuser:
+        messages.error(request, "You are not the Unit Head for this employee.")
+        return redirect('leaves:unit_head_approvals')
+
+    if leave.status != LeaveRequest.STATUS_PENDING:
+        messages.warning(request, f"Leave request #{pk} is no longer pending (status: {leave.get_status_display()}).")
+        return redirect('leaves:unit_head_approvals')
+
+    if request.method == 'POST':
+        form = ApprovalForm(request.POST)
+        if form.is_valid():
+            action = form.cleaned_data['action']
+            remarks = form.cleaned_data['remarks']
+            leave.unit_head_action_by = employee
+            leave.unit_head_action_date = timezone.now()
+            leave.unit_head_remarks = remarks
+            if action == 'approve':
+                leave.status = LeaveRequest.STATUS_UNIT_HEAD_APPROVED
+                leave.save()
+                messages.success(request, "Leave approved. Forwarded to Line Manager.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Unit Head Approved',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'has been approved by your Unit Head and is now awaiting your Line Manager.',
+                    notification_type='leave_manager_approved',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                )
+                if leave.employee.supervisor:
+                    notify(
+                        leave.employee.supervisor.user,
+                        f'Leave Awaiting Your Approval — {leave.employee.get_full_name()}',
+                        f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
+                        f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
+                        f'{leave.total_days} day(s)) approved by Unit Head, pending your review.',
+                        notification_type='leave_submitted',
+                        url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
+                    )
+            else:
+                leave.status = LeaveRequest.STATUS_REJECTED_UNIT_HEAD
+                leave.save()
+                messages.warning(request, f"Leave request #{pk} rejected.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Rejected by Unit Head',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'was rejected by your Unit Head.'
+                    + (f' Remarks: {remarks}' if remarks else ''),
+                    notification_type='leave_rejected',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                )
+            return redirect('leaves:unit_head_approvals')
+    else:
+        form = ApprovalForm()
+
+    return render(request, 'leaves/action_form.html', {
+        'leave': leave,
+        'form': form,
+        'action_title': 'Unit Head Review',
+        'action_type': 'unit_head',
+    })
+
+
+@login_required
 def manager_approvals(request):
     employee = get_employee(request)
     if not employee or not employee.is_manager():
@@ -144,12 +278,16 @@ def manager_approvals(request):
 
     if request.user.is_superuser:
         pending = LeaveRequest.objects.filter(
-            status=LeaveRequest.STATUS_PENDING
+            status__in=[LeaveRequest.STATUS_PENDING, LeaveRequest.STATUS_UNIT_HEAD_APPROVED]
         ).select_related('employee__user', 'employee__department', 'leave_type')
     else:
+        # Show 'pending' leaves from employees WITHOUT a unit_head (direct reports)
+        # and 'unit_head_approved' from employees WITH a unit_head (both supervised by this manager)
         pending = LeaveRequest.objects.filter(
-            status=LeaveRequest.STATUS_PENDING,
             employee__supervisor=employee
+        ).filter(
+            Q(status=LeaveRequest.STATUS_PENDING, employee__unit_head__isnull=True) |
+            Q(status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED)
         ).select_related('employee__user', 'employee__department', 'leave_type')
 
     return render(request, 'leaves/manager_approvals.html', {
@@ -171,8 +309,9 @@ def manager_action(request, pk):
         messages.error(request, "You are not the supervisor for this employee.")
         return redirect('leaves:manager_approvals')
 
-    # If already actioned, show a clear message instead of crashing
-    if leave.status != LeaveRequest.STATUS_PENDING:
+    # Accept both 'pending' (no unit_head employees) and 'unit_head_approved' (has unit_head)
+    valid_statuses = [LeaveRequest.STATUS_PENDING, LeaveRequest.STATUS_UNIT_HEAD_APPROVED]
+    if leave.status not in valid_statuses:
         messages.warning(
             request,
             f"Leave request #{pk} is no longer pending "

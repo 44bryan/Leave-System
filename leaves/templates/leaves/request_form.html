@@ -69,6 +69,20 @@
                     </div>
 
                     <div class="mb-4">
+                        <label class="form-label">{% trans "Back-up Employee" %} <span class="text-muted small">({% trans "optional" %})</span></label>
+                        <select name="backup_employee" class="form-select" id="id_backup_employee">
+                            <option value="">— {% trans "Select a colleague to cover you" %} —</option>
+                            {% for emp in backup_choices %}
+                            <option value="{{ emp.id }}" class="backup-option {% if emp.unavailable %}text-muted{% endif %}"
+                                data-unavailable="{{ emp.unavailable|yesno:'true,false' }}">
+                                {{ emp.name }}{% if emp.unavailable %} (On Leave){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Colleagues currently on approved leave are marked as "On Leave".</div>
+                    </div>
+
+                    <div class="mb-4">
                         <label class="form-label">{% trans "Supporting Document" %} <span class="text-muted small">({% trans "optional" %})</span></label>
                         {{ form.supporting_document }}
                         <div class="form-text">{% trans "Upload a medical certificate, marriage certificate, etc. if applicable." %}</div>
@@ -129,6 +143,13 @@
                         <div style="font-size: 0.85rem; font-weight: 600;">{% trans "You Submit" %}</div>
                         <div style="font-size: 0.75rem; color: #6b7a8d;">{% trans "Status: Pending" %}</div>
                     </div>
+                    {% if employee.unit_head %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background: #e67e22;"></div>
+                        <div style="font-size: 0.85rem; font-weight: 600;">{% trans "Unit Head Reviews" %}</div>
+                        <div style="font-size: 0.75rem; color: #6b7a8d;">{{ employee.unit_head.get_full_name }}</div>
+                    </div>
+                    {% endif %}
                     <div class="timeline-item">
                         <div class="timeline-dot" style="background: #0A4D68;"></div>
                         <div style="font-size: 0.85rem; font-weight: 600;">{% trans "Line Manager Reviews" %}</div>
