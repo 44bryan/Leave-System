@@ -202,20 +202,12 @@ def generate_leave_pdf(leave):
     # ═════════════════════════════════════════════════════════════════════════
     # APPROVAL TABLE
     # ═════════════════════════════════════════════════════════════════════════
-    TABLE_TOP    = y - 1 * mm
-    TABLE_BOTTOM = 33 * mm
-    TABLE_H      = TABLE_TOP - TABLE_BOTTOM
-    MID_X        = LM + CW / 2       # vertical divider
+    TABLE_TOP = y - 1 * mm
+    MID_X     = LM + CW / 2       # vertical divider
 
-    # Outer border
-    rect(LM, TABLE_BOTTOM, CW, TABLE_H, width=1.5)
-
-    # Vertical divider
-    vline(MID_X, TABLE_TOP, TABLE_BOTTOM, width=1.0)
-
-    # Column header row
-    HDR_H   = 9 * mm
-    HDR_Y   = TABLE_TOP - HDR_H
+    # Column header row — drawn before content (TABLE_TOP is known)
+    HDR_H = 9 * mm
+    HDR_Y = TABLE_TOP - HDR_H
     line(LM, HDR_Y, RM, width=1.0)
 
     B(10)
@@ -318,6 +310,12 @@ def generate_leave_pdf(leave):
     ry -= lh
     tfield("Date:",      dir_date, ry, RX, 12*mm, RE); ry -= lh
     tfield("Signature:", dir_name, ry, RX, 20*mm, RE)
+
+    # Outer border + vertical divider drawn last so TABLE_BOTTOM fits all content
+    TABLE_BOTTOM = min(cy, ry) - 5 * mm
+    TABLE_H      = TABLE_TOP - TABLE_BOTTOM
+    rect(LM, TABLE_BOTTOM, CW, TABLE_H, width=1.5)
+    vline(MID_X, TABLE_TOP, TABLE_BOTTOM, width=1.0)
 
     c.save()
     buf.seek(0)
