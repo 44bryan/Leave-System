@@ -256,9 +256,11 @@ def generate_leave_pdf(leave):
     B(8); c.drawString(LX, cy, "Unit Head:")
     cy -= lh
 
+    uh_name = (uh_first + " " + uh_last).strip() if (uh_first or uh_last) else ""
     tfield("Nom/Last name:", uh_last,   cy, LX, 30*mm, LE); cy -= lh
     tfield("Prenoms/ First name:", uh_first, cy, LX, 36*mm, LE); cy -= lh
-    tfield("Date and Signature",  uh_date,  cy, LX, 35*mm, LE); cy -= lh + 1*mm
+    tfield("Date:",      uh_date,  cy, LX, 12*mm, LE); cy -= lh
+    tfield("Signature:", uh_name,  cy, LX, 20*mm, LE); cy -= lh + 1*mm
 
     B(8); c.drawString(LX, cy, "Avis/Opinion :")
     cy -= 5*mm
@@ -279,10 +281,12 @@ def generate_leave_pdf(leave):
     lm_first = mgr_first
     lm_date  = mgr_date
 
+    lm_name = (lm_first + " " + lm_last).strip() if (lm_first or lm_last) else ""
     B(8); c.drawString(LX, cy, "Line Manager/Superviseur"); cy -= lh
     tfield("Nom/Last name:",       lm_last,  cy, LX, 30*mm, LE); cy -= lh
     tfield("Prenoms/ First name:", lm_first, cy, LX, 36*mm, LE); cy -= lh
-    tfield("Date and Signature",   lm_date,  cy, LX, 35*mm, LE)
+    tfield("Date:",      lm_date,  cy, LX, 12*mm, LE); cy -= lh
+    tfield("Signature:", lm_name,  cy, LX, 20*mm, LE)
 
     # ── RIGHT COLUMN ─────────────────────────────────────────────────────────
     hr_emp   = leave.hr_action_by
