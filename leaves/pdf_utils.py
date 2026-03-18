@@ -5,10 +5,12 @@ Generate a PDF that replicates the official Magrabi Cameroon Eye Institute
 from io import BytesIO
 from datetime import timedelta
 
+import os
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit
+from reportlab.lib import colors
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -87,10 +89,21 @@ def generate_leave_pdf(leave):
     # ═════════════════════════════════════════════════════════════════════════
     y = H - 14 * mm
 
-    # Institution name — top right
+    # Logo — top right
+    BLUE = colors.HexColor("#1a6fa0")
+    logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "LOGO.png")
+    if os.path.exists(logo_path):
+        LOGO_SIZE = 18 * mm
+        c.drawImage(logo_path, RM - LOGO_SIZE, y - 10*mm, width=LOGO_SIZE, height=LOGO_SIZE,
+                    preserveAspectRatio=True, mask='auto')
+
+    # Institution name — top right, in blue, next to logo
+    c.setFillColor(BLUE)
+    B(10)
+    c.drawRightString(RM - 20*mm, y,        "MAGRABI ICO CAMEROON")
     B(9)
-    c.drawRightString(RM, y,         "MAGRABI CAMEROON")
-    c.drawRightString(RM, y - 5*mm, "EYE INSTITUTE")
+    c.drawRightString(RM - 20*mm, y - 5*mm, "EYE INSTITUTE")
+    c.setFillColor(colors.black)
 
     # Thick horizontal rule below header area
     line(LM, H - 22 * mm, RM, width=1.5)

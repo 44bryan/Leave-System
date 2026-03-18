@@ -449,7 +449,7 @@ def pdf_leave(request, pk):
     buf = generate_leave_pdf(leave)
     filename = f"leave_authorisation_{leave.employee.user.last_name}_{leave.start_date}.pdf"
     response = HttpResponse(buf, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
     return response
 
 
