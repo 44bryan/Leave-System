@@ -194,7 +194,8 @@ def generate_leave_pdf(leave):
     B(9)
     c.drawString(LM, y, "Signature (Demandeur/Requestor) :")
     line(LM + 66*mm, y - 1.5, LM + 115*mm)
-    c.drawString(LM + 117*mm, y, "Date:")
+    N(9); c.drawString(LM + 67*mm, y, emp.user.get_full_name())
+    B(9); c.drawString(LM + 117*mm, y, "Date:")
     line(LM + 129*mm, y - 1.5, RM)
     N(9); c.drawString(LM + 130*mm, y, _d(leave.created_at))
     y -= 7 * mm
