@@ -2,8 +2,8 @@
 Generate a professional Leave Authorisation PDF for
 Magrabi Cameroon Eye Institute — LeaveDesk HR System.
 
-Design: modern label/value cells, logo-matched cyan/blue section headers,
-        2×2 approval grid with embedded signatures.
+Design: entire document in Magrabi logo color family (cyan / blue),
+        label/value cells, 2×2 approval grid with embedded signatures.
 """
 from io import BytesIO
 from datetime import timedelta, date as _date
@@ -15,15 +15,17 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit, ImageReader
 
 
-# ── colour palette (matched to Magrabi logo: #31b8cf / #2496ba) ───────────────
-_HDR_BG  = (0.051, 0.361, 0.435)   # #0d5c6f  dark teal  — top bar / section bars
-_CYAN    = (0.192, 0.722, 0.812)   # #31b8cf  logo cyan  — approval cell headers
-_BLUE    = (0.141, 0.588, 0.729)   # #2496ba  logo blue  — subtitle / accents
-_DARK    = (0.039, 0.176, 0.267)   # #0a2d45  near-black — body text / values
-_GRAY    = (0.420, 0.478, 0.553)   # #6b7a8d  mid grey   — labels
-_LGRAY   = (0.906, 0.937, 0.953)   # #e7eff3  light blue-grey — alt rows
-_BORDER  = (0.714, 0.773, 0.831)   # #b6c5d4  cell borders
-_WHITE   = (1.0,   1.0,   1.0  )
+# ── colour palette — full logo-color theme (#31b8cf / #2496ba family) ─────────
+_HDR_BG   = (0.051, 0.361, 0.435)   # #0d5c6f  dark teal   — top bar, section bars
+_CYAN     = (0.192, 0.722, 0.812)   # #31b8cf  logo cyan   — approval cell headers, footer line
+_BLUE     = (0.141, 0.588, 0.729)   # #2496ba  logo blue   — subtitle, accents
+_DARK     = (0.039, 0.176, 0.267)   # #0a2d45  near-black  — values, bold text
+_LABEL    = (0.098, 0.431, 0.529)   # #194e87  blue-teal   — field labels
+_CELL_BG  = (0.925, 0.969, 0.980)   # #ecf7fa  pale cyan   — cell background (was white)
+_ALT_BG   = (0.831, 0.933, 0.957)   # #d4eef4  light cyan  — alternating row tint
+_BORDER   = (0.502, 0.769, 0.843)   # #80c4d7  cyan border — cell outlines
+_PAGE_BG  = (0.961, 0.984, 0.992)   # #f5fbfd  near-white cyan — page background wash
+_WHITE    = (1.0,   1.0,   1.0  )
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -63,7 +65,7 @@ def _load_sig(employee_obj):
         from PIL import Image as PILImage
         import io as _io
 
-        # Try .path first (local filesystem), fall back to .open() (cloud storage)
+        # Try .path first (local filesystem), fall back to .open() (cloud/Railway)
         try:
             pil_img = PILImage.open(sig.path)
         except Exception:
@@ -76,7 +78,7 @@ def _load_sig(employee_obj):
 
         pil_img.load()
 
-        # Flatten transparency onto white background so the image is pure RGB
+        # Flatten any transparency onto white so we get a clean RGB image
         if pil_img.mode in ('RGBA', 'LA', 'P'):
             rgba = pil_img.convert('RGBA')
             bg = PILImage.new('RGBA', rgba.size, (255, 255, 255, 255))
@@ -117,7 +119,7 @@ def generate_leave_pdf(leave):
     # ── drawing primitives ────────────────────────────────────────────────────
 
     def frect(x, y_top, w, h, fill, stroke=None, sw=0.5):
-        """Filled rectangle; y_top = top edge (ReportLab y increases upward)."""
+        """Filled rectangle; y_top = top edge."""
         cv.setLineWidth(sw)
         cv.setFillColorRGB(*fill)
         if stroke:
@@ -143,15 +145,15 @@ def generate_leave_pdf(leave):
     def info_row(y_top, pairs, row_h=12*mm, alt=False):
         """
         One data row split into N equal cells.
-        Each cell:  label (small grey)  above  value (bold dark).
+        Each cell: label (blue-teal, small) above value (bold dark).
         """
         n  = len(pairs)
         cw = CW / n
-        bg = _LGRAY if alt else _WHITE
+        bg = _ALT_BG if alt else _CELL_BG
         for i, (lbl, val) in enumerate(pairs):
             x = LM + i * cw
-            frect(x, y_top, cw, row_h, bg, _BORDER, 0.4)
-            txt(lbl,          x + 3*mm, y_top - 4*mm,   "Helvetica",      7,   _GRAY)
+            frect(x, y_top, cw, row_h, bg, _BORDER, 0.5)
+            txt(lbl,          x + 3*mm, y_top - 4*mm,   "Helvetica",      7,   _LABEL)
             txt(val or "—",   x + 3*mm, y_top - 9.5*mm, "Helvetica-Bold", 9.5, _DARK)
         return y_top - row_h
 
@@ -174,6 +176,11 @@ def generate_leave_pdf(leave):
             return True
         except Exception:
             return False
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # PAGE BACKGROUND WASH — subtle cyan tint over the whole page
+    # ══════════════════════════════════════════════════════════════════════════
+    frect(0, H, W, H, _PAGE_BG)
 
     # ══════════════════════════════════════════════════════════════════════════
     # TOP ACCENT BAR
@@ -203,8 +210,8 @@ def generate_leave_pdf(leave):
     cv.drawCentredString(title_cx, HDR_TOP - 20*mm, "LEAVE AUTHORISATION")
 
     # Reference number and issue date (top-right)
-    txt(f"No.  LV-{leave.pk:04d}", RM - 36*mm, HDR_TOP - 3*mm,   "Helvetica", 7.5, _GRAY)
-    txt(_d(leave.created_at),      RM - 36*mm, HDR_TOP - 7.5*mm, "Helvetica", 7.5, _GRAY)
+    txt(f"No.  LV-{leave.pk:04d}", RM - 36*mm, HDR_TOP - 3*mm,   "Helvetica", 7.5, _LABEL)
+    txt(_d(leave.created_at),      RM - 36*mm, HDR_TOP - 7.5*mm, "Helvetica", 7.5, _LABEL)
 
     # Cyan accent line under header
     cv.setStrokeColorRGB(*_CYAN)
@@ -271,7 +278,7 @@ def generate_leave_pdf(leave):
     # ══════════════════════════════════════════════════════════════════════════
     REASON_H = 16*mm
     y = section_bar(y, "  REASON FOR LEAVE  ·  MOTIF DE LA DEMANDE")
-    frect(LM, y, CW, REASON_H, _WHITE, _BORDER, 0.4)
+    frect(LM, y, CW, REASON_H, _CELL_BG, _BORDER, 0.5)
     wraps = simpleSplit(leave.reason or "", "Helvetica", 9, CW - 8*mm)
     ry = y - 4*mm
     for line_str in wraps[:2]:
@@ -284,26 +291,24 @@ def generate_leave_pdf(leave):
     # ══════════════════════════════════════════════════════════════════════════
     DECL_H = 26*mm
     y = section_bar(y, "  REQUESTOR DECLARATION  ·  DÉCLARATION DU DEMANDEUR")
-    frect(LM, y, CW, DECL_H, _WHITE, _BORDER, 0.4)
+    frect(LM, y, CW, DECL_H, _CELL_BG, _BORDER, 0.5)
 
     # Left — name
-    txt("Name / Nom",             LM + 3*mm, y - 4*mm,
-        "Helvetica", 7, _GRAY)
-    txt(emp.user.get_full_name(), LM + 3*mm, y - 10*mm,
-        "Helvetica-Bold", 9.5, _DARK)
+    txt("Name / Nom",             LM + 3*mm, y - 4*mm,  "Helvetica", 7, _LABEL)
+    txt(emp.user.get_full_name(), LM + 3*mm, y - 10*mm, "Helvetica-Bold", 9.5, _DARK)
 
-    # Centre — signature image (wide area)
+    # Centre — signature image
     sig_x = LM + CW * 0.33
     sig_w = CW * 0.42
     sig_h = 18*mm
-    txt("Signature du demandeur", sig_x, y - 4*mm, "Helvetica", 7, _GRAY)
+    txt("Signature du demandeur", sig_x, y - 4*mm, "Helvetica", 7, _LABEL)
     if not draw_sig(emp, sig_x, y - 5*mm, max_w=sig_w, max_h=sig_h):
         txt(emp.user.get_full_name(), sig_x, y - 16*mm,
-            "Helvetica-Oblique", 8.5, _GRAY)
+            "Helvetica-Oblique", 8.5, _LABEL)
 
     # Right — date
     date_x = LM + CW * 0.80
-    txt("Date",                date_x, y - 4*mm,  "Helvetica", 7, _GRAY)
+    txt("Date",                date_x, y - 4*mm,  "Helvetica", 7, _LABEL)
     txt(_d(leave.created_at), date_x, y - 10*mm, "Helvetica-Bold", 9.5, _DARK)
 
     y -= DECL_H + 2*mm
@@ -327,10 +332,10 @@ def generate_leave_pdf(leave):
         uh_date = "—"
 
     approvers = [
-        ("UNIT HEAD / CHEF D'UNITÉ",               uh_emp,                    uh_date),
-        ("LINE MANAGER / SUPERVISEUR",              leave.manager_action_by,   _d(leave.manager_action_date)),
-        ("HR MANAGER / RESP. RESSOURCES HUMAINES",  leave.hr_action_by,        _d(leave.hr_action_date)),
-        ("ADMIN DIRECTOR / DIRECTEUR ADMINISTRATIF",leave.director_action_by,  _d(leave.director_action_date)),
+        ("UNIT HEAD / CHEF D'UNITÉ",                uh_emp,                   uh_date),
+        ("LINE MANAGER / SUPERVISEUR",               leave.manager_action_by,  _d(leave.manager_action_date)),
+        ("HR MANAGER / RESP. RESSOURCES HUMAINES",   leave.hr_action_by,       _d(leave.hr_action_date)),
+        ("ADMIN DIRECTOR / DIRECTEUR ADMINISTRATIF", leave.director_action_by, _d(leave.director_action_date)),
     ]
 
     CELL_W = CW / 2
@@ -343,16 +348,17 @@ def generate_leave_pdf(leave):
         cx      = LM + col * CELL_W
         row_top = y - row * CELL_H
 
-        # Cell header bar — logo cyan background, dark text for readability
+        # Cell header bar — logo cyan background, dark text
         frect(cx, row_top, CELL_W, CHDR_H, _CYAN, _BORDER, 0.5)
         cv.setFillColorRGB(*_DARK)
         cv.setFont("Helvetica-Bold", 7)
         cv.drawCentredString(cx + CELL_W / 2, row_top - CHDR_H + 2*mm, col_label)
 
-        # Cell body
+        # Cell body — cyan-tinted background
         body_top = row_top - CHDR_H
-        body_h   = CELL_H - CHDR_H          # 28 mm
-        frect(cx, body_top, CELL_W, body_h, _WHITE, _BORDER, 0.5)
+        body_h   = CELL_H - CHDR_H          # ≈ 28 mm
+        bg = _ALT_BG if (idx % 2 == 0) else _CELL_BG
+        frect(cx, body_top, CELL_W, body_h, bg, _BORDER, 0.5)
 
         if emp_obj:
             txt(emp_obj.user.get_full_name(),
@@ -360,23 +366,22 @@ def generate_leave_pdf(leave):
                 "Helvetica-Bold", 9, _DARK)
             txt(act_date,
                 cx + 3*mm, body_top - 10.5*mm,
-                "Helvetica", 7.5, _GRAY)
-            # Signature — tall area below the date line
+                "Helvetica", 7.5, _LABEL)
             drawn = draw_sig(
                 emp_obj,
                 cx + 3*mm,
                 body_top - 12*mm,
                 max_w=CELL_W - 6*mm,
-                max_h=body_h - 14*mm,       # ≈ 14 mm of space
+                max_h=body_h - 14*mm,
             )
             if not drawn:
                 txt("(signed)",
                     cx + 3*mm, body_top - body_h / 2,
-                    "Helvetica-Oblique", 8, _GRAY)
+                    "Helvetica-Oblique", 8, _LABEL)
         else:
             txt("Awaiting approval...",
                 cx + 3*mm, body_top - body_h / 2,
-                "Helvetica-Oblique", 8.5, (0.75, 0.75, 0.75))
+                "Helvetica-Oblique", 8.5, _BORDER)
 
     y -= 2 * CELL_H
 
@@ -384,12 +389,12 @@ def generate_leave_pdf(leave):
     # FOOTER
     # ══════════════════════════════════════════════════════════════════════════
     cv.setStrokeColorRGB(*_CYAN)
-    cv.setLineWidth(1.2)
+    cv.setLineWidth(1.5)
     cv.line(LM, 14*mm, RM, 14*mm)
 
     txt("LeaveDesk HR System  ·  Magrabi Cameroon Eye Institute",
-        LM, 9*mm, "Helvetica", 7, _GRAY)
-    cv.setFillColorRGB(*_GRAY)
+        LM, 9*mm, "Helvetica", 7, _LABEL)
+    cv.setFillColorRGB(*_LABEL)
     cv.setFont("Helvetica", 7)
     cv.drawRightString(RM, 9*mm,
                        f"Generated: {_date.today().strftime('%d/%m/%Y')}")
