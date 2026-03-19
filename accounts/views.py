@@ -202,7 +202,11 @@ def employee_edit(request, pk):
                     except Exception:
                         pass
                 fname = os.path.splitext(sig_file.name)[0] + '_sig.png'
-                emp_obj.signature.save(fname, ContentFile(processed.read()), save=True)
+                raw_bytes = processed.read()
+                emp_obj.signature.save(fname, ContentFile(raw_bytes), save=False)
+                import base64 as _b64
+                emp_obj.signature_b64 = 'data:image/png;base64,' + _b64.b64encode(raw_bytes).decode('utf-8')
+                emp_obj.save(update_fields=['signature', 'signature_b64'])
         messages.success(request, "Employee updated successfully.")
         return redirect('accounts:employee_list')
 
@@ -276,7 +280,9 @@ def set_employee_signature(request, pk):
             except Exception:
                 pass
         fname = f"{employee.employee_id}_sig.png"
-        employee.signature.save(fname, ContentFile(raw), save=True)
+        employee.signature.save(fname, ContentFile(raw), save=False)
+        employee.signature_b64 = b64_data
+        employee.save(update_fields=['signature', 'signature_b64'])
         messages.success(request, f"Signature saved for {employee.get_full_name()}.")
     except Exception:
         messages.error(request, "Could not save signature. Please try again.")
@@ -310,7 +316,9 @@ def profile_save_signature(request):
             except Exception:
                 pass
         fname = f"{employee.employee_id}_sig.png"
-        employee.signature.save(fname, ContentFile(raw), save=True)
+        employee.signature.save(fname, ContentFile(raw), save=False)
+        employee.signature_b64 = b64_data
+        employee.save(update_fields=['signature', 'signature_b64'])
         messages.success(request, "Signature saved successfully.")
     except Exception:
         messages.error(request, "Could not save signature. Please try again.")

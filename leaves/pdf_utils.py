@@ -47,10 +47,43 @@ def _resume(end_date):
 def _load_sig(employee_obj):
     """
     Return a ReportLab ImageReader for the employee's signature PNG, or None.
+    Tries signature_b64 (DB — survives Railway redeploys) first, then falls
+    back to the FileField path/cloud storage.
     Composites transparent/RGBA images onto white so mask=None works correctly.
     """
     if not employee_obj:
         return None
+
+    from PIL import Image as PILImage
+    import io as _io
+    import base64 as _b64
+
+    def _pil_to_reader(pil_img):
+        """Flatten to RGB and return an ImageReader."""
+        if pil_img.mode in ('RGBA', 'LA', 'P'):
+            rgba = pil_img.convert('RGBA')
+            bg = PILImage.new('RGBA', rgba.size, (255, 255, 255, 255))
+            bg.paste(rgba, mask=rgba.split()[3])
+            pil_img = bg.convert('RGB')
+        else:
+            pil_img = pil_img.convert('RGB')
+        out = _io.BytesIO()
+        pil_img.save(out, format='PNG')
+        out.seek(0)
+        return ImageReader(out)
+
+    # ── 1. Try DB-stored base64 first (Railway-safe) ─────────────────────────
+    try:
+        b64_str = getattr(employee_obj, 'signature_b64', '') or ''
+        if b64_str and b64_str.startswith('data:image/'):
+            raw = _b64.b64decode(b64_str.split(',', 1)[1])
+            pil_img = PILImage.open(_io.BytesIO(raw))
+            pil_img.load()
+            return _pil_to_reader(pil_img)
+    except Exception:
+        pass
+
+    # ── 2. Fall back to FileField (local dev or freshly uploaded) ────────────
     try:
         sig = employee_obj.signature
     except Exception:
@@ -59,10 +92,6 @@ def _load_sig(employee_obj):
         return None
 
     try:
-        from PIL import Image as PILImage
-        import io as _io
-
-        # Try .path first (local filesystem), fall back to .open() (cloud/Railway)
         try:
             pil_img = PILImage.open(sig.path)
         except Exception:
@@ -74,20 +103,7 @@ def _load_sig(employee_obj):
                 return None
 
         pil_img.load()
-
-        # Flatten any transparency onto white so we get a clean RGB image
-        if pil_img.mode in ('RGBA', 'LA', 'P'):
-            rgba = pil_img.convert('RGBA')
-            bg = PILImage.new('RGBA', rgba.size, (255, 255, 255, 255))
-            bg.paste(rgba, mask=rgba.split()[3])
-            pil_img = bg.convert('RGB')
-        else:
-            pil_img = pil_img.convert('RGB')
-
-        out = _io.BytesIO()
-        pil_img.save(out, format='PNG')
-        out.seek(0)
-        return ImageReader(out)
+        return _pil_to_reader(pil_img)
 
     except Exception:
         return None

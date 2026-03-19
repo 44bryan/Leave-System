@@ -68,6 +68,7 @@ class Employee(models.Model):
     )
     qualifications = models.TextField(blank=True, default='', help_text='Academic and professional qualifications')
     signature = models.FileField(upload_to='signatures/', null=True, blank=True, help_text='Scanned signature image used on official PDF forms')
+    signature_b64 = models.TextField(blank=True, default='', help_text='Base64 PNG of signature — persists across Railway redeploys')
     is_active = models.BooleanField(default=True)
     dismissal_date = models.DateField(null=True, blank=True, help_text='Date dismissal was issued — account deactivated after 14 days')
     # Intern-specific fields
