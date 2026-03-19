@@ -2,8 +2,8 @@
 Generate a professional Leave Authorisation PDF for
 Magrabi Cameroon Eye Institute — LeaveDesk HR System.
 
-Design: entire document in the exact Magrabi logo cyan (#31b8cf),
-        label/value cells, 2×2 approval grid with embedded signatures.
+Design: section header bars in logo cyan (#31b8cf), all data cells
+        pure white (print-friendly), signatures blend with paper.
 """
 from io import BytesIO
 from datetime import timedelta, date as _date
@@ -16,18 +16,13 @@ from reportlab.lib.utils import simpleSplit, ImageReader
 
 
 # ── colour palette ─────────────────────────────────────────────────────────────
-# Primary source: logo #31b8cf = rgb(49, 184, 207).
-# Every colour is that exact hue blended toward black or white.
-# Nothing uses a different hue — one colour throughout.
-_LOGO    = (0.192, 0.722, 0.812)   # #31b8cf  100% logo — bars, headers, lines
-_LOGO2   = (0.141, 0.588, 0.729)   # #2496ba  logo→blk 25% — title text, subtitle
-_DARK    = (0.024, 0.098, 0.118)   # #06191e  logo→blk 88% — body values
-_LABEL   = (0.086, 0.325, 0.365)   # #16535d  logo→blk 55% — field labels
-_CELL_BG = (0.878, 0.957, 0.973)   # #e0f4f8  logo→wht 85% — cell background
-_ALT_BG  = (0.757, 0.918, 0.945)   # #c1eaf1  logo→wht 70% — alternating rows
-_PAGE_BG = (0.945, 0.980, 0.988)   # #f1fafc  logo→wht 93% — page background wash
-_BORDER  = (0.400, 0.800, 0.871)   # #66ccde  logo→wht 20% — cell outlines
-_WHITE   = (1.0,   1.0,   1.0  )
+# Bars/headers: logo cyan #31b8cf.  Everything else: pure white (print-safe).
+_LOGO   = (0.192, 0.722, 0.812)   # #31b8cf  logo cyan   — section bars, approval headers, lines
+_LOGO2  = (0.141, 0.588, 0.729)   # #2496ba  logo blue   — title text, subtitle
+_DARK   = (0.024, 0.098, 0.118)   # #06191e  near-black  — body values
+_LABEL  = (0.086, 0.325, 0.365)   # #16535d  dark teal   — field labels
+_BORDER = (0.700, 0.850, 0.900)   # #b3d9e6  light cyan  — cell outlines (subtle on white)
+_WHITE  = (1.0,   1.0,   1.0  )   # pure white — ALL cell/row backgrounds, page
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -149,13 +144,12 @@ def generate_leave_pdf(leave):
         return y_top - h
 
     def info_row(y_top, pairs, row_h=12*mm, alt=False):
-        """One data row: label (small, dark teal) above value (bold dark)."""
+        """One data row: label (small, dark teal) above value (bold dark). Always white background."""
         n  = len(pairs)
         cw = CW / n
-        bg = _ALT_BG if alt else _CELL_BG
         for i, (lbl, val) in enumerate(pairs):
             x = LM + i * cw
-            frect(x, y_top, cw, row_h, bg, _BORDER, 0.5)
+            frect(x, y_top, cw, row_h, _WHITE, _BORDER, 0.5)
             txt(lbl,          x + 3*mm, y_top - 4*mm,   "Helvetica",      7,   _LABEL)
             txt(val or "—",   x + 3*mm, y_top - 9.5*mm, "Helvetica-Bold", 9.5, _DARK)
         return y_top - row_h
@@ -178,11 +172,6 @@ def generate_leave_pdf(leave):
             return True
         except Exception:
             return False
-
-    # ══════════════════════════════════════════════════════════════════════════
-    # PAGE BACKGROUND WASH
-    # ══════════════════════════════════════════════════════════════════════════
-    frect(0, H, W, H, _PAGE_BG)
 
     # ══════════════════════════════════════════════════════════════════════════
     # TOP ACCENT BAR  — exact logo cyan
@@ -280,7 +269,7 @@ def generate_leave_pdf(leave):
     # ══════════════════════════════════════════════════════════════════════════
     REASON_H = 16*mm
     y = section_bar(y, "  REASON FOR LEAVE  ·  MOTIF DE LA DEMANDE")
-    frect(LM, y, CW, REASON_H, _CELL_BG, _BORDER, 0.5)
+    frect(LM, y, CW, REASON_H, _WHITE, _BORDER, 0.5)
     wraps = simpleSplit(leave.reason or "", "Helvetica", 9, CW - 8*mm)
     ry = y - 4*mm
     for line_str in wraps[:2]:
@@ -293,7 +282,7 @@ def generate_leave_pdf(leave):
     # ══════════════════════════════════════════════════════════════════════════
     DECL_H = 26*mm
     y = section_bar(y, "  REQUESTOR DECLARATION  ·  DÉCLARATION DU DEMANDEUR")
-    frect(LM, y, CW, DECL_H, _CELL_BG, _BORDER, 0.5)
+    frect(LM, y, CW, DECL_H, _WHITE, _BORDER, 0.5)
 
     txt("Name / Nom",             LM + 3*mm, y - 4*mm,  "Helvetica", 7, _LABEL)
     txt(emp.user.get_full_name(), LM + 3*mm, y - 10*mm, "Helvetica-Bold", 9.5, _DARK)
@@ -355,7 +344,7 @@ def generate_leave_pdf(leave):
         # Cell body
         body_top = row_top - CHDR_H
         body_h   = CELL_H - CHDR_H
-        bg = _ALT_BG if (idx % 2 == 0) else _CELL_BG
+        bg = _WHITE
         frect(cx, body_top, CELL_W, body_h, bg, _BORDER, 0.5)
 
         if emp_obj:
