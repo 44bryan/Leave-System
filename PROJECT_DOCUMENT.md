@@ -269,6 +269,15 @@ Then open: **http://127.0.0.1:8000**
 
 ## Change Log
 
+### 2026-03-19 (update)
+
+- **PDF fixes: signatures + logo colors + unit-head fallback** (`leaves/pdf_utils.py`)
+  - Fixed signatures not rendering: changed `mask='auto'` → `mask=None` in `cv.drawImage()` since PIL already composites images to RGB (no alpha channel)
+  - Updated color palette to match the Magrabi logo (`#31b8cf` cyan, `#2496ba` blue): section bars use dark teal `#0d5c6f`, approval cell headers use logo cyan `#31b8cf` with dark text
+  - Unit Head fallback: if `leave.unit_head_action_by` is None, the Line Manager's info and signature appear in the Unit Head cell (since the Line Manager acts as Unit Head in that case)
+  - Employee requestor signature given larger display area (42% width, 18 mm tall)
+  - Approval grid cells enlarged to 35 mm tall for more signature space
+
 ### 2026-03-19
 
 - **Leave authorisation PDF — complete professional redesign** (`leaves/pdf_utils.py`)
