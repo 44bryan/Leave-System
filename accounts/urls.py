@@ -14,6 +14,7 @@ urlpatterns = [
     path('departments/', views.department_list, name='department_list'),
     path('departments/<int:pk>/delete/', views.department_delete, name='department_delete'),
     path('profile/change-password/', views.change_password, name='change_password'),
+    path('profile/save-signature/', views.profile_save_signature, name='profile_save_signature'),
     path('employees/<int:pk>/reset-credentials/', views.admin_reset_credentials, name='reset_credentials'),
     path('employees/<int:pk>/set-signature/', views.set_employee_signature, name='set_employee_signature'),
     path('username-suggest/', views.username_suggest, name='username_suggest'),

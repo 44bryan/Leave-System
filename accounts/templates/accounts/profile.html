@@ -134,7 +134,97 @@
                 </div>
             </div>
         </div>
+
+        <!-- My Signature -->
+        <div class="card animate-in delay-3 mt-3">
+            <div class="card-header">
+                <i class="bi bi-pen me-2" style="color:#0891a8;"></i>{% trans "My Signature" %}
+            </div>
+            <div class="card-body p-4">
+                {% if request.user.employee.signature %}
+                <div class="mb-3">
+                    <div class="text-muted small mb-1">{% trans "Current signature on file:" %}</div>
+                    <div style="background:#f8fafc;border-radius:8px;padding:8px 12px;display:inline-block;border:1px solid #e2e8f0;">
+                        <img src="{{ request.user.employee.signature.url }}"
+                             alt="Signature" style="max-height:48px;max-width:200px;vertical-align:middle;">
+                    </div>
+                </div>
+                {% endif %}
+                <p style="font-size:0.82rem;color:#6b7a8d;margin-bottom:12px;">
+                    {% trans "Draw your signature below. It will appear on all leave documents you sign." %}
+                </p>
+                <form method="post" action="{% url 'accounts:profile_save_signature' %}" id="profileSigForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="signature_data" id="profileSigData">
+                    <div style="background:#f8fafc;border-radius:10px;padding:10px;border:1.5px solid #cbd5e0;">
+                        <div style="position:relative;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;">
+                            <canvas id="profileSigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
+                            <div id="profileSigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:0.82rem;pointer-events:none;user-select:none;text-align:center;">
+                                <i class="bi bi-pen" style="font-size:1.3rem;display:block;margin-bottom:4px;"></i>
+                                Draw your signature here
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span id="profileSigError" class="text-danger small" style="display:none;">
+                                <i class="bi bi-exclamation-circle me-1"></i>{% trans "Please draw your signature first." %}
+                            </span>
+                            <span></span>
+                            <button type="button" id="profileClearSig" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eraser me-1"></i>{% trans "Clear" %}
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3" id="profileSigSubmit">
+                        <i class="bi bi-check-circle me-2"></i>{% trans "Save Signature" %}
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
 </div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+<script>
+(function () {
+    const canvas      = document.getElementById('profileSigCanvas');
+    const placeholder = document.getElementById('profileSigPlaceholder');
+    const sigError    = document.getElementById('profileSigError');
+    const dataInput   = document.getElementById('profileSigData');
+    let pad = null;
+
+    function initPad() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const rect  = canvas.getBoundingClientRect();
+        canvas.width  = rect.width  * ratio;
+        canvas.height = 130 * ratio;
+        canvas.style.height = '130px';
+        canvas.getContext('2d').scale(ratio, ratio);
+        if (pad) pad.off();
+        pad = new SignaturePad(canvas, { minWidth: 1, maxWidth: 3, penColor: '#0a2d45' });
+        pad.addEventListener('beginStroke', () => {
+            placeholder.style.display = 'none';
+            sigError.style.display    = 'none';
+        });
+    }
+    window.addEventListener('load', initPad);
+    window.addEventListener('resize', () => { if (pad) { const d = pad.toData(); initPad(); pad.fromData(d); } });
+
+    document.getElementById('profileClearSig').addEventListener('click', () => {
+        if (pad) { pad.clear(); placeholder.style.display = 'block'; }
+    });
+
+    document.getElementById('profileSigForm').addEventListener('submit', function (e) {
+        if (!pad || pad.isEmpty()) {
+            e.preventDefault();
+            sigError.style.display = 'inline';
+            canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        dataInput.value = pad.toDataURL('image/png');
+    });
+})();
+</script>
+{% endblock %}
 {% endblock %}

@@ -284,6 +284,40 @@ def set_employee_signature(request, pk):
 
 
 @login_required
+def profile_save_signature(request):
+    """Any logged-in employee can save/update their own signature from the profile page."""
+    if request.method != 'POST':
+        return redirect('accounts:profile')
+
+    try:
+        employee = request.user.employee
+    except Exception:
+        messages.error(request, "Employee profile not found.")
+        return redirect('accounts:profile')
+
+    b64_data = request.POST.get('signature_data', '')
+    if not b64_data or not b64_data.startswith('data:image/png;base64,'):
+        messages.error(request, "No signature drawn.")
+        return redirect('accounts:profile')
+
+    import base64
+    from django.core.files.base import ContentFile
+    try:
+        raw = base64.b64decode(b64_data.split(',', 1)[1])
+        if employee.signature:
+            try:
+                employee.signature.delete(save=False)
+            except Exception:
+                pass
+        fname = f"{employee.employee_id}_sig.png"
+        employee.signature.save(fname, ContentFile(raw), save=True)
+        messages.success(request, "Signature saved successfully.")
+    except Exception:
+        messages.error(request, "Could not save signature. Please try again.")
+    return redirect('accounts:profile')
+
+
+@login_required
 def change_password(request):
     """Allows any logged-in user to change their own password."""
     from django.contrib.auth import update_session_auth_hash
