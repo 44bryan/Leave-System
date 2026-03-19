@@ -1,24 +1,36 @@
 """
-Generate a PDF that replicates the official Magrabi Cameroon Eye Institute
-"Autorisation d'Absence" paper form, with all fields pre-filled from the system.
+Generate a professional Leave Authorisation PDF for
+Magrabi Cameroon Eye Institute — LeaveDesk HR System.
+
+Design: modern label/value cells, teal section headers,
+        2×2 approval grid with embedded signatures.
 """
 from io import BytesIO
-from datetime import timedelta
-
+from datetime import timedelta, date as _date
 import os
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit, ImageReader
-from reportlab.lib import colors
 
 
-# ── helpers ──────────────────────────────────────────────────────────────────
+# ── colour palette ────────────────────────────────────────────────────────────
+_TEAL_D = (0.024, 0.302, 0.408)   # #0A4D68  dark teal — bars / title
+_TEAL   = (0.031, 0.514, 0.584)   # #088395  mid teal  — approval headers
+_DARK   = (0.039, 0.176, 0.267)   # #0a2d45  near-black — values / names
+_GRAY   = (0.420, 0.478, 0.553)   # #6b7a8d  medium grey — labels
+_LGRAY  = (0.922, 0.933, 0.945)   # #ebaef1  alternating row background
+_BORDER = (0.714, 0.773, 0.831)   # #b6c5d4  cell borders
+_WHITE  = (1.0,   1.0,   1.0  )
+
+
+# ── helpers ───────────────────────────────────────────────────────────────────
 
 def _d(d):
-    """Format a date or datetime as DD/MM/YYYY, or return empty string."""
+    """Format date/datetime → DD/MM/YYYY or '—'."""
     if d is None:
-        return ""
+        return "—"
     if hasattr(d, "date"):
         d = d.date()
     return d.strftime("%d/%m/%Y")
@@ -32,338 +44,317 @@ def _resume(end_date):
     return d
 
 
+def _load_sig(employee_obj):
+    """Return a ReportLab ImageReader for the employee's signature, or None."""
+    if not employee_obj or not employee_obj.signature:
+        return None
+    try:
+        from PIL import Image as PILImage
+        import io as _io
+        try:
+            pil_img = PILImage.open(employee_obj.signature.path)
+        except Exception:
+            with employee_obj.signature.open('rb') as f:
+                raw = _io.BytesIO(f.read())
+            raw.seek(0)
+            pil_img = PILImage.open(raw)
+        pil_img.load()
+        if pil_img.mode in ('RGBA', 'LA', 'P'):
+            pil_img = pil_img.convert('RGBA')
+            bg = PILImage.new('RGBA', pil_img.size, (255, 255, 255, 255))
+            bg.paste(pil_img, mask=pil_img.split()[3])
+            pil_img = bg.convert('RGB')
+        else:
+            pil_img = pil_img.convert('RGB')
+        out = _io.BytesIO()
+        pil_img.save(out, format='PNG')
+        out.seek(0)
+        return ImageReader(out)
+    except Exception:
+        return None
+
+
 # ── main generator ────────────────────────────────────────────────────────────
 
 def generate_leave_pdf(leave):
     buf = BytesIO()
-    c = canvas.Canvas(buf, pagesize=A4)
-    W, H = A4          # 595.28 × 841.89 pt
+    cv  = canvas.Canvas(buf, pagesize=A4)
+    W, H = A4   # 595.28 × 841.89 pt
 
     emp  = leave.employee
     year = leave.start_date.year
 
-    # leave balance
     try:
-        bal         = emp.leave_balances.get(year=year)
-        total_avail = str(bal.total_available)
+        bal        = emp.leave_balances.get(year=year)
+        avail_days = str(bal.total_available)
     except Exception:
-        total_avail = ""
+        avail_days = "—"
 
-    # margins
-    LM = 18 * mm    # left margin
-    RM = W - 18 * mm  # right margin
-    CW = RM - LM      # content width  ≈ 159 mm
+    LM = 15 * mm
+    RM = W - 15 * mm
+    CW = RM - LM        # ≈ 165 mm
 
-    # ── convenience drawers ───────────────────────────────────────────────────
+    # ── drawing primitives ────────────────────────────────────────────────────
 
-    def B(size=10):   c.setFont("Helvetica-Bold",   size)
-    def N(size=10):   c.setFont("Helvetica",        size)
+    def frect(x, y_top, w, h, fill, stroke=None, sw=0.5):
+        """Filled rectangle; y_top = top edge."""
+        cv.setLineWidth(sw)
+        cv.setFillColorRGB(*fill)
+        if stroke:
+            cv.setStrokeColorRGB(*stroke)
+            cv.rect(x, y_top - h, w, h, fill=1, stroke=1)
+        else:
+            cv.rect(x, y_top - h, w, h, fill=1, stroke=0)
 
-    def line(x1, y, x2, width=0.6):
-        c.setLineWidth(width)
-        c.line(x1, y, x2, y)
+    def hline(x1, y, x2, rgb=_BORDER, w=0.5):
+        cv.setStrokeColorRGB(*rgb)
+        cv.setLineWidth(w)
+        cv.line(x1, y, x2, y)
 
-    def vline(x, y1, y2, width=0.6):
-        c.setLineWidth(width)
-        c.line(x, y1, x, y2)
+    def txt(s, x, y, font="Helvetica", size=9, rgb=_DARK):
+        cv.setFillColorRGB(*rgb)
+        cv.setFont(font, size)
+        cv.drawString(x, y, str(s))
 
-    def rect(x, y, w, h, width=0.8):
-        c.setLineWidth(width)
-        c.rect(x, y, w, h)
+    def ctxt(s, cx, y, font="Helvetica", size=9, rgb=_DARK):
+        cv.setFillColorRGB(*rgb)
+        cv.setFont(font, size)
+        cv.drawCentredString(cx, y, str(s))
 
-    def sig_image(employee_obj, x, y, max_w=40*mm, max_h=8*mm):
-        """Draw signature image if the employee has one, return True; else False."""
-        if not employee_obj or not employee_obj.signature:
-            return False
-        try:
-            from PIL import Image as PILImage
-            import io as _io
-            # Load image via PIL (handles RGBA, path issues, format variations)
-            try:
-                pil_img = PILImage.open(employee_obj.signature.path)
-            except (NotImplementedError, ValueError, AttributeError, Exception):
-                with employee_obj.signature.open('rb') as f:
-                    raw = _io.BytesIO(f.read())
-                raw.seek(0)
-                pil_img = PILImage.open(raw)
-            pil_img.load()  # force full load before file handle may close
+    def section_bar(y_top, label):
+        """Dark-teal section header bar. Returns new y (below bar)."""
+        h = 7 * mm
+        frect(LM, y_top, CW, h, _TEAL_D)
+        cv.setFillColorRGB(*_WHITE)
+        cv.setFont("Helvetica-Bold", 8.5)
+        cv.drawString(LM + 4*mm, y_top - h + 2.2*mm, label)
+        return y_top - h
 
-            # Composite transparent PNG onto white so ReportLab draws cleanly
-            if pil_img.mode in ('RGBA', 'LA', 'P'):
-                pil_img = pil_img.convert('RGBA')
-                bg = PILImage.new('RGBA', pil_img.size, (255, 255, 255, 255))
-                bg.paste(pil_img, mask=pil_img.split()[3])
-                pil_img = bg.convert('RGB')
-            else:
-                pil_img = pil_img.convert('RGB')
+    def info_row(y_top, pairs, row_h=12*mm, alt=False):
+        """
+        One data row split into N equal cells.
+        Each cell:  label (small grey)  above  value (bold dark).
+        pairs = [(label_str, value_str), ...]
+        """
+        n  = len(pairs)
+        cw = CW / n
+        bg = _LGRAY if alt else _WHITE
+        for i, (lbl, val) in enumerate(pairs):
+            x = LM + i * cw
+            frect(x, y_top, cw, row_h, bg, _BORDER, 0.4)
+            txt(lbl,          x + 3*mm, y_top - 4*mm,   "Helvetica",      7,   _GRAY)
+            txt(val or "—",   x + 3*mm, y_top - 9.5*mm, "Helvetica-Bold", 9.5, _DARK)
+        return y_top - row_h
 
-            out = _io.BytesIO()
-            pil_img.save(out, format='PNG')
-            out.seek(0)
-            img_reader = ImageReader(out)
-            c.drawImage(img_reader, x, y - max_h + 1*mm, width=max_w, height=max_h,
-                        preserveAspectRatio=True)
+    def draw_sig(emp_obj, x, y_top, max_w, max_h):
+        """Draw signature image. Returns True if drawn."""
+        reader = _load_sig(emp_obj)
+        if reader:
+            cv.drawImage(reader, x, y_top - max_h, width=max_w, height=max_h,
+                         preserveAspectRatio=True, mask='auto')
             return True
-        except Exception:
-            pass
         return False
 
-    def field(label, value, y, label_w, full_w=None):
-        """Draw bold label + underline, write value on underline."""
-        fw = full_w or CW
-        B(9.5)
-        c.drawString(LM, y, label)
-        vx = LM + label_w          # where underline starts
-        ex = LM + fw               # where underline ends
-        line(vx, y - 1.5, ex)
-        N(9.5)
-        if value:
-            # write value slightly inside the underline
-            c.drawString(vx + 2 * mm, y, str(value))
+    # ══════════════════════════════════════════════════════════════════════════
+    # TOP ACCENT BAR
+    # ══════════════════════════════════════════════════════════════════════════
+    frect(0, H, W, 8*mm, _TEAL_D)
 
-    # ═════════════════════════════════════════════════════════════════════════
-    # HEADER
-    # ═════════════════════════════════════════════════════════════════════════
+    # ══════════════════════════════════════════════════════════════════════════
+    # HEADER  (logo left · title centre · ref top-right)
+    # ══════════════════════════════════════════════════════════════════════════
+    HDR_TOP = H - 8*mm
+    HDR_H   = 28*mm
 
-    # Logo — top left, sized to sit cleanly above the rule line
-    logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "LOGO.png")
-    RULE_Y = H - 28 * mm   # rule sits here — pushed down to give logo room
+    logo_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "static", "LOGO.png"
+    )
     if os.path.exists(logo_path):
-        LOGO_H = 22 * mm
-        LOGO_W = 60 * mm
-        # Bottom of logo = 3 mm above the rule line
-        logo_y = RULE_Y + 3 * mm
-        c.drawImage(logo_path, LM, logo_y, width=LOGO_W, height=LOGO_H,
-                    preserveAspectRatio=True, mask='auto')
+        cv.drawImage(logo_path, LM, HDR_TOP - HDR_H + 4*mm,
+                     width=55*mm, height=22*mm,
+                     preserveAspectRatio=True, mask='auto')
 
-    # Thick horizontal rule
-    line(LM, RULE_Y, RM, width=1.5)
+    title_cx = LM + 55*mm + (CW - 55*mm) / 2
+    cv.setFillColorRGB(*_TEAL_D)
+    cv.setFont("Helvetica-Bold", 13)
+    cv.drawCentredString(title_cx, HDR_TOP - 13*mm, "AUTORISATION D'ABSENCE")
+    cv.setFillColorRGB(*_TEAL)
+    cv.setFont("Helvetica", 10)
+    cv.drawCentredString(title_cx, HDR_TOP - 20*mm, "LEAVE AUTHORISATION")
 
-    # Title block — centred, below the rule
-    B(13)
-    c.drawCentredString(W / 2, RULE_Y - 8 * mm, "DEMANDE / REQUEST")
-    B(11)
-    c.drawCentredString(W / 2, RULE_Y - 15 * mm,
-                        "AUTORISATION D'ABSENCE / AUTHORISATION OF ABSENCE")
+    # Reference number and issue date (top-right)
+    txt(f"No.  LV-{leave.pk:04d}", RM - 36*mm, HDR_TOP - 3*mm,   "Helvetica", 7.5, _GRAY)
+    txt(_d(leave.created_at),      RM - 36*mm, HDR_TOP - 7.5*mm, "Helvetica", 7.5, _GRAY)
 
-    # ═════════════════════════════════════════════════════════════════════════
-    # NUMBERED FIELDS  (1 – 12)
-    # ═════════════════════════════════════════════════════════════════════════
-    LH = 9 * mm    # line height
-    y  = RULE_Y - 26 * mm
+    hline(LM, HDR_TOP - HDR_H, RM, _TEAL_D, 1.5)
 
-    # 1. Last name
-    field("1.   Nom/Last name:", emp.user.last_name.upper(), y, 44*mm)
-    y -= LH
+    y = HDR_TOP - HDR_H - 3*mm
 
-    # 2. First name
-    field("2.   Prenoms /First Name :", emp.user.first_name, y, 55*mm)
-    y -= LH
+    # ══════════════════════════════════════════════════════════════════════════
+    # EMPLOYEE INFORMATION
+    # ══════════════════════════════════════════════════════════════════════════
+    y = section_bar(y, "  EMPLOYEE INFORMATION  ·  INFORMATIONS DE L'EMPLOYÉ")
+    y = info_row(y, [
+        ("Name / Nom",
+         f"{emp.user.last_name.upper()} {emp.user.first_name}"),
+        ("Employee ID / Matricule",
+         emp.employee_id),
+    ])
+    y = info_row(y, [
+        ("Position / Poste",
+         emp.position or "—"),
+        ("Department / Département",
+         str(emp.department) if emp.department else "—"),
+    ], alt=True)
+    y = info_row(y, [
+        ("Date Hired / Date d'embauche",
+         _d(emp.date_joined_company)),
+        ("Leave Year / Année de Congé",
+         str(year)),
+    ])
+    y -= 2*mm
 
-    # 3. Position
-    field("3.   Poste/Position :", emp.position or "", y, 44*mm)
-    y -= LH
+    # ══════════════════════════════════════════════════════════════════════════
+    # LEAVE DETAILS
+    # ══════════════════════════════════════════════════════════════════════════
+    y = section_bar(y, "  LEAVE DETAILS  ·  DÉTAILS DU CONGÉ")
+    y = info_row(y, [
+        ("Leave Type / Type de Congé",
+         leave.leave_type.name),
+        ("Deductible / Déductible",
+         "Yes / Oui" if leave.leave_type.is_deductible else "No / Non"),
+    ])
+    y = info_row(y, [
+        ("From / Du",   _d(leave.start_date)),
+        ("To / Au",     _d(leave.end_date)),
+    ], alt=True)
+    y = info_row(y, [
+        ("Days Requested / Jours Demandés",
+         str(leave.total_days)),
+        ("Resume Date / Date de Reprise",
+         _d(_resume(leave.end_date))),
+    ])
+    y = info_row(y, [
+        ("Days Available / Jours Disponibles",
+         avail_days),
+        ("Back-up / Remplaçant",
+         leave.backup_employee.user.get_full_name()
+         if leave.backup_employee else "—"),
+    ], alt=True)
+    y -= 2*mm
 
-    # 4. Hiring date
-    field("4.   Date d'embauche/Hiring Date", _d(emp.date_joined_company), y, 67*mm)
-    y -= LH
+    # ══════════════════════════════════════════════════════════════════════════
+    # REASON FOR LEAVE
+    # ══════════════════════════════════════════════════════════════════════════
+    REASON_H = 16*mm
+    y = section_bar(y, "  REASON FOR LEAVE  ·  MOTIF DE LA DEMANDE")
+    frect(LM, y, CW, REASON_H, _WHITE, _BORDER, 0.4)
+    wraps = simpleSplit(leave.reason or "", "Helvetica", 9, CW - 8*mm)
+    ry = y - 4*mm
+    for line_str in wraps[:2]:
+        txt(line_str, LM + 4*mm, ry, "Helvetica", 9, _DARK)
+        ry -= 5*mm
+    y -= REASON_H + 2*mm
 
-    # 5. Leave type
-    field("5.   Type: Conge Annuel/ Annual Leave Days:", leave.leave_type.name, y, 89*mm)
-    y -= LH
+    # ══════════════════════════════════════════════════════════════════════════
+    # REQUESTOR DECLARATION  (employee signs here)
+    # ══════════════════════════════════════════════════════════════════════════
+    DECL_H = 22*mm
+    y = section_bar(y, "  REQUESTOR DECLARATION  ·  DÉCLARATION DU DEMANDEUR")
+    frect(LM, y, CW, DECL_H, _WHITE, _BORDER, 0.4)
 
-    # 6. Accrued From … to …   (split field)
-    B(9.5); c.drawString(LM, y, "6.   Accrued De/From:")
-    x1 = LM + 47 * mm
-    x2 = LM + 80 * mm
-    x3 = LM + 88 * mm
-    line(x1, y - 1.5, x2)
-    N(9.5); c.drawString(x1 + 1*mm, y, f"01/01/{year}")
-    B(9.5); c.drawString(x2 + 2*mm, y, "A/to")
-    line(x3, y - 1.5, RM)
-    N(9.5); c.drawString(x3 + 1*mm, y, f"31/12/{year}")
-    y -= LH
+    # Left — name
+    txt("Name / Nom",              LM + 3*mm, y - 4*mm,
+        "Helvetica", 7.5, _GRAY)
+    txt(emp.user.get_full_name(),  LM + 3*mm, y - 10*mm,
+        "Helvetica-Bold", 9.5, _DARK)
 
-    # 7. Accumulated days
-    field("7.   Jour Accumuler /Accumulated Days:", total_avail, y, 80*mm)
-    y -= LH
+    # Centre — signature image
+    sig_x = LM + CW * 0.37
+    txt("Signature",               sig_x, y - 4*mm, "Helvetica", 7.5, _GRAY)
+    if not draw_sig(emp, sig_x, y - 5*mm, max_w=55*mm, max_h=15*mm):
+        txt(emp.user.get_full_name(), sig_x, y - 13*mm,
+            "Helvetica-Oblique", 8.5, _GRAY)
 
-    # 8. Days requested
-    field("8.   Nombre de jours sollicites/Number of days requested:",
-          str(leave.total_days), y, 118*mm)
-    y -= LH
+    # Right — date
+    date_x = LM + CW * 0.76
+    txt("Date",                    date_x, y - 4*mm,
+        "Helvetica", 7.5, _GRAY)
+    txt(_d(leave.created_at),      date_x, y - 10*mm,
+        "Helvetica-Bold", 9.5, _DARK)
 
-    # 9. From … to …   (split field)
-    B(9.5); c.drawString(LM, y, "9.   De/From")
-    xa = LM + 27 * mm
-    xb = LM + 75 * mm
-    xc = LM + 82 * mm
-    line(xa, y - 1.5, xb)
-    N(9.5); c.drawString(xa + 1*mm, y, _d(leave.start_date))
-    B(9.5); c.drawString(xb + 2*mm, y, "to")
-    line(xc, y - 1.5, RM)
-    N(9.5); c.drawString(xc + 1*mm, y, _d(leave.end_date))
-    y -= LH
+    y -= DECL_H + 2*mm
 
-    # 10. Reason  (label on its own line, two underlines below)
-    B(9.5); c.drawString(LM, y, "10.  Motif de la demande/Reason of the Request:")
-    y -= 6.5 * mm
-    reason = leave.reason or ""
-    wraps  = simpleSplit(reason, "Helvetica", 9.5, CW - 4*mm)
-    for i in range(2):
-        txt = wraps[i] if i < len(wraps) else ""
-        line(LM, y - 1.5, RM)
-        N(9.5); c.drawString(LM + 1*mm, y, txt)
-        y -= 6.5 * mm
-    y -= 1 * mm
+    # ══════════════════════════════════════════════════════════════════════════
+    # APPROVALS  — 2 × 2 grid
+    # ══════════════════════════════════════════════════════════════════════════
+    y = section_bar(y, "  APPROVALS  ·  VISAS D'AUTORISATION")
 
-    # 11. Deductible
-    ded = "Yes / Oui" if leave.leave_type.is_deductible else "No / Non"
-    field("11.  Deductible des conges annuels/Deductible to annual leaves :", ded, y, 125*mm)
-    y -= LH
+    approvers = [
+        ("UNIT HEAD / CHEF D'UNITÉ",
+         leave.unit_head_action_by,
+         _d(leave.unit_head_action_date)),
+        ("LINE MANAGER / SUPERVISEUR",
+         leave.manager_action_by,
+         _d(leave.manager_action_date)),
+        ("HR MANAGER / RESP. RESSOURCES HUMAINES",
+         leave.hr_action_by,
+         _d(leave.hr_action_date)),
+        ("ADMIN DIRECTOR / DIRECTEUR ADMINISTRATIF",
+         leave.director_action_by,
+         _d(leave.director_action_date)),
+    ]
 
-    # 12. Back-up employee
-    backup_name = leave.backup_employee.user.get_full_name() if leave.backup_employee else ""
-    field("12.  Back-up employee/Remplacant :", backup_name, y, 70*mm)
-    y -= LH + 2 * mm
+    CELL_W = CW / 2
+    CELL_H = 33*mm
+    CHDR_H = 7*mm
 
-    # ── Requestor signature line ──────────────────────────────────────────────
-    B(9)
-    c.drawString(LM, y, "Signature (Demandeur/Requestor) :")
-    line(LM + 66*mm, y - 1.5, LM + 115*mm)
-    if not sig_image(emp, LM + 67*mm, y):
-        N(9); c.drawString(LM + 67*mm, y, emp.user.get_full_name())
-    B(9); c.drawString(LM + 117*mm, y, "Date:")
-    line(LM + 129*mm, y - 1.5, RM)
-    N(9); c.drawString(LM + 130*mm, y, _d(leave.created_at))
-    y -= 7 * mm
+    for idx, (col_label, emp_obj, act_date) in enumerate(approvers):
+        row = idx // 2
+        col = idx % 2
+        cx      = LM + col * CELL_W
+        row_top = y - row * CELL_H
 
-    # ═════════════════════════════════════════════════════════════════════════
-    # APPROVAL TABLE
-    # ═════════════════════════════════════════════════════════════════════════
-    TABLE_TOP = y - 1 * mm
-    MID_X     = LM + CW / 2       # vertical divider
+        # Cell header bar (mid teal)
+        frect(cx, row_top, CELL_W, CHDR_H, _TEAL, _BORDER, 0.5)
+        cv.setFillColorRGB(*_WHITE)
+        cv.setFont("Helvetica-Bold", 7.5)
+        cv.drawCentredString(cx + CELL_W / 2, row_top - CHDR_H + 2*mm, col_label)
 
-    # Column header row — drawn before content (TABLE_TOP is known)
-    HDR_H = 9 * mm
-    HDR_Y = TABLE_TOP - HDR_H
-    line(LM, HDR_Y, RM, width=1.0)
+        # Cell body
+        body_top = row_top - CHDR_H
+        body_h   = CELL_H - CHDR_H
+        frect(cx, body_top, CELL_W, body_h, _WHITE, _BORDER, 0.5)
 
-    B(10)
-    c.drawCentredString((LM + MID_X) / 2, HDR_Y + 3*mm, "Superviseur /Line-Manager")
-    c.drawCentredString((MID_X + RM)  / 2, HDR_Y + 3*mm, "Responsible RH/HR Manager")
+        if emp_obj:
+            txt(emp_obj.user.get_full_name(),
+                cx + 3*mm, body_top - 5*mm,
+                "Helvetica-Bold", 9, _DARK)
+            txt(act_date,
+                cx + 3*mm, body_top - 10*mm,
+                "Helvetica", 7.5, _GRAY)
+            if not draw_sig(emp_obj, cx + 3*mm, body_top - 11.5*mm,
+                            max_w=CELL_W - 6*mm, max_h=14*mm):
+                txt("(signed)", cx + 3*mm, body_top - 22*mm,
+                    "Helvetica-Oblique", 8, _GRAY)
+        else:
+            txt("Awaiting approval...",
+                cx + 3*mm, body_top - 13*mm,
+                "Helvetica-Oblique", 8.5, (0.75, 0.75, 0.75))
 
-    # ── helper for inside-table fields ───────────────────────────────────────
-    def tfield(label, value, y, lx, label_w, ex):
-        B(8)
-        c.drawString(lx, y, label)
-        line(lx + label_w, y - 1.5, ex)
-        N(8)
-        if value:
-            c.drawString(lx + label_w + 1*mm, y, str(value))
+    y -= 2 * CELL_H
 
-    # ── LEFT COLUMN  ─────────────────────────────────────────────────────────
-    mgr       = leave.manager_action_by
-    mgr_last  = mgr.user.last_name.upper() if mgr else ""
-    mgr_first = mgr.user.first_name        if mgr else ""
-    mgr_date  = _d(leave.manager_action_date)
+    # ══════════════════════════════════════════════════════════════════════════
+    # FOOTER
+    # ══════════════════════════════════════════════════════════════════════════
+    hline(LM, 14*mm, RM, _TEAL_D, 0.8)
+    txt("LeaveDesk HR System  ·  Magrabi Cameroon Eye Institute",
+        LM, 9*mm, "Helvetica", 7, _GRAY)
+    cv.setFillColorRGB(*_GRAY)
+    cv.setFont("Helvetica", 7)
+    cv.drawRightString(RM, 9*mm,
+                       f"Generated: {_date.today().strftime('%d/%m/%Y')}")
 
-    # Unit Head: use unit_head_action_by if set; otherwise fall back to manager info
-    uh        = leave.unit_head_action_by
-    if uh:
-        uh_last  = uh.user.last_name.upper()
-        uh_first = uh.user.first_name
-        uh_date  = _d(leave.unit_head_action_date)
-    else:
-        uh_last  = mgr_last
-        uh_first = mgr_first
-        uh_date  = mgr_date
-
-    LX  = LM + 2*mm
-    LE  = MID_X - 3*mm
-    cy  = HDR_Y - 5*mm
-    lh  = 6 * mm
-
-    B(8); c.drawString(LX, cy, "Unit Head:")
-    cy -= lh
-
-    uh_name = (uh_first + " " + uh_last).strip() if (uh_first or uh_last) else ""
-    tfield("Nom/Last name:", uh_last,   cy, LX, 30*mm, LE); cy -= lh
-    tfield("Prenoms/ First name:", uh_first, cy, LX, 36*mm, LE); cy -= lh
-    tfield("Date:",      uh_date,  cy, LX, 12*mm, LE); cy -= lh
-    uh_emp_obj = leave.unit_head_action_by if leave.unit_head_action_by else leave.manager_action_by
-    B(8); c.drawString(LX, cy, "Signature:")
-    line(LX + 20*mm, cy - 1.5, LE)
-    if not sig_image(uh_emp_obj, LX + 21*mm, cy, max_w=35*mm, max_h=7*mm):
-        N(8); c.drawString(LX + 21*mm, cy, uh_name)
-    cy -= lh + 1*mm
-
-    B(8); c.drawString(LX, cy, "Avis/Opinion :")
-    cy -= 5*mm
-    B(8)
-    c.drawString(LX + 4*mm, cy, "Favorable/ Favourable:")
-    line(LX + 4*mm + 52*mm, cy - 1.5, LE)
-    cy -= 5*mm
-    c.drawString(LX + 4*mm, cy, "Defavorable/unfavourable:")
-    line(LX + 4*mm + 55*mm, cy - 1.5, LE)
-    cy -= 6*mm
-
-    # Line Manager section: fill with manager info when no separate unit head
-    lm_last  = mgr_last
-    lm_first = mgr_first
-    lm_date  = mgr_date
-
-    lm_name = (lm_first + " " + lm_last).strip() if (lm_first or lm_last) else ""
-    B(8); c.drawString(LX, cy, "Line Manager/Superviseur"); cy -= lh
-    tfield("Nom/Last name:",       lm_last,  cy, LX, 30*mm, LE); cy -= lh
-    tfield("Prenoms/ First name:", lm_first, cy, LX, 36*mm, LE); cy -= lh
-    tfield("Date:",      lm_date,  cy, LX, 12*mm, LE); cy -= lh
-    mgr_emp_obj = leave.manager_action_by
-    B(8); c.drawString(LX, cy, "Signature:")
-    line(LX + 20*mm, cy - 1.5, LE)
-    if not sig_image(mgr_emp_obj, LX + 21*mm, cy, max_w=35*mm, max_h=7*mm):
-        N(8); c.drawString(LX + 21*mm, cy, lm_name)
-
-    # ── RIGHT COLUMN ─────────────────────────────────────────────────────────
-    hr_emp   = leave.hr_action_by
-    hr_name  = hr_emp.user.get_full_name() if hr_emp else ""
-    hr_date  = _d(leave.hr_action_date)
-    director = leave.director_action_by
-    dir_name = director.user.get_full_name() if director else ""
-    dir_date = _d(leave.director_action_date)
-    granted  = str(leave.total_days) if leave.status == "approved" else ""
-    resume   = _d(_resume(leave.end_date))
-
-    RX  = MID_X + 2*mm
-    RE  = RM - 3*mm
-    ry  = HDR_Y - 5*mm
-
-    B(8); c.drawString(RX, ry, "Nombre de jours accordes"); ry -= 4*mm
-    tfield("Number of days granted:", granted, ry, RX, 42*mm, RE); ry -= lh
-    tfield("Du/From:",    _d(leave.start_date),  ry, RX, 18*mm, RE); ry -= lh
-    tfield("Au/to:",      _d(leave.end_date),    ry, RX, 14*mm, RE); ry -= lh
-    tfield("Reprise /Resume:", resume,            ry, RX, 30*mm, RE); ry -= lh
-    tfield("Date:",       hr_date,               ry, RX, 12*mm, RE); ry -= lh
-    B(8); c.drawString(RX, ry, "Signature:")
-    line(RX + 20*mm, ry - 1.5, RE)
-    if not sig_image(hr_emp, RX + 21*mm, ry, max_w=35*mm, max_h=7*mm):
-        N(8); c.drawString(RX + 21*mm, ry, hr_name)
-    ry -= 6*mm
-
-    B(8); c.drawString(RX, ry, "Administrative Director/Directeur Administratif")
-    ry -= lh
-    tfield("Date:",      dir_date, ry, RX, 12*mm, RE); ry -= lh
-    B(8); c.drawString(RX, ry, "Signature:")
-    line(RX + 20*mm, ry - 1.5, RE)
-    if not sig_image(director, RX + 21*mm, ry, max_w=35*mm, max_h=7*mm):
-        N(8); c.drawString(RX + 21*mm, ry, dir_name)
-
-    # Outer border + vertical divider drawn last so TABLE_BOTTOM fits all content
-    TABLE_BOTTOM = min(cy, ry) - 5 * mm
-    TABLE_H      = TABLE_TOP - TABLE_BOTTOM
-    rect(LM, TABLE_BOTTOM, CW, TABLE_H, width=1.5)
-    vline(MID_X, TABLE_TOP, TABLE_BOTTOM, width=1.0)
-
-    c.save()
+    cv.save()
     buf.seek(0)
     return buf

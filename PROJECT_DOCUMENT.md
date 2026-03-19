@@ -269,6 +269,23 @@ Then open: **http://127.0.0.1:8000**
 
 ## Change Log
 
+### 2026-03-19
+
+- **Leave authorisation PDF — complete professional redesign** (`leaves/pdf_utils.py`)
+  - Old design: paper-form style with blank lines to write on, cramped approval table
+  - New design: modern, bilingual (English/French) layout for Magrabi Cameroon Eye Institute
+  - Dark teal top accent bar + logo + bilingual title ("AUTORISATION D'ABSENCE / LEAVE AUTHORISATION") + reference number header
+  - Teal section header bars for each section (white bold label)
+  - Label-over-value info cells with alternating row backgrounds (white / light grey)
+  - Sections: Employee Information · Leave Details · Reason for Leave · Requestor Declaration · Approvals
+  - **Requestor Declaration row**: employee name (left) + signature image (centre) + date (right)
+  - **Approvals 2×2 grid**: Unit Head + Line Manager (top row) | HR + Director (bottom row); each cell has teal header, approver name, action date, and embedded signature image
+  - Professional footer with teal rule, system name, and auto-generated date
+  - `_load_sig()` uses PIL to composite transparent PNGs onto white before embedding via ReportLab `ImageReader`
+  - New helpers: `frect()`, `section_bar()`, `info_row()`, `draw_sig()`, colour palette constants
+
+---
+
 ### 2026-03-18
 
 - **Draw-pad digital signatures on approval forms**
