@@ -615,15 +615,13 @@ def pdf_leave(request, pk):
     employee = get_employee(request)
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
-    if leave.status != LeaveRequest.STATUS_APPROVED:
-        messages.error(request, "Only fully approved leave requests can be downloaded as PDF.")
-        return redirect('leaves:detail', pk=pk)
-
     can_view = (
         leave.employee == employee or
         request.user.is_superuser or
         (employee and employee.is_hr()) or
-        (employee and employee.is_director())
+        (employee and employee.is_director()) or
+        (employee and employee.is_manager() and leave.employee.supervisor == employee) or
+        (employee and employee.is_unit_head() and leave.employee.unit_head == employee)
     )
     if not can_view:
         messages.error(request, "Access denied.")
@@ -638,24 +636,8 @@ def pdf_leave(request, pk):
 
 @login_required
 def print_leave(request, pk):
-    employee = get_employee(request)
-    leave = get_object_or_404(LeaveRequest, pk=pk)
-
-    if leave.status != LeaveRequest.STATUS_APPROVED:
-        messages.error(request, "Only fully approved leave requests can be printed.")
-        return redirect('leaves:detail', pk=pk)
-
-    can_view = (
-        leave.employee == employee or
-        request.user.is_superuser or
-        (employee and employee.is_hr()) or
-        (employee and employee.is_director())
-    )
-    if not can_view:
-        messages.error(request, "Access denied.")
-        return redirect('dashboard:home')
-
-    return render(request, 'leaves/leave_print.html', {'leave': leave})
+    """Redirect to the official PDF — the old HTML print view is retired."""
+    return redirect('leaves:pdf_leave', pk=pk)
 
 
 @login_required
