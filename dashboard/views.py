@@ -437,32 +437,65 @@ def manager_dashboard(request, employee):
 
 
 def unit_head_dashboard(request, employee):
+    from discipline.models import DisciplineRecord
     today = date.today()
+
+    # ── own employee data (same as employee_dashboard) ────────────────────────
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=today.year,
         defaults={'total_entitlement': 18}
     )
+    recent_requests = employee.leave_requests.all()[:5]
+    pending_count = employee.leave_requests.filter(
+        status__in=['pending', 'manager_approved', 'hr_approved']
+    ).count()
+    on_leave = employee.leave_requests.filter(
+        status='approved',
+        start_date__lte=today,
+        end_date__gte=today
+    ).first()
+    discipline_notices = DisciplineRecord.objects.filter(employee=employee).order_by('-date_issued')
+    active_suspension = DisciplineRecord.objects.filter(
+        employee=employee,
+        action_type='suspension',
+        suspension_start__lte=today,
+        suspension_end__gte=today,
+    ).first()
+    is_own_birthday = (
+        employee.date_of_birth is not None
+        and employee.date_of_birth.month == today.month
+        and employee.date_of_birth.day == today.day
+    )
 
+    # ── unit approval data ────────────────────────────────────────────────────
     pending_approvals = LeaveRequest.objects.filter(
         status='pending',
         employee__unit_head=employee,
     ).select_related('employee__user', 'leave_type')
 
     unit_members = Employee.objects.filter(unit_head=employee, is_active=True).select_related('user')
-    on_leave_today = LeaveRequest.objects.filter(
+    unit_on_leave_today = LeaveRequest.objects.filter(
         status='approved',
         employee__unit_head=employee,
         start_date__lte=today,
         end_date__gte=today
     ).select_related('employee__user', 'leave_type')
 
-    return render(request, 'dashboard/manager_dashboard.html', {
+    return render(request, 'dashboard/unit_head_dashboard.html', {
+        # employee self-service
         'employee': employee,
         'balance': balance,
+        'recent_requests': recent_requests,
+        'pending_count': pending_count,
+        'on_leave': on_leave,
+        'discipline_notices': discipline_notices,
+        'active_suspension': active_suspension,
+        'is_own_birthday': is_own_birthday,
+        'today': today,
+        # unit approval
         'pending_approvals': pending_approvals,
-        'subordinates': unit_members,
-        'on_leave_today': on_leave_today,
-        'is_unit_head_dashboard': True,
+        'unit_members': unit_members,
+        'unit_on_leave_today': unit_on_leave_today,
     })
 
 
