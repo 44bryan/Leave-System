@@ -228,7 +228,7 @@ def generate_leave_pdf(leave):
     y = section_bar(y, "  EMPLOYEE INFORMATION  ·  INFORMATIONS DE L'EMPLOYÉ")
     y = info_row(y, [
         ("Name / Nom",
-         f"{emp.user.last_name.upper()} {emp.user.first_name}"),
+         f"{emp.user.last_name} {emp.user.first_name}"),
         ("Employee ID / Matricule",
          emp.employee_id),
     ])
