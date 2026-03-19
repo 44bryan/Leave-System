@@ -15,17 +15,19 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit, ImageReader
 
 
-# ── colour palette — full logo-color theme (#31b8cf / #2496ba family) ─────────
-_HDR_BG   = (0.051, 0.361, 0.435)   # #0d5c6f  dark teal   — top bar, section bars
-_CYAN     = (0.192, 0.722, 0.812)   # #31b8cf  logo cyan   — approval cell headers, footer line
-_BLUE     = (0.141, 0.588, 0.729)   # #2496ba  logo blue   — subtitle, accents
-_DARK     = (0.039, 0.176, 0.267)   # #0a2d45  near-black  — values, bold text
-_LABEL    = (0.098, 0.431, 0.529)   # #194e87  blue-teal   — field labels
-_CELL_BG  = (0.925, 0.969, 0.980)   # #ecf7fa  pale cyan   — cell background (was white)
-_ALT_BG   = (0.831, 0.933, 0.957)   # #d4eef4  light cyan  — alternating row tint
-_BORDER   = (0.502, 0.769, 0.843)   # #80c4d7  cyan border — cell outlines
-_PAGE_BG  = (0.961, 0.984, 0.992)   # #f5fbfd  near-white cyan — page background wash
-_WHITE    = (1.0,   1.0,   1.0  )
+# ── colour palette — ALL derived from logo #31b8cf = rgb(49,184,207), hue 189° ─
+# Each shade is a blend of the logo color toward black (dark) or white (light),
+# ensuring one uniform hue throughout the whole document.
+_HDR_BG  = (0.086, 0.325, 0.365)   # #16535d  logo→black 55%  — section bars (white text)
+_CYAN    = (0.192, 0.722, 0.812)   # #31b8cf  logo 100%        — approval cell headers
+_BLUE    = (0.114, 0.431, 0.486)   # #1d6e7c  logo→black 40%   — subtitle, accents
+_DARK    = (0.027, 0.110, 0.122)   # #071c1f  logo→black 85%   — near-black body text
+_LABEL   = (0.114, 0.431, 0.486)   # #1d6e7c  logo→black 40%   — field labels
+_BORDER  = (0.314, 0.769, 0.851)   # #50c4d9  logo→white 10%   — cell outlines
+_CELL_BG = (0.878, 0.957, 0.973)   # #e0f4f8  logo→white 85%   — cell background
+_ALT_BG  = (0.757, 0.918, 0.945)   # #c1eaf1  logo→white 70%   — alternating rows
+_PAGE_BG = (0.945, 0.980, 0.988)   # #f1fafc  logo→white 93%   — page background wash
+_WHITE   = (1.0,   1.0,   1.0  )
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
