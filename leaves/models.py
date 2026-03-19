@@ -92,6 +92,13 @@ class LeaveRequest(models.Model):
     director_action_date = models.DateTimeField(null=True, blank=True)
     director_remarks = models.TextField(blank=True)
 
+    # Signature snapshots — stored at approval time, permanent regardless of redeploys
+    employee_sig_b64    = models.TextField(blank=True, default='')
+    unit_head_sig_b64   = models.TextField(blank=True, default='')
+    manager_sig_b64     = models.TextField(blank=True, default='')
+    hr_sig_b64          = models.TextField(blank=True, default='')
+    director_sig_b64    = models.TextField(blank=True, default='')
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -44,44 +44,54 @@ def _resume(end_date):
     return d
 
 
+def _pil_to_reader(pil_img):
+    """Flatten PIL image to RGB and return a ReportLab ImageReader."""
+    from PIL import Image as PILImage
+    import io as _io
+    if pil_img.mode in ('RGBA', 'LA', 'P'):
+        rgba = pil_img.convert('RGBA')
+        bg = PILImage.new('RGBA', rgba.size, (255, 255, 255, 255))
+        bg.paste(rgba, mask=rgba.split()[3])
+        pil_img = bg.convert('RGB')
+    else:
+        pil_img = pil_img.convert('RGB')
+    out = _io.BytesIO()
+    pil_img.save(out, format='PNG')
+    out.seek(0)
+    return ImageReader(out)
+
+
+def _load_sig_b64(b64_str):
+    """
+    Return an ImageReader from a base64 PNG string, or None.
+    This is the primary path — b64 is stored in DB and survives Railway redeploys.
+    """
+    if not b64_str or not b64_str.startswith('data:image/'):
+        return None
+    try:
+        from PIL import Image as PILImage
+        import io as _io
+        import base64 as _b64
+        raw = _b64.b64decode(b64_str.split(',', 1)[1])
+        pil_img = PILImage.open(_io.BytesIO(raw))
+        pil_img.load()
+        return _pil_to_reader(pil_img)
+    except Exception:
+        return None
+
+
 def _load_sig(employee_obj):
     """
-    Return a ReportLab ImageReader for the employee's signature PNG, or None.
-    Tries signature_b64 (DB — survives Railway redeploys) first, then falls
-    back to the FileField path/cloud storage.
-    Composites transparent/RGBA images onto white so mask=None works correctly.
+    Return a ReportLab ImageReader for the employee's signature, or None.
+    Tries employee.signature_b64 first, then falls back to the FileField.
     """
     if not employee_obj:
         return None
 
-    from PIL import Image as PILImage
-    import io as _io
-    import base64 as _b64
-
-    def _pil_to_reader(pil_img):
-        """Flatten to RGB and return an ImageReader."""
-        if pil_img.mode in ('RGBA', 'LA', 'P'):
-            rgba = pil_img.convert('RGBA')
-            bg = PILImage.new('RGBA', rgba.size, (255, 255, 255, 255))
-            bg.paste(rgba, mask=rgba.split()[3])
-            pil_img = bg.convert('RGB')
-        else:
-            pil_img = pil_img.convert('RGB')
-        out = _io.BytesIO()
-        pil_img.save(out, format='PNG')
-        out.seek(0)
-        return ImageReader(out)
-
     # ── 1. Try DB-stored base64 first (Railway-safe) ─────────────────────────
-    try:
-        b64_str = getattr(employee_obj, 'signature_b64', '') or ''
-        if b64_str and b64_str.startswith('data:image/'):
-            raw = _b64.b64decode(b64_str.split(',', 1)[1])
-            pil_img = PILImage.open(_io.BytesIO(raw))
-            pil_img.load()
-            return _pil_to_reader(pil_img)
-    except Exception:
-        pass
+    reader = _load_sig_b64(getattr(employee_obj, 'signature_b64', '') or '')
+    if reader:
+        return reader
 
     # ── 2. Fall back to FileField (local dev or freshly uploaded) ────────────
     try:
@@ -92,6 +102,8 @@ def _load_sig(employee_obj):
         return None
 
     try:
+        from PIL import Image as PILImage
+        import io as _io
         try:
             pil_img = PILImage.open(sig.path)
         except Exception:
@@ -101,10 +113,8 @@ def _load_sig(employee_obj):
                 pil_img = PILImage.open(_io.BytesIO(raw_bytes))
             except Exception:
                 return None
-
         pil_img.load()
         return _pil_to_reader(pil_img)
-
     except Exception:
         return None
 
@@ -170,12 +180,13 @@ def generate_leave_pdf(leave):
             txt(val or "—",   x + 3*mm, y_top - 9.5*mm, "Helvetica-Bold", 9.5, _DARK)
         return y_top - row_h
 
-    def draw_sig(emp_obj, x, y_top, max_w, max_h):
+    def draw_sig(emp_obj, x, y_top, max_w, max_h, stored_b64=''):
         """
-        Draw signature image within the bounding box.
-        mask=None because PIL already composited the image to RGB (no alpha).
+        Draw signature within the bounding box.
+        Tries stored_b64 (snapshotted on the leave) first, then employee.signature_b64,
+        then the FileField — so signatures are always permanent once captured.
         """
-        reader = _load_sig(emp_obj)
+        reader = _load_sig_b64(stored_b64) or _load_sig(emp_obj)
         if reader is None:
             return False
         try:
@@ -307,7 +318,8 @@ def generate_leave_pdf(leave):
     sig_w = CW * 0.42
     sig_h = 18*mm
     txt("Signature du demandeur", sig_x, y - 4*mm, "Helvetica", 7, _LABEL)
-    if not draw_sig(emp, sig_x, y - 5*mm, max_w=sig_w, max_h=sig_h):
+    if not draw_sig(emp, sig_x, y - 5*mm, max_w=sig_w, max_h=sig_h,
+                    stored_b64=leave.employee_sig_b64):
         txt(emp.user.get_full_name(), sig_x, y - 16*mm,
             "Helvetica-Oblique", 8.5, _LABEL)
 
@@ -335,17 +347,17 @@ def generate_leave_pdf(leave):
         uh_date = "—"
 
     approvers = [
-        ("UNIT HEAD / CHEF D'UNITÉ",                uh_emp,                   uh_date),
-        ("LINE MANAGER / SUPERVISEUR",               leave.manager_action_by,  _d(leave.manager_action_date)),
-        ("HR MANAGER / RESP. RESSOURCES HUMAINES",   leave.hr_action_by,       _d(leave.hr_action_date)),
-        ("ADMIN DIRECTOR / DIRECTEUR ADMINISTRATIF", leave.director_action_by, _d(leave.director_action_date)),
+        ("UNIT HEAD / CHEF D'UNITÉ",                uh_emp,                   uh_date,                      leave.unit_head_sig_b64),
+        ("LINE MANAGER / SUPERVISEUR",               leave.manager_action_by,  _d(leave.manager_action_date), leave.manager_sig_b64),
+        ("HR MANAGER / RESP. RESSOURCES HUMAINES",   leave.hr_action_by,       _d(leave.hr_action_date),      leave.hr_sig_b64),
+        ("ADMIN DIRECTOR / DIRECTEUR ADMINISTRATIF", leave.director_action_by, _d(leave.director_action_date), leave.director_sig_b64),
     ]
 
     CELL_W = CW / 2
     CELL_H = 35*mm
     CHDR_H = 7*mm
 
-    for idx, (col_label, emp_obj, act_date) in enumerate(approvers):
+    for idx, (col_label, emp_obj, act_date, sig_b64) in enumerate(approvers):
         row = idx // 2
         col = idx % 2
         cx      = LM + col * CELL_W
@@ -360,8 +372,7 @@ def generate_leave_pdf(leave):
         # Cell body
         body_top = row_top - CHDR_H
         body_h   = CELL_H - CHDR_H
-        bg = _WHITE
-        frect(cx, body_top, CELL_W, body_h, bg, _BORDER, 0.5)
+        frect(cx, body_top, CELL_W, body_h, _WHITE, _BORDER, 0.5)
 
         if emp_obj:
             txt(emp_obj.user.get_full_name(),
@@ -376,6 +387,7 @@ def generate_leave_pdf(leave):
                 body_top - 12*mm,
                 max_w=CELL_W - 6*mm,
                 max_h=body_h - 14*mm,
+                stored_b64=sig_b64,
             )
             if not drawn:
                 txt("(signed)",

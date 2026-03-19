@@ -117,7 +117,12 @@ def submit_leave(request):
             if overlapping.exists():
                 messages.error(request, "You already have a leave request for overlapping dates.")
             else:
-                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
+                sig_b64 = request.POST.get('signature_data', '')
+                _save_drawn_signature(employee, sig_b64)
+                if sig_b64 and sig_b64.startswith('data:image/'):
+                    leave.employee_sig_b64 = sig_b64
+                elif employee.signature_b64:
+                    leave.employee_sig_b64 = employee.signature_b64
                 leave.save()
                 if employee.is_intern():
                     # Interns skip manager step — go directly to HR
@@ -246,7 +251,9 @@ def unit_head_action(request, pk):
             leave.unit_head_action_date = timezone.now()
             leave.unit_head_remarks = remarks
             if action == 'approve':
-                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
+                sig_b64 = request.POST.get('signature_data', '')
+                _save_drawn_signature(employee, sig_b64)
+                leave.unit_head_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.status = LeaveRequest.STATUS_UNIT_HEAD_APPROVED
                 leave.save()
                 messages.success(request, "Leave approved. Forwarded to Line Manager.")
@@ -352,7 +359,9 @@ def manager_action(request, pk):
             leave.manager_action_date = timezone.now()
             leave.manager_remarks = remarks
             if action == 'approve':
-                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
+                sig_b64 = request.POST.get('signature_data', '')
+                _save_drawn_signature(employee, sig_b64)
+                leave.manager_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
                 messages.success(request, "Leave request approved. Forwarded to HR for review.")
                 notify(
@@ -442,7 +451,9 @@ def hr_action(request, pk):
             leave.hr_action_date = timezone.now()
             leave.hr_remarks = remarks
             if action == 'approve':
-                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
+                sig_b64 = request.POST.get('signature_data', '')
+                _save_drawn_signature(employee, sig_b64)
+                leave.hr_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.status = LeaveRequest.STATUS_HR_APPROVED
                 messages.success(request, "Leave request approved by HR. Forwarded to Administration Director.")
                 notify(
@@ -532,7 +543,9 @@ def director_action(request, pk):
             leave.director_action_date = timezone.now()
             leave.director_remarks = remarks
             if action == 'approve':
-                _save_drawn_signature(employee, request.POST.get('signature_data', ''))
+                sig_b64 = request.POST.get('signature_data', '')
+                _save_drawn_signature(employee, sig_b64)
+                leave.director_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.status = LeaveRequest.STATUS_APPROVED
                 messages.success(request, "Leave request FULLY APPROVED by Administration Director.")
                 notify(
