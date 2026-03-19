@@ -137,15 +137,23 @@
                     </div>
 
                     <!-- Signature Pad — shown only when Approve is selected -->
+                    <input type="hidden" id="savedSigB64" value="{{ current_sig_b64 }}">
                     <div id="signaturePadSection" style="display:none;" class="mb-4">
                         <label class="form-label fw-semibold">
                             <i class="bi bi-pen me-1" style="color:#0891a8;"></i>
                             Your Signature <span class="text-danger">*</span>
                         </label>
                         <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #cbd5e0;">
+                            {% if current_sig_b64 %}
+                            <div id="savedSigNotice" style="font-size:0.78rem;color:#2e7d32;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                                <i class="bi bi-check-circle-fill" style="color:#4caf50;"></i>
+                                Your saved signature will be used. Draw below to replace it.
+                            </div>
+                            {% else %}
                             <div style="font-size:0.78rem;color:#6b7a8d;margin-bottom:8px;">
                                 Sign below. This signature will appear on the approved leave document and be saved for future approvals.
                             </div>
+                            {% endif %}
                             <div style="position:relative;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;">
                                 <canvas id="sigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
                                 <div id="sigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:0.85rem;pointer-events:none;user-select:none;">
@@ -262,6 +270,22 @@ function initPad() {
     });
 }
 
+const savedSigB64 = document.getElementById('savedSigB64') ? document.getElementById('savedSigB64').value : '';
+
+function loadSavedSig() {
+    if (savedSigB64 && signaturePad) {
+        // Load saved signature into canvas via an Image element
+        const img = new Image();
+        img.onload = function () {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            placeholder.style.display = 'none';
+        };
+        img.src = savedSigB64;
+    }
+}
+
 // ── Show / hide pad based on decision radio ───────────────────────────────────
 document.querySelectorAll('input[name="action"]').forEach(radio => {
     radio.addEventListener('change', function () {
@@ -275,7 +299,10 @@ document.querySelectorAll('input[name="action"]').forEach(radio => {
             lbl.style.background  = '#e8f5e9';
             lbl.style.borderColor = '#4caf50';
             sigSection.style.display = 'block';
-            if (!signaturePad) { initPad(); }
+            if (!signaturePad) {
+                initPad();
+                loadSavedSig();
+            }
         } else {
             lbl.style.background  = '#fce4ec';
             lbl.style.borderColor = '#e53e3e';
@@ -306,13 +333,19 @@ window.addEventListener('resize', () => {
 document.getElementById('decisionForm').addEventListener('submit', function (e) {
     const action = document.querySelector('input[name="action"]:checked');
     if (action && action.value === 'approve') {
-        if (!signaturePad || signaturePad.isEmpty()) {
+        if (signaturePad && !signaturePad.isEmpty()) {
+            // User drew a new signature — use it
+            sigDataInput.value = signaturePad.toDataURL('image/png');
+        } else if (savedSigB64) {
+            // No new drawing but saved sig exists — use saved sig
+            sigDataInput.value = savedSigB64;
+        } else {
+            // No signature at all
             e.preventDefault();
             sigError.style.display = 'inline';
             sigSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
-        sigDataInput.value = signaturePad.toDataURL('image/png');
     }
 });
 </script>

@@ -297,6 +297,7 @@ def unit_head_action(request, pk):
         'form': form,
         'action_title': 'Unit Head Review',
         'action_type': 'unit_head',
+        'current_sig_b64': employee.signature_b64 or '',
     })
 
 
@@ -406,6 +407,7 @@ def manager_action(request, pk):
         'form': form,
         'action_title': 'Manager Review',
         'action_type': 'manager',
+        'current_sig_b64': employee.signature_b64 or '',
     })
 
 
@@ -498,6 +500,7 @@ def hr_action(request, pk):
         'form': form,
         'action_title': 'HR Final Review',
         'action_type': 'hr',
+        'current_sig_b64': employee.signature_b64 or '',
     })
 
 
@@ -578,6 +581,7 @@ def director_action(request, pk):
         'form': form,
         'action_title': 'Administration Director — Final Review',
         'action_type': 'director',
+        'current_sig_b64': employee.signature_b64 or '',
     })
 
 
@@ -928,3 +932,56 @@ def restore_default_leave_types(request):
         seed_default_leave_types()
         messages.success(request, "Default leave types restored (existing ones were not changed).")
     return redirect('leaves:leave_type_list')
+
+
+@login_required
+def backfill_signatures(request):
+    """
+    HR/superuser: copy each employee's current signature_b64 to any historical
+    leave requests where the snapshot field is still empty.
+    This repairs existing leaves after the b64 signature system was introduced.
+    """
+    employee = get_employee(request)
+    if not employee or not (employee.is_hr() or request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        updated = 0
+        for leave in LeaveRequest.objects.select_related(
+            'employee', 'unit_head_action_by', 'manager_action_by',
+            'hr_action_by', 'director_action_by'
+        ):
+            changed = False
+            if not leave.employee_sig_b64 and leave.employee and leave.employee.signature_b64:
+                leave.employee_sig_b64 = leave.employee.signature_b64
+                changed = True
+            if not leave.unit_head_sig_b64 and leave.unit_head_action_by and leave.unit_head_action_by.signature_b64:
+                leave.unit_head_sig_b64 = leave.unit_head_action_by.signature_b64
+                changed = True
+            if not leave.manager_sig_b64 and leave.manager_action_by and leave.manager_action_by.signature_b64:
+                leave.manager_sig_b64 = leave.manager_action_by.signature_b64
+                changed = True
+            if not leave.hr_sig_b64 and leave.hr_action_by and leave.hr_action_by.signature_b64:
+                leave.hr_sig_b64 = leave.hr_action_by.signature_b64
+                changed = True
+            if not leave.director_sig_b64 and leave.director_action_by and leave.director_action_by.signature_b64:
+                leave.director_sig_b64 = leave.director_action_by.signature_b64
+                changed = True
+            if changed:
+                leave.save(update_fields=[
+                    'employee_sig_b64', 'unit_head_sig_b64', 'manager_sig_b64',
+                    'hr_sig_b64', 'director_sig_b64'
+                ])
+                updated += 1
+        messages.success(request, f"Signatures synced to {updated} leave record(s).")
+        return redirect('leaves:all_leaves')
+
+    total = LeaveRequest.objects.count()
+    missing = LeaveRequest.objects.filter(
+        employee_sig_b64='', manager_sig_b64='', hr_sig_b64='', director_sig_b64=''
+    ).count()
+    return render(request, 'leaves/backfill_signatures.html', {
+        'total': total,
+        'missing': missing,
+    })
