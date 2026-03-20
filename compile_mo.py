@@ -1,6 +1,11 @@
+"""
+Compile django.po -> django.mo without requiring GNU gettext (msgfmt).
+Correctly includes the charset header so Python's gettext can decode UTF-8.
+"""
 import struct
 
 BACKSLASH = chr(92)
+
 
 def unescape(s):
     s = s.strip()
@@ -10,7 +15,7 @@ def unescape(s):
     i = 0
     while i < len(s):
         if s[i] == BACKSLASH and i + 1 < len(s):
-            c = s[i+1]
+            c = s[i + 1]
             if c == 'n':
                 result.append('\n')
             elif c == 't':
@@ -29,9 +34,11 @@ def unescape(s):
 
 
 def parse_po(po_path):
+    """Parse .po file and return dict including the '' header entry."""
     messages = {}
     with open(po_path, encoding='utf-8') as f:
         lines = f.readlines()
+
     pending_id = []
     pending_str = []
     in_msgid = False
@@ -40,8 +47,8 @@ def parse_po(po_path):
     def flush():
         mid = ''.join(pending_id)
         mstr = ''.join(pending_str)
-        if mid:
-            messages[mid] = mstr
+        # Include ALL entries, even the header (empty msgid)
+        messages[mid] = mstr
         pending_id.clear()
         pending_str.clear()
 
@@ -59,6 +66,8 @@ def parse_po(po_path):
                 flush()
             in_msgid = True
             in_msgstr = False
+            pending_id.clear()
+            pending_str.clear()
             pending_id.append(unescape(stripped[6:]))
         elif stripped.startswith('msgstr '):
             in_msgstr = True
@@ -72,12 +81,26 @@ def parse_po(po_path):
     if pending_id or pending_str:
         flush()
 
-    messages.pop('', None)
     return messages
 
 
 def write_mo(messages, mo_path):
-    keys = sorted(messages.keys())
+    """
+    Write MO file.  The empty-string key (header) must be present and
+    sorted first (empty string sorts before everything else).
+    """
+    # Ensure the header declares UTF-8 so Python's gettext won't default to ASCII
+    if '' not in messages:
+        messages[''] = (
+            'Content-Type: text/plain; charset=UTF-8\n'
+            'Content-Transfer-Encoding: 8bit\n'
+            'Language: fr\n'
+        )
+    elif 'charset=UTF-8' not in messages['']:
+        # Patch in the charset declaration if missing
+        messages[''] = messages[''].rstrip('\n') + '\nContent-Type: text/plain; charset=UTF-8\n'
+
+    keys = sorted(messages.keys())   # '' sorts first, which is correct
     n = len(keys)
     MAGIC = 0x950412de
 
@@ -95,7 +118,7 @@ def write_mo(messages, mo_path):
         ids_buf += kb + b'\x00'
         strs_buf += vb + b'\x00'
 
-    # 28 bytes header + n*8 id table + n*8 str table, then ids_buf, then strs_buf
+    # MO layout: 28-byte header + n*8 id-table + n*8 str-table + ids_buf + strs_buf
     ids_start = 28 + n * 16
     strs_start = ids_start + len(ids_buf)
 
@@ -108,10 +131,9 @@ def write_mo(messages, mo_path):
 
     with open(mo_path, 'wb') as f:
         f.write(out)
-    print(f"Compiled {n} messages to {mo_path}")
+    print(f"Compiled {n} messages (including header) to {mo_path}")
 
 
 if __name__ == '__main__':
-    parse_and_write = True
     messages = parse_po('locale/fr/LC_MESSAGES/django.po')
     write_mo(messages, 'locale/fr/LC_MESSAGES/django.mo')

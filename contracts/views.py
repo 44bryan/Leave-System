@@ -36,9 +36,11 @@ def _get_employee(request):
 
 def _contract_issue_message(contract):
     """Return a tailored notification title + message for a newly issued contract."""
-    issued_on = contract.created_at.strftime('%d %b %Y') if contract.created_at else contract.start_date.strftime('%d %b %Y')
-    start = contract.start_date.strftime('%d %b %Y')
-    end   = contract.end_date.strftime('%d %b %Y') if contract.end_date else None
+    start_d = _parse_date(contract.start_date)
+    end_d   = _parse_date(contract.end_date)
+    issued_on = contract.created_at.strftime('%d %b %Y') if contract.created_at else (start_d.strftime('%d %b %Y') if start_d else '—')
+    start = start_d.strftime('%d %b %Y') if start_d else '—'
+    end   = end_d.strftime('%d %b %Y') if end_d else None
     ct    = contract.contract_type
 
     collect_notice = (
@@ -78,10 +80,22 @@ def _contract_issue_message(contract):
     return title, msg
 
 
+def _parse_date(d):
+    """Accept a date object or an ISO string and return a date object."""
+    if d is None:
+        return None
+    if isinstance(d, str):
+        from datetime import datetime as _dt
+        return _dt.strptime(d[:10], '%Y-%m-%d').date()
+    return d
+
+
 def _contract_renewal_message(new_contract):
     """Return a tailored renewal/extension message for a contract."""
-    start = new_contract.start_date.strftime('%d %b %Y')
-    end   = new_contract.end_date.strftime('%d %b %Y') if new_contract.end_date else None
+    start_d = _parse_date(new_contract.start_date)
+    end_d   = _parse_date(new_contract.end_date)
+    start = start_d.strftime('%d %b %Y') if start_d else '—'
+    end   = end_d.strftime('%d %b %Y') if end_d else None
     ct    = new_contract.contract_type
 
     if ct == 'INTERN':
