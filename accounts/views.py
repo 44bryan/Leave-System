@@ -381,7 +381,7 @@ def employee_history(request, pk):
     from leaves.models import LeaveRequest, LeaveBalance
     from discipline.models import DisciplineRecord
 
-    contracts = Contract.objects.filter(employee=employee).order_by('-start_date')
+    contracts = Contract.objects.filter(employee=employee).order_by('start_date', 'created_at')
     leave_requests = LeaveRequest.objects.filter(employee=employee).select_related(
         'leave_type', 'manager_action_by__user', 'hr_action_by__user'
     ).order_by('-created_at')

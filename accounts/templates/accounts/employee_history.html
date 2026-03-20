@@ -4,6 +4,71 @@
 {% block page_title %}{% trans "Employee Record" %}{% endblock %}
 {% block page_subtitle %}{% trans "Full audit trail" %}{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ── Contract Timeline ── */
+.contract-timeline { padding: 4px 0; }
+
+.ct-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 0;
+}
+
+.ct-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 36px;
+    padding-top: 4px;
+}
+
+.ct-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+    z-index: 1;
+}
+.ct-dot--active     { background: #16a34a; box-shadow: 0 0 0 4px #dcfce7; }
+.ct-dot--terminated { background: #dc2626; box-shadow: 0 0 0 4px #fee2e2; }
+.ct-dot--expired    { background: #6b7280; box-shadow: 0 0 0 4px #f3f4f6; }
+.ct-dot--renewed    { background: #0284c7; box-shadow: 0 0 0 4px #e0f2fe; }
+
+.ct-connector {
+    width: 2px;
+    flex-grow: 1;
+    min-height: 24px;
+    background: linear-gradient(to bottom, #cbd5e1, #e2e8f0);
+    margin: 4px 0;
+}
+
+.ct-card {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    transition: box-shadow .15s;
+}
+.ct-card:hover { box-shadow: 0 2px 12px rgba(10,77,104,.10); }
+.ct-card--active {
+    background: #f0fdf4;
+    border-color: #86efac;
+}
+
+/* last item — no bottom margin needed */
+.ct-item:last-child .ct-card { margin-bottom: 0; }
+</style>
+{% endblock %}
+
 {% block topbar_actions %}
 <a href="{% url 'accounts:employee_edit' employee.pk %}" class="btn btn-outline-primary btn-sm">
     <i class="bi bi-pencil me-1"></i>{% trans "Edit Profile" %}
@@ -174,56 +239,100 @@
                 <span><i class="bi bi-file-earmark-text me-2" style="color:#0284c7;"></i>{% trans "Contract History" %}</span>
                 <span class="badge bg-primary">{{ contracts|length }}</span>
             </div>
-            <div class="table-responsive">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>{% trans "Type" %}</th>
-                            <th>{% trans "Start Date" %}</th>
-                            <th>{% trans "End Date" %}</th>
-                            <th>{% trans "Status" %}</th>
-                            <th>{% trans "Contract No." %}</th>
-                            <th>{% trans "Notes" %}</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for c in contracts %}
-                        <tr {% if c.status == 'active' %}style="background:#f0fdf4;"{% endif %}>
-                            <td>
-                                {% if c.contract_type == 'INTERN' %}
-                                <span class="badge" style="background:#cffafe;color:#0e7490;"><i class="bi bi-mortarboard me-1"></i>{% trans "Internship" %}</span>
-                                {% elif c.contract_type == 'WACS' %}
-                                <span class="badge" style="background:#ede9fe;color:#6d28d9;"><i class="bi bi-hospital me-1"></i>WACS</span>
-                                {% elif c.contract_type == 'CDI' %}
-                                <span class="badge" style="background:#dcfce7;color:#15803d;"><i class="bi bi-infinity me-1"></i>CDI</span>
+            <div class="card-body p-4">
+                {% if not contracts %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-file-earmark fs-2 d-block mb-2"></i>
+                    {% trans "No contracts on record." %}
+                </div>
+                {% else %}
+                <!-- Timeline (oldest → newest = natural career progression) -->
+                <div class="contract-timeline">
+                    {% for c in contracts %}
+                    <div class="ct-item {% if not forloop.last %}ct-item--has-next{% endif %}">
+                        <!-- Step connector line -->
+                        <div class="ct-line">
+                            <div class="ct-dot {% if c.status == 'active' %}ct-dot--active{% elif c.status == 'terminated' %}ct-dot--terminated{% elif c.status == 'expired' %}ct-dot--expired{% else %}ct-dot--renewed{% endif %}">
+                                {% if c.status == 'active' %}
+                                <i class="bi bi-check-circle-fill" style="font-size:.9rem;"></i>
+                                {% elif c.status == 'terminated' %}
+                                <i class="bi bi-x-circle-fill" style="font-size:.9rem;"></i>
+                                {% elif c.status == 'expired' %}
+                                <i class="bi bi-clock-history" style="font-size:.9rem;"></i>
                                 {% else %}
-                                <span class="badge" style="background:#fef9c3;color:#a16207;"><i class="bi bi-calendar-range me-1"></i>CDD</span>
+                                <i class="bi bi-arrow-right-circle-fill" style="font-size:.9rem;"></i>
                                 {% endif %}
-                                {% if c.internship_type %}<div style="font-size:.72rem;color:#6b7a8d;margin-top:2px;">{{ c.get_internship_type_display }}</div>{% endif %}
-                            </td>
-                            <td style="font-size:.85rem;">{{ c.start_date|date:"d M Y" }}</td>
-                            <td style="font-size:.85rem;">{% if c.end_date %}{{ c.end_date|date:"d M Y" }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                            <td>
-                                {% if c.status == 'active' %}<span class="badge bg-success">{% trans "Active" %}</span>
-                                {% elif c.status == 'expired' %}<span class="badge bg-secondary">{% trans "Expired" %}</span>
-                                {% elif c.status == 'terminated' %}<span class="badge bg-danger">{% trans "Terminated" %}</span>
-                                {% elif c.status == 'renewed' %}<span class="badge bg-info text-dark">{% trans "Renewed" %}</span>
-                                {% else %}<span class="badge bg-light text-dark">{{ c.status }}</span>{% endif %}
-                            </td>
-                            <td style="font-size:.8rem;font-family:monospace;color:#6b7a8d;">{{ c.contract_number|default:"—" }}</td>
-                            <td style="font-size:.78rem;color:#6b7a8d;">{{ c.notes|default:"—"|truncatechars:50 }}</td>
-                            <td>
-                                <a href="{% url 'contracts:detail' c.pk %}" class="btn btn-xs btn-outline-primary" style="font-size:.75rem;padding:2px 8px;">
-                                    <i class="bi bi-eye"></i>
+                            </div>
+                            {% if not forloop.last %}
+                            <div class="ct-connector"></div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Contract card -->
+                        <div class="ct-card {% if c.status == 'active' %}ct-card--active{% endif %}">
+                            <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <!-- Step label -->
+                                    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:#9ab4c0;font-weight:700;margin-bottom:4px;">
+                                        {% if c.renewed_from %}
+                                        {% if c.contract_type == 'INTERN' or c.contract_type == 'WACS' %}
+                                        <i class="bi bi-arrow-return-right me-1"></i>{% trans "Extension" %} #{{ forloop.counter }}
+                                        {% else %}
+                                        <i class="bi bi-arrow-return-right me-1"></i>{% trans "Renewal" %} #{{ forloop.counter }}
+                                        {% endif %}
+                                        {% else %}
+                                        <i class="bi bi-file-earmark-plus me-1"></i>{% trans "Initial Contract" %}
+                                        {% endif %}
+                                    </div>
+                                    <!-- Type badge -->
+                                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                        {% if c.contract_type == 'INTERN' %}
+                                        <span class="badge" style="background:#cffafe;color:#0e7490;font-size:.8rem;"><i class="bi bi-mortarboard me-1"></i>{% trans "Internship" %}</span>
+                                        {% elif c.contract_type == 'WACS' %}
+                                        <span class="badge" style="background:#ede9fe;color:#6d28d9;font-size:.8rem;"><i class="bi bi-hospital me-1"></i>WACS</span>
+                                        {% elif c.contract_type == 'CDI' %}
+                                        <span class="badge" style="background:#dcfce7;color:#15803d;font-size:.8rem;"><i class="bi bi-infinity me-1"></i>CDI</span>
+                                        {% else %}
+                                        <span class="badge" style="background:#fef9c3;color:#a16207;font-size:.8rem;"><i class="bi bi-calendar-range me-1"></i>CDD</span>
+                                        {% endif %}
+                                        {% if c.internship_type %}
+                                        <span style="font-size:.75rem;color:#6b7a8d;">{{ c.get_internship_type_display }}</span>
+                                        {% endif %}
+                                        <!-- Status -->
+                                        {% if c.status == 'active' %}<span class="badge bg-success">{% trans "Active" %}</span>
+                                        {% elif c.status == 'expired' %}<span class="badge bg-secondary">{% trans "Expired" %}</span>
+                                        {% elif c.status == 'terminated' %}<span class="badge bg-danger">{% trans "Terminated" %}</span>
+                                        {% elif c.status == 'renewed' %}<span class="badge bg-info text-dark">{% trans "Extended / Renewed" %}</span>
+                                        {% endif %}
+                                    </div>
+                                    <!-- Period -->
+                                    <div style="font-size:.92rem;font-weight:700;color:#0A4D68;">
+                                        <i class="bi bi-calendar-range me-1" style="font-size:.8rem;"></i>
+                                        {{ c.start_date|date:"d M Y" }}
+                                        {% if c.end_date %}
+                                        &rarr; {{ c.end_date|date:"d M Y" }}
+                                        {% else %}
+                                        &rarr; <span class="text-muted" style="font-weight:400;font-style:italic;">{% trans "No fixed end date" %}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if c.contract_number %}
+                                    <div style="font-size:.75rem;color:#9ab4c0;margin-top:2px;">
+                                        <i class="bi bi-hash me-1"></i>{{ c.contract_number }}
+                                    </div>
+                                    {% endif %}
+                                    {% if c.notes %}
+                                    <div style="font-size:.78rem;color:#6b7a8d;margin-top:4px;font-style:italic;">{{ c.notes|truncatechars:80 }}</div>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'contracts:detail' c.pk %}" class="btn btn-sm btn-outline-primary" style="font-size:.75rem;flex-shrink:0;">
+                                    <i class="bi bi-eye me-1"></i>{% trans "View" %}
                                 </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="7" class="text-center text-muted py-4"><i class="bi bi-file-earmark fs-2 d-block mb-2"></i>{% trans "No contracts on record." %}</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
