@@ -102,10 +102,18 @@
                             {% trans "Your Signature" %} <span class="text-danger">*</span>
                         </label>
                         <input type="hidden" name="signature_data" id="signatureData">
+                        <input type="hidden" id="savedSigB64" value="{{ current_sig_b64 }}">
                         <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #cbd5e0;">
+                            {% if current_sig_b64 %}
+                            <div style="font-size:0.78rem;color:#2e7d32;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                                <i class="bi bi-check-circle-fill" style="color:#4caf50;"></i>
+                                Your saved signature is loaded. Draw below to replace it.
+                            </div>
+                            {% else %}
                             <div style="font-size:0.78rem;color:#6b7a8d;margin-bottom:8px;">
                                 Sign below to confirm you are requesting this leave. Your signature will appear on the official leave document.
                             </div>
+                            {% endif %}
                             <div style="position:relative;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;">
                                 <canvas id="sigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
                                 <div id="sigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:0.85rem;pointer-events:none;user-select:none;text-align:center;">
@@ -261,6 +269,7 @@ const canvas      = document.getElementById('sigCanvas');
 const placeholder = document.getElementById('sigPlaceholder');
 const dataInput   = document.getElementById('signatureData');
 const sigError    = document.getElementById('sigError');
+const savedSigB64 = (document.getElementById('savedSigB64') || {}).value || '';
 let signaturePad  = null;
 
 function initPad() {
@@ -277,13 +286,25 @@ function initPad() {
         sigError.style.display    = 'none';
     });
 }
-window.addEventListener('load', initPad);
+
+function loadSavedSig() {
+    if (savedSigB64 && signaturePad) {
+        const img = new Image();
+        img.onload = function() {
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            placeholder.style.display = 'none';
+        };
+        img.src = savedSigB64;
+    }
+}
+
+window.addEventListener('load', () => { initPad(); loadSavedSig(); });
 window.addEventListener('resize', () => {
     if (!signaturePad) return;
     const data = signaturePad.toData();
     initPad();
     signaturePad.fromData(data);
-    if (!data.length) placeholder.style.display = 'block';
+    if (!data.length) { loadSavedSig() || (placeholder.style.display = 'block'); }
 });
 
 document.getElementById('clearSig').addEventListener('click', () => {
@@ -291,13 +312,16 @@ document.getElementById('clearSig').addEventListener('click', () => {
 });
 
 document.querySelector('form').addEventListener('submit', function(e) {
-    if (!signaturePad || signaturePad.isEmpty()) {
+    if (signaturePad && !signaturePad.isEmpty()) {
+        dataInput.value = signaturePad.toDataURL('image/png');
+    } else if (savedSigB64) {
+        dataInput.value = savedSigB64;
+    } else {
         e.preventDefault();
         sigError.style.display = 'inline';
         canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
     }
-    dataInput.value = signaturePad.toDataURL('image/png');
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>

@@ -174,6 +174,7 @@ def submit_leave(request):
         'deductible_map': deductible_map,
         'backup_choices': backup_choices,
         'employee': employee,
+        'current_sig_b64': employee.signature_b64 or '',
     })
 
 
