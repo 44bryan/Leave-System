@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ employee.get_full_name }} — {% trans "Employee Record" %} — LeaveDesk{% endblock %}
+{% block page_title %}{% trans "Employee Record" %}{% endblock %}
+{% block page_subtitle %}{% trans "Full audit trail" %}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'accounts:employee_edit' employee.pk %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-pencil me-1"></i>{% trans "Edit Profile" %}
+</a>
+<a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>{% trans "Back to List" %}
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Employee Header ── -->
+<div class="card mb-4 animate-in" style="border-top:3px solid #0A4D68;">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-4 flex-wrap">
+            <div style="width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#05BFDB,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.6rem;flex-shrink:0;">
+                {{ employee.user.first_name|first|upper }}
+            </div>
+            <div class="flex-grow-1">
+                <h4 class="mb-1 fw-bold">{{ employee.get_full_name }}</h4>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <span class="badge bg-{{ employee.get_role_display_badge }}">{{ employee.get_effective_role_display }}</span>
+                    {% if employee.department %}
+                    <span class="badge bg-light text-dark border">{{ employee.department }}</span>
+                    {% endif %}
+                    {% if employee.is_active %}
+                    <span class="badge bg-success">{% trans "Active" %}</span>
+                    {% else %}
+                    <span class="badge bg-secondary">{% trans "Inactive" %}</span>
+                    {% endif %}
+                    <span class="text-muted" style="font-size:.8rem;font-family:monospace;">{{ employee.employee_id }}</span>
+                </div>
+                <div class="mt-1" style="font-size:.82rem;color:#6b7a8d;">
+                    {% if employee.position %}{{ employee.position }}{% endif %}
+                    {% if employee.position and employee.date_joined_company %} · {% endif %}
+                    {% if employee.date_joined_company %}{% trans "Joined:" %} {{ employee.date_joined_company|date:"d M Y" }}{% endif %}
+                </div>
+            </div>
+            <!-- Quick Stats -->
+            <div class="d-flex gap-3 flex-wrap">
+                <div class="text-center" style="min-width:60px;">
+                    <div style="font-size:1.5rem;font-weight:800;color:#0A4D68;">{{ contracts|length }}</div>
+                    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Contracts" %}</div>
+                </div>
+                <div class="text-center" style="min-width:60px;">
+                    <div style="font-size:1.5rem;font-weight:800;color:#2e7d32;">{{ leave_requests|length }}</div>
+                    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Leaves" %}</div>
+                </div>
+                <div class="text-center" style="min-width:60px;">
+                    <div style="font-size:1.5rem;font-weight:800;color:{% if discipline_records %}#c62828{% else %}#2e7d32{% endif %};">{{ discipline_records|length }}</div>
+                    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Discipline" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Tabs ── -->
+<ul class="nav nav-tabs mb-4" id="historyTabs">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#tab-info">
+            <i class="bi bi-person-circle me-1"></i>{% trans "Profile" %}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-contracts">
+            <i class="bi bi-file-earmark-text me-1"></i>{% trans "Contracts" %}
+            <span class="badge bg-primary ms-1">{{ contracts|length }}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-leaves">
+            <i class="bi bi-calendar3 me-1"></i>{% trans "Leave History" %}
+            <span class="badge bg-success ms-1">{{ leave_requests|length }}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if discipline_records %}text-danger{% endif %}" data-bs-toggle="tab" href="#tab-discipline">
+            <i class="bi bi-shield-exclamation me-1"></i>{% trans "Discipline" %}
+            {% if discipline_records %}<span class="badge bg-danger ms-1">{{ discipline_records|length }}</span>{% endif %}
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content">
+
+    <!-- ── TAB: Profile ── -->
+    <div class="tab-pane fade show active" id="tab-info">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header"><i class="bi bi-person me-2"></i>{% trans "Personal Information" %}</div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <tr><td class="text-muted" style="width:45%;">{% trans "Full Name" %}</td><td><strong>{{ employee.get_full_name }}</strong></td></tr>
+                            <tr><td class="text-muted">{% trans "Employee ID" %}</td><td><code>{{ employee.employee_id }}</code></td></tr>
+                            <tr><td class="text-muted">{% trans "Username" %}</td><td>{{ employee.user.username }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Email" %}</td><td>{{ employee.user.email|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Phone" %}</td><td>{{ employee.phone|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Date of Birth" %}</td><td>{{ employee.date_of_birth|date:"d M Y"|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Age" %}</td><td>{% if employee.age %}{{ employee.age }} {% trans "years" %}{% else %}—{% endif %}</td></tr>
+                            <tr><td class="text-muted">{% trans "Sex" %}</td><td>{{ employee.get_sex_display|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Nationality" %}</td><td>{{ employee.nationality|default:"—" }}</td></tr>
+                            {% if employee.school_name %}
+                            <tr><td class="text-muted">{% trans "School / University" %}</td><td>{{ employee.school_name }}</td></tr>
+                            {% endif %}
+                            {% if employee.speciality %}
+                            <tr><td class="text-muted">{% trans "Speciality" %}</td><td>{{ employee.speciality }}</td></tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header"><i class="bi bi-briefcase me-2"></i>{% trans "Employment Details" %}</div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <tr><td class="text-muted" style="width:45%;">{% trans "Role" %}</td><td><span class="badge bg-{{ employee.get_role_display_badge }}">{{ employee.get_effective_role_display }}</span></td></tr>
+                            <tr><td class="text-muted">{% trans "Department" %}</td><td>{{ employee.department|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Position" %}</td><td>{{ employee.position|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Staff Category" %}</td><td>{% if employee.staff_category %}{{ employee.staff_category }}{% else %}—{% endif %}</td></tr>
+                            <tr><td class="text-muted">{% trans "Line Manager" %}</td><td>{{ employee.supervisor.get_full_name|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Unit Head" %}</td><td>{{ employee.unit_head.get_full_name|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Joined Hospital" %}</td><td>{{ employee.date_joined_company|date:"d M Y"|default:"—" }}</td></tr>
+                            <tr><td class="text-muted">{% trans "Contract No." %}</td><td>{{ employee.contract_number|default:"—" }}</td></tr>
+                            {% if employee.qualifications %}
+                            <tr><td class="text-muted">{% trans "Qualifications" %}</td><td style="white-space:pre-line;font-size:.82rem;">{{ employee.qualifications }}</td></tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% if balance %}
+            <div class="col-12">
+                <div class="card" style="background:linear-gradient(135deg,#0A4D68,#088395);color:white;border:none;">
+                    <div class="card-body p-4">
+                        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;opacity:.75;margin-bottom:8px;">{% trans "Leave Balance" %} {{ today.year }}</div>
+                        <div class="row text-center g-3">
+                            <div class="col">
+                                <div style="font-size:2rem;font-weight:800;">{{ balance.total_available }}</div>
+                                <div style="font-size:.7rem;opacity:.75;">{% trans "Available" %}</div>
+                            </div>
+                            <div class="col" style="border-left:1px solid rgba(255,255,255,.2);">
+                                <div style="font-size:2rem;font-weight:800;">{{ balance.used_days }}</div>
+                                <div style="font-size:.7rem;opacity:.75;">{% trans "Used" %}</div>
+                            </div>
+                            <div class="col" style="border-left:1px solid rgba(255,255,255,.2);">
+                                <div style="font-size:2rem;font-weight:800;">{{ balance.remaining_days }}</div>
+                                <div style="font-size:.7rem;opacity:.75;">{% trans "Remaining" %}</div>
+                            </div>
+                            <div class="col" style="border-left:1px solid rgba(255,255,255,.2);">
+                                <div style="font-size:2rem;font-weight:800;">{{ balance.total_entitlement }}</div>
+                                <div style="font-size:.7rem;opacity:.75;">{% trans "Entitlement" %}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ── TAB: Contracts ── -->
+    <div class="tab-pane fade" id="tab-contracts">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-file-earmark-text me-2" style="color:#0284c7;"></i>{% trans "Contract History" %}</span>
+                <span class="badge bg-primary">{{ contracts|length }}</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Type" %}</th>
+                            <th>{% trans "Start Date" %}</th>
+                            <th>{% trans "End Date" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Contract No." %}</th>
+                            <th>{% trans "Notes" %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in contracts %}
+                        <tr {% if c.status == 'active' %}style="background:#f0fdf4;"{% endif %}>
+                            <td>
+                                {% if c.contract_type == 'INTERN' %}
+                                <span class="badge" style="background:#cffafe;color:#0e7490;"><i class="bi bi-mortarboard me-1"></i>{% trans "Internship" %}</span>
+                                {% elif c.contract_type == 'WACS' %}
+                                <span class="badge" style="background:#ede9fe;color:#6d28d9;"><i class="bi bi-hospital me-1"></i>WACS</span>
+                                {% elif c.contract_type == 'CDI' %}
+                                <span class="badge" style="background:#dcfce7;color:#15803d;"><i class="bi bi-infinity me-1"></i>CDI</span>
+                                {% else %}
+                                <span class="badge" style="background:#fef9c3;color:#a16207;"><i class="bi bi-calendar-range me-1"></i>CDD</span>
+                                {% endif %}
+                                {% if c.internship_type %}<div style="font-size:.72rem;color:#6b7a8d;margin-top:2px;">{{ c.get_internship_type_display }}</div>{% endif %}
+                            </td>
+                            <td style="font-size:.85rem;">{{ c.start_date|date:"d M Y" }}</td>
+                            <td style="font-size:.85rem;">{% if c.end_date %}{{ c.end_date|date:"d M Y" }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                            <td>
+                                {% if c.status == 'active' %}<span class="badge bg-success">{% trans "Active" %}</span>
+                                {% elif c.status == 'expired' %}<span class="badge bg-secondary">{% trans "Expired" %}</span>
+                                {% elif c.status == 'terminated' %}<span class="badge bg-danger">{% trans "Terminated" %}</span>
+                                {% elif c.status == 'renewed' %}<span class="badge bg-info text-dark">{% trans "Renewed" %}</span>
+                                {% else %}<span class="badge bg-light text-dark">{{ c.status }}</span>{% endif %}
+                            </td>
+                            <td style="font-size:.8rem;font-family:monospace;color:#6b7a8d;">{{ c.contract_number|default:"—" }}</td>
+                            <td style="font-size:.78rem;color:#6b7a8d;">{{ c.notes|default:"—"|truncatechars:50 }}</td>
+                            <td>
+                                <a href="{% url 'contracts:detail' c.pk %}" class="btn btn-xs btn-outline-primary" style="font-size:.75rem;padding:2px 8px;">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center text-muted py-4"><i class="bi bi-file-earmark fs-2 d-block mb-2"></i>{% trans "No contracts on record." %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: Leave History ── -->
+    <div class="tab-pane fade" id="tab-leaves">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-calendar3 me-2" style="color:#2e7d32;"></i>{% trans "Leave Request History" %}</span>
+                <span class="badge bg-success">{{ leave_requests|length }}</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>{% trans "Leave Type" %}</th>
+                            <th>{% trans "Period" %}</th>
+                            <th>{% trans "Days" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Applied" %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in leave_requests %}
+                        <tr>
+                            <td style="color:#6b7a8d;font-size:.75rem;">#{{ req.pk }}</td>
+                            <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                            <td style="font-size:.82rem;">{{ req.start_date|date:"d M Y" }} → {{ req.end_date|date:"d M Y" }}</td>
+                            <td><strong>{{ req.total_days }}d</strong></td>
+                            <td><span class="badge bg-{{ req.get_status_badge }}">{{ req.get_status_display }}</span></td>
+                            <td style="font-size:.78rem;color:#6b7a8d;">{{ req.created_at|date:"d M Y" }}</td>
+                            <td>
+                                <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:2px 8px;">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center text-muted py-4"><i class="bi bi-calendar-x fs-2 d-block mb-2"></i>{% trans "No leave requests on record." %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: Discipline ── -->
+    <div class="tab-pane fade" id="tab-discipline">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-shield-exclamation me-2" style="color:#dc2626;"></i>{% trans "Discipline Records" %}</span>
+                {% if discipline_records %}
+                <span class="badge bg-danger">{{ discipline_records|length }}</span>
+                {% else %}
+                <span class="badge bg-success">{% trans "Clean record" %}</span>
+                {% endif %}
+            </div>
+            {% if not discipline_records %}
+            <div class="card-body text-center py-5 text-muted">
+                <i class="bi bi-shield-check fs-2 d-block mb-2 text-success"></i>
+                <strong>{% trans "No discipline records." %}</strong>
+                <div style="font-size:.82rem;">{% trans "This employee has a clean discipline record." %}</div>
+            </div>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Type" %}</th>
+                            <th>{% trans "Reason" %}</th>
+                            <th>{% trans "Issued By" %}</th>
+                            <th>{% trans "HR Proposal" %}</th>
+                            <th>{% trans "Director Decision" %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in discipline_records %}
+                        <tr>
+                            <td style="font-size:.82rem;">{{ rec.date_issued|date:"d M Y" }}</td>
+                            <td>
+                                {% if rec.action_type == 'verbal_warning' %}<span class="badge bg-warning text-dark">{% trans "Verbal Warning" %}</span>
+                                {% elif rec.action_type == 'written_caution' %}<span class="badge bg-warning text-dark">{% trans "Written Caution" %}</span>
+                                {% elif rec.action_type == 'final_warning' %}<span class="badge bg-orange text-white" style="background:#f97316;">{% trans "Final Warning" %}</span>
+                                {% elif rec.action_type == 'suspension' %}<span class="badge bg-danger">{% trans "Suspension" %}</span>
+                                {% elif rec.action_type == 'dismissal' %}<span class="badge bg-dark">{% trans "Dismissal" %}</span>
+                                {% else %}<span class="badge bg-secondary">{{ rec.get_action_type_display }}</span>{% endif %}
+                            </td>
+                            <td style="font-size:.82rem;max-width:220px;">{{ rec.reason|truncatechars:80 }}</td>
+                            <td style="font-size:.82rem;">{{ rec.issued_by.get_full_name }}</td>
+                            <td style="font-size:.78rem;">
+                                {% if rec.hr_proposed_sanction %}
+                                <span class="badge bg-info text-dark">{{ rec.get_hr_proposed_sanction_display|default:rec.hr_proposed_sanction }}</span>
+                                {% else %}<span class="text-muted">{% trans "Pending" %}</span>{% endif %}
+                            </td>
+                            <td style="font-size:.78rem;">
+                                {% if rec.director_proposed_sanction %}
+                                <span class="badge bg-primary">{{ rec.get_director_proposed_sanction_display|default:rec.director_proposed_sanction }}</span>
+                                {% else %}<span class="text-muted">{% trans "Pending" %}</span>{% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'discipline:detail' rec.pk %}" class="btn btn-xs btn-outline-danger" style="font-size:.75rem;padding:2px 8px;">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div><!-- /.tab-content -->
+
+{% endblock %}

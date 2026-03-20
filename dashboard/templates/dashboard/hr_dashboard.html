@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}HR Dashboard — LeaveDesk{% endblock %}
-{% block page_title %}HR Dashboard{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "HR Dashboard" %} — LeaveDesk{% endblock %}
+{% block page_title %}{% trans "HR Dashboard" %}{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'dashboard:tracker' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-table me-1"></i> Leave Tracker
+    <i class="bi bi-table me-1"></i> {% trans "Leave Tracker" %}
 </a>
 <a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-shield-exclamation me-1"></i> Issue Notice
+    <i class="bi bi-shield-exclamation me-1"></i> {% trans "Issue Notice" %}
 </a>
 <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-primary btn-sm">
-    <i class="bi bi-clipboard2-check me-1"></i> HR Approvals
+    <i class="bi bi-clipboard2-check me-1"></i> {% trans "HR Approvals" %}
     {% if pending_hr > 0 %}<span class="badge bg-warning text-dark ms-1">{{ pending_hr }}</span>{% endif %}
 </a>
 {% endblock %}
@@ -44,29 +45,32 @@
 
 {% block content %}
 
+<!-- ── My Personal Leave Section ── -->
+{% include 'dashboard/includes/my_leave_section.html' %}
+
 <!-- ── Birthday Banners ── -->
 {% if today_birthdays %}
 <div class="p-3 rounded-3 text-white mb-4 animate-in" style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
     <span style="font-size:2rem;">🎂</span>
     <div style="flex:1;">
-        <div style="font-size:0.9rem;font-weight:800;">Birthday{% if today_birthdays|length > 1 %}s{% endif %} Today!</div>
+        <div style="font-size:0.9rem;font-weight:800;">{% trans "Birthday" %}{% if today_birthdays|length > 1 %}{% trans "s" %}{% endif %} {% trans "Today!" %}</div>
         <div style="font-size:0.82rem;opacity:0.92;">
             {% for e in today_birthdays %}<strong>{{ e.get_full_name }}</strong>{% if e.department %} ({{ e.department }}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}
         </div>
     </div>
-    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm" style="background:rgba(255,255,255,0.22);color:#fff;border:1px solid rgba(255,255,255,0.4);font-size:0.78rem;"><i class="bi bi-cake2 me-1"></i>Birthday Calendar</a>
+    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm" style="background:rgba(255,255,255,0.22);color:#fff;border:1px solid rgba(255,255,255,0.4);font-size:0.78rem;"><i class="bi bi-cake2 me-1"></i>{% trans "Birthday Calendar" %}</a>
 </div>
 {% elif this_month_birthdays %}
 <div class="p-3 rounded-3 mb-4 animate-in" style="background:#fffbeb;border:1.5px solid #fcd34d;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
     <span style="font-size:1.6rem;">🎁</span>
     <div style="flex:1;">
-        <div style="font-size:0.82rem;font-weight:700;color:#92400e;">Upcoming Birthdays This Month — {{ this_month_birthdays|length }} staff</div>
+        <div style="font-size:0.82rem;font-weight:700;color:#92400e;">{% blocktrans with count=this_month_birthdays|length %}Upcoming Birthdays This Month — {{ count }} staff{% endblocktrans %}</div>
         <div style="font-size:0.78rem;color:#78350f;">
             {% for e in this_month_birthdays|slice:":5" %}{{ e.user.first_name }} {{ e.user.last_name|slice:":1" }}. ({{ e.date_of_birth|date:"d" }}){% if not forloop.last %}, {% endif %}{% endfor %}
             {% if this_month_birthdays|length > 5 %} +{{ this_month_birthdays|length|add:"-5" }} more{% endif %}
         </div>
     </div>
-    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none;font-size:0.78rem;font-weight:600;"><i class="bi bi-cake2 me-1"></i>View All</a>
+    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none;font-size:0.78rem;font-weight:600;"><i class="bi bi-cake2 me-1"></i>{% trans "View All" %}</a>
 </div>
 {% endif %}
 
@@ -78,59 +82,59 @@
         <i class="bi bi-clipboard2-check-fill" style="font-size:1.6rem;"></i>
     </div>
     <div style="flex:1;">
-        <div style="font-size:1.5rem;font-weight:800;line-height:1;">{{ pending_hr }} request{{ pending_hr|pluralize }} waiting for your review</div>
-        <div style="font-size:0.82rem;opacity:0.85;margin-top:4px;">These have been approved by the manager and are now in your queue.</div>
+        <div style="font-size:1.5rem;font-weight:800;line-height:1;">{% blocktrans with count=pending_hr %}{{ count }} request(s) waiting for your review{% endblocktrans %}</div>
+        <div style="font-size:0.82rem;opacity:0.85;margin-top:4px;">{% trans "These have been approved by the manager and are now in your queue." %}</div>
     </div>
     <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-sm"
        style="background:#fff;color:#0A4D68;font-weight:700;border:none;padding:8px 20px;border-radius:8px;white-space:nowrap;">
-        <i class="bi bi-arrow-right-circle me-1"></i>Review Now
+        <i class="bi bi-arrow-right-circle me-1"></i>{% trans "Review Now" %}
     </a>
 </div>
 {% endif %}
 
 <!-- ── Key Metrics (HR-relevant only) ── -->
-<div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> Overview</div>
+<div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> {% trans "Overview" %}</div>
 <div class="row g-3 mb-3 animate-in">
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
             <div class="hr-kpi-value">{{ total_employees }}</div>
-            <div class="hr-kpi-label">Total Active Staff</div>
+            <div class="hr-kpi-label">{% trans "Total Active Staff" %}</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card" style="{% if pending_hr > 0 %}background:linear-gradient(135deg,#e0f7fa,#f0fdff);border-color:#0891b2;{% endif %}">
             <div class="hr-kpi-icon" style="background:#e0f7fa;color:#0891b2;"><i class="bi bi-clipboard2-check-fill"></i></div>
             <div class="hr-kpi-value" style="{% if pending_hr > 0 %}color:#0891b2;{% endif %}">{{ pending_hr }}</div>
-            <div class="hr-kpi-label">Pending HR Review</div>
+            <div class="hr-kpi-label">{% trans "Pending HR Review" %}</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-check2-all"></i></div>
             <div class="hr-kpi-value">{{ approved_year }}</div>
-            <div class="hr-kpi-label">Leaves Approved in {{ year }}</div>
+            <div class="hr-kpi-label">{% blocktrans with y=year %}Leaves Approved in {{ y }}{% endblocktrans %}</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
             <div class="hr-kpi-value">{{ rejected_year }}</div>
-            <div class="hr-kpi-label">Leaves Rejected in {{ year }}</div>
+            <div class="hr-kpi-label">{% blocktrans with y=year %}Leaves Rejected in {{ y }}{% endblocktrans %}</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#fff3e0;color:#e65100;"><i class="bi bi-airplane-fill"></i></div>
             <div class="hr-kpi-value">{{ on_leave_now|length }}</div>
-            <div class="hr-kpi-label">Staff on Leave Today</div>
+            <div class="hr-kpi-label">{% trans "Staff on Leave Today" %}</div>
         </div>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card" style="{% if low_balance %}border-color:#fca5a5;{% endif %}">
             <div class="hr-kpi-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-battery-half"></i></div>
             <div class="hr-kpi-value" style="{% if low_balance %}color:#dc2626;{% endif %}">{{ low_balance|length }}</div>
-            <div class="hr-kpi-label">Low Leave Balance (≤ 3 days)</div>
+            <div class="hr-kpi-label">{% trans "Low Leave Balance (≤ 3 days)" %}</div>
         </div>
     </div>
 </div>
@@ -142,7 +146,7 @@
             <div style="width:32px;height:32px;border-radius:8px;background:#fff8e1;color:#d97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-exclamation-triangle-fill"></i></div>
             <div>
                 <div style="font-size:1.15rem;font-weight:800;color:#d97706;line-height:1;">{{ discipline_warned }}</div>
-                <div style="font-size:0.7rem;color:#6b7a8d;">Employees Warned</div>
+                <div style="font-size:0.7rem;color:#6b7a8d;">{% trans "Employees Warned" %}</div>
             </div>
         </div>
     </a>
@@ -151,7 +155,7 @@
             <div style="width:32px;height:32px;border-radius:8px;background:#f3f4f6;color:#374151;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-person-slash"></i></div>
             <div>
                 <div style="font-size:1.15rem;font-weight:800;color:#374151;line-height:1;">{{ discipline_suspended }}</div>
-                <div style="font-size:0.7rem;color:#6b7a8d;">Suspensions</div>
+                <div style="font-size:0.7rem;color:#6b7a8d;">{% trans "Suspensions" %}</div>
             </div>
         </div>
     </a>
@@ -160,25 +164,25 @@
             <div style="width:32px;height:32px;border-radius:8px;background:#fce4ec;color:#dc2626;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-person-x-fill"></i></div>
             <div>
                 <div style="font-size:1.15rem;font-weight:800;color:#dc2626;line-height:1;">{{ discipline_dismissed }}</div>
-                <div style="font-size:0.7rem;color:#6b7a8d;">Dismissals</div>
+                <div style="font-size:0.7rem;color:#6b7a8d;">{% trans "Dismissals" %}</div>
             </div>
         </div>
     </a>
 </div>
 
 <!-- ── Pending HR Approvals Table ── -->
-<div class="section-label"><i class="bi bi-clipboard2-check me-1"></i> Pending HR Approvals</div>
+<div class="section-label"><i class="bi bi-clipboard2-check me-1"></i> {% trans "Pending HR Approvals" %}</div>
 <div class="card animate-in mb-4" style="border-radius:14px;overflow:hidden;">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0" style="font-size:0.875rem;">
             <thead>
                 <tr>
-                    <th>Employee</th>
-                    <th>Department</th>
-                    <th>Leave Type</th>
-                    <th>Period</th>
-                    <th>Days</th>
-                    <th>Manager</th>
+                    <th>{% trans "Employee" %}</th>
+                    <th>{% trans "Department" %}</th>
+                    <th>{% trans "Leave Type" %}</th>
+                    <th>{% trans "Period" %}</th>
+                    <th>{% trans "Days" %}</th>
+                    <th>{% trans "Manager" %}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -202,7 +206,7 @@
                     <td style="color:#4a6b7c;">{{ req.employee.manager.get_full_name|default:"—" }}</td>
                     <td>
                         <a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-outline-primary" style="font-size:0.78rem;border-radius:8px;">
-                            <i class="bi bi-eye me-1"></i>Review
+                            <i class="bi bi-eye me-1"></i>{% trans "Review" %}
                         </a>
                     </td>
                 </tr>
@@ -210,7 +214,7 @@
                 <tr>
                     <td colspan="7" class="text-center py-4 text-muted">
                         <i class="bi bi-check2-all d-block mb-1" style="font-size:1.5rem;color:#22c55e;"></i>
-                        <small>No pending HR approvals</small>
+                        <small>{% trans "No pending HR approvals" %}</small>
                     </td>
                 </tr>
                 {% endfor %}
@@ -220,7 +224,7 @@
 </div>
 
 <!-- ── Leave Activity ── -->
-<div class="section-label"><i class="bi bi-activity me-1"></i> Leave Activity</div>
+<div class="section-label"><i class="bi bi-activity me-1"></i> {% trans "Leave Activity" %}</div>
 <div class="row g-4 mb-4">
     <div class="col-lg-8 animate-in delay-2">
         <div class="card h-100" style="border-radius:14px;">
@@ -236,7 +240,7 @@
     <div class="col-lg-4 animate-in delay-3">
         <div class="card h-100" style="border-radius:14px;">
             <div class="card-header d-flex align-items-center justify-content-between" style="background:#f8fbfd;border-bottom:1px solid #eef2f7;">
-                <span style="font-weight:600;color:#0d1b2a;font-size:0.875rem;"><span class="pending-pulse"></span>On Leave Today</span>
+                <span style="font-weight:600;color:#0d1b2a;font-size:0.875rem;"><span class="pending-pulse"></span>{% trans "On Leave Today" %}</span>
                 <span class="badge bg-danger" style="border-radius:8px;">{{ on_leave_now|length }}</span>
             </div>
             <div class="card-body p-0" style="max-height:320px;overflow-y:auto;">
@@ -253,7 +257,7 @@
                 {% empty %}
                 <div class="text-center py-5 text-muted">
                     <i class="bi bi-check-circle fs-2 d-block mb-2" style="color:#22c55e;"></i>
-                    <small>All staff are in today</small>
+                    <small>{% trans "All staff are in today" %}</small>
                 </div>
                 {% endfor %}
             </div>
@@ -262,7 +266,7 @@
 </div>
 
 <!-- ── Analytics ── -->
-<div class="section-label"><i class="bi bi-graph-up me-1"></i> Analytics</div>
+<div class="section-label"><i class="bi bi-graph-up me-1"></i> {% trans "Analytics" %}</div>
 <div class="row g-4 mb-4">
     <div class="col-lg-6 animate-in delay-3">
         <div class="card h-100" style="border-radius:14px;">
@@ -285,7 +289,7 @@
                 </div>
                 {% endif %}
                 {% empty %}
-                <div class="text-center text-muted py-4"><small>No department data yet</small></div>
+                <div class="text-center text-muted py-4"><small>{% trans "No department data yet" %}</small></div>
                 {% endfor %}
             </div>
         </div>
@@ -312,7 +316,7 @@
                 {% else %}
                 <div class="text-center py-5 text-muted">
                     <i class="bi bi-emoji-smile fs-2 d-block mb-2" style="color:#22c55e;"></i>
-                    <small>All employees have healthy leave balances</small>
+                    <small>{% trans "All employees have healthy leave balances" %}</small>
                 </div>
                 {% endif %}
             </div>

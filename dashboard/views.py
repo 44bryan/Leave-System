@@ -130,6 +130,38 @@ def admin_dashboard(request):
     today = date.today()
     year = today.year
 
+    # ── Own employee self-service data (admin may also be an employee) ──
+    admin_employee = get_employee(request)
+    my_balance = None
+    my_recent_requests = []
+    my_pending_count = 0
+    my_on_leave = None
+    my_active_suspension = None
+    my_is_birthday = False
+    if admin_employee:
+        my_balance, _ = LeaveBalance.objects.get_or_create(
+            employee=admin_employee, year=today.year,
+            defaults={'total_entitlement': 18}
+        )
+        my_recent_requests = admin_employee.leave_requests.all()[:5]
+        my_pending_count = admin_employee.leave_requests.filter(
+            status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved']
+        ).count()
+        my_on_leave = admin_employee.leave_requests.filter(
+            status='approved', start_date__lte=today, end_date__gte=today
+        ).first()
+        my_active_suspension = DisciplineRecord.objects.filter(
+            employee=admin_employee,
+            action_type='suspension',
+            suspension_start__lte=today,
+            suspension_end__gte=today,
+        ).first()
+        my_is_birthday = (
+            admin_employee.date_of_birth is not None
+            and admin_employee.date_of_birth.month == today.month
+            and admin_employee.date_of_birth.day == today.day
+        )
+
     # ── System counts ──
     total_employees = Employee.objects.filter(is_active=True).count()
     total_departments = Department.objects.count()
@@ -225,6 +257,14 @@ def admin_dashboard(request):
     _contract_ctx = _build_contract_analytics(today, year)
 
     return render(request, 'dashboard/admin_dashboard.html', {
+        'employee': admin_employee,
+        'balance': my_balance,
+        'my_recent_requests': my_recent_requests,
+        'my_pending_count': my_pending_count,
+        'on_leave': my_on_leave,
+        'active_suspension': my_active_suspension,
+        'is_own_birthday': my_is_birthday,
+        'today': today,
         'total_employees': total_employees,
         'total_departments': total_departments,
         'total_users': total_users,
@@ -405,10 +445,29 @@ def employee_dashboard(request, employee):
 
 def manager_dashboard(request, employee):
     from django.db.models import Q
+    from discipline.models import DisciplineRecord
     today = date.today()
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=today.year,
         defaults={'total_entitlement': 18}
+    )
+    my_recent_requests = employee.leave_requests.all()[:5]
+    my_pending_count = employee.leave_requests.filter(
+        status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved']
+    ).count()
+    my_on_leave = employee.leave_requests.filter(
+        status='approved', start_date__lte=today, end_date__gte=today
+    ).first()
+    my_active_suspension = DisciplineRecord.objects.filter(
+        employee=employee,
+        action_type='suspension',
+        suspension_start__lte=today,
+        suspension_end__gte=today,
+    ).first()
+    my_is_birthday = (
+        employee.date_of_birth is not None
+        and employee.date_of_birth.month == today.month
+        and employee.date_of_birth.day == today.day
     )
 
     # Show 'pending' for employees without unit_head + 'unit_head_approved' for those with unit_head
@@ -430,6 +489,12 @@ def manager_dashboard(request, employee):
     return render(request, 'dashboard/manager_dashboard.html', {
         'employee': employee,
         'balance': balance,
+        'my_recent_requests': my_recent_requests,
+        'my_pending_count': my_pending_count,
+        'on_leave': my_on_leave,
+        'active_suspension': my_active_suspension,
+        'is_own_birthday': my_is_birthday,
+        'today': today,
         'pending_approvals': pending_approvals,
         'subordinates': subordinates,
         'on_leave_today': on_leave_today,
@@ -504,6 +569,30 @@ def director_dashboard(request, employee):
     today = date.today()
     year = today.year
 
+    # ── Own employee self-service data ──
+    my_balance, _ = LeaveBalance.objects.get_or_create(
+        employee=employee, year=today.year,
+        defaults={'total_entitlement': 18}
+    )
+    my_recent_requests = employee.leave_requests.all()[:5]
+    my_pending_count = employee.leave_requests.filter(
+        status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved']
+    ).count()
+    my_on_leave = employee.leave_requests.filter(
+        status='approved', start_date__lte=today, end_date__gte=today
+    ).first()
+    my_active_suspension = DisciplineRecord.objects.filter(
+        employee=employee,
+        action_type='suspension',
+        suspension_start__lte=today,
+        suspension_end__gte=today,
+    ).first()
+    my_is_birthday = (
+        employee.date_of_birth is not None
+        and employee.date_of_birth.month == today.month
+        and employee.date_of_birth.day == today.day
+    )
+
     total_employees = Employee.objects.filter(is_active=True).count()
     pending_director = LeaveRequest.objects.filter(status='hr_approved').count()
     approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
@@ -550,6 +639,13 @@ def director_dashboard(request, employee):
 
     return render(request, 'dashboard/director_dashboard.html', {
         'employee': employee,
+        'balance': my_balance,
+        'my_recent_requests': my_recent_requests,
+        'my_pending_count': my_pending_count,
+        'on_leave': my_on_leave,
+        'active_suspension': my_active_suspension,
+        'is_own_birthday': my_is_birthday,
+        'today': today,
         'total_employees': total_employees,
         'pending_director': pending_director,
         'approved_year': approved_year,
@@ -570,6 +666,30 @@ def hr_dashboard(request, employee):
     from discipline.models import DisciplineRecord
     today = date.today()
     year = today.year
+
+    # ── Own employee self-service data ──
+    my_balance, _ = LeaveBalance.objects.get_or_create(
+        employee=employee, year=today.year,
+        defaults={'total_entitlement': 18}
+    )
+    my_recent_requests = employee.leave_requests.all()[:5]
+    my_pending_count = employee.leave_requests.filter(
+        status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved']
+    ).count()
+    my_on_leave = employee.leave_requests.filter(
+        status='approved', start_date__lte=today, end_date__gte=today
+    ).first()
+    my_active_suspension = DisciplineRecord.objects.filter(
+        employee=employee,
+        action_type='suspension',
+        suspension_start__lte=today,
+        suspension_end__gte=today,
+    ).first()
+    my_is_birthday = (
+        employee.date_of_birth is not None
+        and employee.date_of_birth.month == today.month
+        and employee.date_of_birth.day == today.day
+    )
 
     # Discipline stats
     discipline_warned = DisciplineRecord.objects.filter(
@@ -673,6 +793,13 @@ def hr_dashboard(request, employee):
 
     return render(request, 'dashboard/hr_dashboard.html', {
         'employee': employee,
+        'balance': my_balance,
+        'my_recent_requests': my_recent_requests,
+        'my_pending_count': my_pending_count,
+        'on_leave': my_on_leave,
+        'active_suspension': my_active_suspension,
+        'is_own_birthday': my_is_birthday,
+        'today': today,
         'total_employees': total_employees,
         'total_requests_year': total_requests_year,
         'pending_manager': pending_manager,

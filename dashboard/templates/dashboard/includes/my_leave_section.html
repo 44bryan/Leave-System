@@ -1,20 +1,9 @@
-{% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans "My Dashboard" %} — LeaveDesk{% endblock %}
-{% block page_title %}{% trans "My Dashboard" %}{% endblock %}
-{% block page_subtitle %}{% blocktrans with name=employee.user.first_name %}Welcome back, {{ name }}{% endblocktrans %}{% endblock %}
-{% block nav_dashboard %}active{% endblock %}
-
-{% block topbar_actions %}
-<a href="{% url 'leaves:unit_head_approvals' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-person-check me-1"></i> {% trans "Approval Queue" %}
-    {% if pending_approvals %}
-    <span class="badge bg-warning text-dark ms-1">{{ pending_approvals|length }}</span>
-    {% endif %}
-</a>
-{% endblock %}
-
-{% block content %}
+{% comment %}
+Reusable personal leave section for any role dashboard.
+Requires context: employee, balance, pending_count, on_leave,
+                  active_suspension, is_own_birthday, today
+{% endcomment %}
 
 {% if is_own_birthday %}
 <div class="p-4 rounded-3 text-white mb-4 animate-in"
@@ -50,21 +39,7 @@
 </div>
 {% endif %}
 
-{% if pending_approvals %}
-<div class="alert d-flex align-items-center gap-2 mb-4"
-     style="background:#fff8e1;border:1.5px solid #fcd34d;border-radius:10px;">
-    <i class="bi bi-hourglass-split fs-5" style="color:#f57f17;"></i>
-    <span style="font-size:0.88rem;">
-        You have <strong>{{ pending_approvals|length }} pending leave request{{ pending_approvals|length|pluralize }}</strong>
-        from your unit waiting for your decision.
-        <a href="{% url 'leaves:unit_head_approvals' %}" class="fw-bold ms-1">Review now →</a>
-    </span>
-</div>
-{% endif %}
-
-<!-- ══════════════════════════════════════════════════
-     MY LEAVE — balance cards (identical to employee)
-     ══════════════════════════════════════════════════ -->
+<!-- ══════════ MY LEAVE SECTION ══════════ -->
 <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
     <i class="bi bi-person me-1"></i> {% trans "My Leave" %}
 </div>
@@ -144,9 +119,9 @@
             <div class="stat-icon" style="background: #fff8e1; color: #f57f17;">
                 <i class="bi bi-clock-history"></i>
             </div>
-            <div class="stat-value">{{ pending_count }}</div>
+            <div class="stat-value">{{ my_pending_count }}</div>
             <div class="stat-label">{% trans "My Pending Requests" %}</div>
-            {% if pending_count > 0 %}
+            {% if my_pending_count > 0 %}
             <a href="{% url 'leaves:my_requests' %}" class="btn btn-sm btn-outline-warning mt-3 w-100">{% trans "View Pending" %}</a>
             {% endif %}
         </div>
@@ -162,7 +137,7 @@
     </div>
 </div>
 
-<!-- Recent Leave Requests -->
+<!-- My Recent Requests -->
 <div class="card animate-in delay-3 mb-5">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-journal-text me-2"></i>{% trans "My Recent Leave Requests" %}</span>
@@ -181,7 +156,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for req in recent_requests %}
+                {% for req in my_recent_requests %}
                 <tr>
                     <td><strong>{{ req.leave_type }}</strong></td>
                     <td>{{ req.start_date }}</td>
@@ -197,7 +172,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-5">
+                    <td colspan="6" class="text-center text-muted py-4">
                         <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                         {% trans "No leave requests yet." %} <a href="{% url 'leaves:submit' %}">{% trans "Apply now" %}</a>
                     </td>
@@ -208,88 +183,4 @@
     </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     UNIT APPROVAL SECTION
-     ══════════════════════════════════════════════════ -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-person-check me-1"></i> {% trans "My Unit" %}
-</div>
-
-<!-- Unit quick stats -->
-<div class="row g-3 mb-4">
-    <div class="col-sm-4 animate-in">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fff8e1;color:#f57f17;"><i class="bi bi-hourglass-split"></i></div>
-            <div class="stat-value">{{ pending_approvals|length }}</div>
-            <div class="stat-label">{% trans "Awaiting My Approval" %}</div>
-            {% if pending_approvals %}
-            <a href="{% url 'leaves:unit_head_approvals' %}" class="btn btn-sm btn-outline-warning mt-3 w-100">{% trans "Review Now" %}</a>
-            {% endif %}
-        </div>
-    </div>
-    <div class="col-sm-4 animate-in delay-1">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
-            <div class="stat-value">{{ unit_members|length }}</div>
-            <div class="stat-label">{% trans "Unit Members" %}</div>
-        </div>
-    </div>
-    <div class="col-sm-4 animate-in delay-2">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-person-dash"></i></div>
-            <div class="stat-value">{{ unit_on_leave_today|length }}</div>
-            <div class="stat-label">{% trans "Unit On Leave Today" %}</div>
-        </div>
-    </div>
-</div>
-
-<!-- Pending approvals table -->
-<div class="card animate-in delay-2">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span>
-            <i class="bi bi-hourglass-split me-2" style="color:#f57f17;"></i>
-            {% trans "Leave Requests Awaiting Your Decision" %}
-        </span>
-        <a href="{% url 'leaves:unit_head_approvals' %}" class="btn btn-sm btn-outline-primary">{% trans "View All" %}</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th>{% trans "Employee" %}</th>
-                    <th>{% trans "Leave Type" %}</th>
-                    <th>{% trans "Period" %}</th>
-                    <th>{% trans "Days" %}</th>
-                    <th>{% trans "Action" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for req in pending_approvals %}
-                <tr>
-                    <td>
-                        <div class="fw-semibold" style="font-size:.88rem;">{{ req.employee.user.get_full_name }}</div>
-                        <div class="text-muted" style="font-size:.75rem;">{{ req.employee.employee_id }}</div>
-                    </td>
-                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
-                    <td style="font-size:.85rem;">{{ req.start_date }} → {{ req.end_date }}</td>
-                    <td><span class="badge bg-light text-dark border">{{ req.total_days }}d</span></td>
-                    <td>
-                        <a href="{% url 'leaves:unit_head_action' req.pk %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-eye me-1"></i>{% trans "Review" %}
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-4">
-                        <i class="bi bi-check-circle fs-3 d-block mb-2" style="color:#4ade80;"></i>
-                        {% trans "No pending requests. Your unit is all clear." %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-{% endblock %}
+<hr class="my-4" style="border-color:#cde8ef;">

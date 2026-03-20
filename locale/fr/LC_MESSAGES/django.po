@@ -633,3 +633,927 @@ msgstr "Jours pris (sans impact sur le solde)"
 
 msgid "None taken yet this year."
 msgstr "Aucun pris cette année."
+
+# admin_dashboard.html
+msgid "System Administration"
+msgstr "Administration du système"
+
+msgid "System Overview"
+msgstr "Aperçu du système"
+
+msgid "Awaiting HR"
+msgstr "En attente des RH"
+
+msgid "Awaiting Director"
+msgstr "En attente du directeur"
+
+msgid "Employees Warned"
+msgstr "Employés avertis"
+
+msgid "Suspensions"
+msgstr "Suspensions"
+
+msgid "Dismissals"
+msgstr "Licenciements"
+
+msgid "Contract Overview"
+msgstr "Aperçu des contrats"
+
+msgid "Active Contracts"
+msgstr "Contrats actifs"
+
+msgid "CDI (Permanent)"
+msgstr "CDI (Permanent)"
+
+msgid "CDD (Fixed Term)"
+msgstr "CDD (Durée déterminée)"
+
+msgid "Expiring ≤ 30 days"
+msgstr "Expirant ≤ 30 jours"
+
+msgid "Expired (Active)"
+msgstr "Expirés (Actifs)"
+
+msgid "Near Retirement"
+msgstr "Proches de la retraite"
+
+msgid "Action Required — Expiring Contracts"
+msgstr "Action requise — Contrats expirant"
+
+msgid "Action Required — Dismissal Notices"
+msgstr "Action requise — Avis de licenciement"
+
+msgid "The following employees have been dismissed and their accounts must be deactivated:"
+msgstr "Les employés suivants ont été licenciés et leurs comptes doivent être désactivés :"
+
+msgid "Deactivate Account"
+msgstr "Désactiver le compte"
+
+msgid "Leave Approvals Pipeline"
+msgstr "Pipeline d'approbation des congés"
+
+msgid "Awaiting HR Review"
+msgstr "En attente de révision RH"
+
+msgid "Awaiting Director Approval"
+msgstr "En attente d'approbation du directeur"
+
+msgid "Leave Activity"
+msgstr "Activité des congés"
+
+msgid "Analytics"
+msgstr "Analytiques"
+
+msgid "Staff & Organization"
+msgstr "Personnel & Organisation"
+
+msgid "Quick Actions"
+msgstr "Actions rapides"
+
+msgid "Add New Employee"
+msgstr "Ajouter un nouvel employé"
+
+msgid "All Employees"
+msgstr "Tous les employés"
+
+msgid "Disciplinary Records"
+msgstr "Dossiers disciplinaires"
+
+msgid "Staff by Role"
+msgstr "Personnel par rôle"
+
+msgid "Recently Added"
+msgstr "Récemment ajoutés"
+
+msgid "All"
+msgstr "Tout"
+
+msgid "Recent System Activity"
+msgstr "Activité récente du système"
+
+msgid "System Settings"
+msgstr "Paramètres système"
+
+msgid "Add Employee"
+msgstr "Ajouter un employé"
+
+msgid "Issue Notice"
+msgstr "Émettre un avis"
+
+# employee_dashboard.html / unit_head_dashboard.html
+msgid "Welcome back, %(name)s"
+msgstr "Bon retour, %(name)s"
+
+msgid "Happy Birthday, %(name)s!"
+msgstr "Joyeux anniversaire, %(name)s !"
+
+msgid "Wishing you a wonderful day from the entire Magrabi ICO Cameroon Eye Institute family."
+msgstr "Nous vous souhaitons une merveilleuse journée de la part de toute la famille du Magrabi ICO Cameroon Eye Institute."
+
+msgid "You are currently suspended."
+msgstr "Vous êtes actuellement suspendu."
+
+msgid "Suspension period:"
+msgstr "Période de suspension :"
+
+msgid "to"
+msgstr "au"
+
+msgid "Please contact HR for further information."
+msgstr "Veuillez contacter les RH pour plus d'informations."
+
+msgid "You are currently on <strong>%(leave_type)s</strong> leave. You return on <strong>%(end_date)s</strong>."
+msgstr "Vous êtes actuellement en congé de <strong>%(leave_type)s</strong>. Vous revenez le <strong>%(end_date)s</strong>."
+
+msgid "Annual:"
+msgstr "Annuel :"
+
+msgid "Carried:"
+msgstr "Reporté :"
+
+# hr_dashboard.html
+msgid "Birthday"
+msgstr "Anniversaire"
+
+msgid "s"
+msgstr "s"
+
+msgid "Today!"
+msgstr "Aujourd'hui !"
+
+msgid "Birthday Calendar"
+msgstr "Calendrier des anniversaires"
+
+msgid "Upcoming Birthdays This Month — %(count)s staff"
+msgstr "Anniversaires ce mois — %(count)s membres du personnel"
+
+msgid "View All"
+msgstr "Voir tout"
+
+msgid "%(count)s request(s) waiting for your review"
+msgstr "%(count)s demande(s) en attente de votre révision"
+
+msgid "These have been approved by the manager and are now in your queue."
+msgstr "Ces demandes ont été approuvées par le responsable et sont maintenant dans votre file d'attente."
+
+msgid "Review Now"
+msgstr "Réviser maintenant"
+
+msgid "Overview"
+msgstr "Aperçu"
+
+msgid "Total Active Staff"
+msgstr "Personnel actif total"
+
+msgid "Pending HR Review"
+msgstr "En attente de révision RH"
+
+msgid "Leaves Approved in %(y)s"
+msgstr "Congés approuvés en %(y)s"
+
+msgid "Leaves Rejected in %(y)s"
+msgstr "Congés rejetés en %(y)s"
+
+msgid "Staff on Leave Today"
+msgstr "Personnel en congé aujourd'hui"
+
+msgid "Low Leave Balance (≤ 3 days)"
+msgstr "Solde de congés faible (≤ 3 jours)"
+
+msgid "Pending HR Approvals"
+msgstr "Approbations RH en attente"
+
+msgid "No pending HR approvals"
+msgstr "Aucune approbation RH en attente"
+
+msgid "Manager"
+msgstr "Responsable"
+
+# director_dashboard.html
+msgid "Executive Dashboard"
+msgstr "Tableau de bord Exécutif"
+
+msgid "Final Approvals"
+msgstr "Approbations finales"
+
+msgid "At a Glance"
+msgstr "En un coup d'œil"
+
+msgid "Active Staff"
+msgstr "Personnel actif"
+
+msgid "Awaiting You"
+msgstr "En attente de vous"
+
+msgid "Approved %(y)s"
+msgstr "Approuvés %(y)s"
+
+msgid "Rejected %(y)s"
+msgstr "Rejetés %(y)s"
+
+msgid "Discipline Cases"
+msgstr "Cas disciplinaires"
+
+msgid "Action Required"
+msgstr "Action requise"
+
+msgid "Requests Awaiting Your Final Approval"
+msgstr "Demandes en attente de votre approbation finale"
+
+msgid "No requests awaiting your approval — all clear!"
+msgstr "Aucune demande en attente de votre approbation — tout est en ordre !"
+
+msgid "Decide"
+msgstr "Décider"
+
+msgid "HR Approved By"
+msgstr "Approuvé par les RH"
+
+# request_form.html
+msgid "Your saved signature will be used. Draw below to replace it."
+msgstr "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
+
+msgid "Draw your signature here"
+msgstr "Dessinez votre signature ici"
+
+msgid "Clear"
+msgstr "Effacer"
+
+msgid "Your Signature"
+msgstr "Votre signature"
+
+# my_requests.html
+msgid "Annual Entitlement:"
+msgstr "Droit annuel :"
+
+msgid "Carried Forward:"
+msgstr "Reporté :"
+
+msgid "Total days this year"
+msgstr "Total des jours cette année"
+
+msgid "No non-deductible leaves taken yet."
+msgstr "Aucun congé non déductible pris pour l'instant."
+
+msgid "Deductible Leave Balance"
+msgstr "Solde de congés déductibles"
+
+msgid "Non-Deductible Leaves Taken"
+msgstr "Congés non déductibles pris"
+
+msgid "Available"
+msgstr "Disponible"
+
+# profile.html
+msgid "Profile Information"
+msgstr "Informations du profil"
+
+msgid "Joined Hospital"
+msgstr "Entrée à l'Hôpital"
+
+msgid "Staff Category"
+msgstr "Catégorie du personnel"
+
+msgid "Sex"
+msgstr "Sexe"
+
+msgid "Nationality"
+msgstr "Nationalité"
+
+msgid "Contract / Personnel No."
+msgstr "N° de contrat / personnel"
+
+msgid "Qualifications"
+msgstr "Qualifications"
+
+# employee_form.html
+msgid "Personal Information"
+msgstr "Informations personnelles"
+
+msgid "Employment Details"
+msgstr "Détails de l'emploi"
+
+msgid "Date of Birth"
+msgstr "Date de naissance"
+
+msgid "Line Manager / Supervisor"
+msgstr "Responsable hiérarchique / Superviseur"
+
+# employee_list.html
+msgid "Active Employees"
+msgstr "Employés actifs"
+
+msgid "Former / Dismissed"
+msgstr "Anciens / Licenciés"
+
+msgid "Former / Dismissed Employees"
+msgstr "Anciens employés / Licenciés"
+
+msgid "Add New"
+msgstr "Ajouter"
+
+# base.html sidebar
+msgid "Finance Director"
+msgstr "Directeur Financier"
+
+msgid "Director Queue"
+msgstr "File du Directeur"
+
+msgid "All Requests"
+msgstr "Toutes les demandes"
+
+msgid "CEO — Overview"
+msgstr "PDG — Aperçu"
+
+msgid "Discipline Records"
+msgstr "Dossiers disciplinaires"
+
+msgid "All Contracts"
+msgstr "Tous les contrats"
+
+msgid "Retirement Tracker"
+msgstr "Suivi des retraites"
+
+msgid "Discipline"
+msgstr "Discipline"
+
+msgid "New Disciplinary Notice"
+msgstr "Nouveau avis disciplinaire"
+
+msgid "Statistics"
+msgstr "Statistiques"
+
+msgid "Contracts"
+msgstr "Contrats"
+
+msgid "New Contract"
+msgstr "Nouveau contrat"
+
+msgid "Leave Types"
+msgstr "Types de congés"
+
+msgid "Import from Excel"
+msgstr "Importer depuis Excel"
+
+msgid "Mark all read"
+msgstr "Tout marquer comme lu"
+
+msgid "No notifications yet"
+msgstr "Aucune notification pour l'instant"
+
+msgid "View All Notifications"
+msgstr "Voir toutes les notifications"
+
+msgid "Account Suspended until %(end)s"
+msgstr "Compte suspendu jusqu'au %(end)s"
+
+msgid "Applying for leave is disabled. All other features remain accessible."
+msgstr "La demande de congé est désactivée. Toutes les autres fonctionnalités restent accessibles."
+
+# additional
+msgid "Manage"
+msgstr "Gérer"
+
+msgid "Leave Tracker"
+msgstr "Suivi des congés"
+
+msgid "My Discipline Record"
+msgstr "Mon dossier disciplinaire"
+
+msgid "My Contract"
+msgstr "Mon contrat"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Unit Head Queue"
+msgstr "File du chef d'unité"
+
+msgid "Approval Queue"
+msgstr "File d'approbation"
+
+msgid "Issue Notice"
+msgstr "Émettre un avis"
+
+msgid "All Leave Requests"
+msgstr "Toutes les demandes de congé"
+
+msgid "Awaiting My Approval"
+msgstr "En attente de mon approbation"
+
+msgid "My Pending Requests"
+msgstr "Mes demandes en attente"
+
+msgid "My Recent Leave Requests"
+msgstr "Mes demandes de congé récentes"
+
+msgid "My Unit"
+msgstr "Mon unité"
+
+msgid "Unit Members"
+msgstr "Membres de l'unité"
+
+msgid "Unit On Leave Today"
+msgstr "Unité en congé aujourd'hui"
+
+msgid "Leave Requests Awaiting Your Decision"
+msgstr "Demandes de congé en attente de votre décision"
+
+msgid "No pending requests. Your unit is all clear."
+msgstr "Aucune demande en attente. Votre unité est en ordre."
+
+msgid "My Leave"
+msgstr "Mon congé"
+
+msgid "My Pending Requests"
+msgstr "Mes demandes en attente"
+
+msgid "Review Now"
+msgstr "Réviser maintenant"
+
+msgid "Review"
+msgstr "Examiner"
+
+msgid "Team Members"
+msgstr "Membres de l'équipe"
+
+msgid "Leave Requests Awaiting Your Decision"
+msgstr "Demandes de congé en attente de votre décision"
+
+msgid "No pending approvals — all caught up!"
+msgstr "Aucune approbation en attente — tout est à jour !"
+
+msgid "Team Status"
+msgstr "Statut de l'équipe"
+
+msgid "Returns"
+msgstr "Retour le"
+
+msgid "Your Team"
+msgstr "Votre équipe"
+
+msgid "No team members assigned yet"
+msgstr "Aucun membre d'équipe assigné pour l'instant"
+
+msgid "Issue Notice"
+msgstr "Émettre un avis"
+
+msgid "Download / Print PDF"
+msgstr "Télécharger / Imprimer le PDF"
+
+msgid "Departments"
+msgstr "Départements"
+
+msgid "Department Leave Activity"
+msgstr "Activité des congés par département"
+
+msgid "All staff are in today"
+msgstr "Tout le personnel est présent aujourd'hui"
+
+msgid "All employees have healthy leave balances"
+msgstr "Tous les employés ont des soldes de congés satisfaisants"
+
+msgid "No department data yet"
+msgstr "Pas encore de données par département"
+
+msgid "Search users, events and more..."
+msgstr "Rechercher des utilisateurs, événements et plus..."
+
+msgid "Change Password"
+msgstr "Changer le mot de passe"
+
+# profile.html
+msgid "Profile Information"
+msgstr "Informations du profil"
+
+msgid "Employee ID"
+msgstr "Matricule"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Line Manager"
+msgstr "Responsable hiérarchique"
+
+msgid "Joined Hospital"
+msgstr "Date d'entrée à l'hôpital"
+
+msgid "Staff Category"
+msgstr "Catégorie du personnel"
+
+msgid "Category"
+msgstr "Catégorie"
+
+msgid "Sex"
+msgstr "Sexe"
+
+msgid "Male"
+msgstr "Masculin"
+
+msgid "Female"
+msgstr "Féminin"
+
+msgid "Nationality"
+msgstr "Nationalité"
+
+msgid "Contract / Personnel No."
+msgstr "N° de contrat / personnel"
+
+msgid "Qualifications"
+msgstr "Qualifications"
+
+msgid "Current Password"
+msgstr "Mot de passe actuel"
+
+msgid "New Password"
+msgstr "Nouveau mot de passe"
+
+msgid "Minimum 8 characters."
+msgstr "Minimum 8 caractères."
+
+msgid "Confirm New Password"
+msgstr "Confirmer le nouveau mot de passe"
+
+msgid "Update Password"
+msgstr "Mettre à jour le mot de passe"
+
+msgid "If you have forgotten your password, contact the system administrator to reset it for you."
+msgstr "Si vous avez oublié votre mot de passe, contactez l'administrateur système pour le réinitialiser."
+
+# employee_history.html
+msgid "Employee Record"
+msgstr "Dossier de l'employé"
+
+msgid "Full audit trail"
+msgstr "Historique complet"
+
+msgid "Edit Profile"
+msgstr "Modifier le profil"
+
+msgid "Back to List"
+msgstr "Retour à la liste"
+
+msgid "Active Staff"
+msgstr "Personnel actif"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+msgid "Joined:"
+msgstr "Arrivée :"
+
+msgid "Contracts"
+msgstr "Contrats"
+
+msgid "Leave History"
+msgstr "Historique des congés"
+
+msgid "Discipline"
+msgstr "Discipline"
+
+msgid "Personal Information"
+msgstr "Informations personnelles"
+
+msgid "Employment Details"
+msgstr "Détails de l'emploi"
+
+msgid "Full Name"
+msgstr "Nom complet"
+
+msgid "Date of Birth"
+msgstr "Date de naissance"
+
+msgid "Age"
+msgstr "Âge"
+
+msgid "years"
+msgstr "ans"
+
+msgid "School / University"
+msgstr "École / Université"
+
+msgid "Speciality"
+msgstr "Spécialité"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Department"
+msgstr "Département"
+
+msgid "Position"
+msgstr "Poste"
+
+msgid "Unit Head"
+msgstr "Chef d'unité"
+
+msgid "Contract No."
+msgstr "N° de contrat"
+
+msgid "Leave Balance"
+msgstr "Solde de congé"
+
+msgid "Available"
+msgstr "Disponible"
+
+msgid "Used"
+msgstr "Utilisé"
+
+msgid "Remaining"
+msgstr "Restant"
+
+msgid "Entitlement"
+msgstr "Droit"
+
+msgid "Contract History"
+msgstr "Historique des contrats"
+
+msgid "Start Date"
+msgstr "Date de début"
+
+msgid "End Date"
+msgstr "Date de fin"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Notes"
+msgstr "Notes"
+
+msgid "Internship"
+msgstr "Stage"
+
+msgid "Expired"
+msgstr "Expiré"
+
+msgid "Terminated"
+msgstr "Résilié"
+
+msgid "Renewed"
+msgstr "Renouvelé"
+
+msgid "No contracts on record."
+msgstr "Aucun contrat enregistré."
+
+msgid "Leave Request History"
+msgstr "Historique des demandes de congé"
+
+msgid "Period"
+msgstr "Période"
+
+msgid "Days"
+msgstr "Jours"
+
+msgid "Applied"
+msgstr "Soumis"
+
+msgid "No leave requests on record."
+msgstr "Aucune demande de congé enregistrée."
+
+msgid "Discipline Records"
+msgstr "Dossiers disciplinaires"
+
+msgid "Clean record"
+msgstr "Dossier vierge"
+
+msgid "No discipline records."
+msgstr "Aucun dossier disciplinaire."
+
+msgid "This employee has a clean discipline record."
+msgstr "Cet employé a un dossier disciplinaire vierge."
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Reason"
+msgstr "Motif"
+
+msgid "Issued By"
+msgstr "Émis par"
+
+msgid "HR Proposal"
+msgstr "Proposition RH"
+
+msgid "Director Decision"
+msgstr "Décision du Directeur"
+
+msgid "Verbal Warning"
+msgstr "Avertissement verbal"
+
+msgid "Written Caution"
+msgstr "Mise en garde écrite"
+
+msgid "Final Warning"
+msgstr "Avertissement final"
+
+msgid "Suspension"
+msgstr "Suspension"
+
+msgid "Dismissal"
+msgstr "Licenciement"
+
+msgid "Pending"
+msgstr "En attente"
+
+# roles
+msgid "System Administrator"
+msgstr "Administrateur système"
+
+msgid "Administration Director"
+msgstr "Directeur Administratif"
+
+msgid "Finance Director"
+msgstr "Directeur Financier"
+
+msgid "HR Admin"
+msgstr "Administrateur RH"
+
+msgid "Line Manager"
+msgstr "Responsable hiérarchique"
+
+msgid "Employee"
+msgstr "Employé"
+
+msgid "CEO"
+msgstr "PDG"
+
+msgid "Intern"
+msgstr "Stagiaire"
+
+msgid "WACS Resident / Trainee"
+msgstr "Résident WACS / Stagiaire"
+
+# contract_list.html
+msgid "Total Contracts"
+msgstr "Total des contrats"
+
+msgid "Active CDI"
+msgstr "CDI actifs"
+
+msgid "Active CDD"
+msgstr "CDD actifs"
+
+msgid "Residents"
+msgstr "Résidents"
+
+msgid "Expiring ≤ 60 days"
+msgstr "Expirant dans ≤ 60 jours"
+
+msgid "All Types"
+msgstr "Tous les types"
+
+msgid "All Statuses"
+msgstr "Tous les statuts"
+
+msgid "Expiring Within"
+msgstr "Expiration dans"
+
+msgid "All Contracts"
+msgstr "Tous les contrats"
+
+msgid "Years of Service"
+msgstr "Années de service"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Clear"
+msgstr "Effacer"
+
+msgid "New Contract"
+msgstr "Nouveau contrat"
+
+# discipline strings
+msgid "Notices Issued by You"
+msgstr "Avis émis par vous"
+
+msgid "Director Reviewed"
+msgstr "Examiné par le Directeur"
+
+msgid "No Further Action"
+msgstr "Aucune suite"
+
+msgid "All Types"
+msgstr "Tous les types"
+
+msgid "All Departments"
+msgstr "Tous les départements"
+
+msgid "Issue Notice"
+msgstr "Émettre un avis"
+
+msgid "Action Required — Dismissal Notices"
+msgstr "Action requise — Avis de licenciement"
+
+msgid "Deactivate Account"
+msgstr "Désactiver le compte"
+
+# employee_list.html additional
+msgid "Active Employees"
+msgstr "Employés actifs"
+
+msgid "Former / Dismissed"
+msgstr "Anciens / Licenciés"
+
+msgid "Former / Dismissed Employees"
+msgstr "Anciens employés / Licenciés"
+
+msgid "Add Employee"
+msgstr "Ajouter un employé"
+
+msgid "Add New"
+msgstr "Ajouter"
+
+msgid "Employee Management"
+msgstr "Gestion des employés"
+
+msgid "Supervisor"
+msgstr "Superviseur"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "No employees yet."
+msgstr "Aucun employé pour l'instant."
+
+msgid "Add the first one"
+msgstr "Ajouter le premier"
+
+# leave tracker
+msgid "Leave Tracker"
+msgstr "Suivi des congés"
+
+msgid "Year"
+msgstr "Année"
+
+msgid "All Departments"
+msgstr "Tous les départements"
+
+msgid "All Leave Requests"
+msgstr "Toutes les demandes de congé"
+
+msgid "All Statuses"
+msgstr "Tous les statuts"
+
+msgid "Leave Type"
+msgstr "Type de congé"
+
+msgid "Employee"
+msgstr "Employé"
+
+msgid "Dept"
+msgstr "Dépt"
+
+msgid "View"
+msgstr "Voir"
+
+msgid "Record(s)"
+msgstr "Enregistrement(s)"
+
+# action_form / leave requests
+msgid "New Request"
+msgstr "Nouvelle demande"
+
+msgid "View All"
+msgstr "Voir tout"
+
+msgid "View Pending"
+msgstr "Voir les demandes en attente"
+
+msgid "My Recent Leave Requests"
+msgstr "Mes demandes de congé récentes"
+
+msgid "No leave requests yet."
+msgstr "Aucune demande de congé pour l'instant."
+
+msgid "Apply now"
+msgstr "Demander maintenant"
+
+msgid "Decide"
+msgstr "Décider"
+
+# notifications
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "No notifications yet."
+msgstr "Aucune notification pour l'instant."
+
+msgid "Mark All Read"
+msgstr "Tout marquer comme lu"
+
+msgid "View all notifications"
+msgstr "Voir toutes les notifications"
+

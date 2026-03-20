@@ -106,6 +106,10 @@
                     <div class="mt-1">
                         {% if contract.contract_type == 'CDI' %}
                         <span class="badge" style="background:#dcfce7;color:#15803d;"><i class="bi bi-infinity me-1"></i>CDI — Permanent</span>
+                        {% elif contract.contract_type == 'INTERN' %}
+                        <span class="badge" style="background:#e0f2fe;color:#0369a1;"><i class="bi bi-mortarboard me-1"></i>Internship</span>
+                        {% elif contract.contract_type == 'WACS' %}
+                        <span class="badge" style="background:#fdf4ff;color:#7e22ce;"><i class="bi bi-award me-1"></i>WACS Residency</span>
                         {% else %}
                         <span class="badge" style="background:#fef9c3;color:#a16207;"><i class="bi bi-calendar-range me-1"></i>CDD — Fixed Term</span>
                         {% endif %}
@@ -176,9 +180,13 @@
             <i class="bi bi-tools me-2" style="color:#16a34a;"></i>HR Actions
         </div>
         <div class="card-body">
-            <!-- Renew -->
+            <!-- Renew / Extend -->
             <div class="mb-4">
+                {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}
+                <h6 class="fw-bold mb-3"><i class="bi bi-calendar-plus me-2 text-info"></i>Extend Contract</h6>
+                {% else %}
                 <h6 class="fw-bold mb-3"><i class="bi bi-arrow-repeat me-2 text-success"></i>Renew Contract</h6>
+                {% endif %}
                 <form method="post" action="{% url 'contracts:renew' contract.pk %}">
                     {% csrf_token %}
                     <div class="row g-3">
@@ -187,6 +195,8 @@
                             <select name="contract_type" class="form-select form-select-sm">
                                 <option value="CDD" {% if contract.contract_type == 'CDD' %}selected{% endif %}>CDD — Fixed Term</option>
                                 <option value="CDI" {% if contract.contract_type == 'CDI' %}selected{% endif %}>CDI — Permanent</option>
+                                <option value="INTERN" {% if contract.contract_type == 'INTERN' %}selected{% endif %}>Internship</option>
+                                <option value="WACS" {% if contract.contract_type == 'WACS' %}selected{% endif %}>WACS Residency</option>
                             </select>
                         </div>
                         <div class="col-sm-4">
@@ -194,17 +204,39 @@
                             <input type="date" name="start_date" class="form-control form-control-sm" required>
                         </div>
                         <div class="col-sm-4" id="renewal-end-date-wrap">
-                            <label class="form-label" style="font-size:.8rem;font-weight:600;">New End Date <small class="text-muted">(CDD only)</small></label>
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">New End Date <small class="text-muted">(CDD/INTERN/WACS only)</small></label>
                             <input type="date" name="end_date" class="form-control form-control-sm" id="renewal-end-date">
                         </div>
+                        {% if contract.contract_type == 'INTERN' %}
+                        <div class="col-sm-6">
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">Internship Type</label>
+                            <select name="internship_type" class="form-select form-select-sm">
+                                <option value="">— Select Type —</option>
+                                <option value="academic" {% if contract.internship_type == 'academic' %}selected{% endif %}>Academic Internship</option>
+                                <option value="professional" {% if contract.internship_type == 'professional' %}selected{% endif %}>Professional Internship</option>
+                                <option value="observation" {% if contract.internship_type == 'observation' %}selected{% endif %}>Observation / Shadowing</option>
+                                <option value="other" {% if contract.internship_type == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        {% endif %}
                         <div class="col-12">
                             <label class="form-label" style="font-size:.8rem;font-weight:600;">Notes (optional)</label>
+                            {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}
+                            <textarea name="notes" class="form-control form-control-sm" rows="2" placeholder="Extension notes…"></textarea>
+                            {% else %}
                             <textarea name="notes" class="form-control form-control-sm" rows="2" placeholder="Renewal notes…"></textarea>
+                            {% endif %}
                         </div>
                         <div class="col-12">
+                            {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}
+                            <button type="submit" class="btn btn-info btn-sm text-white">
+                                <i class="bi bi-calendar-plus me-1"></i>Extend & Notify Employee
+                            </button>
+                            {% else %}
                             <button type="submit" class="btn btn-success btn-sm">
                                 <i class="bi bi-arrow-repeat me-1"></i>Renew & Notify Employee
                             </button>
+                            {% endif %}
                         </div>
                     </div>
                 </form>
@@ -236,10 +268,13 @@
     {% endif %}
     {% endif %}
 
-    <!-- Renewal History -->
+    <!-- Renewal / Extension History -->
     {% if renewal_history %}
     <div class="card mb-4">
-        <div class="card-header"><i class="bi bi-clock-history me-2"></i>Contract History</div>
+        <div class="card-header">
+            <i class="bi bi-clock-history me-2"></i>
+            {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}Extension History{% else %}Renewal History{% endif %}
+        </div>
         <div class="list-group list-group-flush">
             {% for old in renewal_history %}
             <a href="{% url 'contracts:detail' old.pk %}" class="list-group-item list-group-item-action px-4 py-3">

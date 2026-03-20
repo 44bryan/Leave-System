@@ -79,19 +79,19 @@ def _contract_issue_message(contract):
 
 
 def _contract_renewal_message(new_contract):
-    """Return a tailored renewal message for a contract."""
+    """Return a tailored renewal/extension message for a contract."""
     start = new_contract.start_date.strftime('%d %b %Y')
     end   = new_contract.end_date.strftime('%d %b %Y') if new_contract.end_date else None
     ct    = new_contract.contract_type
 
     if ct == 'INTERN':
         msg = (
-            f"Your Internship Contract has been renewed, effective {start}."
+            f"Your Internship Contract has been extended, effective {start}."
             + (f" New end date: {end}." if end else "")
         )
     elif ct == 'WACS':
         msg = (
-            f"Your WACS Residency Programme contract has been renewed, effective {start}."
+            f"Your WACS Residency Programme contract has been extended, effective {start}."
             + (f" New programme end date: {end}." if end else "")
         )
     elif ct == 'CDI':
@@ -345,10 +345,14 @@ def renew_contract(request, pk):
         old_contract.status = 'renewed'
         old_contract.save()
 
+        # Pass internship_type for INTERN contracts
+        internship_type = request.POST.get('internship_type', '') if contract_type == 'INTERN' else ''
+
         # Create new contract
         new_contract = Contract.objects.create(
             employee=old_contract.employee,
             contract_type=contract_type,
+            internship_type=internship_type,
             start_date=new_start,
             end_date=new_end,
             notes=notes,
@@ -359,6 +363,7 @@ def renew_contract(request, pk):
 
         # Notify employee (ContractNotification + main bell)
         renewal_msg = _contract_renewal_message(new_contract)
+        is_extended = contract_type in ('INTERN', 'WACS')
         ContractNotification.objects.create(
             employee=old_contract.employee,
             contract=new_contract,
@@ -368,15 +373,16 @@ def renew_contract(request, pk):
         from notifications.utils import notify
         notify(
             old_contract.employee.user,
-            title='Contract Renewed',
+            title='Contract Extended' if is_extended else 'Contract Renewed',
             message=renewal_msg,
             notification_type='contract_renewed',
             url=reverse('contracts:detail', kwargs={'pk': new_contract.pk}),
         )
 
+        action_word = "extended" if is_extended else "renewed"
         messages.success(
             request,
-            f"Contract renewed for {old_contract.employee.get_full_name()}. Employee has been notified."
+            f"Contract {action_word} for {old_contract.employee.get_full_name()}. Employee has been notified."
         )
         return redirect('contracts:detail', pk=new_contract.pk)
 

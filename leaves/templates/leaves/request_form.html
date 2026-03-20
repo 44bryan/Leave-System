@@ -107,7 +107,7 @@
                             {% if current_sig_b64 %}
                             <div style="font-size:0.78rem;color:#2e7d32;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
                                 <i class="bi bi-check-circle-fill" style="color:#4caf50;"></i>
-                                Your saved signature is loaded. Draw below to replace it.
+                                {% trans "Your saved signature will be used. Draw below to replace it." %}
                             </div>
                             {% else %}
                             <div style="font-size:0.78rem;color:#6b7a8d;margin-bottom:8px;">
@@ -118,7 +118,7 @@
                                 <canvas id="sigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
                                 <div id="sigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:0.85rem;pointer-events:none;user-select:none;text-align:center;">
                                     <i class="bi bi-pen" style="font-size:1.4rem;display:block;margin-bottom:4px;"></i>
-                                    Draw your signature here
+                                    {% trans "Draw your signature here" %}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-2">
@@ -127,7 +127,7 @@
                                 </span>
                                 <span></span>
                                 <button type="button" id="clearSig" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-eraser me-1"></i>Clear
+                                    <i class="bi bi-eraser me-1"></i>{% trans "Clear" %}
                                 </button>
                             </div>
                         </div>

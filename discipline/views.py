@@ -371,16 +371,47 @@ def propose_sanction(request, pk):
     sanction = request.POST.get('proposed_sanction', '').strip()
     note = request.POST.get('proposed_note', '').strip()
 
+    from notifications.utils import notify
+    from accounts.models import Employee as _Emp
+
     if role == 'hr' and (is_super or (emp and emp.is_hr())):
         record.hr_proposed_sanction = sanction
         record.hr_proposed_note = note
         record.save()
         messages.success(request, "HR proposed sanction saved.")
+        # Notify all Admin Directors
+        directors = _Emp.objects.filter(role='admin_director', is_active=True).select_related('user')
+        for director in directors:
+            notify(
+                director.user,
+                title=f'HR Sanction Proposal: {record.employee.get_full_name()}',
+                message=(
+                    f"HR has submitted a sanction proposal for {record.employee.get_full_name()}. "
+                    f"Proposed action: {dict(record.RECOMMENDED_ACTION_CHOICES).get(record.hr_proposed_sanction, record.hr_proposed_sanction)}. "
+                    f"Please review and submit your final decision."
+                ),
+                notification_type='discipline',
+                url=f'/discipline/{record.pk}/',
+            )
     elif role == 'director' and (is_super or (emp and emp.is_director())):
         record.director_proposed_sanction = sanction
         record.director_proposed_note = note
         record.save()
         messages.success(request, "Director proposed sanction saved.")
+        # Notify all HR staff
+        hr_staff = _Emp.objects.filter(role='hr', is_active=True).select_related('user')
+        for hr_emp in hr_staff:
+            notify(
+                hr_emp.user,
+                title=f'Director Sanction Decision: {record.employee.get_full_name()}',
+                message=(
+                    f"The Administration Director has submitted their final sanction decision for {record.employee.get_full_name()}. "
+                    f"Decision: {dict(record.RECOMMENDED_ACTION_CHOICES).get(record.director_proposed_sanction, record.director_proposed_sanction)}. "
+                    f"Please review and take any necessary follow-up actions."
+                ),
+                notification_type='discipline',
+                url=f'/discipline/{record.pk}/',
+            )
     else:
         messages.error(request, "You do not have permission to submit this proposal.")
 

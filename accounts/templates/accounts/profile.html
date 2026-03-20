@@ -48,15 +48,15 @@
                         <div>{{ employee.supervisor.get_full_name|default:"—" }}</div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Joined Hospital</div>
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Joined Hospital" %}</div>
                         <div>{{ employee.date_joined_company|default:"—" }}</div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Staff Category</div>
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Staff Category" %}</div>
                         <div>
                             {% if employee.staff_category %}
                             <span class="badge" style="background:#e0f2fe;color:#0284c7;font-size:.85rem;padding:.35em .7em;">
-                                Category {{ employee.staff_category }}
+                                {% trans "Category" %} {{ employee.staff_category }}
                             </span>
                             {% else %}
                             <span class="text-muted">—</span>
@@ -64,22 +64,22 @@
                         </div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Sex</div>
-                        <div>{{ employee.get_sex_display|default:"—" }}</div>
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Sex" %}</div>
+                        <div>{% if employee.sex %}{% trans employee.get_sex_display %}{% else %}—{% endif %}</div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Nationality</div>
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Nationality" %}</div>
                         <div>{{ employee.nationality|default:"—" }}</div>
                     </div>
                     {% if employee.contract_number %}
                     <div class="col-sm-6">
-                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Contract / Personnel No.</div>
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Contract / Personnel No." %}</div>
                         <div class="fw-bold font-monospace">{{ employee.contract_number }}</div>
                     </div>
                     {% endif %}
                     {% if employee.qualifications %}
                     <div class="col-12">
-                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">Qualifications</div>
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Qualifications" %}</div>
                         <div style="white-space:pre-line;">{{ employee.qualifications }}</div>
                     </div>
                     {% endif %}

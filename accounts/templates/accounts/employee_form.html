@@ -15,7 +15,7 @@
 
                     <!-- Personal Info section label -->
                     <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
-                        <i class="bi bi-person me-1"></i> Personal Information
+                        <i class="bi bi-person me-1"></i> {% trans "Personal Information" %}
                     </div>
 
                     {% if not employee %}
@@ -33,7 +33,7 @@
                             {{ form.email }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Username *</label>
+                            <label class="form-label">{% trans "Username" %} *</label>
                             {{ form.username }}
                             <div class="form-text">Auto-generated. You may edit if needed.</div>
                         </div>
@@ -63,15 +63,15 @@
                     <!-- Sex / DOB / Nationality -->
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
-                            <label class="form-label">Sex</label>
+                            <label class="form-label">{% trans "Sex" %}</label>
                             {{ form.sex }}
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Date of Birth</label>
+                            <label class="form-label">{% trans "Date of Birth" %}</label>
                             {{ form.date_of_birth }}
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Nationality</label>
+                            <label class="form-label">{% trans "Nationality" %}</label>
                             {{ form.nationality }}
                         </div>
                     </div>
@@ -80,7 +80,7 @@
 
                     <!-- Employment Details section label -->
                     <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
-                        <i class="bi bi-briefcase me-1"></i> Employment Details
+                        <i class="bi bi-briefcase me-1"></i> {% trans "Employment Details" %}
                     </div>
 
                     <!-- Intern hint banner (hidden by default) -->
@@ -103,16 +103,16 @@
                             {{ form.department }}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Role</label>
+                            <label class="form-label">{% trans "Role" %}</label>
                             {{ form.role }}
                         </div>
                         <div class="col-md-6 optional-field">
-                            <label class="form-label">Staff Category</label>
+                            <label class="form-label">{% trans "Staff Category" %}</label>
                             {{ form.staff_category }}
                             <div class="form-text">Category 1–12 with optional letter suffix (e.g. 5, 12, 12A, 12AB, 12AL)</div>
                         </div>
                         <div class="col-md-6 optional-field">
-                            <label class="form-label">Line Manager / Supervisor</label>
+                            <label class="form-label">{% trans "Line Manager / Supervisor" %}</label>
                             {{ form.supervisor }}
                         </div>
                         <div class="col-md-6 optional-field">

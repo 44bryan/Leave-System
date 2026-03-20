@@ -354,6 +354,56 @@ def admin_reset_credentials(request, pk):
 
 
 @login_required
+def employee_history(request, pk):
+    """Comprehensive employee record: profile, contracts, leaves, discipline.
+    Access: HR, Admin Director, Finance Director, CEO, Superuser only.
+    """
+    viewer = None
+    try:
+        viewer = request.user.employee
+    except Employee.DoesNotExist:
+        pass
+
+    is_privileged = (
+        request.user.is_superuser
+        or (viewer and (viewer.is_hr() or viewer.is_director() or viewer.is_ceo()))
+    )
+    if not is_privileged:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    employee = get_object_or_404(
+        Employee.objects.select_related('user', 'department', 'supervisor__user'),
+        pk=pk
+    )
+
+    from contracts.models import Contract
+    from leaves.models import LeaveRequest, LeaveBalance
+    from discipline.models import DisciplineRecord
+
+    contracts = Contract.objects.filter(employee=employee).order_by('-start_date')
+    leave_requests = LeaveRequest.objects.filter(employee=employee).select_related(
+        'leave_type', 'manager_action_by__user', 'hr_action_by__user'
+    ).order_by('-created_at')
+    discipline_records = DisciplineRecord.objects.filter(employee=employee).select_related(
+        'issued_by'
+    ).order_by('-date_issued')
+
+    from datetime import date
+    today = date.today()
+    balance = LeaveBalance.objects.filter(employee=employee, year=today.year).first()
+
+    return render(request, 'accounts/employee_history.html', {
+        'employee': employee,
+        'contracts': contracts,
+        'leave_requests': leave_requests,
+        'discipline_records': discipline_records,
+        'balance': balance,
+        'today': today,
+    })
+
+
+@login_required
 def username_suggest(request):
     """AJAX endpoint: suggest next available username for a given first_name + last_name."""
     from django.http import JsonResponse

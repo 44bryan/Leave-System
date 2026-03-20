@@ -141,8 +141,15 @@
                     {% for record in records %}
                     <tr>
                         <td>
+                            {% if is_privileged or request.user.is_superuser %}
+                            <a href="{% url 'accounts:employee_history' record.employee.pk %}" class="text-decoration-none text-dark">
+                                <div class="fw-600">{{ record.employee.get_full_name }}</div>
+                                <div style="font-size:0.75rem; color:#9ab4c0;">{{ record.employee.employee_id }}</div>
+                            </a>
+                            {% else %}
                             <div class="fw-600">{{ record.employee.get_full_name }}</div>
                             <div style="font-size:0.75rem; color:#9ab4c0;">{{ record.employee.employee_id }}</div>
+                            {% endif %}
                         </td>
                         <td>
                             {% if record.action_type == 'verbal_warning' %}

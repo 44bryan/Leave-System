@@ -1018,7 +1018,7 @@
                     <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle me-2"></i>{% trans "My Profile" %}</a></li>
                     {% if user.is_superuser %}
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}"><i class="bi bi-sliders me-2" style="color:#0891a8;"></i>System Settings</a></li>
+                    <li><a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}"><i class="bi bi-sliders me-2" style="color:#0891a8;"></i>{% trans "System Settings" %}</a></li>
                     {% endif %}
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}" data-no-suspend><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}</a></li>
@@ -1138,7 +1138,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:birthdays' %}" class="nav-link-sidebar {% block nav_birthdays %}{% endblock %}">
-                    <i class="bi bi-cake2"></i> Birthday Calendar
+                    <i class="bi bi-cake2"></i> {% trans "Birthday Calendar" %}
                 </a>
             </li>
         </ul>
@@ -1147,21 +1147,21 @@
 
     {% if user.employee.is_director %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">{% if user.employee.is_finance_director %}Finance Director{% else %}Director{% endif %}</div>
+        <div class="sidebar-section-label">{% if user.employee.is_finance_director %}{% trans "Finance Director" %}{% else %}{% trans "Director" %}{% endif %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:director_approvals' %}" class="nav-link-sidebar {% block nav_director %}{% endblock %}">
-                    <i class="bi bi-shield-check"></i> Director Queue
+                    <i class="bi bi-shield-check"></i> {% trans "Director Queue" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar {% block nav_all_leaves_dir %}{% endblock %}">
-                    <i class="bi bi-list-ul"></i> All Requests
+                    <i class="bi bi-list-ul"></i> {% trans "All Requests" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar {% block nav_tracker_dir %}{% endblock %}">
-                    <i class="bi bi-bar-chart-line"></i> Leave Tracker
+                    <i class="bi bi-bar-chart-line"></i> {% trans "Leave Tracker" %}
                 </a>
             </li>
         </ul>
@@ -1170,31 +1170,31 @@
 
     {% if user.employee.is_ceo %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">CEO — Overview</div>
+        <div class="sidebar-section-label">{% trans "CEO — Overview" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar">
-                    <i class="bi bi-list-ul"></i> All Leave Requests
+                    <i class="bi bi-list-ul"></i> {% trans "All Leave Requests" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar">
-                    <i class="bi bi-bar-chart-line"></i> Leave Tracker
+                    <i class="bi bi-bar-chart-line"></i> {% trans "Leave Tracker" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar">
-                    <i class="bi bi-shield-exclamation"></i> Discipline Records
+                    <i class="bi bi-shield-exclamation"></i> {% trans "Discipline Records" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'contracts:list' %}" class="nav-link-sidebar">
-                    <i class="bi bi-file-earmark-text"></i> All Contracts
+                    <i class="bi bi-file-earmark-text"></i> {% trans "All Contracts" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:retirement' %}" class="nav-link-sidebar">
-                    <i class="bi bi-hourglass-split"></i> Retirement Tracker
+                    <i class="bi bi-hourglass-split"></i> {% trans "Retirement Tracker" %}
                 </a>
             </li>
         </ul>
@@ -1203,24 +1203,24 @@
 
     {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_manager or user.employee.is_ceo %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">Discipline</div>
+        <div class="sidebar-section-label">{% trans "Discipline" %}</div>
         <ul class="list-unstyled mb-0">
             {% if not user.employee.is_ceo %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
-                    <i class="bi bi-file-earmark-text"></i> New Disciplinary Notice
+                    <i class="bi bi-file-earmark-text"></i> {% trans "New Disciplinary Notice" %}
                 </a>
             </li>
             {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar {% block nav_discipline %}{% endblock %}">
-                    <i class="bi bi-shield-exclamation"></i> Disciplinary Records
+                    <i class="bi bi-shield-exclamation"></i> {% trans "Disciplinary Records" %}
                 </a>
             </li>
             {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_ceo %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:stats' %}" class="nav-link-sidebar {% block nav_discipline_stats %}{% endblock %}">
-                    <i class="bi bi-bar-chart-steps"></i> Statistics
+                    <i class="bi bi-bar-chart-steps"></i> {% trans "Statistics" %}
                 </a>
             </li>
             {% endif %}
@@ -1230,18 +1230,18 @@
 
     {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_ceo %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">Contracts</div>
+        <div class="sidebar-section-label">{% trans "Contracts" %}</div>
         <ul class="list-unstyled mb-0">
             {% if user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'contracts:issue' %}" class="nav-link-sidebar">
-                    <i class="bi bi-file-earmark-plus"></i> New Contract
+                    <i class="bi bi-file-earmark-plus"></i> {% trans "New Contract" %}
                 </a>
             </li>
             {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'contracts:list' %}" class="nav-link-sidebar {% block nav_contracts %}{% endblock %}">
-                    <i class="bi bi-file-earmark-text"></i> All Contracts
+                    <i class="bi bi-file-earmark-text"></i> {% trans "All Contracts" %}
                 </a>
             </li>
         </ul>
@@ -1250,41 +1250,41 @@
 
     {% if user.is_superuser or user.employee.is_hr %}
     <div class="sidebar-section">
-        <div class="sidebar-section-label">Admin</div>
+        <div class="sidebar-section-label">{% trans "Admin" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:employee_list' %}" class="nav-link-sidebar {% block nav_employees %}{% endblock %}">
-                    <i class="bi bi-people"></i> Employees
+                    <i class="bi bi-people"></i> {% trans "Employees" %}
                 </a>
             </li>
             {% if user.employee.is_hr %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:employee_create' %}" class="nav-link-sidebar">
-                    <i class="bi bi-person-plus"></i> Add Employee
+                    <i class="bi bi-person-plus"></i> {% trans "Add Employee" %}
                 </a>
             </li>
             {% endif %}
             {% if user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:department_list' %}" class="nav-link-sidebar {% block nav_depts %}{% endblock %}">
-                    <i class="bi bi-building"></i> Departments
+                    <i class="bi bi-building"></i> {% trans "Departments" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:leave_type_list' %}" class="nav-link-sidebar {% block nav_leave_types %}{% endblock %}">
-                    <i class="bi bi-tags"></i> Leave Types
+                    <i class="bi bi-tags"></i> {% trans "Leave Types" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:employee_import' %}" class="nav-link-sidebar">
-                    <i class="bi bi-file-earmark-spreadsheet"></i> Import from Excel
+                    <i class="bi bi-file-earmark-spreadsheet"></i> {% trans "Import from Excel" %}
                 </a>
             </li>
             {% endif %}
             {% if user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:admin_settings' %}" class="nav-link-sidebar {% block nav_settings %}{% endblock %}">
-                    <i class="bi bi-sliders"></i> System Settings
+                    <i class="bi bi-sliders"></i> {% trans "System Settings" %}
                 </a>
             </li>
             {% endif %}
@@ -1343,7 +1343,7 @@
                         {% if notif_unread > 0 %}
                         <form method="post" action="{% url 'notifications:mark_all_read' %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:0.72rem;color:#9ab4c0;" data-no-suspend>Mark all read</button>
+                            <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:0.72rem;color:#9ab4c0;" data-no-suspend>{% trans "Mark all read" %}</button>
                         </form>
                         {% endif %}
                     </div>
@@ -1365,13 +1365,13 @@
                         {% else %}
                         <div class="notif-empty">
                             <i class="bi bi-bell-slash fs-2 d-block mb-2"></i>
-                            <small>No notifications yet</small>
+                            <small>{% trans "No notifications yet" %}</small>
                         </div>
                         {% endif %}
                     </div>
                     <div class="notif-footer">
                         <a href="{% url 'notifications:list' %}" class="btn btn-sm btn-outline-primary w-100" style="font-size:0.8rem;" data-no-suspend>
-                            View All Notifications
+                            {% trans "View All Notifications" %}
                         </a>
                     </div>
                 </div>
@@ -1388,11 +1388,11 @@
     <div style="background:linear-gradient(135deg,#7f1d1d,#991b1b);color:white;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <i class="bi bi-person-lock flex-shrink-0" style="font-size:1rem;"></i>
         <div style="flex:1;min-width:160px;">
-            <span style="font-size:0.85rem;font-weight:700;">Account Suspended until {{ suspension_end|date:"d F Y" }}</span>
-            <span style="font-size:0.75rem;opacity:0.85;margin-left:8px;">Applying for leave is disabled. All other features remain accessible.</span>
+            <span style="font-size:0.85rem;font-weight:700;">{% blocktrans with end=suspension_end|date:"d F Y" %}Account Suspended until {{ end }}{% endblocktrans %}</span>
+            <span style="font-size:0.75rem;opacity:0.85;margin-left:8px;">{% trans "Applying for leave is disabled. All other features remain accessible." %}</span>
         </div>
         <a href="{% url 'accounts:logout' %}" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);font-size:0.78rem;padding:4px 12px;flex-shrink:0;">
-            <i class="bi bi-box-arrow-right me-1"></i>Sign Out
+            <i class="bi bi-box-arrow-right me-1"></i>{% trans "Sign Out" %}
         </a>
     </div>
     {% endif %}

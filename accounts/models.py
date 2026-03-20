@@ -31,6 +31,7 @@ class Employee(models.Model):
         ('ceo', 'CEO'),
         ('intern', 'Intern'),
         ('wacs_resident', 'WACS Resident / Trainee'),
+        ('super_admin', 'System Administrator'),
     ]
 
     SEX_CHOICES = [
@@ -144,5 +145,14 @@ class Employee(models.Model):
             'ceo': 'dark',
             'intern': 'info',
             'wacs_resident': 'warning',
+            'super_admin': 'dark',
         }
+        if self.user.is_superuser:
+            return 'dark'
         return badges.get(self.role, 'secondary')
+
+    def get_effective_role_display(self):
+        """Returns 'System Administrator' for superusers regardless of employee role."""
+        if self.user.is_superuser:
+            return 'System Administrator'
+        return self.get_role_display()

@@ -128,8 +128,10 @@
                 {% for c in contracts %}
                 <tr>
                     <td>
-                        <strong>{{ c.employee.get_full_name }}</strong>
-                        <div style="font-size:.75rem;color:#9ab4c0;">{{ c.employee.employee_id }}</div>
+                        <a href="{% url 'accounts:employee_history' c.employee.pk %}" class="text-decoration-none text-dark">
+                            <strong>{{ c.employee.get_full_name }}</strong>
+                            <div style="font-size:.75rem;color:#9ab4c0;">{{ c.employee.employee_id }}</div>
+                        </a>
                     </td>
                     <td style="font-size:.85rem;">{{ c.employee.department|default:"—" }}</td>
                     <td>

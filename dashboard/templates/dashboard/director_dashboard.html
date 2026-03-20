@@ -1,49 +1,53 @@
 {% extends 'base.html' %}
-{% block title %}Executive Dashboard — LeaveDesk{% endblock %}
-{% block page_title %}Executive Dashboard{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Executive Dashboard" %} — LeaveDesk{% endblock %}
+{% block page_title %}{% trans "Executive Dashboard" %}{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-shield-exclamation me-1"></i> Issue Notice
+    <i class="bi bi-shield-exclamation me-1"></i> {% trans "Issue Notice" %}
 </a>
 <a href="{% url 'leaves:director_approvals' %}" class="btn btn-primary btn-sm">
-    <i class="bi bi-shield-check me-1"></i> Final Approvals
+    <i class="bi bi-shield-check me-1"></i> {% trans "Final Approvals" %}
     {% if pending_director > 0 %}<span class="badge bg-warning text-dark ms-1">{{ pending_director }}</span>{% endif %}
 </a>
 {% endblock %}
 
 {% block content %}
 
+<!-- ── My Personal Leave Section ── -->
+{% include 'dashboard/includes/my_leave_section.html' %}
+
 <!-- ── At a Glance ── -->
-<div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> At a Glance</div>
+<div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> {% trans "At a Glance" %}</div>
 <div class="row g-3 mb-4 animate-in">
     <div class="col-6 col-sm-4 col-lg">
         <div class="stat-card text-center">
             <div class="stat-icon mx-auto" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
             <div class="stat-value">{{ total_employees }}</div>
-            <div class="stat-label">Active Staff</div>
+            <div class="stat-label">{% trans "Active Staff" %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg">
         <div class="stat-card text-center" style="border-top:3px solid #4527a0;{% if pending_director > 0 %}background:#faf8ff;{% endif %}">
             <div class="stat-icon mx-auto" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
             <div class="stat-value" style="color:#4527a0;">{{ pending_director }}</div>
-            <div class="stat-label">Awaiting You</div>
+            <div class="stat-label">{% trans "Awaiting You" %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg">
         <div class="stat-card text-center">
             <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-check2-all"></i></div>
             <div class="stat-value">{{ approved_year }}</div>
-            <div class="stat-label">Approved {{ year }}</div>
+            <div class="stat-label">{% blocktrans with y=year %}Approved {{ y }}{% endblocktrans %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg">
         <div class="stat-card text-center">
             <div class="stat-icon mx-auto" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
             <div class="stat-value">{{ rejected_year }}</div>
-            <div class="stat-label">Rejected {{ year }}</div>
+            <div class="stat-label">{% blocktrans with y=year %}Rejected {{ y }}{% endblocktrans %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg">
@@ -51,32 +55,32 @@
             <div class="stat-card text-center" style="border-top:3px solid #f59e0b;">
                 <div class="stat-icon mx-auto" style="background:#fff8e1;color:#d97706;"><i class="bi bi-shield-exclamation"></i></div>
                 <div class="stat-value" style="color:#d97706;">{{ discipline_warned|add:discipline_suspended|add:discipline_dismissed }}</div>
-                <div class="stat-label">Discipline Cases</div>
+                <div class="stat-label">{% trans "Discipline Cases" %}</div>
             </div>
         </a>
     </div>
 </div>
 
 <!-- ── Action Required ── -->
-<div class="section-label"><i class="bi bi-shield-check me-1"></i> Action Required</div>
+<div class="section-label"><i class="bi bi-shield-check me-1"></i> {% trans "Action Required" %}</div>
 <div class="card mb-4 animate-in delay-1">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-shield-check me-2" style="color:#0A4D68;"></i>Requests Awaiting Your Final Approval
+        <span><i class="bi bi-shield-check me-2" style="color:#0A4D68;"></i>{% trans "Requests Awaiting Your Final Approval" %}
             <span class="badge bg-primary ms-2">{{ pending_director }}</span>
         </span>
-        <a href="{% url 'leaves:director_approvals' %}" class="btn btn-sm btn-primary">View All</a>
+        <a href="{% url 'leaves:director_approvals' %}" class="btn btn-sm btn-primary">{% trans "View All" %}</a>
     </div>
     <div class="table-responsive">
         <table class="table mb-0">
             <thead>
                 <tr>
-                    <th>Employee</th>
-                    <th>Department</th>
-                    <th>Leave Type</th>
-                    <th>Period</th>
-                    <th>Days</th>
-                    <th>HR Approved By</th>
-                    <th>Action</th>
+                    <th>{% trans "Employee" %}</th>
+                    <th>{% trans "Department" %}</th>
+                    <th>{% trans "Leave Type" %}</th>
+                    <th>{% trans "Period" %}</th>
+                    <th>{% trans "Days" %}</th>
+                    <th>{% trans "HR Approved By" %}</th>
+                    <th>{% trans "Action" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -95,7 +99,7 @@
                     </td>
                     <td>
                         <a href="{% url 'leaves:director_action' req.pk %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-shield-check me-1"></i>Decide
+                            <i class="bi bi-shield-check me-1"></i>{% trans "Decide" %}
                         </a>
                     </td>
                 </tr>
@@ -103,7 +107,7 @@
                 <tr>
                     <td colspan="7" class="text-center text-muted py-4">
                         <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>
-                        No requests awaiting your approval — all clear!
+                        {% trans "No requests awaiting your approval — all clear!" %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -113,7 +117,7 @@
 </div>
 
 <!-- ── Leave Activity ── -->
-<div class="section-label"><i class="bi bi-activity me-1"></i> Leave Activity</div>
+<div class="section-label"><i class="bi bi-activity me-1"></i> {% trans "Leave Activity" %}</div>
 <div class="row g-4 animate-in delay-2">
     <div class="col-lg-8">
         <div class="card h-100">
@@ -128,7 +132,7 @@
     <div class="col-lg-4">
         <div class="card h-100">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <span><span class="pending-pulse"></span>On Leave Today</span>
+                <span><span class="pending-pulse"></span>{% trans "On Leave Today" %}</span>
                 <span class="badge bg-danger">{{ on_leave_now|length }}</span>
             </div>
             <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
@@ -145,7 +149,7 @@
                 {% empty %}
                 <div class="text-center py-4 text-muted">
                     <i class="bi bi-check-circle fs-2 d-block mb-2"></i>
-                    <small>All staff are in today</small>
+                    <small>{% trans "All staff are in today" %}</small>
                 </div>
                 {% endfor %}
             </div>

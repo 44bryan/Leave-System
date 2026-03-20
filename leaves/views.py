@@ -516,8 +516,19 @@ def director_approvals(request):
         status=LeaveRequest.STATUS_HR_APPROVED
     ).select_related('employee__user', 'employee__department', 'leave_type', 'manager_action_by__user', 'hr_action_by__user')
 
+    # Check if admin director is on leave (finance director may be covering)
+    from datetime import date as _date
+    today = _date.today()
+    admin_directors = Employee.objects.filter(role='admin_director', is_active=True)
+    admin_dir_on_leave = any(
+        req for ad in admin_directors
+        for req in ad.leave_requests.filter(status='approved', start_date__lte=today, end_date__gte=today)
+    )
+
     return render(request, 'leaves/director_approvals.html', {
         'pending_requests': pending,
+        'employee': employee,
+        'admin_dir_on_leave': admin_dir_on_leave,
     })
 
 

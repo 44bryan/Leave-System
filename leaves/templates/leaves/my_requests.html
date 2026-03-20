@@ -24,11 +24,11 @@
             <div class="card-body p-3">
                 {% if balance.carried_forward > 0 %}
                 <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom:1px dashed #cde8ef;">
-                    <span style="font-size:.78rem;color:#4a6b7c;font-weight:600;">Annual Entitlement:</span>
+                    <span style="font-size:.78rem;color:#4a6b7c;font-weight:600;">{% trans "Annual Entitlement:" %}</span>
                     <span class="badge bg-primary">{{ balance.total_entitlement }}d</span>
                     <span style="font-size:.78rem;color:#4a6b7c;">+</span>
                     <span style="font-size:.78rem;color:#0369a1;font-weight:600;">
-                        <i class="bi bi-arrow-right-circle me-1"></i>Carried Forward:
+                        <i class="bi bi-arrow-right-circle me-1"></i>{% trans "Carried Forward:" %}
                     </span>
                     <span class="badge" style="background:#0369a1;">{{ balance.carried_forward }}d</span>
                     <span style="font-size:.78rem;color:#4a6b7c;">=</span>
@@ -71,7 +71,7 @@
                 {% with nd_list=balance.non_deductible_by_type nd_total=balance.non_deductible_total %}
                 <div class="d-flex align-items-center gap-3 mb-2">
                     <div style="font-size:1.8rem;font-weight:800;color:#2e7d32;">{{ nd_total }}</div>
-                    <div style="font-size:.7rem;color:#6b7a8d;">{% trans "total days this year" %}</div>
+                    <div style="font-size:.7rem;color:#6b7a8d;">{% trans "Total days this year" %}</div>
                 </div>
                 {% if nd_list %}
                 {% for item in nd_list %}

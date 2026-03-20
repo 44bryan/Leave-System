@@ -15,10 +15,10 @@
 <!-- Former / Active toggle -->
 <div class="mb-3 d-flex gap-2 align-items-center">
     <a href="?show_former=0" class="btn btn-sm {% if not show_former %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-        <i class="bi bi-people me-1"></i> Active Employees
+        <i class="bi bi-people me-1"></i> {% trans "Active Employees" %}
     </a>
     <a href="?show_former=1" class="btn btn-sm {% if show_former %}btn-danger{% else %}btn-outline-secondary{% endif %}">
-        <i class="bi bi-person-dash me-1"></i> Former / Dismissed
+        <i class="bi bi-person-dash me-1"></i> {% trans "Former / Dismissed" %}
     </a>
 </div>
 
@@ -26,12 +26,12 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>
             <i class="bi bi-{% if show_former %}person-dash{% else %}people{% endif %} me-2"></i>
-            {% if show_former %}Former / Dismissed Employees{% else %}Active Employees{% endif %}
+            {% if show_former %}{% trans "Former / Dismissed Employees" %}{% else %}{% trans "Active Employees" %}{% endif %}
             <span class="badge {% if show_former %}bg-danger{% else %}bg-primary{% endif %} ms-1">{{ employees|length }}</span>
         </span>
         {% if not show_former %}
         <a href="{% url 'accounts:employee_create' %}" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus-lg me-1"></i>Add New
+            <i class="bi bi-plus-lg me-1"></i>{% trans "Add New" %}
         </a>
         {% endif %}
     </div>
@@ -53,6 +53,7 @@
                 {% for emp in employees %}
                 <tr>
                     <td>
+                        <a href="{% url 'accounts:employee_history' emp.pk %}" class="text-decoration-none text-dark">
                         <div class="d-flex align-items-center gap-2">
                             <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#05BFDB,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.75rem;flex-shrink:0;">
                                 {{ emp.user.first_name|first|upper }}
@@ -62,12 +63,13 @@
                                 <div style="font-size:.72rem;color:#6b7a8d;">{{ emp.user.email|default:"no email" }}</div>
                             </div>
                         </div>
+                        </a>
                     </td>
                     <td style="font-size:.82rem;font-family:monospace;color:#6b7a8d;">{{ emp.employee_id }}</td>
                     <td style="font-size:.82rem;">{{ emp.department|default:"—" }}</td>
                     <td style="font-size:.82rem;">{{ emp.position|default:"—" }}</td>
                     <td>
-                        <span class="badge bg-{{ emp.get_role_display_badge }}">{{ emp.get_role_display }}</span>
+                        <span class="badge bg-{{ emp.get_role_display_badge }}">{{ emp.get_effective_role_display }}</span>
                     </td>
                     <td style="font-size:.82rem;">{{ emp.supervisor.get_full_name|default:"—" }}</td>
                     <td>

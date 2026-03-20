@@ -269,6 +269,36 @@ Then open: **http://127.0.0.1:8000**
 
 ## Change Log
 
+### 2026-03-20
+
+- **PDF links audit** — Confirmed all templates (`my_requests.html`, `all_leaves.html`) already use `leaves:pdf_leave`. No old `leaves:print_leave` links found in templates.
+
+- **Discipline notifications in `propose_sanction`** (`discipline/views.py`)
+  - When HR submits a sanction proposal: all active Admin Directors are notified via `notify()` with the proposed action details
+  - When Director submits their decision: all active HR staff are notified via `notify()` with the final sanction decision
+
+- **Finance Director coverage banner** (`leaves/views.py`, `leaves/templates/leaves/director_approvals.html`)
+  - `director_approvals` view now checks if any Admin Director has an active approved leave today (`admin_dir_on_leave`)
+  - Passes `employee` and `admin_dir_on_leave` to template context
+  - Template shows an info banner ("Covering for Admin Director") when Finance Director is logged in and Admin Director is on leave
+  - Shows a warning banner ("Admin Director Active") when Finance Director is logged in but Admin Director is NOT on leave
+
+- **Contract "Extend" vs "Renew" labeling** (`contracts/templates/contracts/contract_detail.html`)
+  - HR Actions section heading: INTERN/WACS → "Extend Contract" (calendar-plus icon, info color); CDD/CDI → "Renew Contract"
+  - Contract type badge in Contract Details section now correctly shows "Internship" and "WACS Residency" (was falling through to "CDD Fixed Term")
+  - Added INTERN/WACS options to the contract type dropdown in the renew form
+  - Added `internship_type` select field to the extend form (shown only for INTERN contracts)
+  - Submit button: INTERN/WACS → "Extend & Notify Employee"; CDD/CDI → "Renew & Notify Employee"
+  - History section heading: INTERN/WACS → "Extension History"; others → "Renewal History"
+
+- **`renew_contract` view updated** (`contracts/views.py`)
+  - Reads `internship_type` from POST data for INTERN contracts and saves it on the new contract
+  - Notification title uses "Contract Extended" for INTERN/WACS, "Contract Renewed" for CDD/CDI
+  - Success message uses "extended" / "renewed" appropriately
+  - `_contract_renewal_message()` updated: INTERN → "extended", WACS → "extended", CDD/CDI → "renewed"
+
+- **`my_contract.html` audit** — Already correctly shows "Internship Contract", "WACS Residency / Trainee Programme", internship_type display, and separate programme info cards. No changes needed.
+
 ### 2026-03-19 (update)
 
 - **PDF fixes: signatures + logo colors + unit-head fallback** (`leaves/pdf_utils.py`)
@@ -567,3 +597,98 @@ Then open: **http://127.0.0.1:8000**
   - Language switcher (EN / FR buttons) added to settings dropdown in topbar
   - `path('i18n/', include('django.conf.urls.i18n'))` added to `urls.py` for `set_language` endpoint
   - **Note:** On Railway (Linux), `python manage.py compilemessages` runs automatically; locally requires GNU gettext (`msgfmt`) to be installed
+
+### 2026-03-20 — Full French i18n pass: all templates translated
+
+- **Comprehensive `{% trans %}` / `{% blocktrans %}` tagging across all 16 templates**
+  - Every user-visible English string now wrapped for translation
+  - Templates updated: `base.html`, `admin_dashboard.html`, `hr_dashboard.html`, `director_dashboard.html`, `employee_dashboard.html`, `unit_head_dashboard.html`, `request_form.html`, `my_requests.html`, `action_form.html`, `leave_detail.html`, `all_leaves.html`, `profile.html`, `employee_list.html`, `employee_form.html`
+  - Strings containing template variables use `{% blocktrans with var=value %}` (e.g. birthday banner, welcome subtitle, on-leave alert, discipline KPI years, upcoming-birthday count)
+  - HTML-embedded variable strings (on-leave alert with `<strong>` tags) also use `{% blocktrans %}`
+
+- **`locale/fr/LC_MESSAGES/django.po` — ~100+ new msgid/msgstr pairs added**
+  - Covers: admin dashboard labels, director dashboard labels, HR discipline strip, sidebar section labels, sidebar nav links (Birthday Calendar, Director Queue, All Requests, CEO Overview, Discipline / Contracts / Admin sections), suspension banner, signature pad strings, birthday messages, contract analytics labels, profile page fields
+
+- **`locale/fr/LC_MESSAGES/django.mo` compiled via Python script**
+  - GNU gettext not installed locally; `.mo` file compiled using a pure-Python MO generator
+  - Django confirmed loading 330 translated messages from the `.mo` file
+  - UTF-8 accented characters verified correct in memory (`é`, `è`, `à`, `ô`, etc.)
+
+### 2026-03-20 — Personal leave section added to all role dashboards
+
+- **All role dashboards now show personal leave info at the top**
+  - HR, Director, Manager, and Admin users are also employees — they need to see their own leave balance and apply for leave just like regular staff
+  - Created shared include: `dashboard/templates/dashboard/includes/my_leave_section.html`
+    - Shows birthday banner, suspension alert, on-leave alert
+    - Shows deductible balance card (gradient), non-deductible leaves card, pending count + apply button card
+    - Shows "My Recent Leave Requests" table with link to full history
+    - Uses `my_pending_count`, `my_recent_requests`, `balance`, `on_leave`, `active_suspension`, `is_own_birthday`, `today`, `employee`
+  - **`dashboard/views.py` updated:**
+    - `hr_dashboard`: adds personal leave context (`my_balance`, `my_recent_requests`, `my_pending_count`, `my_on_leave`, `my_active_suspension`, `my_is_birthday`)
+    - `director_dashboard`: same additions
+    - `manager_dashboard`: same additions (also imports DisciplineRecord)
+    - `admin_dashboard`: tries `get_employee(request)` — if admin has an employee profile, computes all personal context; if not, passes `None` and template skips the section
+  - **Templates updated:** `hr_dashboard.html`, `director_dashboard.html`, `manager_dashboard.html` now include `my_leave_section.html` at the top of content block
+  - Admin template wraps the include in `{% if employee and balance %}` guard (superuser may not have an employee profile)
+
+### 2026-03-20 — Discipline notifications, finance director coverage, contract extend/renew labels
+
+- **Discipline notification chain fully wired** (`discipline/views.py`)
+  - Manager issues verbal warning → employee notified + all HR staff notified (already existed)
+  - HR submits sanction proposal (`propose_sanction`) → all active Admin Directors notified with proposed action
+  - Director submits final decision (`propose_sanction`) → all active HR staff notified with final decision
+  - Full chain: Manager → HR → Director → HR (notifications complete for every step)
+
+- **Full leave approval notification audit** (`leaves/views.py`)
+  - Confirmed all 5 approval steps notify both the employee AND the next approver:
+    1. Submit → unit head / line manager notified
+    2. Unit Head approves → employee + line manager notified
+    3. Manager approves → employee + all HR notified
+    4. HR approves → employee + all Admin Directors + Finance Directors notified
+    5. Director approves → employee notified
+  - All rejection steps also notify the employee
+
+- **Finance Director coverage banners** (`leaves/views.py`, `leaves/templates/leaves/director_approvals.html`)
+  - `director_approvals` view detects if any Admin Director has an active approved leave today (`admin_dir_on_leave`)
+  - Template shows an info banner to Finance Director when Admin Director is on leave ("Covering for Admin Director")
+  - Shows a warning banner when Finance Director is logged in but Admin Director is NOT on leave
+
+- **Contract "Extend" vs "Renew" labeling** (`contracts/templates/contracts/contract_detail.html`, `contracts/views.py`)
+  - INTERN/WACS: heading shows "Extend Contract", button shows "Extend & Notify Employee", history shows "Extension History"
+  - CDD/CDI: heading shows "Renew Contract", button shows "Renew & Notify Employee", history shows "Renewal History"
+  - Contract type badge now correctly shows "Internship" and "WACS Residency" (no longer falls through to "CDD Fixed Term")
+  - `internship_type` select field added to the extend form (visible for INTERN contracts only)
+  - `renew_contract` view saves `internship_type` from POST when `contract_type == 'INTERN'`
+  - `_contract_renewal_message()` uses "extended" for INTERN/WACS, "renewed" for CDD/CDI
+
+### 2026-03-20 — Employee history view, super admin role, full French translation pass
+
+- **Employee History / Audit View** (`accounts/views.py`, `accounts/templates/accounts/employee_history.html`)
+  - New URL: `/accounts/employees/<pk>/history/` (name: `accounts:employee_history`)
+  - Access: HR, Admin Director, Finance Director, CEO, Superuser only
+  - Shows 4 tabbed sections: Profile · Contracts · Leave History · Discipline
+  - Profile tab: personal info + employment details + current year leave balance card
+  - Contracts tab: full contract history with type badge, dates, status, notes — links to contract detail
+  - Leave History tab: all leave requests with type, period, days, status — links to leave detail
+  - Discipline tab: all discipline records with type, reason, HR proposal, Director decision — links to discipline detail
+  - Employee names are now **clickable links** in: Employee List, All Requests (leaves), Contracts List, Discipline List
+
+- **Super Admin role** (`accounts/models.py`)
+  - Added `('super_admin', 'System Administrator')` to `ROLE_CHOICES`
+  - `get_role_display_badge()` always returns `'dark'` for Django superusers (`user.is_superuser`)
+  - New method `get_effective_role_display()`: returns `'System Administrator'` for superusers, otherwise normal role display
+  - `employee_list.html` and `employee_history.html` use `get_effective_role_display` instead of `get_role_display`
+
+- **French translation — comprehensive pass** (`locale/fr/LC_MESSAGES/django.po`, `.mo`)
+  - Added ~200 new msgid/msgstr pairs covering:
+    - Profile page: Category, Sex (Male/Female), all field labels, change password form
+    - Employee history template: all tab labels, table headers, status labels
+    - Role names: System Administrator, Administration Director, Finance Director, HR Admin, etc.
+    - Contract list: all filter/stat labels, table headers
+    - Discipline list: all action strings, filter labels
+    - Leave list: all table headers, filter labels
+    - Common UI: Active/Inactive, Filter, Clear, Pending, View, Notes, etc.
+  - Profile template fix: `Category` now wrapped in `{% trans %}`, sex display uses `{% trans employee.get_sex_display %}`
+  - Total: 395 messages compiled to `.mo`
+
+

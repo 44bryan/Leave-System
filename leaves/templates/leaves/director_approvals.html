@@ -5,6 +5,17 @@
 {% block nav_director %}active{% endblock %}
 
 {% block content %}
+{% if employee.is_finance_director and admin_dir_on_leave %}
+<div class="alert alert-info mb-3">
+    <i class="bi bi-info-circle me-2"></i>
+    <strong>Covering for Admin Director</strong> — The Administration Director is currently on approved leave. You are handling final approvals in their absence.
+</div>
+{% elif employee.is_finance_director and not admin_dir_on_leave %}
+<div class="alert alert-warning mb-3">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <strong>Admin Director Active</strong> — The Administration Director is not on leave. Final approvals are normally handled by the Administration Director.
+</div>
+{% endif %}
 {% if pending_requests %}
 <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
     <i class="bi bi-info-circle-fill fs-5"></i>

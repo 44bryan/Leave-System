@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block title %}{% trans "My Dashboard" %} — LeaveDesk{% endblock %}
 {% block page_title %}{% trans "My Dashboard" %}{% endblock %}
-{% block page_subtitle %}Welcome back, {{ employee.user.first_name }}{% endblock %}
+{% block page_subtitle %}{% blocktrans with name=employee.user.first_name %}Welcome back, {{ name }}{% endblocktrans %}{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
 
 {% block content %}
@@ -12,9 +12,9 @@
      style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
     <span style="font-size:2.5rem;line-height:1;">🎂</span>
     <div style="flex:1;">
-        <div style="font-size:1.1rem;font-weight:800;">Happy Birthday, {{ employee.user.first_name }}!</div>
+        <div style="font-size:1.1rem;font-weight:800;">{% blocktrans with name=employee.user.first_name %}Happy Birthday, {{ name }}!{% endblocktrans %}</div>
         <div style="font-size:0.85rem;opacity:0.92;">
-            Wishing you a wonderful day from the entire Magrabi ICO Cameroon Eye Institute family. 🎉
+            {% trans "Wishing you a wonderful day from the entire Magrabi ICO Cameroon Eye Institute family." %} 🎉
         </div>
     </div>
 </div>
@@ -24,11 +24,11 @@
 <div class="alert alert-dark d-flex align-items-start gap-3 mb-4" style="border-left:4px solid #374151;">
     <i class="bi bi-person-slash fs-4 flex-shrink-0 mt-1"></i>
     <div>
-        <strong>You are currently suspended.</strong>
+        <strong>{% trans "You are currently suspended." %}</strong>
         <div style="font-size:0.875rem; margin-top:4px;">
-            Suspension period: <strong>{{ active_suspension.suspension_start|date:"d M Y" }}</strong>
-            to <strong>{{ active_suspension.suspension_end|date:"d M Y" }}</strong>.
-            Please contact HR for further information.
+            {% trans "Suspension period:" %} <strong>{{ active_suspension.suspension_start|date:"d M Y" }}</strong>
+            {% trans "to" %} <strong>{{ active_suspension.suspension_end|date:"d M Y" }}</strong>.
+            {% trans "Please contact HR for further information." %}
         </div>
     </div>
 </div>
@@ -37,7 +37,7 @@
 {% if on_leave %}
 <div class="alert alert-info d-flex align-items-center gap-2 mb-4">
     <i class="bi bi-airplane-fill fs-5"></i>
-    <span>You are currently on <strong>{{ on_leave.leave_type }}</strong> leave. You return on <strong>{{ on_leave.end_date }}</strong>.</span>
+    <span>{% blocktrans with leave_type=on_leave.leave_type end_date=on_leave.end_date %}You are currently on <strong>{{ leave_type }}</strong> leave. You return on <strong>{{ end_date }}</strong>.{% endblocktrans %}</span>
 </div>
 {% endif %}
 
@@ -55,11 +55,11 @@
                 {% if balance.carried_forward > 0 %}
                 <div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
                     <span style="font-size:0.72rem;background:rgba(255,255,255,0.15);border-radius:6px;padding:2px 8px;">
-                        <i class="bi bi-calendar me-1"></i>Annual: {{ balance.total_entitlement }}d
+                        <i class="bi bi-calendar me-1"></i>{% trans "Annual:" %} {{ balance.total_entitlement }}d
                     </span>
                     <span style="font-size:0.72rem;">+</span>
                     <span style="font-size:0.72rem;background:rgba(255,255,255,0.25);border-radius:6px;padding:2px 8px;">
-                        <i class="bi bi-arrow-right-circle me-1"></i>Carried: {{ balance.carried_forward }}d
+                        <i class="bi bi-arrow-right-circle me-1"></i>{% trans "Carried:" %} {{ balance.carried_forward }}d
                     </span>
                 </div>
                 {% endif %}
