@@ -11,4 +11,4 @@ echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
 echo "Starting gunicorn..."
-exec gunicorn leave_system.wsgi --log-file -
+exec gunicorn leave_system.wsgi --log-file - --timeout 120 --workers 2 --threads 2
