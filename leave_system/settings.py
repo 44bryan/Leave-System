@@ -21,6 +21,7 @@ CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 
 INSTALLED_APPS = [
+    'anymail',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -127,13 +128,12 @@ EMAIL_NOTIFICATIONS_ENABLED = config('EMAIL_NOTIFICATIONS_ENABLED', default=Fals
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
-    EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+    EMAIL_BACKEND = 'anymail.backends.resend.EmailBackend'
 
-EMAIL_HOST          = config('EMAIL_HOST',          default='smtp.gmail.com')
-EMAIL_PORT          = config('EMAIL_PORT',          default=587, cast=int)
-EMAIL_USE_TLS       = config('EMAIL_USE_TLS',       default=True,  cast=bool)
-EMAIL_HOST_USER     = config('EMAIL_HOST_USER',     default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL',  default='LeaveDesk HR <noreply@leavedesk.com>')
+ANYMAIL = {
+    'RESEND_API_KEY': config('RESEND_API_KEY', default=''),
+}
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='LeaveDesk HR <onboarding@resend.dev>')
 # Public URL used in email notification links (e.g. https://yourapp.railway.app)
 SITE_URL            = config('SITE_URL',            default='')
