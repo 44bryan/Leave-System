@@ -169,7 +169,7 @@ def employee_create(request):
                     title='Welcome — Your Account Is Now Active',
                     message=f"{welcome_intro} {_cmsg}",
                     notification_type='account_activated',
-                    url='/contracts/my-contract/',
+                    url='/contracts/my/',
                 )
 
             messages.success(request, f"Employee {employee.get_full_name()} created and contract issued successfully.")
@@ -795,7 +795,7 @@ def employee_excel_upload(request):
                         f"A {contract_type} contract starting {contract_start.strftime('%d %b %Y')} has been issued."
                     ),
                     notification_type='account_activated',
-                    url='/contracts/my-contract/',
+                    url='/contracts/my/',
                 )
 
             created_rows.append({'row': row_idx, 'name': emp.get_full_name(), 'emp_id': emp_id, 'contract': contract_type})
