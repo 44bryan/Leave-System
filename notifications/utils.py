@@ -49,6 +49,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
             logger.warning('Email skipped: user "%s" has no email address.', user.username)
             return
 
+        import os
         from django.core.mail import EmailMultiAlternatives
 
         color      = _TYPE_COLOR.get(notification_type, '#374151')
@@ -56,16 +57,6 @@ def _send_email(user, title, message, notification_type='system', url=''):
 
         site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
         app_url   = (site_base + url) if (url and url.startswith('/')) else url
-
-        # Logo hosted on Railway — Gmail won't display base64, needs a real URL
-        logo_img = (
-            f'<img src="{site_base}/static/LOGO.png" '
-            f'alt="Magrabi ICO Cameroon Eye Institution" '
-            f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
-        ) if site_base else (
-            '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
-            'letter-spacing:1px;">Magrabi ICO Cameroon</p>'
-        )
 
         # Plain-text version
         plain = (
@@ -86,6 +77,37 @@ def _send_email(user, title, message, notification_type='system', url=''):
             f'border-radius:6px;font-family:Arial,sans-serif;">'
             f'Open in LeaveDesk &rarr;</a></td></tr>'
         ) if app_url else ''
+
+        # Build email object first so we can attach inline image
+        email = EmailMultiAlternatives(
+            subject=f'[LeaveDesk] {title}',
+            body=plain,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'LeaveDesk HR <noreply@leavedesk.com>'),
+            to=[user.email],
+        )
+
+        # Embed logo inline (travels with email — works in Gmail without user action)
+        logo_img = ''
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'LOGO.png')
+        if os.path.exists(logo_path):
+            try:
+                from anymail.message import attach_inline_image_file
+                logo_cid = attach_inline_image_file(email, logo_path, subtype='png')
+                logo_img = (
+                    f'<img src="cid:{logo_cid}" '
+                    f'alt="Magrabi ICO Cameroon Eye Institution" '
+                    f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
+                )
+            except Exception:
+                logo_img = (
+                    '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
+                    'letter-spacing:1px;">Magrabi ICO Cameroon Eye Institution</p>'
+                )
+        else:
+            logo_img = (
+                '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
+                'letter-spacing:1px;">Magrabi ICO Cameroon Eye Institution</p>'
+            )
 
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -192,12 +214,6 @@ def _send_email(user, title, message, notification_type='system', url=''):
 </body>
 </html>"""
 
-        email = EmailMultiAlternatives(
-            subject=f'[LeaveDesk] {title}',
-            body=plain,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'LeaveDesk HR <noreply@leavedesk.com>'),
-            to=[user.email],
-        )
         email.attach_alternative(html, 'text/html')
         try:
             email.send()
