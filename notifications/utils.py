@@ -1,4 +1,5 @@
 import logging
+import threading
 from .models import Notification
 
 logger = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ _TYPE_STYLE = {
 
 
 def notify(recipient_user, title, message, notification_type='system', url=''):
-    """Create an in-app notification and send an email."""
+    """Create an in-app notification and send an email in a background thread."""
     Notification.objects.create(
         recipient=recipient_user,
         title=title,
@@ -31,7 +32,12 @@ def notify(recipient_user, title, message, notification_type='system', url=''):
         notification_type=notification_type,
         url=url,
     )
-    _send_email(recipient_user, title, message, notification_type, url)
+    t = threading.Thread(
+        target=_send_email,
+        args=(recipient_user, title, message, notification_type, url),
+        daemon=True,
+    )
+    t.start()
 
 
 def _send_email(user, title, message, notification_type='system', url=''):
