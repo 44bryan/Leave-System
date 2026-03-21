@@ -1,6 +1,7 @@
 import logging
 import threading
 from .models import Notification
+from .logo_b64 import LOGO_B64
 
 logger = logging.getLogger(__name__)
 
@@ -87,41 +88,43 @@ def _send_email(user, title, message, notification_type='system', url=''):
              font-family:Arial,'Helvetica Neue',sans-serif;color:#1a202c;">
 
   <table width="100%" cellpadding="0" cellspacing="0"
-         style="background:#f0f4f8;padding:48px 16px;">
+         style="background:#f0f4f8;padding:40px 16px;">
     <tr><td align="center">
       <table width="580" cellpadding="0" cellspacing="0"
              style="max-width:580px;width:100%;">
 
-        <!-- Brand bar -->
+        <!-- Logo header (white) -->
         <tr>
-          <td style="padding-bottom:20px;text-align:left;">
-            <span style="font-size:13px;font-weight:700;color:#0A4D68;
-                         letter-spacing:.5px;text-transform:uppercase;">
-              Magrabi ICO Cameroon &nbsp;&#8250;&nbsp; LeaveDesk HR
-            </span>
+          <td style="background:#ffffff;border-radius:10px 10px 0 0;
+                     padding:24px 40px;border-bottom:1px solid #e8edf2;
+                     text-align:center;">
+            <img src="data:image/png;base64,{LOGO_B64}"
+                 alt="Magrabi ICO Cameroon Eye Institution"
+                 width="160"
+                 style="max-width:160px;height:auto;display:block;margin:0 auto;" />
           </td>
         </tr>
 
-        <!-- Card -->
+        <!-- Card body -->
         <tr>
-          <td style="background:#ffffff;border-radius:10px;
-                     border-top:4px solid {color};
-                     box-shadow:0 2px 12px rgba(0,0,0,0.07);">
+          <td style="background:#ffffff;border-radius:0 0 10px 10px;
+                     border-top:3px solid {color};
+                     box-shadow:0 4px 16px rgba(0,0,0,0.08);">
             <table width="100%" cellpadding="0" cellspacing="0">
 
-              <!-- Body -->
+              <!-- Title block -->
               <tr>
-                <td style="padding:36px 40px 0 40px;">
-                  <p style="margin:0 0 6px 0;font-size:12px;font-weight:700;
-                             color:{color};letter-spacing:1.5px;
+                <td style="padding:32px 40px 0 40px;">
+                  <p style="margin:0 0 6px 0;font-size:11px;font-weight:700;
+                             color:{color};letter-spacing:2px;
                              text-transform:uppercase;">
-                    Notification
+                    HR Notification
                   </p>
-                  <h1 style="margin:0 0 20px 0;font-size:21px;font-weight:700;
+                  <h1 style="margin:0 0 20px 0;font-size:20px;font-weight:700;
                               color:#0d1b2a;line-height:1.35;">
                     {title}
                   </h1>
-                  <p style="margin:0 0 4px 0;font-size:15px;color:#374151;">
+                  <p style="margin:0;font-size:15px;color:#374151;">
                     Dear <strong>{first_name}</strong>,
                   </p>
                 </td>
@@ -131,8 +134,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
               <tr>
                 <td style="padding:16px 40px 0 40px;">
                   <div style="font-size:15px;color:#4a5568;line-height:1.8;
-                               border-left:3px solid {color};
-                               padding-left:16px;">
+                               border-left:3px solid {color};padding-left:16px;">
                     {message.replace(chr(10), '<br>')}
                   </div>
                 </td>
@@ -159,8 +161,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
                     This is an automated notification from
                     <strong style="color:#718096;">LeaveDesk HR</strong>
                     &mdash; Magrabi ICO Cameroon Eye Institution.<br>
-                    Please do not reply to this email.
-                    Log in to the system to view and manage your notifications.
+                    Please do not reply. Log in to manage your notifications.
                   </p>
                 </td>
               </tr>
@@ -171,7 +172,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
 
         <!-- Bottom note -->
         <tr>
-          <td style="padding-top:20px;text-align:center;">
+          <td style="padding-top:18px;text-align:center;">
             <p style="margin:0;font-size:11px;color:#a0aec0;">
               &copy; Magrabi ICO Cameroon Eye Institution &mdash; All rights reserved
             </p>
