@@ -97,12 +97,16 @@ def _send_email(user, title, message, notification_type='system', url=''):
         <tr>
           <td style="background:linear-gradient(135deg,#0A4D68,#088395);
                      padding:28px 32px;text-align:center;">
-            <div style="font-size:28px;margin-bottom:6px;">{icon}</div>
+            <div style="display:inline-block;background:rgba(255,255,255,0.15);
+                        border-radius:50%;width:52px;height:52px;line-height:52px;
+                        font-size:26px;font-weight:900;color:#ffffff;margin-bottom:10px;">
+              L
+            </div>
             <div style="color:#ffffff;font-size:22px;font-weight:800;letter-spacing:-.5px;">
               LeaveDesk HR
             </div>
             <div style="color:rgba(255,255,255,.75);font-size:13px;margin-top:2px;">
-              Eye Hospital — HR Notification System
+              Eye Hospital &mdash; HR Notification System
             </div>
           </td>
         </tr>
