@@ -52,7 +52,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
         import os
         from django.core.mail import EmailMultiAlternatives
 
-        color      = _TYPE_COLOR.get(notification_type, '#374151')
+        color      = '#0A4D68'  # Brand navy — consistent across all notification types
         first_name = user.first_name or user.username
 
         site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
