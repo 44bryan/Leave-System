@@ -1,7 +1,6 @@
 import logging
 import threading
 from .models import Notification
-from .logo_b64 import LOGO_B64
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +57,16 @@ def _send_email(user, title, message, notification_type='system', url=''):
         site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
         app_url   = (site_base + url) if (url and url.startswith('/')) else url
 
+        # Logo hosted on Railway — Gmail won't display base64, needs a real URL
+        logo_img = (
+            f'<img src="{site_base}/static/LOGO.png" '
+            f'alt="Magrabi ICO Cameroon Eye Institution" '
+            f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
+        ) if site_base else (
+            '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
+            'letter-spacing:1px;">Magrabi ICO Cameroon</p>'
+        )
+
         # Plain-text version
         plain = (
             f"Dear {first_name},\n\n"
@@ -98,10 +107,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
           <td style="background:#ffffff;border-radius:10px 10px 0 0;
                      padding:24px 40px;border-bottom:1px solid #e8edf2;
                      text-align:center;">
-            <img src="data:image/png;base64,{LOGO_B64}"
-                 alt="Magrabi ICO Cameroon Eye Institution"
-                 width="160"
-                 style="max-width:160px;height:auto;display:block;margin:0 auto;" />
+            {logo_img}
           </td>
         </tr>
 
