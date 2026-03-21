@@ -1,4 +1,4 @@
-# LeaveDesk — User Manual
+# MICEI HRM — User Manual
 ### Magrabi ICO Cameroon Eye Institute
 ---
 
@@ -18,7 +18,7 @@
 ## 1. Getting Started
 
 ### Logging In
-1. Open your browser and go to the LeaveDesk URL.
+1. Open your browser and go to the MICEI HRM URL.
 2. Enter your **Username** and **Password**.
 3. Click **Sign In**.
 4. You will be taken to your dashboard based on your role.
@@ -249,4 +249,4 @@ When viewing any leave request as admin, you see two extra panels on the right:
 
 ---
 
-*LeaveDesk — Magrabi ICO Cameroon Eye Institute*
+*MICEI HRM — Magrabi ICO Cameroon Eye Institute*

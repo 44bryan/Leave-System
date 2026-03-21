@@ -1,11 +1,11 @@
-# LeaveDesk — Claude Continuation Guide
+# MICEI HRM — Claude Continuation Guide
 ### Read this file before continuing development with Claude
 
 ---
 
 ## What This System Is
 
-**LeaveDesk** is a Django-based HR leave management system built for **Magrabi ICO Cameroon Eye Institute** (Cameroon). It manages employee leave requests through a 3-stage approval workflow: Line Manager → HR Admin → Administration Director.
+**MICEI HRM** is a Django-based HR leave management system built for **Magrabi ICO Cameroon Eye Institute** (Cameroon). It manages employee leave requests through a 3-stage approval workflow: Line Manager → HR Admin → Administration Director.
 
 **Tech stack:** Django 5.0.6, Python 3.11, SQLite, Bootstrap 5.3, Bootstrap Icons, Django i18n (English/French).
 
@@ -362,4 +362,4 @@ python manage.py runserver
 
 ---
 
-*Last updated: March 2026 — LeaveDesk v1.0*
+*Last updated: March 2026 — MICEI HRM v1.0*

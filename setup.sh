@@ -1,11 +1,11 @@
 #!/bin/bash
 # ============================================================
-# LeaveDesk — Eye Hospital HR System
+# MICEI HRM — Eye Hospital HR System
 # Setup Script
 # ============================================================
 
 echo "=========================================="
-echo "  LeaveDesk HR System — Setup"
+echo "  MICEI HRM — Setup"
 echo "=========================================="
 echo ""
 

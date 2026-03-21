@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MICEI HRM — Email Setup Guide</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; color: #1a202c; line-height: 1.7; }
+    h1 { color: #0A4D68; border-bottom: 3px solid #2db4c3; padding-bottom: 10px; }
+    h2 { color: #0A4D68; margin-top: 36px; }
+    .step { background: #f0f4f8; border-left: 4px solid #2db4c3; padding: 16px 20px; margin: 16px 0; border-radius: 4px; }
+    .step strong { display: block; font-size: 16px; margin-bottom: 6px; }
+    code { background: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-size: 14px; }
+    .note { background: #fff7ed; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    th { background: #0A4D68; color: white; padding: 10px 14px; text-align: left; }
+    td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) { background: #f8fafc; }
+    footer { margin-top: 60px; font-size: 12px; color: #a0aec0; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+  </style>
+</head>
+<body>
+
+  <h1>MICEI HRM — Email Notification Setup Guide</h1>
+  <p>This guide explains how to fully enable email notifications for all staff on the MICEI HRM system deployed on Railway.</p>
+
+  <h2>Overview</h2>
+  <p>MICEI HRM uses <strong>Resend</strong> (resend.com) to send email notifications. Resend requires a verified domain to send emails to any recipient (Gmail, iCloud, Outlook, etc.).</p>
+
+  <table>
+    <tr><th>Service</th><th>Purpose</th><th>Cost</th></tr>
+    <tr><td>Railway</td><td>Hosts the MICEI HRM application</td><td>~$5/month</td></tr>
+    <tr><td>Resend</td><td>Sends email notifications</td><td>Free (3,000 emails/month)</td></tr>
+    <tr><td>Domain (e.g. Namecheap)</td><td>Required for verified sending</td><td>~$10/year</td></tr>
+  </table>
+
+  <h2>Setup Steps</h2>
+
+  <div class="step">
+    <strong>Step 1 — Buy a Domain</strong>
+    Go to <strong>namecheap.com</strong> and purchase a domain. Recommended options:
+    <ul>
+      <li><code>micei-hr.com</code></li>
+      <li><code>micei-micei-hrm.com</code></li>
+      <li>Or use an existing institution domain if one already exists</li>
+    </ul>
+    Cost: approximately <strong>$10–15/year</strong>.
+  </div>
+
+  <div class="step">
+    <strong>Step 2 — Add the Domain in Resend</strong>
+    <ol>
+      <li>Log in at <strong>resend.com</strong></li>
+      <li>Go to <strong>Domains</strong> → click <strong>Add Domain</strong></li>
+      <li>Enter your domain name and select your region</li>
+      <li>Resend will display DNS records (MX, TXT, CNAME)</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <strong>Step 3 — Add DNS Records in Namecheap</strong>
+    <ol>
+      <li>Log in to <strong>namecheap.com</strong></li>
+      <li>Go to <strong>Domain List</strong> → click <strong>Manage</strong> next to your domain</li>
+      <li>Click <strong>Advanced DNS</strong></li>
+      <li>Add each DNS record that Resend provided (Type, Host, Value)</li>
+      <li>Save all records</li>
+    </ol>
+    DNS propagation can take a few minutes up to 24 hours.
+  </div>
+
+  <div class="step">
+    <strong>Step 4 — Verify Domain in Resend</strong>
+    <ol>
+      <li>Go back to Resend → Domains</li>
+      <li>Click <strong>Verify DNS Records</strong></li>
+      <li>Status should turn green: <strong>Verified</strong></li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <strong>Step 5 — Update Railway Environment Variables</strong>
+    <ol>
+      <li>Log in to <strong>railway.app</strong></li>
+      <li>Open your MICEI HRM project → go to <strong>Variables</strong></li>
+      <li>Set the following variables:</li>
+    </ol>
+    <table>
+      <tr><th>Variable</th><th>Value</th></tr>
+      <tr><td><code>DEFAULT_FROM_EMAIL</code></td><td><code>MICEI HRM &lt;noreply@yourdomain.com&gt;</code></td></tr>
+      <tr><td><code>EMAIL_NOTIFICATIONS_ENABLED</code></td><td><code>True</code></td></tr>
+      <tr><td><code>RESEND_API_KEY</code></td><td>Your Resend API key (from resend.com/api-keys)</td></tr>
+      <tr><td><code>SITE_URL</code></td><td><code>https://micei-hr.up.railway.app</code></td></tr>
+    </table>
+    Railway will automatically redeploy after saving variables.
+  </div>
+
+  <div class="note">
+    <strong>Note:</strong> Once done, emails will be delivered to all inboxes — Gmail, iCloud, Outlook, Yahoo, etc. — without any action required from staff.
+  </div>
+
+  <h2>What Triggers an Email Notification</h2>
+  <table>
+    <tr><th>Event</th><th>Who Receives Email</th></tr>
+    <tr><td>New account created</td><td>The new employee</td></tr>
+    <tr><td>Leave request submitted</td><td>Manager / HR</td></tr>
+    <tr><td>Leave approved or rejected</td><td>The employee</td></tr>
+    <tr><td>Discipline record issued</td><td>The employee</td></tr>
+    <tr><td>Contract issued or renewed</td><td>The employee</td></tr>
+    <tr><td>Birthday</td><td>The employee</td></tr>
+  </table>
+
+  <h2>Current Status</h2>
+  <table>
+    <tr><th>Item</th><th>Status</th></tr>
+    <tr><td>Railway deployment</td><td>✓ Live</td></tr>
+    <tr><td>Resend integration (anymail)</td><td>✓ Configured</td></tr>
+    <tr><td>Email template (logo + branding)</td><td>✓ Done</td></tr>
+    <tr><td>Verified sending domain</td><td>Pending — buy &amp; verify domain</td></tr>
+  </table>
+
+  <footer>
+    MICEI HRM &mdash; Magrabi ICO Cameroon Eye Institution &mdash; Setup Guide
+  </footer>
+
+</body>
+</html>

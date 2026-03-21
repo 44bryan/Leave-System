@@ -1,6 +1,6 @@
 """
 Generate a professional Leave Authorisation PDF for
-Magrabi Cameroon Eye Institute — LeaveDesk HR System.
+Magrabi Cameroon Eye Institute — MICEI HRM.
 
 Design: section header bars in logo cyan (#31b8cf), all data cells
         pure white (print-friendly), signatures blend with paper.
@@ -407,7 +407,7 @@ def generate_leave_pdf(leave):
     cv.setLineWidth(1.5)
     cv.line(LM, 14*mm, RM, 14*mm)
 
-    txt("LeaveDesk HR System  ·  Magrabi Cameroon Eye Institute",
+    txt("MICEI HRM  ·  Magrabi Cameroon Eye Institute",
         LM, 9*mm, "Helvetica", 7, _LABEL)
     cv.setFillColorRGB(*_LABEL)
     cv.setFont("Helvetica", 7)

@@ -1184,7 +1184,7 @@ def export_data(request):
 
     payload = json.dumps(export, indent=2, default=str)
     response = HttpResponse(payload, content_type='application/json')
-    response['Content-Disposition'] = f'attachment; filename="leavedesk_backup_{date.today()}.json"'
+    response['Content-Disposition'] = f'attachment; filename="micei-hrm_backup_{date.today()}.json"'
     return response
 
 

@@ -63,8 +63,8 @@ def _send_email(user, title, message, notification_type='system', url=''):
             f"Dear {first_name},\n\n"
             f"{title}\n\n"
             f"{message}\n\n"
-            + (f"View in LeaveDesk: {app_url}\n\n" if app_url else "")
-            + "—\nLeaveDesk HR | Magrabi ICO Cameroon Eye Institution\n"
+            + (f"View in MICEI HRM: {app_url}\n\n" if app_url else "")
+            + "—\nMICEI HRM | Magrabi ICO Cameroon Eye Institution\n"
               "This is an automated message. Please do not reply."
         )
 
@@ -75,14 +75,14 @@ def _send_email(user, title, message, notification_type='system', url=''):
             f'background-color:{color};color:#ffffff;text-decoration:none;'
             f'font-size:14px;font-weight:600;padding:12px 30px;'
             f'border-radius:6px;font-family:Arial,sans-serif;">'
-            f'Open in LeaveDesk &rarr;</a></td></tr>'
+            f'Open in MICEI HRM &rarr;</a></td></tr>'
         ) if app_url else ''
 
         # Build email object first so we can attach inline image
         email = EmailMultiAlternatives(
-            subject=f'[LeaveDesk] {title}',
+            subject=f'[MICEI HRM] {title}',
             body=plain,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'LeaveDesk HR <noreply@leavedesk.com>'),
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'MICEI HRM <noreply@micei-hrm.com>'),
             to=[user.email],
         )
 
@@ -188,7 +188,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
                 <td style="padding:20px 40px 32px 40px;">
                   <p style="margin:0;font-size:12px;color:#a0aec0;line-height:1.7;">
                     This is an automated notification from
-                    <strong style="color:#718096;">LeaveDesk HR</strong>
+                    <strong style="color:#718096;">MICEI HRM</strong>
                     &mdash; Magrabi ICO Cameroon Eye Institution.<br>
                     Please do not reply. Log in to manage your notifications.
                   </p>

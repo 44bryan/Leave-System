@@ -1,4 +1,4 @@
-# 👁 LeaveDesk — Eye Hospital HR Leave Management System
+# 👁 MICEI HRM — Eye Hospital HR Leave Management System
 
 A fully-featured, web-based leave management system built with Django + Bootstrap 5 for the HR Department.
 

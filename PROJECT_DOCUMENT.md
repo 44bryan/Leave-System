@@ -1,8 +1,8 @@
-# LeaveDesk HR System — Project Document
+# MICEI HRM — Project Document
 
 ## What Is This Application?
 
-LeaveDesk is a web-based Leave Management System built for an Eye Hospital. It allows staff to submit leave requests digitally, which go through a two-stage approval process (Line Manager → HR Admin) before being fully approved. The system tracks leave balances automatically and gives each role a customized view of what concerns them.
+MICEI HRM is a web-based Leave Management System built for an Eye Hospital. It allows staff to submit leave requests digitally, which go through a two-stage approval process (Line Manager → HR Admin) before being fully approved. The system tracks leave balances automatically and gives each role a customized view of what concerns them.
 
 ---
 
