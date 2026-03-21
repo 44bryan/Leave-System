@@ -19,5 +19,6 @@ urlpatterns = [
     path('employees/<int:pk>/set-signature/', views.set_employee_signature, name='set_employee_signature'),
     path('username-suggest/', views.username_suggest, name='username_suggest'),
     path('employees/import/', views.employee_import, name='employee_import'),
+    path('employees/excel-upload/', views.employee_excel_upload, name='employee_excel_upload'),
     path('employees/<int:pk>/history/', views.employee_history, name='employee_history'),
 ]

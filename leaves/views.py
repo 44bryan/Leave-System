@@ -662,7 +662,10 @@ def all_leaves_hr(request):
 
     status_filter = request.GET.get('status', '')
     dept_filter = request.GET.get('dept', '')
-    year_filter = request.GET.get('year', str(date.today().year))
+    try:
+        year_filter = int(request.GET.get('year', date.today().year))
+    except (ValueError, TypeError):
+        year_filter = date.today().year
 
     qs = LeaveRequest.objects.select_related(
         'employee__user', 'employee__department', 'leave_type'

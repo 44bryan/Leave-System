@@ -19,16 +19,6 @@ def csrf_debug_view(request, reason=""):
     )
 
 
-def debug_settings(request):
-    trusted = getattr(settings, 'CSRF_TRUSTED_ORIGINS', 'NOT SET')
-    failure_view = getattr(settings, 'CSRF_FAILURE_VIEW', 'NOT SET')
-    debug = getattr(settings, 'DEBUG', 'NOT SET')
-    return HttpResponse(
-        f"VERSION: v2\nDEBUG: {debug}\nCSRF_TRUSTED_ORIGINS: {trusted}\nCSRF_FAILURE_VIEW: {failure_view}",
-        content_type='text/plain',
-    )
-
-
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
@@ -39,5 +29,4 @@ urlpatterns = [
     path('contracts/', include('contracts.urls')),
     path('notifications/', include('notifications.urls')),
     path('', lambda request: redirect('dashboard:home'), name='home'),
-    path('debug-settings/', debug_settings),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
