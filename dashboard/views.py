@@ -1160,75 +1160,92 @@ def _hr_required(request):
 
 
 def _pdf_report_header(canvas, doc, title, subtitle=''):
-    """Draw a professional letterhead-style header on each PDF page."""
+    """Executive-grade PDF header — large logo, clean layout, MICEI brand colors."""
     from reportlab.lib import colors
     from reportlab.lib.units import mm
+    from reportlab.lib.utils import ImageReader
     import os
     from django.conf import settings as _s
 
     W = doc.pagesize[0]
     H = doc.pagesize[1]
-    TEAL      = colors.HexColor('#2db4c3')
-    DARK      = colors.HexColor('#0a2540')
-    LIGHT_BG  = colors.HexColor('#f0fafa')
-    GRAY      = colors.HexColor('#6b7280')
-    WHITE     = colors.white
+
+    TEAL       = colors.HexColor('#2db4c3')
+    TEAL_DARK  = colors.HexColor('#1a8fa0')
+    DARK       = colors.HexColor('#0a2540')
+    GRAY       = colors.HexColor('#6b7280')
+    LIGHT_GRAY = colors.HexColor('#f8fafc')
+    WHITE      = colors.white
 
     canvas.saveState()
 
-    # ── White header area (logo + institution name) ──────────────────
+    # ── 1. Full-width white header background ─────────────────────────
     canvas.setFillColor(WHITE)
-    canvas.rect(0, H - 32*mm, W, 32*mm, fill=1, stroke=0)
+    canvas.rect(0, H - 38*mm, W, 38*mm, fill=1, stroke=0)
 
-    # Logo (left side, vertically centred in white area)
+    # ── 2. Large logo — centred vertically in header ──────────────────
     logo_path = os.path.join(_s.BASE_DIR, 'static', 'LOGO.png')
     if os.path.exists(logo_path):
-        canvas.drawImage(logo_path, 12*mm, H - 29*mm,
-                         width=24*mm, height=24*mm,
+        canvas.drawImage(logo_path, 10*mm, H - 36*mm,
+                         width=42*mm, height=33*mm,
                          preserveAspectRatio=True, mask='auto')
 
-    # Institution name (right of logo)
+    # ── 3. Vertical teal divider after logo ───────────────────────────
+    canvas.setStrokeColor(TEAL)
+    canvas.setLineWidth(1.2)
+    canvas.line(56*mm, H - 33*mm, 56*mm, H - 8*mm)
+
+    # ── 4. Report metadata (right of divider) ─────────────────────────
     canvas.setFillColor(DARK)
-    canvas.setFont('Helvetica-Bold', 13)
-    canvas.drawString(40*mm, H - 15*mm, 'Magrabi ICO Cameroon Eye Institution')
+    canvas.setFont('Helvetica-Bold', 18)
+    canvas.drawString(60*mm, H - 18*mm, title)
+
     canvas.setFillColor(TEAL)
     canvas.setFont('Helvetica', 9)
-    canvas.drawString(40*mm, H - 22*mm, 'MICEI HRM  ·  Human Resource Management System')
+    canvas.drawString(60*mm, H - 25*mm, 'MICEI HRM  ·  Human Resource Management System')
 
-    # Generated date (far right of white area)
     canvas.setFillColor(GRAY)
     canvas.setFont('Helvetica', 8)
-    canvas.drawRightString(W - 12*mm, H - 15*mm, date.today().strftime('%d %B %Y'))
+    canvas.drawString(60*mm, H - 31*mm, subtitle)
 
-    # ── Teal accent rule ─────────────────────────────────────────────
+    # ── 5. Date + CONFIDENTIAL badge (top-right corner) ───────────────
+    canvas.setFillColor(GRAY)
+    canvas.setFont('Helvetica', 8)
+    canvas.drawRightString(W - 12*mm, H - 12*mm, date.today().strftime('%d %B %Y'))
+
+    # CONFIDENTIAL pill badge
+    badge_x = W - 44*mm
+    badge_y = H - 24*mm
+    canvas.setFillColor(colors.HexColor('#fef2f2'))
+    canvas.roundRect(badge_x, badge_y, 32*mm, 6*mm, 2*mm, fill=1, stroke=0)
+    canvas.setFillColor(colors.HexColor('#dc2626'))
+    canvas.setFont('Helvetica-Bold', 7)
+    canvas.drawCentredString(badge_x + 16*mm, badge_y + 1.8*mm, 'CONFIDENTIAL')
+
+    # ── 6. Teal accent bar (bottom of header, full width) ────────────
     canvas.setFillColor(TEAL)
-    canvas.rect(0, H - 34*mm, W, 2*mm, fill=1, stroke=0)
+    canvas.rect(0, H - 40*mm, W, 2.5*mm, fill=1, stroke=0)
 
-    # ── Report title band (light teal bg) ────────────────────────────
-    canvas.setFillColor(LIGHT_BG)
-    canvas.rect(0, H - 46*mm, W, 12*mm, fill=1, stroke=0)
+    # Thin dark accent under teal
+    canvas.setFillColor(TEAL_DARK)
+    canvas.rect(0, H - 40.8*mm, W, 0.8*mm, fill=1, stroke=0)
 
+    # ── 7. Footer bar ────────────────────────────────────────────────
     canvas.setFillColor(DARK)
-    canvas.setFont('Helvetica-Bold', 13)
-    canvas.drawString(12*mm, H - 41*mm, title)
+    canvas.rect(0, 0, W, 9*mm, fill=1, stroke=0)
 
-    canvas.setFillColor(GRAY)
-    canvas.setFont('Helvetica', 8)
-    canvas.drawRightString(W - 12*mm, H - 41*mm, subtitle)
+    canvas.setFillColor(TEAL)
+    canvas.setFont('Helvetica-Bold', 7)
+    canvas.drawString(12*mm, 3.2*mm, 'MICEI HRM')
 
-    # Bottom separator line under title band
-    canvas.setFillColor(colors.HexColor('#d1d5db'))
-    canvas.rect(0, H - 46.5*mm, W, 0.5*mm, fill=1, stroke=0)
-
-    # ── Footer ───────────────────────────────────────────────────────
-    canvas.setFillColor(colors.HexColor('#e5e7eb'))
-    canvas.rect(0, 0, W, 10*mm, fill=1, stroke=0)
-
-    canvas.setFillColor(GRAY)
+    canvas.setFillColor(colors.HexColor('#94a3b8'))
     canvas.setFont('Helvetica', 7)
-    canvas.drawString(12*mm, 3.5*mm,
-        'MICEI HRM  ·  Magrabi ICO Cameroon Eye Institution  ·  Confidential HR Document')
-    canvas.drawRightString(W - 12*mm, 3.5*mm, f'Page {doc.page}')
+    canvas.drawString(29*mm, 3.2*mm,
+        '·  Official HR Document  ·  For Internal Use Only')
+
+    canvas.setFillColor(WHITE)
+    canvas.setFont('Helvetica-Bold', 7)
+    canvas.drawRightString(W - 12*mm, 3.2*mm, f'Page {doc.page}')
 
     canvas.restoreState()
 
@@ -1259,7 +1276,7 @@ def export_leaves_excel(request):
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
-                            topMargin=52 * mm, bottomMargin=16 * mm,
+                            topMargin=46 * mm, bottomMargin=15 * mm,
                             leftMargin=15 * mm, rightMargin=15 * mm)
 
     header_row = ['#', 'Employee', 'Department', 'Leave Type', 'Start', 'End', 'Days', 'Status', 'Applied On']
@@ -1319,7 +1336,7 @@ def export_contracts_excel(request):
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
-                            topMargin=52 * mm, bottomMargin=16 * mm,
+                            topMargin=46 * mm, bottomMargin=15 * mm,
                             leftMargin=15 * mm, rightMargin=15 * mm)
 
     header_row = ['#', 'Employee', 'Employee ID', 'Department', 'Type', 'Start Date', 'End Date', 'Days Left', 'Contract No.']
@@ -1381,7 +1398,7 @@ def export_discipline_excel(request):
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
-                            topMargin=52 * mm, bottomMargin=16 * mm,
+                            topMargin=46 * mm, bottomMargin=15 * mm,
                             leftMargin=15 * mm, rightMargin=15 * mm)
 
     header_row = ['#', 'Employee', 'Emp. ID', 'Department', 'Action', 'Date Issued', 'Issued By', 'Suspension Period']
