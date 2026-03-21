@@ -49,7 +49,6 @@ def _send_email(user, title, message, notification_type='system', url=''):
             logger.warning('Email skipped: user "%s" has no email address.', user.username)
             return
 
-        import os
         from django.core.mail import EmailMultiAlternatives
 
         color      = '#2db4c3'  # Dominant logo color — keeps email uniform with logo
@@ -86,24 +85,14 @@ def _send_email(user, title, message, notification_type='system', url=''):
             to=[user.email],
         )
 
-        # Embed logo inline (travels with email — works in Gmail without user action)
-        logo_img = ''
-        logo_path = os.path.join(settings.BASE_DIR, 'static', 'LOGO.png')
-        if os.path.exists(logo_path):
-            try:
-                from anymail.message import attach_inline_image_file
-                logo_cid = attach_inline_image_file(email, logo_path, subtype='png')
-                logo_img = (
-                    f'<img src="cid:{logo_cid}" '
-                    f'alt="Magrabi ICO Cameroon Eye Institution" '
-                    f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
-                )
-            except Exception as logo_err:
-                logger.warning('Inline logo attachment failed (%s) — using text fallback', logo_err)
-                logo_img = (
-                    '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
-                    'letter-spacing:1px;">Magrabi ICO Cameroon Eye Institution</p>'
-                )
+        # Use hosted URL for logo — works on both desktop and mobile Gmail
+        # (reliable once sender domain is verified in Resend)
+        if site_base:
+            logo_img = (
+                f'<img src="{site_base}/static/LOGO.png" '
+                f'alt="Magrabi ICO Cameroon Eye Institution" '
+                f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
+            )
         else:
             logo_img = (
                 '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
