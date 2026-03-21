@@ -1,25 +1,25 @@
 import logging
 import threading
 from .models import Notification
+from .logo_b64 import LOGO_B64
 
 logger = logging.getLogger(__name__)
 
-
-# Label + color per notification type (for HTML email — no emojis for compatibility)
+# Label + accent color per notification type
 _TYPE_STYLE = {
-    'leave_submitted':        ('LEAVE',      '#0A4D68'),
-    'leave_manager_approved': ('APPROVED',   '#059669'),
-    'leave_hr_approved':      ('APPROVED',   '#059669'),
-    'leave_approved':         ('APPROVED',   '#059669'),
-    'leave_rejected':         ('REJECTED',   '#dc2626'),
-    'leave_cancelled':        ('CANCELLED',  '#6b7a8d'),
-    'discipline':             ('DISCIPLINE', '#d97706'),
-    'contract_issued':        ('CONTRACT',   '#0891b2'),
-    'contract_renewed':       ('CONTRACT',   '#7c3aed'),
-    'contract_terminated':    ('CONTRACT',   '#dc2626'),
-    'account_activated':      ('ACCOUNT',    '#059669'),
-    'birthday':               ('BIRTHDAY',   '#f59e0b'),
-    'system':                 ('NOTICE',     '#374151'),
+    'leave_submitted':        ('LEAVE REQUEST',  '#0A4D68'),
+    'leave_manager_approved': ('APPROVED',        '#059669'),
+    'leave_hr_approved':      ('APPROVED',        '#059669'),
+    'leave_approved':         ('APPROVED',        '#059669'),
+    'leave_rejected':         ('REJECTED',        '#dc2626'),
+    'leave_cancelled':        ('CANCELLED',       '#6b7a8d'),
+    'discipline':             ('DISCIPLINE',      '#d97706'),
+    'contract_issued':        ('CONTRACT',        '#0891b2'),
+    'contract_renewed':       ('CONTRACT RENEWAL','#7c3aed'),
+    'contract_terminated':    ('CONTRACT ENDED',  '#dc2626'),
+    'account_activated':      ('ACCOUNT',         '#059669'),
+    'birthday':               ('BIRTHDAY',        '#f59e0b'),
+    'system':                 ('NOTICE',          '#374151'),
 }
 
 
@@ -41,7 +41,7 @@ def notify(recipient_user, title, message, notification_type='system', url=''):
 
 
 def _send_email(user, title, message, notification_type='system', url=''):
-    """Send an HTML email if EMAIL_NOTIFICATIONS_ENABLED=True and user has an email."""
+    """Send a professional HTML email if EMAIL_NOTIFICATIONS_ENABLED=True."""
     try:
         from django.conf import settings
         enabled = getattr(settings, 'EMAIL_NOTIFICATIONS_ENABLED', False)
@@ -57,107 +57,163 @@ def _send_email(user, title, message, notification_type='system', url=''):
         from django.core.mail import EmailMultiAlternatives
 
         label, color = _TYPE_STYLE.get(notification_type, ('NOTICE', '#374151'))
-        first_name  = user.first_name or user.username
+        first_name = user.first_name or user.username
 
-        # Build full URL if relative path given
         site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
         app_url = ''
         if url:
             app_url = (site_base + url) if url.startswith('/') else url
 
-        # Logo image (only if SITE_URL is configured)
-        logo_html = ''
-        if site_base:
-            logo_url = f'{site_base}/static/logo.jpg'
-            logo_html = (
-                f'<img src="{logo_url}" alt="Magrabi ICO Cameroon" '
-                f'style="max-height:70px;max-width:200px;margin-bottom:12px;'
-                f'border-radius:6px;" /><br>'
-            )
-
-        # ── Plain-text fallback ────────────────────────────────────────────
+        # ── Plain-text fallback ───────────────────────────────────────────
         plain = (
-            f"Hello {first_name},\n\n"
+            f"Dear {first_name},\n\n"
             f"{title}\n\n"
             f"{message}\n\n"
-            + (f"View in app: {app_url}\n\n" if app_url else "")
-            + "---\nLeaveDesk HR System\nThis is an automated notification. Please do not reply."
+            + (f"View in LeaveDesk: {app_url}\n\n" if app_url else "")
+            + "---\nMagrabi ICO Cameroon Eye Institution\n"
+              "LeaveDesk HR System — automated notification. Please do not reply."
         )
 
-        # ── HTML email ─────────────────────────────────────────────────────
+        # ── CTA button ────────────────────────────────────────────────────
         btn_html = (
+            f'<table cellpadding="0" cellspacing="0" style="margin-top:24px;">'
+            f'<tr><td style="background:{color};border-radius:8px;">'
             f'<a href="{app_url}" '
-            f'style="display:inline-block;margin-top:18px;padding:10px 24px;'
-            f'background:{color};color:#ffffff;text-decoration:none;'
-            f'border-radius:8px;font-weight:700;font-size:14px;">'
-            f'View in LeaveDesk &rarr;</a>'
+            f'style="display:inline-block;padding:12px 28px;color:#ffffff;'
+            f'text-decoration:none;font-weight:700;font-size:14px;'
+            f'font-family:Arial,sans-serif;letter-spacing:.3px;">'
+            f'Open in LeaveDesk &#8594;</a>'
+            f'</td></tr></table>'
         ) if app_url else ''
 
+        # ── HTML email ────────────────────────────────────────────────────
         html = f"""<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f4f7fa;font-family:'Segoe UI',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7fa;padding:32px 0;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0"
-             style="background:#ffffff;border-radius:14px;overflow:hidden;
-                    box-shadow:0 2px 12px rgba(0,0,0,0.08);max-width:600px;width:100%;">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{title}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#eef2f6;
+             font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
 
-        <!-- Header -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+         style="background-color:#eef2f6;padding:40px 16px;">
+    <tr><td align="center">
+
+      <!-- Card -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0"
+             style="max-width:600px;width:100%;background:#ffffff;
+                    border-radius:12px;overflow:hidden;
+                    box-shadow:0 4px 20px rgba(0,0,0,0.10);">
+
+        <!-- ── TOP ACCENT BAR ── -->
         <tr>
-          <td style="background:linear-gradient(135deg,#0A4D68,#088395);
-                     padding:28px 32px;text-align:center;">
-            {logo_html}
-            <div style="color:#ffffff;font-size:20px;font-weight:800;
-                        letter-spacing:.5px;margin-bottom:4px;">
-              LeaveDesk HR
-            </div>
-            <div style="color:rgba(255,255,255,.8);font-size:12px;
-                        margin-bottom:14px;">
-              Eye Hospital &mdash; HR Notification System
-            </div>
-            <div style="display:inline-block;background:{color};
-                        color:#ffffff;font-size:11px;font-weight:800;
-                        letter-spacing:1.5px;padding:4px 14px;
-                        border-radius:20px;text-transform:uppercase;">
+          <td style="background:{color};height:5px;font-size:1px;line-height:1px;">&nbsp;</td>
+        </tr>
+
+        <!-- ── HEADER ── -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0A4D68 0%,#0e6b8a 100%);
+                     padding:32px 40px;text-align:center;">
+
+            <!-- Logo -->
+            <img src="data:image/png;base64,{LOGO_B64}"
+                 alt="Magrabi ICO Cameroon Eye Institution"
+                 width="180"
+                 style="max-width:180px;height:auto;display:block;
+                        margin:0 auto 16px auto;" />
+
+            <!-- Divider -->
+            <div style="width:48px;height:2px;background:rgba(255,255,255,0.4);
+                        margin:0 auto 14px auto;"></div>
+
+            <!-- Badge -->
+            <span style="display:inline-block;background:{color};
+                         color:#ffffff;font-size:11px;font-weight:700;
+                         letter-spacing:2px;padding:5px 16px;
+                         border-radius:20px;text-transform:uppercase;">
               {label}
+            </span>
+          </td>
+        </tr>
+
+        <!-- ── GREETING ── -->
+        <tr>
+          <td style="padding:32px 40px 0 40px;">
+            <p style="margin:0;font-size:16px;color:#1a2b3c;font-weight:600;">
+              Dear {first_name},
+            </p>
+          </td>
+        </tr>
+
+        <!-- ── TITLE ── -->
+        <tr>
+          <td style="padding:16px 40px 0 40px;">
+            <h1 style="margin:0;font-size:22px;font-weight:800;color:#0A4D68;
+                       line-height:1.3;border-left:4px solid {color};
+                       padding-left:14px;">
+              {title}
+            </h1>
+          </td>
+        </tr>
+
+        <!-- ── MESSAGE ── -->
+        <tr>
+          <td style="padding:20px 40px 0 40px;">
+            <div style="background:#f7fafc;border-radius:8px;padding:20px 22px;
+                        font-size:15px;color:#374151;line-height:1.75;
+                        border:1px solid #e5edf4;">
+              {message.replace(chr(10), '<br>')}
             </div>
           </td>
         </tr>
 
-        <!-- Body -->
+        <!-- ── BUTTON ── -->
         <tr>
-          <td style="padding:32px;">
-            <p style="margin:0 0 8px;font-size:13px;color:#9ab4c0;
-                      text-transform:uppercase;letter-spacing:.07em;font-weight:700;">
-              Notification
-            </p>
-            <h2 style="margin:0 0 16px;font-size:20px;color:#0d1b2a;font-weight:800;
-                        border-left:4px solid {color};padding-left:12px;">
-              {title}
-            </h2>
-            <p style="margin:0;font-size:15px;color:#374151;line-height:1.7;
-                      background:#f8fafc;border-radius:8px;padding:16px;">
-              {message.replace(chr(10), '<br>')}
-            </p>
+          <td style="padding:24px 40px 0 40px;">
             {btn_html}
           </td>
         </tr>
 
-        <!-- Footer -->
+        <!-- ── DIVIDER ── -->
         <tr>
-          <td style="background:#f8fafc;border-top:1px solid #e8f0f5;
-                     padding:16px 32px;text-align:center;">
+          <td style="padding:32px 40px 0 40px;">
+            <div style="height:1px;background:#e5edf4;"></div>
+          </td>
+        </tr>
+
+        <!-- ── FOOTER ── -->
+        <tr>
+          <td style="padding:24px 40px 32px 40px;text-align:center;">
+            <p style="margin:0 0 6px 0;font-size:13px;font-weight:700;
+                      color:#0A4D68;letter-spacing:.3px;">
+              Magrabi ICO Cameroon Eye Institution
+            </p>
             <p style="margin:0;font-size:12px;color:#9ab4c0;line-height:1.6;">
-              This is an automated notification from <strong>LeaveDesk HR System</strong>.<br>
-              Please do not reply to this email. Log in to manage your notifications.
+              This is an automated notification from <strong>LeaveDesk HR</strong>.<br>
+              Please do not reply to this email.
+              Log in to the system to manage your notifications.
             </p>
           </td>
         </tr>
 
+        <!-- ── BOTTOM ACCENT BAR ── -->
+        <tr>
+          <td style="background:{color};height:4px;font-size:1px;line-height:1px;">&nbsp;</td>
+        </tr>
+
       </table>
+      <!-- /Card -->
+
+      <!-- Outer footer note -->
+      <p style="margin:20px 0 0 0;font-size:11px;color:#aab4c0;text-align:center;">
+        &copy; Magrabi ICO Cameroon Eye Institution &mdash; LeaveDesk HR System
+      </p>
+
     </td></tr>
   </table>
+
 </body>
 </html>"""
 
