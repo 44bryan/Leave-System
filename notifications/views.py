@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from .models import Notification
 
 
@@ -74,3 +74,42 @@ def mark_all_read(request):
 def unread_count(request):
     count = request.user.system_notifications.filter(is_read=False).count()
     return JsonResponse({'count': count})
+
+
+@login_required
+def test_email(request):
+    """Superuser-only: send a test email and show the result on screen."""
+    if not request.user.is_superuser:
+        return HttpResponse('Forbidden', status=403)
+
+    from django.conf import settings
+    from django.core.mail import EmailMultiAlternatives
+
+    lines = []
+    lines.append(f"EMAIL_NOTIFICATIONS_ENABLED : {getattr(settings, 'EMAIL_NOTIFICATIONS_ENABLED', '(not set)')}")
+    lines.append(f"EMAIL_BACKEND               : {getattr(settings, 'EMAIL_BACKEND', '(not set)')}")
+    lines.append(f"EMAIL_HOST                  : {getattr(settings, 'EMAIL_HOST', '(not set)')}")
+    lines.append(f"EMAIL_PORT                  : {getattr(settings, 'EMAIL_PORT', '(not set)')}")
+    lines.append(f"EMAIL_USE_TLS               : {getattr(settings, 'EMAIL_USE_TLS', '(not set)')}")
+    lines.append(f"EMAIL_HOST_USER             : {getattr(settings, 'EMAIL_HOST_USER', '(not set)')}")
+    lines.append(f"EMAIL_HOST_PASSWORD         : {'*** (set)' if getattr(settings, 'EMAIL_HOST_PASSWORD', '') else '(EMPTY!)'}")
+    lines.append(f"DEFAULT_FROM_EMAIL          : {getattr(settings, 'DEFAULT_FROM_EMAIL', '(not set)')}")
+    lines.append(f"Your email (logged-in user) : {request.user.email or '(EMPTY!)'}")
+    lines.append("")
+
+    if not request.user.email:
+        lines.append("ERROR: Your user account has no email address — cannot send test.")
+    else:
+        try:
+            msg = EmailMultiAlternatives(
+                subject='[LeaveDesk] Test Email',
+                body='This is a test email from LeaveDesk HR System.',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[request.user.email],
+            )
+            msg.send()
+            lines.append(f"SUCCESS: email sent to {request.user.email}")
+        except Exception as e:
+            lines.append(f"FAILED: {e}")
+
+    return HttpResponse("<pre style='font-family:monospace;padding:24px'>" + "\n".join(lines) + "</pre>")
