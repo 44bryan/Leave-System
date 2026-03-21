@@ -455,7 +455,7 @@
           <div class="fw-700 mt-2" style="font-size:0.9rem;color:#15803d;">Leave Report</div>
           <div class="text-muted mb-3" style="font-size:0.78rem;">All leave requests for {{ year }}</div>
           <a href="{% url 'dashboard:export_leaves' %}?year={{ year }}" class="btn btn-sm w-100" style="background:#16a34a;color:#fff;font-weight:600;">
-            <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
+            <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
           </a>
         </div>
       </div>
@@ -465,7 +465,7 @@
           <div class="fw-700 mt-2" style="font-size:0.9rem;color:#1d4ed8;">Contracts Report</div>
           <div class="text-muted mb-3" style="font-size:0.78rem;">All active staff contracts</div>
           <a href="{% url 'dashboard:export_contracts' %}" class="btn btn-sm w-100" style="background:#2563eb;color:#fff;font-weight:600;">
-            <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
+            <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
           </a>
         </div>
       </div>
@@ -475,7 +475,7 @@
           <div class="fw-700 mt-2" style="font-size:0.9rem;color:#c2410c;">Discipline Report</div>
           <div class="text-muted mb-3" style="font-size:0.78rem;">All discipline records</div>
           <a href="{% url 'dashboard:export_discipline' %}" class="btn btn-sm w-100" style="background:#ea580c;color:#fff;font-weight:600;">
-            <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
+            <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
           </a>
         </div>
       </div>
