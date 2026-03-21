@@ -1,4 +1,7 @@
+import logging
 from .models import Notification
+
+logger = logging.getLogger(__name__)
 
 
 # Icon + color per notification type (for HTML email)
@@ -35,9 +38,15 @@ def _send_email(user, title, message, notification_type='system', url=''):
     """Send an HTML email if EMAIL_NOTIFICATIONS_ENABLED=True and user has an email."""
     try:
         from django.conf import settings
-        if not getattr(settings, 'EMAIL_NOTIFICATIONS_ENABLED', False):
+        enabled = getattr(settings, 'EMAIL_NOTIFICATIONS_ENABLED', False)
+        if not enabled:
+            logger.debug('EMAIL_NOTIFICATIONS_ENABLED is False — skipping email for "%s"', title)
             return
         if not user.email:
+            logger.warning(
+                'Email notification skipped: user "%s" (pk=%s) has no email address.',
+                user.username, user.pk
+            )
             return
         from django.core.mail import EmailMultiAlternatives
 
@@ -135,7 +144,17 @@ def _send_email(user, title, message, notification_type='system', url=''):
             to=[user.email],
         )
         email.attach_alternative(html, 'text/html')
-        email.send(fail_silently=True)
+        try:
+            email.send()
+            logger.info('Email notification sent to %s: "%s"', user.email, title)
+        except Exception as smtp_err:
+            logger.error(
+                'Failed to send email to %s (subject: "%s"): %s',
+                user.email, title, smtp_err
+            )
 
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(
+            'Unexpected error in _send_email for user %s: %s',
+            getattr(user, 'username', '?'), e
+        )
