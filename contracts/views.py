@@ -98,25 +98,34 @@ def _contract_renewal_message(new_contract):
     end   = end_d.strftime('%d %b %Y') if end_d else None
     ct    = new_contract.contract_type
 
+    collect_notice = (
+        " A new physical contract document is ready for collection at the HR Office. "
+        "Please pass by the HR Office at your earliest convenience to sign and collect your copy."
+    )
+
     if ct == 'INTERN':
         msg = (
             f"Your Internship Contract has been extended, effective {start}."
             + (f" New end date: {end}." if end else "")
+            + collect_notice
         )
     elif ct == 'WACS':
         msg = (
             f"Your WACS Residency Programme contract has been extended, effective {start}."
             + (f" New programme end date: {end}." if end else "")
+            + collect_notice
         )
     elif ct == 'CDI':
         msg = (
             f"Your contract has been renewed as a Permanent (CDI) contract, effective {start}. "
             "This is an open-ended employment contract."
+            + collect_notice
         )
     else:  # CDD
         msg = (
             f"Your Fixed-Term (CDD) contract has been renewed, effective {start}."
             + (f" New end date: {end}." if end else "")
+            + collect_notice
         )
     return msg
 

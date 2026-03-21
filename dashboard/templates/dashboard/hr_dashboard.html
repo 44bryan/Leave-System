@@ -41,6 +41,34 @@
     box-shadow:0 1px 3px rgba(0,0,0,0.05);
 }
 .leave-row:hover { background:#f8fbfd; }
+/* ── Dashboard drag-to-reorder ── */
+.dash-block { position:relative; }
+.drag-handle {
+    display:none;
+    position:absolute;top:0;left:-28px;
+    width:24px;height:36px;
+    align-items:center;justify-content:center;
+    color:#b0c4cc;cursor:grab;font-size:1.1rem;
+    border-radius:6px;
+    transition:color .15s,background .15s;
+}
+.drag-handle:hover { color:#0A4D68;background:#e0f2fe; }
+.dash-editing .dash-block { padding-left:30px;margin-left:-30px; }
+.dash-editing .drag-handle { display:flex; }
+.dash-editing .dash-block {
+    border:1.5px dashed #b0d4e0;
+    border-radius:10px;
+    background:#f8fcff;
+    padding:10px 10px 10px 38px;
+    margin-bottom:12px;
+    transition:box-shadow .15s;
+}
+.dash-editing .dash-block.sortable-chosen {
+    box-shadow:0 4px 20px rgba(10,77,104,.18);
+    border-color:#0A4D68;
+    background:#e8f4f8;
+}
+.dash-editing .dash-block.sortable-ghost { opacity:.35; }
 {% endblock %}
 
 {% block content %}
@@ -92,7 +120,26 @@
 </div>
 {% endif %}
 
-<!-- ── Key Metrics (HR-relevant only) ── -->
+<!-- ── Dashboard Layout Controls ── -->
+<div class="d-flex align-items-center justify-content-end mb-2 gap-2">
+    <span id="edit-dash-hint" style="font-size:.75rem;color:#9ab4c0;display:none;"><i class="bi bi-arrows-move me-1"></i>Drag sections to reorder</span>
+    <button id="btn-edit-dash" class="btn btn-sm btn-outline-secondary" style="font-size:.75rem;">
+        <i class="bi bi-layout-three-columns me-1"></i>Edit Layout
+    </button>
+    <button id="btn-save-dash" class="btn btn-sm btn-success" style="font-size:.75rem;display:none;">
+        <i class="bi bi-check-lg me-1"></i>Done
+    </button>
+    <button id="btn-reset-dash" class="btn btn-sm btn-outline-danger" style="font-size:.75rem;display:none;">
+        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+    </button>
+</div>
+
+<!-- ── Sortable sections wrapper ── -->
+<div id="dash-sections">
+
+<!-- BLOCK: overview -->
+<div class="dash-block" data-block="overview">
+<div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 <div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> {% trans "Overview" %}</div>
 <div class="row g-3 mb-3 animate-in">
     <div class="col-6 col-md-4 col-lg-2">
@@ -138,8 +185,11 @@
         </div>
     </div>
 </div>
+</div><!-- /block overview -->
 
-<!-- Discipline strip -->
+<!-- BLOCK: discipline -->
+<div class="dash-block" data-block="discipline">
+<div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 <div class="d-flex flex-wrap gap-2 mb-4 animate-in delay-1">
     <a href="{% url 'discipline:stats' %}" class="text-decoration-none flex-fill" style="min-width:140px;">
         <div class="disc-pill" style="border-left:3px solid #f59e0b;">
@@ -169,8 +219,11 @@
         </div>
     </a>
 </div>
+</div><!-- /block discipline -->
 
-<!-- ── Pending HR Approvals Table ── -->
+<!-- BLOCK: approvals -->
+<div class="dash-block" data-block="approvals">
+<div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 <div class="section-label"><i class="bi bi-clipboard2-check me-1"></i> {% trans "Pending HR Approvals" %}</div>
 <div class="card animate-in mb-4" style="border-radius:14px;overflow:hidden;">
     <div class="table-responsive">
@@ -222,8 +275,11 @@
         </table>
     </div>
 </div>
+</div><!-- /block approvals -->
 
-<!-- ── Leave Activity ── -->
+<!-- BLOCK: leave-activity -->
+<div class="dash-block" data-block="leave-activity">
+<div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 <div class="section-label"><i class="bi bi-activity me-1"></i> {% trans "Leave Activity" %}</div>
 <div class="row g-4 mb-4">
     <div class="col-lg-8 animate-in delay-2">
@@ -264,8 +320,11 @@
         </div>
     </div>
 </div>
+</div><!-- /block leave-activity -->
 
-<!-- ── Analytics ── -->
+<!-- BLOCK: analytics -->
+<div class="dash-block" data-block="analytics">
+<div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 <div class="section-label"><i class="bi bi-graph-up me-1"></i> {% trans "Analytics" %}</div>
 <div class="row g-4 mb-4">
     <div class="col-lg-6 animate-in delay-3">
@@ -323,14 +382,23 @@
         </div>
     </div>
 </div>
+</div><!-- /block analytics -->
 
+<!-- BLOCK: contracts -->
+<div class="dash-block" data-block="contracts">
+<div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 {% include 'dashboard/includes/contract_analytics.html' %}
+</div><!-- /block contracts -->
+
+</div><!-- /#dash-sections -->
 
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
+// ── Monthly chart ──────────────────────────────────────────────────────────
 const ctx = document.getElementById('monthlyChart').getContext('2d');
 new Chart(ctx, {
     type: 'bar',
@@ -354,6 +422,64 @@ new Chart(ctx, {
             x: { ticks: { font:{family:'Plus Jakarta Sans'} }, grid:{display:false} }
         }
     }
+});
+
+// ── Dashboard drag-to-reorder ──────────────────────────────────────────────
+const STORAGE_KEY = 'hr_dashboard_order_v1';
+const container   = document.getElementById('dash-sections');
+const btnEdit     = document.getElementById('btn-edit-dash');
+const btnSave     = document.getElementById('btn-save-dash');
+const btnReset    = document.getElementById('btn-reset-dash');
+const hint        = document.getElementById('edit-dash-hint');
+
+function getOrder() {
+    return [...container.querySelectorAll('.dash-block')].map(el => el.dataset.block);
+}
+
+function applyOrder(order) {
+    order.forEach(key => {
+        const el = container.querySelector(`[data-block="${key}"]`);
+        if (el) container.appendChild(el);
+    });
+}
+
+// Restore saved order on page load
+const saved = localStorage.getItem(STORAGE_KEY);
+if (saved) {
+    try { applyOrder(JSON.parse(saved)); } catch(e) {}
+}
+
+// Init SortableJS (disabled by default)
+const sortable = Sortable.create(container, {
+    handle: '.drag-handle',
+    animation: 180,
+    disabled: true,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+});
+
+btnEdit.addEventListener('click', () => {
+    sortable.option('disabled', false);
+    container.classList.add('dash-editing');
+    btnEdit.style.display = 'none';
+    btnSave.style.display = '';
+    btnReset.style.display = '';
+    hint.style.display = '';
+});
+
+btnSave.addEventListener('click', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getOrder()));
+    sortable.option('disabled', true);
+    container.classList.remove('dash-editing');
+    btnEdit.style.display = '';
+    btnSave.style.display = 'none';
+    btnReset.style.display = 'none';
+    hint.style.display = 'none';
+});
+
+btnReset.addEventListener('click', () => {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
 });
 </script>
 {% endblock %}
