@@ -98,7 +98,8 @@ def _send_email(user, title, message, notification_type='system', url=''):
                     f'alt="Magrabi ICO Cameroon Eye Institution" '
                     f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
                 )
-            except Exception:
+            except Exception as logo_err:
+                logger.warning('Inline logo attachment failed (%s) — using text fallback', logo_err)
                 logo_img = (
                     '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
                     'letter-spacing:1px;">Magrabi ICO Cameroon Eye Institution</p>'
