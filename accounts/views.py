@@ -156,6 +156,7 @@ def employee_create(request):
                 # Welcome notification to the new employee
                 from notifications.utils import notify
                 from contracts.views import _contract_issue_message
+                from django.conf import settings
                 _ctitle, _cmsg = _contract_issue_message(contract)
                 ct = contract.contract_type
                 if ct == 'INTERN':
@@ -164,10 +165,20 @@ def employee_create(request):
                     welcome_intro = f"Welcome to LeaveDesk, {employee.get_full_name()}! Your WACS Residency account has been created and activated."
                 else:
                     welcome_intro = f"Welcome to LeaveDesk, {employee.get_full_name()}! Your account has been created and activated."
+                site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
+                login_url = f"{site_base}/accounts/login/" if site_base else "/accounts/login/"
+                _plain_password = form.cleaned_data['password']
+                credentials_msg = (
+                    f"\n\nYour login credentials:\n"
+                    f"Username: {employee.user.username}\n"
+                    f"Password: {_plain_password}\n"
+                    f"Login at: {login_url}\n\n"
+                    f"Please change your password after your first login."
+                )
                 notify(
                     employee.user,
                     title='Welcome — Your Account Is Now Active',
-                    message=f"{welcome_intro} {_cmsg}",
+                    message=f"{welcome_intro}{credentials_msg}{_cmsg}",
                     notification_type='account_activated',
                     url='/contracts/my/',
                 )
@@ -787,12 +798,23 @@ def employee_excel_upload(request):
                 )
 
                 from notifications.utils import notify
+                from django.conf import settings as _settings
+                _site_base = getattr(_settings, 'SITE_URL', '').rstrip('/')
+                _login_url = f"{_site_base}/accounts/login/" if _site_base else "/accounts/login/"
+                _excel_creds = (
+                    f"\n\nYour login credentials:\n"
+                    f"Username: {username}\n"
+                    f"Password: {DEFAULT_PASSWORD}\n"
+                    f"Login at: {_login_url}\n\n"
+                    f"Please change your password after your first login."
+                )
                 notify(
                     user,
                     title='Welcome — Your Account Is Now Active',
                     message=(
                         f"Welcome to LeaveDesk, {emp.get_full_name()}! Your account has been created. "
                         f"A {contract_type} contract starting {contract_start.strftime('%d %b %Y')} has been issued."
+                        f"{_excel_creds}"
                     ),
                     notification_type='account_activated',
                     url='/contracts/my/',
