@@ -43,26 +43,48 @@
 .leave-row:hover { background:#f8fbfd; }
 /* ── Dashboard drag-to-reorder ── */
 .dash-block { position:relative; }
-.drag-handle {
-    display:none;
-    position:absolute;top:0;left:-28px;
-    width:24px;height:36px;
-    align-items:center;justify-content:center;
-    color:#b0c4cc;cursor:grab;font-size:1.1rem;
-    border-radius:6px;
-    transition:color .15s,background .15s;
+.drag-handle { display:none; }
+
+/* Desktop: absolute grip on the left */
+@media (min-width:576px) {
+    .drag-handle {
+        position:absolute;top:6px;left:-28px;
+        width:24px;height:36px;
+        align-items:center;justify-content:center;
+        color:#b0c4cc;cursor:grab;font-size:1.1rem;
+        border-radius:6px;
+        transition:color .15s,background .15s;
+    }
+    .drag-handle:hover { color:#0A4D68;background:#e0f2fe; }
+    .dash-editing .dash-block { padding-left:30px;margin-left:-30px; }
+    .dash-editing .dash-block {
+        border:1.5px dashed #b0d4e0;
+        border-radius:10px;
+        background:#f8fcff;
+        padding:10px 10px 10px 38px;
+        margin-bottom:12px;
+        transition:box-shadow .15s;
+    }
 }
-.drag-handle:hover { color:#0A4D68;background:#e0f2fe; }
-.dash-editing .dash-block { padding-left:30px;margin-left:-30px; }
+/* Mobile: inline handle bar at the top of each block */
+@media (max-width:575.98px) {
+    .drag-handle {
+        position:static;display:none;
+        width:100%;height:32px;
+        align-items:center;justify-content:center;
+        background:#f0f8fc;border-radius:8px;
+        color:#0A4D68;cursor:grab;font-size:1rem;
+        margin-bottom:6px;
+    }
+    .dash-editing .dash-block {
+        border:1.5px dashed #b0d4e0;
+        border-radius:10px;
+        background:#f8fcff;
+        padding:8px;
+        margin-bottom:10px;
+    }
+}
 .dash-editing .drag-handle { display:flex; }
-.dash-editing .dash-block {
-    border:1.5px dashed #b0d4e0;
-    border-radius:10px;
-    background:#f8fcff;
-    padding:10px 10px 10px 38px;
-    margin-bottom:12px;
-    transition:box-shadow .15s;
-}
 .dash-editing .dash-block.sortable-chosen {
     box-shadow:0 4px 20px rgba(10,77,104,.18);
     border-color:#0A4D68;

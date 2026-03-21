@@ -6,7 +6,7 @@
 {% block nav_contracts %}active{% endblock %}
 
 {% block topbar_actions %}
-{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director %}
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
 <a href="{% url 'contracts:list' %}" class="btn btn-outline-primary btn-sm">
     <i class="bi bi-arrow-left me-1"></i> All Contracts
 </a>
@@ -182,61 +182,51 @@
         <div class="card-body">
             <!-- Renew / Extend -->
             <div class="mb-4">
-                {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}
-                <h6 class="fw-bold mb-3"><i class="bi bi-calendar-plus me-2 text-info"></i>Extend Contract</h6>
-                {% else %}
-                <h6 class="fw-bold mb-3"><i class="bi bi-arrow-repeat me-2 text-success"></i>Renew Contract</h6>
-                {% endif %}
+                <h6 class="fw-bold mb-3" id="renew-heading">
+                    <i class="bi bi-calendar-plus me-2 text-info" id="renew-icon"></i>
+                    <span id="renew-heading-text">Extend Contract</span>
+                </h6>
                 <form method="post" action="{% url 'contracts:renew' contract.pk %}">
                     {% csrf_token %}
                     <div class="row g-3">
-                        <div class="col-sm-4">
+                        <div class="col-12 col-sm-4">
                             <label class="form-label" style="font-size:.8rem;font-weight:600;">New Contract Type</label>
-                            <select name="contract_type" class="form-select form-select-sm">
+                            <select name="contract_type" id="renew-type-select" class="form-select form-select-sm">
                                 <option value="CDD" {% if contract.contract_type == 'CDD' %}selected{% endif %}>CDD — Fixed Term</option>
                                 <option value="CDI" {% if contract.contract_type == 'CDI' %}selected{% endif %}>CDI — Permanent</option>
                                 <option value="INTERN" {% if contract.contract_type == 'INTERN' %}selected{% endif %}>Internship</option>
                                 <option value="WACS" {% if contract.contract_type == 'WACS' %}selected{% endif %}>WACS Residency</option>
                             </select>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-6 col-sm-4">
                             <label class="form-label" style="font-size:.8rem;font-weight:600;">New Start Date</label>
                             <input type="date" name="start_date" class="form-control form-control-sm" required>
                         </div>
-                        <div class="col-sm-4" id="renewal-end-date-wrap">
-                            <label class="form-label" style="font-size:.8rem;font-weight:600;">New End Date <small class="text-muted">(CDD/INTERN/WACS only)</small></label>
+                        <div class="col-6 col-sm-4" id="renewal-end-date-wrap">
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">New End Date <small class="text-muted d-none d-sm-inline">(CDD/INTERN/WACS)</small></label>
                             <input type="date" name="end_date" class="form-control form-control-sm" id="renewal-end-date">
                         </div>
-                        {% if contract.contract_type == 'INTERN' %}
-                        <div class="col-sm-6">
+                        <!-- Internship type — shown dynamically when new type is INTERN -->
+                        <div class="col-sm-6" id="renew-internship-type-wrap" style="display:none;">
                             <label class="form-label" style="font-size:.8rem;font-weight:600;">Internship Type</label>
-                            <select name="internship_type" class="form-select form-select-sm">
+                            <select name="internship_type" id="renew-internship-type-select" class="form-select form-select-sm">
                                 <option value="">— Select Type —</option>
                                 <option value="academic" {% if contract.internship_type == 'academic' %}selected{% endif %}>Academic Internship</option>
                                 <option value="professional" {% if contract.internship_type == 'professional' %}selected{% endif %}>Professional Internship</option>
+                                <option value="vocational">Vocational / Technical Internship</option>
                                 <option value="observation" {% if contract.internship_type == 'observation' %}selected{% endif %}>Observation / Shadowing</option>
                                 <option value="other" {% if contract.internship_type == 'other' %}selected{% endif %}>Other</option>
                             </select>
                         </div>
-                        {% endif %}
                         <div class="col-12">
                             <label class="form-label" style="font-size:.8rem;font-weight:600;">Notes (optional)</label>
-                            {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}
-                            <textarea name="notes" class="form-control form-control-sm" rows="2" placeholder="Extension notes…"></textarea>
-                            {% else %}
-                            <textarea name="notes" class="form-control form-control-sm" rows="2" placeholder="Renewal notes…"></textarea>
-                            {% endif %}
+                            <textarea name="notes" id="renew-notes" class="form-control form-control-sm" rows="2" placeholder="Extension notes…"></textarea>
                         </div>
                         <div class="col-12">
-                            {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}
-                            <button type="submit" class="btn btn-info btn-sm text-white">
-                                <i class="bi bi-calendar-plus me-1"></i>Extend & Notify Employee
+                            <button type="submit" id="renew-btn" class="btn btn-info btn-sm text-white">
+                                <i class="bi bi-calendar-plus me-1" id="renew-btn-icon"></i>
+                                <span id="renew-btn-text">Extend &amp; Notify Employee</span>
                             </button>
-                            {% else %}
-                            <button type="submit" class="btn btn-success btn-sm">
-                                <i class="bi bi-arrow-repeat me-1"></i>Renew & Notify Employee
-                            </button>
-                            {% endif %}
                         </div>
                     </div>
                 </form>
@@ -305,18 +295,63 @@
 
 <script>
 (function(){
-    const typeSelect = document.querySelector('select[name="contract_type"]');
-    const endWrap = document.getElementById('renewal-end-date-wrap');
-    const endInput = document.getElementById('renewal-end-date');
+    const typeSelect   = document.getElementById('renew-type-select');
     if (!typeSelect) return;
-    function toggle() {
-        const isCDI = typeSelect.value === 'CDI';
+
+    const endWrap      = document.getElementById('renewal-end-date-wrap');
+    const endInput     = document.getElementById('renewal-end-date');
+    const itWrap       = document.getElementById('renew-internship-type-wrap');
+    const itSelect     = document.getElementById('renew-internship-type-select');
+    const headingText  = document.getElementById('renew-heading-text');
+    const headingIcon  = document.getElementById('renew-icon');
+    const btnText      = document.getElementById('renew-btn-text');
+    const btnIcon      = document.getElementById('renew-btn-icon');
+    const btn          = document.getElementById('renew-btn');
+    const notes        = document.getElementById('renew-notes');
+
+    function update() {
+        const ct      = typeSelect.value;
+        const isCDI   = ct === 'CDI';
+        const isIntern= ct === 'INTERN';
+        const isExtend= ct === 'INTERN' || ct === 'WACS';
+
+        // End date
         endWrap.style.opacity = isCDI ? '0.4' : '1';
-        endInput.required = !isCDI;
-        endInput.disabled = isCDI;
+        endInput.required     = !isCDI;
+        endInput.disabled     = isCDI;
+        if (isCDI) endInput.value = '';
+
+        // Internship type field
+        itWrap.style.display  = isIntern ? '' : 'none';
+        itSelect.required     = isIntern;
+        if (!isIntern) itSelect.value = '';
+
+        // Heading
+        if (isExtend) {
+            headingText.textContent = 'Extend Contract';
+            headingIcon.className   = 'bi bi-calendar-plus me-2 text-info';
+        } else {
+            headingText.textContent = 'Renew Contract';
+            headingIcon.className   = 'bi bi-arrow-repeat me-2 text-success';
+        }
+
+        // Button
+        if (isExtend) {
+            btn.className     = 'btn btn-info btn-sm text-white';
+            btnIcon.className = 'bi bi-calendar-plus me-1';
+            btnText.textContent = 'Extend & Notify Employee';
+        } else {
+            btn.className     = 'btn btn-success btn-sm';
+            btnIcon.className = 'bi bi-arrow-repeat me-1';
+            btnText.textContent = 'Renew & Notify Employee';
+        }
+
+        // Notes placeholder
+        notes.placeholder = isExtend ? 'Extension notes…' : 'Renewal notes…';
     }
-    typeSelect.addEventListener('change', toggle);
-    toggle();
+
+    typeSelect.addEventListener('change', update);
+    update();
 })();
 </script>
 {% endblock %}

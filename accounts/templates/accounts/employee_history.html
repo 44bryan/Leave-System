@@ -66,6 +66,13 @@
 
 /* last item — no bottom margin needed */
 .ct-item:last-child .ct-card { margin-bottom: 0; }
+
+/* Mobile: shrink the dot column */
+@media (max-width: 480px) {
+    .ct-line { width: 28px; }
+    .ct-dot  { width: 28px; height: 28px; font-size: .75rem; }
+    .ct-card { padding: 10px 12px; }
+}
 </style>
 {% endblock %}
 
