@@ -158,6 +158,12 @@
             {% if discipline_records %}<span class="badge bg-danger ms-1">{{ discipline_records|length }}</span>{% endif %}
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-documents">
+            <i class="bi bi-folder2-open me-1"></i>Documents
+            {% if documents %}<span class="badge bg-secondary ms-1">{{ documents|length }}</span>{% endif %}
+        </a>
+    </li>
 </ul>
 
 <div class="tab-content">
@@ -454,6 +460,88 @@
                 </table>
             </div>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- ── TAB: Documents ── -->
+    <div class="tab-pane fade" id="tab-documents">
+        <div id="documents" class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <strong><i class="bi bi-folder2-open me-2"></i>Employee Documents</strong>
+                {% if is_privileged %}
+                <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#upload-doc-form">
+                    <i class="bi bi-upload me-1"></i>Upload Document
+                </button>
+                {% endif %}
+            </div>
+            {% if is_privileged %}
+            <div class="collapse" id="upload-doc-form">
+                <div class="card-body border-bottom bg-light">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'accounts:document_upload' employee.pk %}">
+                        {% csrf_token %}
+                        <div class="row g-2">
+                            <div class="col-12 col-md-4">
+                                <select name="category" class="form-select form-select-sm">
+                                    <option value="id">ID Card / Passport</option>
+                                    <option value="contract">Contract Copy</option>
+                                    <option value="diploma">Diploma / Certificate</option>
+                                    <option value="medical">Medical Certificate</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <input type="text" name="title" class="form-control form-control-sm" placeholder="Document title" required>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <input type="file" name="file" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-12 col-md-1">
+                                <button type="submit" class="btn btn-sm btn-success w-100">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            <div class="card-body p-0">
+                {% if not documents %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-folder2-open" style="font-size:2rem;"></i>
+                    <div class="mt-2">No documents uploaded yet.</div>
+                </div>
+                {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light"><tr>
+                            <th>Category</th><th>Title</th><th>Uploaded By</th><th>Date</th><th></th>
+                        </tr></thead>
+                        <tbody>
+                        {% for doc in documents %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ doc.get_category_display }}</span></td>
+                            <td>{{ doc.title }}</td>
+                            <td>{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by }}</td>
+                            <td>{{ doc.uploaded_at|date:"d M Y" }}</td>
+                            <td class="text-end">
+                                <a href="{{ doc.file.url }}" target="_blank" class="btn btn-xs btn-outline-primary me-1" style="font-size:.75rem;padding:2px 8px;">
+                                    <i class="bi bi-download me-1"></i>Download
+                                </a>
+                                {% if is_privileged %}
+                                <form method="post" action="{% url 'accounts:document_delete' doc.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-xs btn-outline-danger" style="font-size:.75rem;padding:2px 8px;" onclick="return confirm('Delete this document?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 

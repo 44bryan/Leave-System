@@ -156,3 +156,25 @@ class Employee(models.Model):
         if self.user.is_superuser:
             return 'System Administrator'
         return self.get_role_display()
+
+
+class EmployeeDocument(models.Model):
+    CATEGORY_CHOICES = [
+        ('id', 'ID Card / Passport'),
+        ('contract', 'Contract Copy'),
+        ('diploma', 'Diploma / Certificate'),
+        ('medical', 'Medical Certificate'),
+        ('other', 'Other'),
+    ]
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='documents')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='employee_docs/%Y/')
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f'{self.title} — {self.employee.get_full_name()}'

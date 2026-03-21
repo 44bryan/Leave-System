@@ -19,4 +19,7 @@ urlpatterns = [
     path('admin-settings/factory-reset/full/', views.factory_reset_full, name='factory_reset_full'),
     path('admin-settings/factory-reset/soft/', views.factory_reset_soft, name='factory_reset_soft'),
     path('admin-settings/factory-reset/yearend/', views.factory_reset_yearend, name='factory_reset_yearend'),
+    path('reports/leaves/', views.export_leaves_excel, name='export_leaves'),
+    path('reports/contracts/', views.export_contracts_excel, name='export_contracts'),
+    path('reports/discipline/', views.export_discipline_excel, name='export_discipline'),
 ]

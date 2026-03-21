@@ -1148,6 +1148,144 @@ def carry_forward_leave(request):
     return redirect(reverse('dashboard:admin_settings') + f'?year={to_year}')
 
 
+def _hr_required(request):
+    """Return True if request.user is HR, superuser, or director."""
+    if request.user.is_superuser:
+        return True
+    try:
+        emp = request.user.employee
+        return emp.is_hr() or emp.is_director() or emp.is_ceo()
+    except Exception:
+        return False
+
+
+@login_required
+def export_leaves_excel(request):
+    """Export all leave requests for the current year as Excel."""
+    if not _hr_required(request):
+        return redirect('dashboard:home')
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment
+    year = int(request.GET.get('year', date.today().year))
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f'Leaves {year}'
+    header_fill = PatternFill('solid', fgColor='2db4c3')
+    header_font = Font(bold=True, color='FFFFFF')
+    headers = ['Employee', 'Department', 'Leave Type', 'Start Date', 'End Date', 'Days', 'Status', 'Applied On', 'Manager Decision', 'HR Decision', 'Director Decision']
+    for col, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    requests = LeaveRequest.objects.filter(
+        start_date__year=year
+    ).select_related('employee__user', 'employee__department', 'leave_type').order_by('-start_date')
+    status_map = {
+        'pending': 'Pending', 'manager_approved': 'Mgr Approved', 'hr_approved': 'HR Approved',
+        'approved': 'Approved', 'rejected_manager': 'Rejected (Mgr)', 'rejected_hr': 'Rejected (HR)',
+        'rejected_director': 'Rejected (Dir)', 'unit_head_approved': 'Unit Head Approved',
+    }
+    for row, lr in enumerate(requests, 2):
+        ws.cell(row=row, column=1, value=lr.employee.get_full_name())
+        ws.cell(row=row, column=2, value=str(lr.employee.department) if lr.employee.department else '')
+        ws.cell(row=row, column=3, value=str(lr.leave_type))
+        ws.cell(row=row, column=4, value=lr.start_date.strftime('%d/%m/%Y'))
+        ws.cell(row=row, column=5, value=lr.end_date.strftime('%d/%m/%Y'))
+        ws.cell(row=row, column=6, value=lr.number_of_days)
+        ws.cell(row=row, column=7, value=status_map.get(lr.status, lr.status))
+        ws.cell(row=row, column=8, value=lr.applied_on.strftime('%d/%m/%Y') if lr.applied_on else '')
+        ws.cell(row=row, column=9, value=lr.manager_action or '')
+        ws.cell(row=row, column=10, value=lr.hr_action or '')
+        ws.cell(row=row, column=11, value=lr.director_action or '')
+    for col in ws.columns:
+        ws.column_dimensions[col[0].column_letter].width = 18
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="MICEI_HRM_Leaves_{year}.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def export_contracts_excel(request):
+    """Export all active contracts as Excel."""
+    if not _hr_required(request):
+        return redirect('dashboard:home')
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from contracts.models import Contract
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Contracts'
+    header_fill = PatternFill('solid', fgColor='2db4c3')
+    header_font = Font(bold=True, color='FFFFFF')
+    headers = ['Employee', 'Employee ID', 'Department', 'Contract Type', 'Start Date', 'End Date', 'Status', 'Days Remaining', 'Contract Number']
+    for col, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    contracts = Contract.objects.filter(status='active').select_related(
+        'employee__user', 'employee__department'
+    ).order_by('employee__user__last_name')
+    for row, c in enumerate(contracts, 2):
+        ws.cell(row=row, column=1, value=c.employee.get_full_name())
+        ws.cell(row=row, column=2, value=c.employee.employee_id)
+        ws.cell(row=row, column=3, value=str(c.employee.department) if c.employee.department else '')
+        ws.cell(row=row, column=4, value=c.contract_type)
+        ws.cell(row=row, column=5, value=c.start_date.strftime('%d/%m/%Y'))
+        ws.cell(row=row, column=6, value=c.end_date.strftime('%d/%m/%Y') if c.end_date else 'Open-ended')
+        ws.cell(row=row, column=7, value=c.status.capitalize())
+        ws.cell(row=row, column=8, value=c.days_remaining if c.days_remaining is not None else 'N/A')
+        ws.cell(row=row, column=9, value=c.contract_number or '')
+    for col in ws.columns:
+        ws.column_dimensions[col[0].column_letter].width = 18
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="MICEI_HRM_Contracts.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def export_discipline_excel(request):
+    """Export all discipline records as Excel."""
+    if not _hr_required(request):
+        return redirect('dashboard:home')
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from discipline.models import DisciplineRecord
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Discipline Records'
+    header_fill = PatternFill('solid', fgColor='2db4c3')
+    header_font = Font(bold=True, color='FFFFFF')
+    headers = ['Employee', 'Employee ID', 'Department', 'Action Type', 'Date Issued', 'Issued By', 'Suspension Start', 'Suspension End', 'Notes']
+    for col, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    records = DisciplineRecord.objects.all().select_related(
+        'employee__user', 'employee__department', 'issued_by__user'
+    ).order_by('-created_at')
+    for row, d in enumerate(records, 2):
+        ws.cell(row=row, column=1, value=d.employee.get_full_name())
+        ws.cell(row=row, column=2, value=d.employee.employee_id)
+        ws.cell(row=row, column=3, value=str(d.employee.department) if d.employee.department else '')
+        ws.cell(row=row, column=4, value=d.get_action_type_display())
+        ws.cell(row=row, column=5, value=d.created_at.strftime('%d/%m/%Y') if d.created_at else '')
+        ws.cell(row=row, column=6, value=d.issued_by.get_full_name() if d.issued_by else '')
+        ws.cell(row=row, column=7, value=d.suspension_start.strftime('%d/%m/%Y') if d.suspension_start else '')
+        ws.cell(row=row, column=8, value=d.suspension_end.strftime('%d/%m/%Y') if d.suspension_end else '')
+        ws.cell(row=row, column=9, value=d.notes or '')
+    for col in ws.columns:
+        ws.column_dimensions[col[0].column_letter].width = 20
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="MICEI_HRM_Discipline.xlsx"'
+    wb.save(response)
+    return response
+
+
 @superuser_required_view
 def export_data(request):
     """Export all key system data as a JSON file."""

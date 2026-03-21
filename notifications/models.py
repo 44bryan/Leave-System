@@ -15,6 +15,7 @@ class Notification(models.Model):
         ('contract_renewed',       'Contract Renewed'),
         ('contract_terminated',    'Contract Terminated'),
         ('account_activated',      'Account Activated'),
+        ('contract_expiry',        'Contract Expiry Alert'),
         ('birthday',               'Birthday Greeting'),
         ('system',                 'System'),
     ]
@@ -48,6 +49,7 @@ class Notification(models.Model):
             'contract_renewed':       'bi-arrow-repeat',
             'contract_terminated':    'bi-file-earmark-x',
             'account_activated':      'bi-person-check-fill',
+            'contract_expiry':        'bi-calendar-x-fill',
             'birthday':               'bi-cake2',
             'system':                 'bi-bell',
         }.get(self.notification_type, 'bi-bell')
@@ -65,6 +67,7 @@ class Notification(models.Model):
             'contract_renewed':       '#7c3aed',
             'contract_terminated':    '#dc2626',
             'account_activated':      '#059669',
+            'contract_expiry':        '#dc2626',
             'birthday':               '#f59e0b',
             'system':                 '#374151',
         }.get(self.notification_type, '#374151')

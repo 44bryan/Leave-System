@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
+from django.urls import reverse
 from .models import Employee, Department
 from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm
 from .signature_utils import process_signature
@@ -67,6 +68,13 @@ def superuser_required(view_func):
             return redirect('dashboard:home')
         return view_func(request, *args, **kwargs)
     return wrapper
+
+
+def get_employee(request):
+    try:
+        return request.user.employee
+    except Exception:
+        return None
 
 
 def hr_or_superuser_required(view_func):
@@ -405,6 +413,9 @@ def employee_history(request, pk):
     today = date.today()
     balance = LeaveBalance.objects.filter(employee=employee, year=today.year).first()
 
+    from accounts.models import EmployeeDocument
+    documents = EmployeeDocument.objects.filter(employee=employee).select_related("uploaded_by")
+
     return render(request, 'accounts/employee_history.html', {
         'employee': employee,
         'contracts': contracts,
@@ -412,6 +423,8 @@ def employee_history(request, pk):
         'discipline_records': discipline_records,
         'balance': balance,
         'today': today,
+        'documents': documents,
+        'is_privileged': is_privileged,
     })
 
 
@@ -902,3 +915,53 @@ def _excel_template_download():
     )
     response['Content-Disposition'] = 'attachment; filename="employee_import_template.xlsx"'
     return response
+
+
+@login_required
+def document_upload(request, employee_pk):
+    """HR/superuser uploads a document to an employee's file."""
+    from accounts.models import EmployeeDocument
+    employee = get_object_or_404(Employee, pk=employee_pk)
+    viewer = get_employee(request)
+    is_privileged = (
+        request.user.is_superuser
+        or (viewer and (viewer.is_hr() or viewer.is_director() or viewer.is_ceo()))
+    )
+    if not is_privileged:
+        return redirect('dashboard:home')
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        category = request.POST.get('category', 'other')
+        file = request.FILES.get('file')
+        if title and file:
+            EmployeeDocument.objects.create(
+                employee=employee,
+                title=title,
+                category=category,
+                file=file,
+                uploaded_by=request.user,
+            )
+            messages.success(request, f'Document "{title}" uploaded successfully.')
+        else:
+            messages.error(request, 'Title and file are required.')
+    return redirect(reverse('accounts:employee_history', args=[employee_pk]) + '#documents')
+
+
+@login_required
+def document_delete(request, doc_pk):
+    """HR/superuser deletes an employee document."""
+    from accounts.models import EmployeeDocument
+    doc = get_object_or_404(EmployeeDocument, pk=doc_pk)
+    viewer = get_employee(request)
+    is_privileged = (
+        request.user.is_superuser
+        or (viewer and (viewer.is_hr() or viewer.is_director() or viewer.is_ceo()))
+    )
+    if not is_privileged:
+        return redirect('dashboard:home')
+    employee_pk = doc.employee.pk
+    if request.method == 'POST':
+        doc.file.delete(save=False)
+        doc.delete()
+        messages.success(request, 'Document deleted.')
+    return redirect(reverse('accounts:employee_history', args=[employee_pk]) + '#documents')
