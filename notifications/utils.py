@@ -5,21 +5,21 @@ from .models import Notification
 logger = logging.getLogger(__name__)
 
 
-# Icon + color per notification type (for HTML email)
+# Label + color per notification type (for HTML email — no emojis for compatibility)
 _TYPE_STYLE = {
-    'leave_submitted':        ('📋', '#0A4D68'),
-    'leave_manager_approved': ('✅', '#059669'),
-    'leave_hr_approved':      ('✅', '#059669'),
-    'leave_approved':         ('✅', '#059669'),
-    'leave_rejected':         ('❌', '#dc2626'),
-    'leave_cancelled':        ('↩️',  '#6b7a8d'),
-    'discipline':             ('⚠️',  '#d97706'),
-    'contract_issued':        ('📄', '#0891b2'),
-    'contract_renewed':       ('🔄', '#7c3aed'),
-    'contract_terminated':    ('🚫', '#dc2626'),
-    'account_activated':      ('👤', '#059669'),
-    'birthday':               ('🎂', '#f59e0b'),
-    'system':                 ('🔔', '#374151'),
+    'leave_submitted':        ('LEAVE',      '#0A4D68'),
+    'leave_manager_approved': ('APPROVED',   '#059669'),
+    'leave_hr_approved':      ('APPROVED',   '#059669'),
+    'leave_approved':         ('APPROVED',   '#059669'),
+    'leave_rejected':         ('REJECTED',   '#dc2626'),
+    'leave_cancelled':        ('CANCELLED',  '#6b7a8d'),
+    'discipline':             ('DISCIPLINE', '#d97706'),
+    'contract_issued':        ('CONTRACT',   '#0891b2'),
+    'contract_renewed':       ('CONTRACT',   '#7c3aed'),
+    'contract_terminated':    ('CONTRACT',   '#dc2626'),
+    'account_activated':      ('ACCOUNT',    '#059669'),
+    'birthday':               ('BIRTHDAY',   '#f59e0b'),
+    'system':                 ('NOTICE',     '#374151'),
 }
 
 
@@ -56,7 +56,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
             return
         from django.core.mail import EmailMultiAlternatives
 
-        icon, color = _TYPE_STYLE.get(notification_type, ('🔔', '#374151'))
+        label, color = _TYPE_STYLE.get(notification_type, ('NOTICE', '#374151'))
         first_name  = user.first_name or user.username
 
         # Build full URL if relative path given
@@ -97,16 +97,20 @@ def _send_email(user, title, message, notification_type='system', url=''):
         <tr>
           <td style="background:linear-gradient(135deg,#0A4D68,#088395);
                      padding:28px 32px;text-align:center;">
-            <div style="display:inline-block;background:rgba(255,255,255,0.15);
-                        border-radius:50%;width:52px;height:52px;line-height:52px;
-                        font-size:26px;font-weight:900;color:#ffffff;margin-bottom:10px;">
-              L
+            <div style="color:#ffffff;font-size:26px;font-weight:900;
+                        letter-spacing:2px;margin-bottom:4px;">
+              LeaveDesk
             </div>
-            <div style="color:#ffffff;font-size:22px;font-weight:800;letter-spacing:-.5px;">
-              LeaveDesk HR
-            </div>
-            <div style="color:rgba(255,255,255,.75);font-size:13px;margin-top:2px;">
+            <div style="color:#ffffff;font-size:14px;font-weight:400;
+                        letter-spacing:.5px;margin-bottom:12px;
+                        opacity:.85;">
               Eye Hospital &mdash; HR Notification System
+            </div>
+            <div style="display:inline-block;background:{color};
+                        color:#ffffff;font-size:11px;font-weight:800;
+                        letter-spacing:1.5px;padding:4px 14px;
+                        border-radius:20px;text-transform:uppercase;">
+              {label}
             </div>
           </td>
         </tr>
