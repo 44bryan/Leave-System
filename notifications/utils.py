@@ -60,10 +60,20 @@ def _send_email(user, title, message, notification_type='system', url=''):
         first_name  = user.first_name or user.username
 
         # Build full URL if relative path given
+        site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
         app_url = ''
         if url:
-            base = getattr(settings, 'SITE_URL', '').rstrip('/')
-            app_url = (base + url) if url.startswith('/') else url
+            app_url = (site_base + url) if url.startswith('/') else url
+
+        # Logo image (only if SITE_URL is configured)
+        logo_html = ''
+        if site_base:
+            logo_url = f'{site_base}/static/logo.jpg'
+            logo_html = (
+                f'<img src="{logo_url}" alt="Magrabi ICO Cameroon" '
+                f'style="max-height:70px;max-width:200px;margin-bottom:12px;'
+                f'border-radius:6px;" /><br>'
+            )
 
         # ── Plain-text fallback ────────────────────────────────────────────
         plain = (
@@ -97,13 +107,13 @@ def _send_email(user, title, message, notification_type='system', url=''):
         <tr>
           <td style="background:linear-gradient(135deg,#0A4D68,#088395);
                      padding:28px 32px;text-align:center;">
-            <div style="color:#ffffff;font-size:26px;font-weight:900;
-                        letter-spacing:2px;margin-bottom:4px;">
-              LeaveDesk
+            {logo_html}
+            <div style="color:#ffffff;font-size:20px;font-weight:800;
+                        letter-spacing:.5px;margin-bottom:4px;">
+              LeaveDesk HR
             </div>
-            <div style="color:#ffffff;font-size:14px;font-weight:400;
-                        letter-spacing:.5px;margin-bottom:12px;
-                        opacity:.85;">
+            <div style="color:rgba(255,255,255,.8);font-size:12px;
+                        margin-bottom:14px;">
               Eye Hospital &mdash; HR Notification System
             </div>
             <div style="display:inline-block;background:{color};
