@@ -48,6 +48,13 @@
 <div class="card animate-in delay-1">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-list-ul me-2"></i>{{ leave_requests|length }} Record(s)</span>
+        {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <a href="{% url 'dashboard:export_leaves' %}?year={{ year_filter }}{% if dept_filter %}&department={{ dept_filter }}{% endif %}" class="btn btn-sm btn-success">
+                <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download PDF" %}
+            </a>
+        </div>
+        {% endif %}
     </div>
     <div class="table-responsive">
         <table class="table mb-0">

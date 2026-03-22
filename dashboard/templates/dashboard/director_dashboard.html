@@ -197,67 +197,6 @@
     </div>
 </div>
 
-<!-- ── HR Reports ── -->
-<div class="section-label"><i class="bi bi-download me-1"></i> Official HR Reports</div>
-<div class="card border-0 shadow-sm mb-3">
-    <div class="card-header" style="background:#f0fdf4;border-color:#86efac;">
-        <i class="bi bi-calendar2-check me-2" style="color:#16a34a;"></i>
-        <strong style="color:#15803d;font-size:0.9rem;">Leave Reports</strong>
-    </div>
-    <div class="card-body p-3">
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <a href="{% url 'dashboard:export_leaves' %}?year={{ year }}" class="btn btn-sm" style="background:#16a34a;color:#fff;font-weight:600;">
-                <i class="bi bi-file-earmark-pdf me-1"></i>All Staff — {{ year }}
-            </a>
-            <span style="font-size:0.75rem;color:#9ca3af;">Filter by department or employee available in the HR dashboard.</span>
-        </div>
-    </div>
-</div>
-<div class="card border-0 shadow-sm mb-3">
-    <div class="card-header" style="background:#eff6ff;border-color:#93c5fd;">
-        <i class="bi bi-file-earmark-text me-2" style="color:#2563eb;"></i>
-        <strong style="color:#1d4ed8;font-size:0.9rem;">Contract Reports</strong>
-    </div>
-    <div class="card-body p-3">
-        <div class="row g-2">
-            <div class="col-6 col-sm-3">
-                <a href="{% url 'dashboard:export_contracts' %}" class="btn btn-sm w-100" style="background:#2563eb;color:#fff;font-weight:600;">
-                    <i class="bi bi-file-earmark-pdf me-1"></i>All Staff
-                </a>
-            </div>
-            <div class="col-6 col-sm-3">
-                <a href="{% url 'dashboard:export_contracts' %}?type=EMPLOYEE" class="btn btn-sm w-100" style="background:#0A4D68;color:#fff;font-weight:600;">
-                    <i class="bi bi-people-fill me-1"></i>CDI / CDD
-                </a>
-            </div>
-            <div class="col-6 col-sm-3">
-                <a href="{% url 'dashboard:export_contracts' %}?type=INTERN" class="btn btn-sm w-100" style="background:#7c3aed;color:#fff;font-weight:600;">
-                    <i class="bi bi-mortarboard-fill me-1"></i>Interns
-                </a>
-            </div>
-            <div class="col-6 col-sm-3">
-                <a href="{% url 'dashboard:export_contracts' %}?type=WACS" class="btn btn-sm w-100" style="background:#0891b2;color:#fff;font-weight:600;">
-                    <i class="bi bi-person-badge-fill me-1"></i>WACS
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header" style="background:#fff7ed;border-color:#fdba74;">
-        <i class="bi bi-shield-exclamation me-2" style="color:#ea580c;"></i>
-        <strong style="color:#c2410c;font-size:0.9rem;">Discipline Report</strong>
-    </div>
-    <div class="card-body p-3">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <span style="font-size:0.82rem;color:#6b7280;">Complete discipline history — all records, all staff.</span>
-            <a href="{% url 'dashboard:export_discipline' %}" class="btn btn-sm" style="background:#ea580c;color:#fff;font-weight:600;">
-                <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
-            </a>
-        </div>
-    </div>
-</div>
-
 {% endblock %}
 
 {% block extra_css %}

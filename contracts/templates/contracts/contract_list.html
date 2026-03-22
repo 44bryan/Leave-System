@@ -6,6 +6,20 @@
 {% block nav_contracts %}active{% endblock %}
 
 {% block topbar_actions %}
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
+<div class="dropdown d-none d-sm-inline-flex">
+    <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="bi bi-file-earmark-pdf me-1"></i> Download
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><span class="dropdown-item-text text-muted" style="font-size:0.72rem;text-transform:uppercase;font-weight:700;">Contract Reports</span></li>
+        <li><a class="dropdown-item" href="{% url 'dashboard:export_contracts' %}"><i class="bi bi-people-fill me-2 text-primary"></i>All Staff</a></li>
+        <li><a class="dropdown-item" href="{% url 'dashboard:export_contracts' %}?type=EMPLOYEE"><i class="bi bi-file-earmark-text me-2" style="color:#0A4D68;"></i>Employees (CDI / CDD)</a></li>
+        <li><a class="dropdown-item" href="{% url 'dashboard:export_contracts' %}?type=INTERN"><i class="bi bi-mortarboard-fill me-2" style="color:#7c3aed;"></i>Interns</a></li>
+        <li><a class="dropdown-item" href="{% url 'dashboard:export_contracts' %}?type=WACS"><i class="bi bi-person-badge-fill me-2" style="color:#0891b2;"></i>WACS Staff</a></li>
+    </ul>
+</div>
+{% endif %}
 {% if request.user.is_superuser or request.user.employee.is_hr %}
 <a href="{% url 'contracts:issue' %}" class="btn btn-primary btn-sm">
     <i class="bi bi-file-earmark-plus me-1"></i> New Contract
