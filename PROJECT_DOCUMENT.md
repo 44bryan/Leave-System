@@ -269,6 +269,16 @@ Then open: **http://127.0.0.1:8000**
 
 ## Change Log
 
+### 2026-03-22
+
+- **Noise color cleanup — 14 HTML templates** — Replaced all off-brand hex colors with the official brand palette across 14 Django templates. Mappings applied:
+  - `#0284c7`, `#0891b2`, `#0ea5e9` → `#2db4c3` (brand teal)
+  - `#4527a0`, `#3730a3`, `#8b5cf6`, `#7b1fa2` → `#0A4D68` (brand dark blue)
+  - `#e65100`, `#e67e22`, `#f97316` → `#d97706` (amber warning)
+  - `#047857`, `#128438`, `#4caf50` → `#059669` (green success)
+  - Files updated: `issue_contract.html`, `notifications.html`, `issue_form.html`, `my_contract.html`, `request_form.html`, `leave_detail.html`, `director_dashboard.html`, `admin_settings.html`, `hr_dashboard.html`, `employee_history.html`, `employee_form.html`, `contract_detail.html`, `action_form.html`
+  - `leave_print.html` had no noise colors (only brand colors already in use)
+
 ### 2026-03-20
 
 - **PDF links audit** — Confirmed all templates (`my_requests.html`, `all_leaves.html`) already use `leaves:pdf_leave`. No old `leaves:print_leave` links found in templates.

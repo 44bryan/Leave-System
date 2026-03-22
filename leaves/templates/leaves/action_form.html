@@ -146,7 +146,7 @@
                         <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #cbd5e0;">
                             {% if current_sig_b64 %}
                             <div id="savedSigNotice" style="font-size:0.78rem;color:#1a8fa0;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-                                <i class="bi bi-check-circle-fill" style="color:#4caf50;"></i>
+                                <i class="bi bi-check-circle-fill" style="color:#059669;"></i>
                                 {% trans "Your saved signature will be used. Draw below to replace it." %}
                             </div>
                             {% else %}
@@ -297,7 +297,7 @@ document.querySelectorAll('input[name="action"]').forEach(radio => {
         const lbl = this.nextElementSibling;
         if (this.value === 'approve') {
             lbl.style.background  = '#e8f5e9';
-            lbl.style.borderColor = '#4caf50';
+            lbl.style.borderColor = '#059669';
             sigSection.style.display = 'block';
             if (!signaturePad) {
                 initPad();

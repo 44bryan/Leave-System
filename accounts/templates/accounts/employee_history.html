@@ -432,7 +432,7 @@
                             <td>
                                 {% if rec.action_type == 'verbal_warning' %}<span class="badge bg-warning text-dark">{% trans "Verbal Warning" %}</span>
                                 {% elif rec.action_type == 'written_caution' %}<span class="badge bg-warning text-dark">{% trans "Written Caution" %}</span>
-                                {% elif rec.action_type == 'final_warning' %}<span class="badge bg-orange text-white" style="background:#f97316;">{% trans "Final Warning" %}</span>
+                                {% elif rec.action_type == 'final_warning' %}<span class="badge bg-orange text-white" style="background:#d97706;">{% trans "Final Warning" %}</span>
                                 {% elif rec.action_type == 'suspension' %}<span class="badge bg-danger">{% trans "Suspension" %}</span>
                                 {% elif rec.action_type == 'dismissal' %}<span class="badge bg-dark">{% trans "Dismissal" %}</span>
                                 {% else %}<span class="badge bg-secondary">{{ rec.get_action_type_display }}</span>{% endif %}

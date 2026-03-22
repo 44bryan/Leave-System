@@ -253,7 +253,7 @@
                 {% if active_contract %}
                 <!-- Current active contract -->
                 <div class="mb-4 p-3 rounded-3 text-white"
-                     style="background:{% if active_contract.contract_type == 'CDI' %}linear-gradient(135deg,#0A4D68,#088395){% elif active_contract.contract_type == 'INTERN' %}linear-gradient(135deg,#2db4c3,#2db4c3){% elif active_contract.contract_type == 'WACS' %}linear-gradient(135deg,#088395,#2db4c3){% elif active_contract.is_expiring_soon %}linear-gradient(135deg,#d97706,#b45309){% else %}linear-gradient(135deg,#059669,#047857){% endif %};">
+                     style="background:{% if active_contract.contract_type == 'CDI' %}linear-gradient(135deg,#0A4D68,#088395){% elif active_contract.contract_type == 'INTERN' %}linear-gradient(135deg,#2db4c3,#2db4c3){% elif active_contract.contract_type == 'WACS' %}linear-gradient(135deg,#088395,#2db4c3){% elif active_contract.is_expiring_soon %}linear-gradient(135deg,#d97706,#b45309){% else %}linear-gradient(135deg,#059669,#059669){% endif %};">
                     <div class="d-flex align-items-center gap-3 flex-wrap">
                         <i class="bi bi-file-earmark-check-fill fs-3"></i>
                         <div style="flex:1;">

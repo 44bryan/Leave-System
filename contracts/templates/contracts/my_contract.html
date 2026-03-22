@@ -33,9 +33,9 @@
     {% if contract.contract_type == 'CDI' %}
     " style="background: linear-gradient(135deg, #0A4D68, #088395);"
     {% elif contract.contract_type == 'INTERN' %}
-    " style="background: linear-gradient(135deg, #2db4c3, #0ea5e9);"
+    " style="background: linear-gradient(135deg, #2db4c3, #2db4c3);"
     {% elif contract.contract_type == 'WACS' %}
-    " style="background: linear-gradient(135deg, #2db4c3, #8b5cf6);"
+    " style="background: linear-gradient(135deg, #2db4c3, #0A4D68);"
     {% elif contract.is_expired %}
     " style="background: linear-gradient(135deg, #dc2626, #b91c1c);"
     {% elif contract.days_remaining is not None and contract.days_remaining <= 30 %}
@@ -43,7 +43,7 @@
     {% elif contract.days_remaining is not None and contract.days_remaining <= 60 %}
     " style="background: linear-gradient(135deg, #d97706, #b45309);"
     {% else %}
-    " style="background: linear-gradient(135deg, #059669, #047857);"
+    " style="background: linear-gradient(135deg, #059669, #059669);"
     {% endif %}
 >
     <div class="d-flex align-items-center gap-4 flex-wrap">
