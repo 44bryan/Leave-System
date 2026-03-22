@@ -661,7 +661,8 @@ def all_leaves_hr(request):
         return redirect('dashboard:home')
 
     status_filter = request.GET.get('status', '')
-    dept_filter = request.GET.get('dept', '')
+    dept_filter   = request.GET.get('dept', '')
+    emp_filter    = request.GET.get('employee', '')
     try:
         year_filter = int(request.GET.get('year', date.today().year))
     except (ValueError, TypeError):
@@ -673,7 +674,9 @@ def all_leaves_hr(request):
 
     if status_filter:
         qs = qs.filter(status=status_filter)
-    if dept_filter:
+    if emp_filter:
+        qs = qs.filter(employee_id=emp_filter)
+    elif dept_filter:
         qs = qs.filter(employee__department_id=dept_filter)
 
     from accounts.models import Department
@@ -684,6 +687,7 @@ def all_leaves_hr(request):
         'leave_requests': qs,
         'status_filter': status_filter,
         'dept_filter': dept_filter,
+        'emp_filter': emp_filter,
         'year_filter': year_filter,
         'departments': departments,
         'all_employees': all_employees,
