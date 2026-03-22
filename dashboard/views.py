@@ -1500,8 +1500,9 @@ def export_discipline_excel(request):
     from discipline.models import DisciplineRecord
     import io
 
-    dept_id = request.GET.get('department', '')
-    emp_id  = request.GET.get('employee', '')
+    dept_id    = request.GET.get('department', '')
+    emp_id     = request.GET.get('employee', '')
+    type_filter = request.GET.get('type', '')
 
     qs = DisciplineRecord.objects.all().select_related(
         'employee__user', 'employee__department', 'issued_by'
@@ -1522,6 +1523,10 @@ def export_discipline_excel(request):
             filter_label = f'{dept_obj} Department'
         except Department.DoesNotExist:
             pass
+
+    if type_filter:
+        qs = qs.filter(action_type=type_filter)
+        filter_label = f'{filter_label} — {type_filter.replace("_", " ").title()}'
 
     records = list(qs)
 

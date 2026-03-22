@@ -30,53 +30,6 @@
         {% endfor %}
     {% endif %}
 
-    <!-- Download Report Panel (HR/Director/CEO only) -->
-    {% if is_privileged %}
-    <div class="card mb-3 animate-in" style="border-left:4px solid #2db4c3;">
-        <div class="card-body p-3">
-            <div style="font-size:0.72rem;text-transform:uppercase;color:#1a8fa0;font-weight:700;margin-bottom:10px;">
-                <i class="bi bi-file-earmark-pdf me-1"></i>Download Discipline Report (PDF)
-            </div>
-            <div class="row g-2 align-items-end">
-                <div class="col-12 col-sm-4">
-                    <div style="font-size:0.7rem;color:#6b7280;margin-bottom:4px;">All Staff</div>
-                    <a href="{% url 'dashboard:export_discipline' %}" class="btn btn-sm w-100" style="background:#0A4D68;color:#fff;font-weight:600;">
-                        <i class="bi bi-file-earmark-pdf me-1"></i>All Records
-                    </a>
-                </div>
-                <div class="col-12 col-sm-4">
-                    <div style="font-size:0.7rem;color:#6b7280;margin-bottom:4px;">By Department</div>
-                    <form method="get" action="{% url 'dashboard:export_discipline' %}" target="_blank" class="d-flex gap-1">
-                        <select name="department" class="form-select form-select-sm" required>
-                            <option value="" disabled selected>Select…</option>
-                            {% for dept in departments %}
-                            <option value="{{ dept.pk }}">{{ dept.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn btn-sm flex-shrink-0" style="background:#088395;color:#fff;" title="Download">
-                            <i class="bi bi-file-earmark-pdf"></i>
-                        </button>
-                    </form>
-                </div>
-                <div class="col-12 col-sm-4">
-                    <div style="font-size:0.7rem;color:#6b7280;margin-bottom:4px;">By Employee</div>
-                    <form method="get" action="{% url 'dashboard:export_discipline' %}" target="_blank" class="d-flex gap-1">
-                        <select name="employee" class="form-select form-select-sm" required>
-                            <option value="" disabled selected>Select…</option>
-                            {% for emp in all_employees %}
-                            <option value="{{ emp.pk }}">{{ emp.get_full_name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn btn-sm flex-shrink-0" style="background:#088395;color:#fff;" title="Download">
-                            <i class="bi bi-file-earmark-pdf"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     <!-- Dismissal Alert Banner (HR/Admin only) -->
     {% if dismissal_alert %}
     <div class="alert alert-danger mb-4" style="border-left: 4px solid #dc3545;">
@@ -170,6 +123,11 @@
             <span><i class="bi bi-shield-exclamation me-2 text-danger"></i>Discipline Records
                 <span class="badge bg-secondary ms-2">{{ records|length }}</span>
             </span>
+            {% if is_privileged %}
+            <a href="{% url 'dashboard:export_discipline' %}?department={{ dept_filter }}&type={{ type_filter }}" class="btn btn-sm btn-primary" title="Download exactly what you see as PDF">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+            </a>
+            {% endif %}
         </div>
         <div class="table-responsive">
             <table class="table mb-0">
