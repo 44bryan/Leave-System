@@ -283,11 +283,14 @@ def discipline_list(request):
             ).count() if total else 0,
         }
 
+    all_employees = Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name') if is_privileged else Employee.objects.none()
+
     return render(request, 'discipline/list.html', {
         'records': records,
         'type_filter': type_filter,
         'dept_filter': dept_filter,
         'departments': departments,
+        'all_employees': all_employees,
         'action_types': DisciplineRecord.ACTION_CHOICES,
         'dismissal_alert': dismissal_alert,
         'is_privileged': is_privileged,

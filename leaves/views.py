@@ -678,6 +678,7 @@ def all_leaves_hr(request):
 
     from accounts.models import Department
     departments = Department.objects.all()
+    all_employees = Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
 
     return render(request, 'leaves/all_leaves.html', {
         'leave_requests': qs,
@@ -685,6 +686,7 @@ def all_leaves_hr(request):
         'dept_filter': dept_filter,
         'year_filter': year_filter,
         'departments': departments,
+        'all_employees': all_employees,
         'status_choices': LeaveRequest.STATUS_CHOICES,
         'years': range(2000, date.today().year + 11),
     })

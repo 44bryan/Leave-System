@@ -6,20 +6,6 @@
 {% block nav_contracts %}active{% endblock %}
 
 {% block topbar_actions %}
-{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
-<div class="dropdown d-none d-sm-inline-flex">
-    <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-        <i class="bi bi-file-earmark-pdf me-1"></i> Download
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-        <li><span class="dropdown-item-text text-muted" style="font-size:0.72rem;text-transform:uppercase;font-weight:700;">Contract Reports</span></li>
-        <li><a class="dropdown-item" href="{% url 'dashboard:export_contracts' %}"><i class="bi bi-people-fill me-2 text-primary"></i>All Staff</a></li>
-        <li><a class="dropdown-item" href="{% url 'dashboard:export_contracts' %}?type=EMPLOYEE"><i class="bi bi-file-earmark-text me-2" style="color:#0A4D68;"></i>Employees (CDI / CDD)</a></li>
-        <li><a class="dropdown-item" href="{% url 'dashboard:export_contracts' %}?type=INTERN"><i class="bi bi-mortarboard-fill me-2" style="color:#7c3aed;"></i>Interns</a></li>
-        <li><a class="dropdown-item" href="{% url 'dashboard:export_contracts' %}?type=WACS"><i class="bi bi-person-badge-fill me-2" style="color:#0891b2;"></i>WACS Staff</a></li>
-    </ul>
-</div>
-{% endif %}
 {% if request.user.is_superuser or request.user.employee.is_hr %}
 <a href="{% url 'contracts:issue' %}" class="btn btn-primary btn-sm">
     <i class="bi bi-file-earmark-plus me-1"></i> New Contract
@@ -76,6 +62,61 @@
     </a>
     {% endif %}
 </div>
+
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
+<!-- Download Panel -->
+<div class="card mb-3 animate-in" style="border-left:4px solid #2563eb;">
+    <div class="card-body p-3">
+        <div style="font-size:0.72rem;text-transform:uppercase;color:#1d4ed8;font-weight:700;margin-bottom:10px;">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Download Contract Report (PDF)
+        </div>
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-sm-3">
+                <div style="font-size:0.7rem;color:#6b7280;margin-bottom:4px;">All Active Contracts</div>
+                <a href="{% url 'dashboard:export_contracts' %}" class="btn btn-sm w-100" style="background:#2563eb;color:#fff;font-weight:600;">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>All Staff
+                </a>
+            </div>
+            <div class="col-12 col-sm-3">
+                <div style="font-size:0.7rem;color:#6b7280;margin-bottom:4px;">By Type</div>
+                <div class="d-flex gap-1 flex-wrap">
+                    <a href="{% url 'dashboard:export_contracts' %}?type=EMPLOYEE" class="btn btn-sm" style="background:#0A4D68;color:#fff;font-weight:600;font-size:0.72rem;">CDI/CDD</a>
+                    <a href="{% url 'dashboard:export_contracts' %}?type=INTERN" class="btn btn-sm" style="background:#7c3aed;color:#fff;font-weight:600;font-size:0.72rem;">Interns</a>
+                    <a href="{% url 'dashboard:export_contracts' %}?type=WACS" class="btn btn-sm" style="background:#0891b2;color:#fff;font-weight:600;font-size:0.72rem;">WACS</a>
+                </div>
+            </div>
+            <div class="col-12 col-sm-3">
+                <div style="font-size:0.7rem;color:#6b7280;margin-bottom:4px;">By Department</div>
+                <form method="get" action="{% url 'dashboard:export_contracts' %}" target="_blank" class="d-flex gap-1">
+                    <select name="department" class="form-select form-select-sm" required>
+                        <option value="" disabled selected>Select…</option>
+                        {% for dept in all_departments %}
+                        <option value="{{ dept.pk }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm flex-shrink-0" style="background:#2563eb;color:#fff;" title="Download">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="col-12 col-sm-3">
+                <div style="font-size:0.7rem;color:#6b7280;margin-bottom:4px;">By Employee</div>
+                <form method="get" action="{% url 'dashboard:export_contracts' %}" target="_blank" class="d-flex gap-1">
+                    <select name="employee" class="form-select form-select-sm" required>
+                        <option value="" disabled selected>Select…</option>
+                        {% for emp in all_employees %}
+                        <option value="{{ emp.pk }}">{{ emp.get_full_name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm flex-shrink-0" style="background:#2563eb;color:#fff;" title="Download">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Filters -->
 <div class="card mb-4 animate-in">

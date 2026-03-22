@@ -225,6 +225,10 @@ def contract_list(request):
     active_wacs   = all_contracts.filter(contract_type='WACS',   status='active').count()
     expiring_soon = [c for c in Contract.objects.filter(contract_type='CDD', status='active') if c.is_expiring_soon]
 
+    from accounts.models import Department as _Dept, Employee as _Emp
+    all_departments = _Dept.objects.order_by('name')
+    all_employees   = _Emp.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
+
     return render(request, 'contracts/contract_list.html', {
         'contracts': contracts,
         'total': total,
@@ -236,6 +240,8 @@ def contract_list(request):
         'filter_type': filter_type,
         'filter_status': filter_status,
         'filter_expiring': filter_expiring,
+        'all_departments': all_departments,
+        'all_employees': all_employees,
     })
 
 

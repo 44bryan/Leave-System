@@ -1400,6 +1400,8 @@ def export_contracts_excel(request):
     import io
 
     contract_type = request.GET.get('type', '')   # '', 'EMPLOYEE', 'INTERN', 'WACS'
+    dept_id       = request.GET.get('department', '')
+    emp_id        = request.GET.get('employee', '')
 
     qs = Contract.objects.filter(status='active').select_related(
         'employee__user', 'employee__department'
@@ -1418,6 +1420,24 @@ def export_contracts_excel(request):
         report_title = f'Contracts — {type_label_map[contract_type]}'
     else:
         report_title = 'Contracts Report'
+
+    filter_label = report_title
+    if emp_id:
+        qs = qs.filter(employee__pk=emp_id)
+        try:
+            emp_obj = Employee.objects.get(pk=emp_id)
+            filter_label = emp_obj.get_full_name()
+            report_title = f'Contracts — {emp_obj.get_full_name()}'
+        except Employee.DoesNotExist:
+            pass
+    elif dept_id:
+        qs = qs.filter(employee__department__pk=dept_id)
+        try:
+            dept_obj = Department.objects.get(pk=dept_id)
+            filter_label = f'{dept_obj} Department'
+            report_title = f'Contracts — {dept_obj}'
+        except Department.DoesNotExist:
+            pass
 
     contracts = list(qs)
 
@@ -1480,9 +1500,30 @@ def export_discipline_excel(request):
     from discipline.models import DisciplineRecord
     import io
 
-    records = DisciplineRecord.objects.all().select_related(
+    dept_id = request.GET.get('department', '')
+    emp_id  = request.GET.get('employee', '')
+
+    qs = DisciplineRecord.objects.all().select_related(
         'employee__user', 'employee__department', 'issued_by'
     ).order_by('-date_issued')
+
+    filter_label = 'All Staff'
+    if emp_id:
+        qs = qs.filter(employee__pk=emp_id)
+        try:
+            emp_obj = Employee.objects.get(pk=emp_id)
+            filter_label = emp_obj.get_full_name()
+        except Employee.DoesNotExist:
+            pass
+    elif dept_id:
+        qs = qs.filter(employee__department__pk=dept_id)
+        try:
+            dept_obj = Department.objects.get(pk=dept_id)
+            filter_label = f'{dept_obj} Department'
+        except Department.DoesNotExist:
+            pass
+
+    records = list(qs)
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
@@ -1520,7 +1561,7 @@ def export_discipline_excel(request):
         ('BOTTOMPADDING', (0,0), (-1,-1), 3),
     ]))
 
-    subtitle = f'Discipline Records Report  ·  Total: {len(rows)-1} records'
+    subtitle = f'Discipline Records — {filter_label}  ·  Total: {len(rows)-1} records'
     doc.build([t], onFirstPage=lambda c, d: _pdf_report_header(c, d, 'Discipline Report', subtitle),
               onLaterPages=lambda c, d: _pdf_report_header(c, d, 'Discipline Report', subtitle))
 
