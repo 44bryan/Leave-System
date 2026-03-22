@@ -292,4 +292,77 @@
     </div>
 </div>
 
+<!-- ── Unit Leave Balances ── -->
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin:24px 0 12px;">
+    <i class="bi bi-bar-chart-steps me-1"></i> {% trans "Unit Leave Balances" %} — {{ year }}
+</div>
+<div class="card mb-4 animate-in">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-calendar2-check me-2" style="color:#0A4D68;"></i>{% trans "Deductible Leave Remaining — Your Unit" %}</span>
+        <span class="badge bg-secondary">{{ unit_balances|length }} {% trans "members" %}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Employee" %}</th>
+                    <th>{% trans "Entitlement" %}</th>
+                    <th>{% trans "Used" %}</th>
+                    <th>{% trans "Remaining" %}</th>
+                    <th style="min-width:120px;">{% trans "Usage" %}</th>
+                    <th>{% trans "Status" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ub in unit_balances %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#0A4D68,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.7rem;flex-shrink:0;">
+                                {{ ub.employee.user.first_name|first|upper }}{{ ub.employee.user.last_name|first|upper }}
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.85rem;">{{ ub.employee.get_full_name }}</div>
+                                <div style="font-size:0.7rem;color:#6b7a8d;">{{ ub.employee.position|default:ub.employee.department|default:"Staff" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:0.85rem;">{{ ub.balance.total_available }}d</td>
+                    <td style="font-size:0.85rem;">{{ ub.balance.used_days }}d</td>
+                    <td>
+                        <strong style="color:{% if ub.balance.remaining_days <= 3 %}#dc2626{% elif ub.balance.remaining_days <= 7 %}#d97706{% else %}#059669{% endif %};">
+                            {{ ub.balance.remaining_days }}d
+                        </strong>
+                    </td>
+                    <td>
+                        <div class="progress" style="height:6px;background:#f0f4f8;border-radius:4px;">
+                            <div class="progress-bar" style="width:{{ ub.balance.usage_percentage }}%;background:{% if ub.balance.usage_percentage >= 90 %}#dc2626{% elif ub.balance.usage_percentage >= 70 %}#d97706{% else %}#0A4D68{% endif %};border-radius:4px;"></div>
+                        </div>
+                        <div style="font-size:0.68rem;color:#6b7a8d;margin-top:2px;">{{ ub.balance.usage_percentage }}%</div>
+                    </td>
+                    <td>
+                        {% if ub.on_leave %}
+                        <span class="badge" style="background:#fce4ec;color:#c62828;border:1px solid #f9a8d4;font-size:0.7rem;">
+                            <i class="bi bi-airplane-fill me-1"></i>On Leave
+                        </span>
+                        {% else %}
+                        <span class="badge" style="background:#f0fdf4;color:#059669;border:1px solid #86efac;font-size:0.7rem;">
+                            <i class="bi bi-check-circle me-1"></i>Present
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="bi bi-people fs-2 d-block mb-2"></i>
+                        <small>{% trans "No unit members assigned" %}</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 {% endblock %}

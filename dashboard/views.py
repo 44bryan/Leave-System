@@ -396,6 +396,7 @@ def home(request):
 
 def employee_dashboard(request, employee):
     from discipline.models import DisciplineRecord
+    from contracts.models import Contract
     today = date.today()
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=today.year,
@@ -406,14 +407,12 @@ def employee_dashboard(request, employee):
         status__in=['pending', 'manager_approved', 'hr_approved']
     ).count()
 
-    # Is currently on leave?
     on_leave = employee.leave_requests.filter(
         status='approved',
         start_date__lte=today,
         end_date__gte=today
     ).first()
 
-    # Discipline notices for this employee
     discipline_notices = DisciplineRecord.objects.filter(
         employee=employee
     ).order_by('-date_issued')
@@ -430,6 +429,10 @@ def employee_dashboard(request, employee):
         and employee.date_of_birth.day == today.day
     )
 
+    active_contract = Contract.objects.filter(
+        employee=employee, status='active'
+    ).order_by('-start_date').first()
+
     return render(request, 'dashboard/employee_dashboard.html', {
         'employee': employee,
         'balance': balance,
@@ -440,6 +443,7 @@ def employee_dashboard(request, employee):
         'discipline_notices': discipline_notices,
         'active_suspension': active_suspension,
         'is_own_birthday': is_own_birthday,
+        'active_contract': active_contract,
     })
 
 
@@ -486,6 +490,21 @@ def manager_dashboard(request, employee):
         end_date__gte=today
     ).select_related('employee__user', 'leave_type')
 
+    # Build team leave balance list
+    on_leave_ids = set(on_leave_today.values_list('employee_id', flat=True))
+    team_balances = []
+    for sub in subordinates:
+        sub_balance, _ = LeaveBalance.objects.get_or_create(
+            employee=sub, year=today.year,
+            defaults={'total_entitlement': 18}
+        )
+        team_balances.append({
+            'employee': sub,
+            'balance': sub_balance,
+            'on_leave': sub.id in on_leave_ids,
+        })
+    team_balances.sort(key=lambda x: x['balance'].remaining_days)
+
     return render(request, 'dashboard/manager_dashboard.html', {
         'employee': employee,
         'balance': balance,
@@ -498,6 +517,8 @@ def manager_dashboard(request, employee):
         'pending_approvals': pending_approvals,
         'subordinates': subordinates,
         'on_leave_today': on_leave_today,
+        'team_balances': team_balances,
+        'year': today.year,
     })
 
 
@@ -546,6 +567,20 @@ def unit_head_dashboard(request, employee):
         end_date__gte=today
     ).select_related('employee__user', 'leave_type')
 
+    unit_on_leave_ids = set(unit_on_leave_today.values_list('employee_id', flat=True))
+    unit_balances = []
+    for mem in unit_members:
+        mem_balance, _ = LeaveBalance.objects.get_or_create(
+            employee=mem, year=today.year,
+            defaults={'total_entitlement': 18}
+        )
+        unit_balances.append({
+            'employee': mem,
+            'balance': mem_balance,
+            'on_leave': mem.id in unit_on_leave_ids,
+        })
+    unit_balances.sort(key=lambda x: x['balance'].remaining_days)
+
     return render(request, 'dashboard/unit_head_dashboard.html', {
         # employee self-service
         'employee': employee,
@@ -561,6 +596,8 @@ def unit_head_dashboard(request, employee):
         'pending_approvals': pending_approvals,
         'unit_members': unit_members,
         'unit_on_leave_today': unit_on_leave_today,
+        'unit_balances': unit_balances,
+        'year': today.year,
     })
 
 

@@ -159,6 +159,84 @@
 
 {% include 'dashboard/includes/contract_analytics.html' %}
 
+<!-- ── Discipline Summary ── -->
+<div class="section-label mt-4"><i class="bi bi-shield-exclamation me-1"></i> Discipline Overview</div>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm text-center p-3">
+                <div style="width:44px;height:44px;background:#fff8e1;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
+                    <i class="bi bi-exclamation-triangle-fill" style="color:#d97706;font-size:1.3rem;"></i>
+                </div>
+                <div style="font-size:1.6rem;font-weight:800;color:#d97706;">{{ discipline_warned }}</div>
+                <div style="font-size:0.75rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Warnings Issued</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm text-center p-3">
+                <div style="width:44px;height:44px;background:#fce4ec;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
+                    <i class="bi bi-person-slash" style="color:#c62828;font-size:1.3rem;"></i>
+                </div>
+                <div style="font-size:1.6rem;font-weight:800;color:#c62828;">{{ discipline_suspended }}</div>
+                <div style="font-size:0.75rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Active Suspensions</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4">
+        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm text-center p-3">
+                <div style="width:44px;height:44px;background:#f3e5f5;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
+                    <i class="bi bi-person-x-fill" style="color:#7b1fa2;font-size:1.3rem;"></i>
+                </div>
+                <div style="font-size:1.6rem;font-weight:800;color:#7b1fa2;">{{ discipline_dismissed }}</div>
+                <div style="font-size:0.75rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Dismissals</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- ── HR Reports ── -->
+<div class="section-label"><i class="bi bi-download me-1"></i> Official HR Reports</div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <p class="text-muted mb-3" style="font-size:0.85rem;">Download official HR reports as branded PDF documents.</p>
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="p-3 rounded-3 text-center" style="background:#f0fdf4;border:1.5px solid #86efac;">
+                    <i class="bi bi-calendar2-check" style="font-size:2rem;color:#16a34a;"></i>
+                    <div class="fw-bold mt-2" style="font-size:0.9rem;color:#15803d;">Leave Report</div>
+                    <div class="text-muted mb-3" style="font-size:0.78rem;">All leave requests for {{ year }}</div>
+                    <a href="{% url 'dashboard:export_leaves' %}?year={{ year }}" class="btn btn-sm w-100" style="background:#16a34a;color:#fff;font-weight:600;">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                    </a>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="p-3 rounded-3 text-center" style="background:#eff6ff;border:1.5px solid #93c5fd;">
+                    <i class="bi bi-file-earmark-text" style="font-size:2rem;color:#2563eb;"></i>
+                    <div class="fw-bold mt-2" style="font-size:0.9rem;color:#1d4ed8;">Contracts Report</div>
+                    <div class="text-muted mb-3" style="font-size:0.78rem;">All active staff contracts</div>
+                    <a href="{% url 'dashboard:export_contracts' %}" class="btn btn-sm w-100" style="background:#2563eb;color:#fff;font-weight:600;">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                    </a>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="p-3 rounded-3 text-center" style="background:#fff7ed;border:1.5px solid #fdba74;">
+                    <i class="bi bi-shield-exclamation" style="font-size:2rem;color:#ea580c;"></i>
+                    <div class="fw-bold mt-2" style="font-size:0.9rem;color:#c2410c;">Discipline Report</div>
+                    <div class="text-muted mb-3" style="font-size:0.78rem;">All discipline records</div>
+                    <a href="{% url 'dashboard:export_discipline' %}" class="btn btn-sm w-100" style="background:#ea580c;color:#fff;font-weight:600;">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_css %}

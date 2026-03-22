@@ -135,6 +135,54 @@
     </div>
 </div>
 
+<!-- Contract Info Card -->
+{% if active_contract %}
+<div class="card mb-4 animate-in delay-3" style="border-left:4px solid #2db4c3;">
+    <div class="card-body py-3 px-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:44px;height:44px;background:#f0fafa;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-file-earmark-text-fill" style="font-size:1.3rem;color:#2db4c3;"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#9ab4c0;font-weight:700;">My Contract</div>
+                    <div style="font-size:1rem;font-weight:700;color:#0a2540;">
+                        {{ active_contract.get_contract_type_display }}
+                        {% if active_contract.contract_number %}<span style="font-size:0.78rem;color:#6b7280;font-weight:400;"> · #{{ active_contract.contract_number }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-4 flex-wrap">
+                <div class="text-center">
+                    <div style="font-size:0.7rem;text-transform:uppercase;color:#9ab4c0;font-weight:700;">Start Date</div>
+                    <div style="font-size:0.88rem;font-weight:600;color:#374151;">{{ active_contract.start_date|date:"d M Y" }}</div>
+                </div>
+                {% if active_contract.end_date %}
+                <div class="text-center">
+                    <div style="font-size:0.7rem;text-transform:uppercase;color:#9ab4c0;font-weight:700;">End Date</div>
+                    <div style="font-size:0.88rem;font-weight:600;color:#374151;">{{ active_contract.end_date|date:"d M Y" }}</div>
+                </div>
+                <div class="text-center">
+                    <div style="font-size:0.7rem;text-transform:uppercase;color:#9ab4c0;font-weight:700;">Days Remaining</div>
+                    <div style="font-size:0.88rem;font-weight:700;color:{% if active_contract.days_remaining <= 30 %}#dc2626{% elif active_contract.days_remaining <= 60 %}#d97706{% else %}#059669{% endif %};">
+                        {% if active_contract.days_remaining is not None %}{{ active_contract.days_remaining }} days{% else %}—{% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center">
+                    <div style="font-size:0.7rem;text-transform:uppercase;color:#9ab4c0;font-weight:700;">Duration</div>
+                    <div style="font-size:0.88rem;font-weight:600;color:#059669;">Open-ended</div>
+                </div>
+                {% endif %}
+            </div>
+            <a href="{% url 'contracts:my_contract' %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-arrow-right-circle me-1"></i>View Contract
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Recent Leave Requests -->
 <div class="card animate-in delay-3">
     <div class="card-header d-flex justify-content-between align-items-center">
