@@ -23,7 +23,7 @@ SESSION_COOKIE_SECURE = False
 # Read early so INSTALLED_APPS and storage can be configured conditionally
 CLOUDINARY_URL = config('CLOUDINARY_URL', default=None)
 
-_cloudinary_apps = ['cloudinary_storage', 'cloudinary'] if CLOUDINARY_URL else []
+_cloudinary_apps = ['cloudinary_storage', 'cloudinary'] if (CLOUDINARY_URL and CLOUDINARY_URL.startswith('cloudinary://')) else []
 
 INSTALLED_APPS = [
     'anymail',
@@ -121,7 +121,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # ── Cloudinary (media file storage) ─────────────────────────────────────────
 # Set CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name in Railway env vars.
 # Without it, falls back to local media storage (dev only).
-if CLOUDINARY_URL:
+if CLOUDINARY_URL and CLOUDINARY_URL.startswith('cloudinary://'):
     from urllib.parse import urlparse as _urlparse
     _c = _urlparse(CLOUDINARY_URL)
     CLOUDINARY_STORAGE = {
