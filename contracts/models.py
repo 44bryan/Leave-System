@@ -12,11 +12,12 @@ class Contract(models.Model):
         ('WACS',   'Residents'),
     ]
     INTERNSHIP_TYPE_CHOICES = [
-        ('academic',     'Academic Internship'),
-        ('professional', 'Professional Internship'),
-        ('vocational',   'Vocational / Technical Internship'),
-        ('observation',  'Observation / Discovery Internship'),
-        ('other',        'Other'),
+        ('academic',        'Academic Internship'),
+        ('professional',    'Professional Internship'),
+        ('pre_employment',  'Pre-Employment Internship'),
+        ('vocational',      'Vocational / Technical Internship'),
+        ('observation',     'Observation / Discovery Internship'),
+        ('other',           'Other'),
     ]
     STATUS_CHOICES = [
         ('active', 'Active'),
@@ -39,6 +40,13 @@ class Contract(models.Model):
     internship_type = models.CharField(
         max_length=20, choices=INTERNSHIP_TYPE_CHOICES, blank=True, default='',
         help_text='Type of internship — only applicable for INTERN contracts'
+    )
+    working_department = models.ForeignKey(
+        'accounts.Department',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='contract_placements',
+        help_text='Department where the intern or resident will be working'
     )
     notes = models.TextField(blank=True)
 

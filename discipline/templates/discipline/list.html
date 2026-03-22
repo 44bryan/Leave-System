@@ -102,7 +102,7 @@
                 {% if is_privileged %}
                 <div>
                     <label class="form-label mb-1" style="font-size:0.78rem;">Department</label>
-                    <select name="dept" class="form-select form-select-sm" style="min-width:180px;" onchange="this.form.submit()">
+                    <select name="dept" id="discDeptSelect" class="form-select form-select-sm" style="min-width:180px;">
                         <option value="">All Departments</option>
                         {% for d in departments %}
                         <option value="{{ d.pk }}" {% if dept_filter == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
@@ -110,9 +110,25 @@
                     </select>
                 </div>
                 {% endif %}
-                {% if type_filter or dept_filter %}
-                <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                {% if is_privileged %}
+                <div>
+                    <label class="form-label mb-1" style="font-size:0.78rem;">Employee</label>
+                    <select name="employee" id="discEmpSelect" class="form-select form-select-sm" style="min-width:200px;">
+                        <option value="">All Employees</option>
+                        {% for emp in all_employees %}
+                        <option value="{{ emp.pk }}"
+                                data-dept="{{ emp.department.pk|default:'' }}"
+                                {% if emp.pk|stringformat:"s" == emp_filter %}selected{% endif %}>{{ emp.get_full_name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 {% endif %}
+                <div class="d-flex gap-2 align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>Filter</button>
+                    {% if type_filter or dept_filter or emp_filter %}
+                    <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                    {% endif %}
+                </div>
             </form>
         </div>
     </div>
@@ -215,4 +231,31 @@
             </table>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const deptSel = document.getElementById('discDeptSelect');
+    const empSel  = document.getElementById('discEmpSelect');
+    if (!deptSel || !empSel) return;
+    const allOpts = Array.from(empSel.querySelectorAll('option[data-dept]'));
+
+    function filterEmployees() {
+        const deptId = deptSel.value;
+        const current = empSel.value;
+        allOpts.forEach(opt => {
+            const match = !deptId || opt.dataset.dept === deptId;
+            opt.hidden   = !match;
+            opt.disabled = !match;
+        });
+        if (current && empSel.options[empSel.selectedIndex]?.hidden) {
+            empSel.value = '';
+        }
+    }
+
+    deptSel.addEventListener('change', filterEmployees);
+    filterEmployees();
+})();
+</script>
 {% endblock %}

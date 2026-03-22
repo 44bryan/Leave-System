@@ -95,6 +95,26 @@
                     <option value="60" {% if filter_expiring == '60' %}selected{% endif %}>60 days</option>
                 </select>
             </div>
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Department</label>
+                <select name="dept" id="contractDeptSelect" class="form-select form-select-sm" style="min-width:170px;">
+                    <option value="">All Departments</option>
+                    {% for dept in all_departments %}
+                    <option value="{{ dept.pk }}" {% if filter_dept == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Employee</label>
+                <select name="employee" id="contractEmpSelect" class="form-select form-select-sm" style="min-width:180px;">
+                    <option value="">All Employees</option>
+                    {% for emp in all_employees %}
+                    <option value="{{ emp.pk }}"
+                            data-dept="{{ emp.department.pk|default:'' }}"
+                            {% if filter_emp == emp.pk|stringformat:"s" %}selected{% endif %}>{{ emp.get_full_name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="d-flex gap-2 align-items-end">
                 <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>Filter</button>
                 <a href="{% url 'contracts:list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
@@ -110,7 +130,7 @@
             <span class="badge bg-secondary ms-2">{{ contracts|length }}</span>
         </span>
         {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
-        <a href="{% url 'dashboard:export_contracts' %}?type={{ filter_type }}" class="btn btn-sm btn-primary" title="Download exactly what you see as PDF">
+        <a href="{% url 'dashboard:export_contracts' %}?type={{ filter_type }}&department={{ filter_dept }}&employee={{ filter_emp }}" class="btn btn-sm btn-primary" title="Download exactly what you see as PDF">
             <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
         </a>
         {% endif %}
@@ -220,4 +240,31 @@
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const deptSel = document.getElementById('contractDeptSelect');
+    const empSel  = document.getElementById('contractEmpSelect');
+    if (!deptSel || !empSel) return;
+    const allOpts = Array.from(empSel.querySelectorAll('option[data-dept]'));
+
+    function filterEmployees() {
+        const deptId = deptSel.value;
+        const current = empSel.value;
+        allOpts.forEach(opt => {
+            const match = !deptId || opt.dataset.dept === deptId;
+            opt.hidden   = !match;
+            opt.disabled = !match;
+        });
+        if (current && empSel.options[empSel.selectedIndex]?.hidden) {
+            empSel.value = '';
+        }
+    }
+
+    deptSel.addEventListener('change', filterEmployees);
+    filterEmployees();
+})();
+</script>
 {% endblock %}

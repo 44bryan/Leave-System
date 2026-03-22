@@ -255,6 +255,10 @@ def discipline_list(request):
     if dept_filter and is_privileged:
         records = records.filter(employee__department_id=dept_filter)
 
+    emp_filter = request.GET.get('employee', '')
+    if emp_filter and is_privileged:
+        records = records.filter(employee_id=emp_filter)
+
     from accounts.models import Department
     departments = Department.objects.all()
 
@@ -289,6 +293,7 @@ def discipline_list(request):
         'records': records,
         'type_filter': type_filter,
         'dept_filter': dept_filter,
+        'emp_filter': emp_filter,
         'departments': departments,
         'all_employees': all_employees,
         'action_types': DisciplineRecord.ACTION_CHOICES,

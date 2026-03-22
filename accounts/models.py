@@ -157,6 +157,25 @@ class Employee(models.Model):
             return 'System Administrator'
         return self.get_role_display()
 
+    def save(self, *args, **kwargs):
+        dept_changed = False
+        old_dept = None
+        if self.pk:
+            try:
+                old = Employee.objects.get(pk=self.pk)
+                if old.department_id != self.department_id:
+                    dept_changed = True
+                    old_dept = old.department
+            except Employee.DoesNotExist:
+                pass
+        super().save(*args, **kwargs)
+        if dept_changed:
+            DepartmentHistory.objects.create(
+                employee=self,
+                from_department=old_dept,
+                to_department=self.department,
+            )
+
 
 class EmployeeDocument(models.Model):
     CATEGORY_CHOICES = [
@@ -178,3 +197,27 @@ class EmployeeDocument(models.Model):
 
     def __str__(self):
         return f'{self.title} — {self.employee.get_full_name()}'
+
+
+class DepartmentHistory(models.Model):
+    """Tracks every department transfer for an employee."""
+    employee = models.ForeignKey(
+        Employee, on_delete=models.CASCADE, related_name='department_history'
+    )
+    from_department = models.ForeignKey(
+        Department, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='transfers_from'
+    )
+    to_department = models.ForeignKey(
+        Department, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='transfers_to'
+    )
+    changed_at = models.DateField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-changed_at']
+
+    def __str__(self):
+        frm = self.from_department or '(none)'
+        to  = self.to_department or '(none)'
+        return f'{self.employee.get_full_name()} — {frm} → {to} on {self.changed_at}'

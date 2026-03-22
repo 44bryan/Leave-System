@@ -201,6 +201,8 @@ def contract_list(request):
     filter_type = request.GET.get('type', '')
     filter_status = request.GET.get('status', '')
     filter_expiring = request.GET.get('expiring', '')
+    filter_dept = request.GET.get('dept', '')
+    filter_emp  = request.GET.get('employee', '')
 
     contracts = Contract.objects.select_related('employee', 'employee__user', 'employee__department').all()
 
@@ -208,6 +210,10 @@ def contract_list(request):
         contracts = contracts.filter(contract_type=filter_type)
     if filter_status:
         contracts = contracts.filter(status=filter_status)
+    if filter_dept:
+        contracts = contracts.filter(employee__department_id=filter_dept)
+    if filter_emp:
+        contracts = contracts.filter(employee_id=filter_emp)
 
     # Convert to list so we can apply computed-property filters
     contracts = list(contracts)
@@ -240,6 +246,8 @@ def contract_list(request):
         'filter_type': filter_type,
         'filter_status': filter_status,
         'filter_expiring': filter_expiring,
+        'filter_dept': filter_dept,
+        'filter_emp': filter_emp,
         'all_departments': all_departments,
         'all_employees': all_employees,
     })
@@ -284,6 +292,7 @@ def issue_contract(request):
         end_date = request.POST.get('end_date') or None
         notes = request.POST.get('notes', '')
         internship_type = request.POST.get('internship_type', '') if contract_type == 'INTERN' else ''
+        working_dept_id = request.POST.get('working_department', '') if contract_type in ('INTERN', 'WACS') else ''
 
         if not emp_id or not contract_type or not start_date:
             messages.error(request, "Employee, contract type, and start date are required.")
@@ -307,6 +316,7 @@ def issue_contract(request):
             employee=emp,
             contract_type=contract_type,
             internship_type=internship_type,
+            working_department_id=working_dept_id or None,
             start_date=start_date,
             end_date=end_date,
             notes=notes,
@@ -341,10 +351,12 @@ def issue_contract(request):
         except Employee.DoesNotExist:
             pass
 
+    from accounts.models import Department as _Dept
     return render(request, 'contracts/issue_contract.html', {
         'employees': employees,
         'today': today,
         'preselect_employee': preselect_employee,
+        'all_departments': _Dept.objects.order_by('name'),
     })
 
 

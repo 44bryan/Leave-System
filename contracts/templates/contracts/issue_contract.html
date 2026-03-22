@@ -96,11 +96,24 @@
                 <select name="internship_type" id="internship-type-select" class="form-select">
                     <option value="">— Select Internship Type —</option>
                     <option value="academic">Academic Internship</option>
+                    <option value="pre_employment">Pre-Employment Internship</option>
                     <option value="professional">Professional Internship</option>
                     <option value="vocational">Vocational / Technical Internship</option>
                     <option value="observation">Observation / Discovery Internship</option>
                     <option value="other">Other</option>
                 </select>
+            </div>
+
+            <!-- Working department — shown for INTERN and WACS -->
+            <div class="mb-3 d-none" id="working-dept-wrap">
+                <label class="form-label fw-600">Working Department <span class="text-danger">*</span></label>
+                <select name="working_department" id="working-dept-select" class="form-select">
+                    <option value="">— Select Department —</option>
+                    {% for dept in all_departments %}
+                    <option value="{{ dept.pk }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text text-muted">The department where this intern or resident will be placed.</div>
             </div>
 
             <div class="row g-3 mb-3">
@@ -141,6 +154,7 @@ function updateContractForm() {
     const ct       = selected ? selected.value : 'CDD';
     const isCDI    = ct === 'CDI';
     const isIntern = ct === 'INTERN';
+    const isWacs   = ct === 'WACS';
 
     // End date
     const wrap  = document.getElementById('end-date-wrap');
@@ -150,12 +164,20 @@ function updateContractForm() {
     input.disabled  = isCDI;
     if (isCDI) input.value = '';
 
-    // Internship type dropdown
+    // Internship type dropdown — only for INTERN
     const itWrap   = document.getElementById('internship-type-wrap');
     const itSelect = document.getElementById('internship-type-select');
     itWrap.classList.toggle('d-none', !isIntern);
     itSelect.required = isIntern;
     if (!isIntern) itSelect.value = '';
+
+    // Working department — shown for INTERN and WACS
+    const wdWrap   = document.getElementById('working-dept-wrap');
+    const wdSelect = document.getElementById('working-dept-select');
+    const showWd   = isIntern || isWacs;
+    wdWrap.classList.toggle('d-none', !showWd);
+    wdSelect.required = showWd;
+    if (!showWd) wdSelect.value = '';
 }
 // Run on load
 updateContractForm();

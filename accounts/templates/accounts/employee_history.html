@@ -547,4 +547,36 @@
 
 </div><!-- /.tab-content -->
 
+<!-- Department History -->
+{% with dept_history=employee.department_history.all %}
+{% if dept_history %}
+<div class="card animate-in mt-4">
+    <div class="card-header">
+        <i class="bi bi-arrow-left-right me-2" style="color:#2db4c3;"></i>Department Transfer History
+        <span class="badge bg-secondary ms-2">{{ dept_history|length }}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>From Department</th>
+                    <th>To Department</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in dept_history %}
+                <tr>
+                    <td style="font-size:.85rem;color:#6b7a8d;">{{ h.changed_at|date:"d M Y" }}</td>
+                    <td style="font-size:.85rem;">{{ h.from_department|default:"<em class='text-muted'>None</em>" }}</td>
+                    <td style="font-size:.85rem;font-weight:600;">{{ h.to_department|default:"<em class='text-muted'>None</em>" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endwith %}
+
 {% endblock %}
