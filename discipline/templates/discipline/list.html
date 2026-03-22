@@ -45,7 +45,7 @@
                     <li>
                         <strong>{{ d.employee.get_full_name }}</strong> — {{ d.employee.employee_id }}
                         <span class="text-muted">(dismissed {{ d.date_issued }})</span>
-                        <a href="/accounts/employees/{{ d.employee.pk }}/edit/" class="ms-2 text-danger fw-bold" style="font-size:0.8rem;">
+                        <a href="{% url 'accounts:employee_edit' d.employee.pk %}" class="ms-2 text-danger fw-bold" style="font-size:0.8rem;">
                             <i class="bi bi-person-x me-1"></i>Deactivate Account
                         </a>
                     </li>

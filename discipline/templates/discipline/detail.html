@@ -331,7 +331,7 @@
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-octagon-fill me-2"></i>
                 <strong>Dismissal Notice:</strong> HR and Admin must manually deactivate this employee's account.
-                <a href="/accounts/employees/{{ record.employee.pk }}/edit/" class="alert-link ms-2">
+                <a href="{% url 'accounts:employee_edit' record.employee.pk %}" class="alert-link ms-2">
                     Go to Employee Profile <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
