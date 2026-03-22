@@ -119,9 +119,16 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # ── Cloudinary (media file storage) ─────────────────────────────────────────
-# Set CLOUDINARY_URL=cloudinary://key:secret@cloud_name in Railway env vars.
+# Set CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name in Railway env vars.
 # Without it, falls back to local media storage (dev only).
 if CLOUDINARY_URL:
+    from urllib.parse import urlparse as _urlparse
+    _c = _urlparse(CLOUDINARY_URL)
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': _c.hostname,
+        'API_KEY':    _c.username,
+        'API_SECRET': _c.password,
+    }
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
