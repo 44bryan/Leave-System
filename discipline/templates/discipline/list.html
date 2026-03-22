@@ -40,7 +40,7 @@
             <div class="row g-2 align-items-end">
                 <div class="col-12 col-sm-4">
                     <div style="font-size:0.7rem;color:#6b7280;margin-bottom:4px;">All Staff</div>
-                    <a href="{% url 'dashboard:export_discipline' %}" class="btn btn-sm w-100" style="background:#2db4c3;color:#fff;font-weight:600;">
+                    <a href="{% url 'dashboard:export_discipline' %}" class="btn btn-sm w-100" style="background:#0A4D68;color:#fff;font-weight:600;">
                         <i class="bi bi-file-earmark-pdf me-1"></i>All Records
                     </a>
                 </div>
@@ -53,7 +53,7 @@
                             <option value="{{ dept.pk }}">{{ dept.name }}</option>
                             {% endfor %}
                         </select>
-                        <button type="submit" class="btn btn-sm flex-shrink-0" style="background:#2db4c3;color:#fff;" title="Download">
+                        <button type="submit" class="btn btn-sm flex-shrink-0" style="background:#088395;color:#fff;" title="Download">
                             <i class="bi bi-file-earmark-pdf"></i>
                         </button>
                     </form>
@@ -67,7 +67,7 @@
                             <option value="{{ emp.pk }}">{{ emp.get_full_name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
                             {% endfor %}
                         </select>
-                        <button type="submit" class="btn btn-sm flex-shrink-0" style="background:#2db4c3;color:#fff;" title="Download">
+                        <button type="submit" class="btn btn-sm flex-shrink-0" style="background:#088395;color:#fff;" title="Download">
                             <i class="bi bi-file-earmark-pdf"></i>
                         </button>
                     </form>
