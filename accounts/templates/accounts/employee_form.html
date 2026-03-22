@@ -116,6 +116,11 @@
                             {{ form.supervisor }}
                         </div>
                         <div class="col-md-6 optional-field">
+                            <label class="form-label">{% trans "Unit Head" %}</label>
+                            {{ form.unit_head }}
+                            <div class="form-text text-muted">Optional — leave blank if this employee has no unit head above their manager.</div>
+                        </div>
+                        <div class="col-md-6 optional-field">
                             <label class="form-label">{% trans "Phone" %}</label>
                             {{ form.phone }}
                         </div>
