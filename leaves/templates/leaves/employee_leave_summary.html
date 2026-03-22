@@ -50,7 +50,7 @@
                         <div style="font-size:.72rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">Used</div>
                     </div>
                     <div class="col-4">
-                        <div style="font-size:2rem;font-weight:800;color:{% if balance.remaining_days <= 3 %}#e53e3e{% elif balance.remaining_days <= 6 %}#f57f17{% else %}#0d6832{% endif %};">{{ balance.remaining_days }}</div>
+                        <div style="font-size:2rem;font-weight:800;color:{% if balance.remaining_days <= 3 %}#e53e3e{% elif balance.remaining_days <= 6 %}#f57f17{% else %}#1a8fa0{% endif %};">{{ balance.remaining_days }}</div>
                         <div style="font-size:.72rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">Remaining</div>
                     </div>
                 </div>
@@ -67,14 +67,14 @@
     <div class="col-md-6">
         <div class="card animate-in delay-1 h-100">
             <div class="card-header" style="background:#f0fdf4;border-color:#86efac;">
-                <i class="bi bi-shield-check me-2" style="color:#2e7d32;"></i>
+                <i class="bi bi-shield-check me-2" style="color:#1a8fa0;"></i>
                 <strong>Non-Deductible Leave</strong>
-                <span class="badge ms-2" style="background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">Does not reduce balance</span>
+                <span class="badge ms-2" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">Does not reduce balance</span>
             </div>
             <div class="card-body p-4">
                 {% with nd_list=balance.non_deductible_by_type nd_total=balance.non_deductible_total %}
                 <div class="text-center mb-3">
-                    <div style="font-size:2.2rem;font-weight:800;color:#2e7d32;">{{ nd_total }}</div>
+                    <div style="font-size:2.2rem;font-weight:800;color:#1a8fa0;">{{ nd_total }}</div>
                     <div style="font-size:.75rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">Total days taken this year</div>
                 </div>
                 {% if nd_list %}
@@ -82,7 +82,7 @@
                     {% for item in nd_list %}
                     <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid #f0f4f8;">
                         <span style="font-size:.84rem;font-weight:500;">{{ item.name }}</span>
-                        <span class="badge" style="background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">{{ item.days }} day{{ item.days|pluralize }}</span>
+                        <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">{{ item.days }} day{{ item.days|pluralize }}</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -122,7 +122,7 @@
                         {% if req.leave_type.is_deductible %}
                         <span class="badge" style="background:#fff8e1;color:#b45309;border:1px solid #fcd34d;font-size:.72rem;">Deductible</span>
                         {% else %}
-                        <span class="badge" style="background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;font-size:.72rem;">Non-Deductible</span>
+                        <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;font-size:.72rem;">Non-Deductible</span>
                         {% endif %}
                     </td>
                     <td style="font-size:.82rem;">{{ req.start_date }}</td>

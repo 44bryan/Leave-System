@@ -29,7 +29,7 @@
                                 </span>
                             </div>
                             <div id="deductible-badge-no" style="display:none;">
-                                <span class="badge" style="background:#e8f5e9;color:#2e7d32;border:1.5px solid #86efac;font-size:0.78rem;padding:5px 12px;border-radius:20px;">
+                                <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1.5px solid #86efac;font-size:0.78rem;padding:5px 12px;border-radius:20px;">
                                     <i class="bi bi-shield-check me-1"></i>{% trans "Non-Deductible — does not affect your annual balance" %}
                                 </span>
                             </div>
@@ -98,14 +98,14 @@
                     <!-- Requestor Signature -->
                     <div class="mb-4">
                         <label class="form-label fw-semibold">
-                            <i class="bi bi-pen me-1" style="color:#0891a8;"></i>
+                            <i class="bi bi-pen me-1" style="color:#2db4c3;"></i>
                             {% trans "Your Signature" %} <span class="text-danger">*</span>
                         </label>
                         <input type="hidden" name="signature_data" id="signatureData">
                         <input type="hidden" id="savedSigB64" value="{{ current_sig_b64 }}">
                         <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #cbd5e0;">
                             {% if current_sig_b64 %}
-                            <div style="font-size:0.78rem;color:#2e7d32;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                            <div style="font-size:0.78rem;color:#1a8fa0;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
                                 <i class="bi bi-check-circle-fill" style="color:#4caf50;"></i>
                                 {% trans "Your saved signature will be used. Draw below to replace it." %}
                             </div>
@@ -156,7 +156,7 @@
                 </div>
                 <div class="d-flex justify-content-between mb-3">
                     <span class="text-muted small">{% trans "Remaining" %}</span>
-                    <strong style="color: {% if balance.remaining_days <= 3 %}#e53e3e{% else %}#0d6832{% endif %};">
+                    <strong style="color: {% if balance.remaining_days <= 3 %}#e53e3e{% else %}#1a8fa0{% endif %};">
                         {% blocktrans with days=balance.remaining_days %}{{ days }} days{% endblocktrans %}
                     </strong>
                 </div>
@@ -204,7 +204,7 @@
                         <div style="font-size: 0.75rem; color: #6b7a8d;">{% trans "Administration Director signs off" %}</div>
                     </div>
                     <div class="timeline-item" style="margin-bottom: 0;">
-                        <div class="timeline-dot" style="background: #0d6832;"></div>
+                        <div class="timeline-dot" style="background: #1a8fa0;"></div>
                         <div style="font-size: 0.85rem; font-weight: 600;">{% trans "Fully Approved" %} ✓</div>
                         <div style="font-size: 0.75rem; color: #6b7a8d;">{% trans "Balance deducted automatically" %}</div>
                     </div>

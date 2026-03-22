@@ -64,7 +64,7 @@
                                 {{ e.user.first_name|first|upper }}
                             </div>
                             <div>
-                                <div style="font-weight:600;font-size:.875rem;color:#0891a8;">{{ e.get_full_name }}</div>
+                                <div style="font-weight:600;font-size:.875rem;color:#2db4c3;">{{ e.get_full_name }}</div>
                                 <div style="font-size:.7rem;color:#6b7a8d;">{{ e.employee_id }} <i class="bi bi-box-arrow-up-right" style="font-size:.6rem;"></i></div>
                             </div>
                         </a>
@@ -80,7 +80,7 @@
                             {{ b.remaining_days }}
                         </span>
                     </td>
-                    <td style="font-weight:600;color:{% if b.usage_percentage > 80 %}#e53e3e{% elif b.usage_percentage > 60 %}#f57f17{% else %}#0d6832{% endif %};">
+                    <td style="font-weight:600;color:{% if b.usage_percentage > 80 %}#e53e3e{% elif b.usage_percentage > 60 %}#f57f17{% else %}#1a8fa0{% endif %};">
                         {{ b.usage_percentage }}%
                     </td>
                     <td style="min-width:120px;">

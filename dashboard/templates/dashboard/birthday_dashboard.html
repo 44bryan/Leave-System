@@ -133,7 +133,7 @@
     <div class="col-12">
         <div class="card animate-in delay-1">
             <div class="card-header">
-                <i class="bi bi-grid-3x3-gap me-2" style="color:#0891a8;"></i>Annual Birthday Overview
+                <i class="bi bi-grid-3x3-gap me-2" style="color:#2db4c3;"></i>Annual Birthday Overview
             </div>
             <div class="card-body p-3">
                 <div class="row g-3">
@@ -145,7 +145,7 @@
                              style="background:{% if md.month == today.month %}#fffbeb{% elif md.month == selected_month %}#f0f9ff{% else %}#fafbfc{% endif %};transition:box-shadow .15s;"
                              onmouseover="this.style.boxShadow='0 4px 14px rgba(8,145,168,0.14)'" onmouseout="this.style.boxShadow=''">
                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span style="font-size:0.78rem;font-weight:700;color:{% if md.month == today.month %}#d97706{% elif md.month == selected_month %}#0891a8{% else %}#4a6b7c{% endif %};">
+                                <span style="font-size:0.78rem;font-weight:700;color:{% if md.month == today.month %}#d97706{% elif md.month == selected_month %}#2db4c3{% else %}#4a6b7c{% endif %};">
                                     {{ md.name }}
                                 </span>
                                 {% if md.month == today.month %}
@@ -153,7 +153,7 @@
                                 {% endif %}
                             </div>
                             {% if md.staff %}
-                            <div style="font-size:1.4rem;font-weight:800;color:{% if md.month == today.month %}#d97706{% elif md.month == selected_month %}#0891a8{% else %}#0d1b2a{% endif %};">
+                            <div style="font-size:1.4rem;font-weight:800;color:{% if md.month == today.month %}#d97706{% elif md.month == selected_month %}#2db4c3{% else %}#0d1b2a{% endif %};">
                                 {{ md.count }}
                                 <span style="font-size:0.7rem;font-weight:500;color:#9ab4c0;">staff</span>
                             </div>

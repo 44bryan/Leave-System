@@ -121,11 +121,11 @@
                     <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Contracts" %}</div>
                 </div>
                 <div class="text-center" style="min-width:60px;">
-                    <div style="font-size:1.5rem;font-weight:800;color:#2e7d32;">{{ leave_requests|length }}</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:#1a8fa0;">{{ leave_requests|length }}</div>
                     <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Leaves" %}</div>
                 </div>
                 <div class="text-center" style="min-width:60px;">
-                    <div style="font-size:1.5rem;font-weight:800;color:{% if discipline_records %}#c62828{% else %}#2e7d32{% endif %};">{{ discipline_records|length }}</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:{% if discipline_records %}#c62828{% else %}#1a8fa0{% endif %};">{{ discipline_records|length }}</div>
                     <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Discipline" %}</div>
                 </div>
             </div>
@@ -300,9 +300,9 @@
                                     <!-- Type badge -->
                                     <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
                                         {% if c.contract_type == 'INTERN' %}
-                                        <span class="badge" style="background:#cffafe;color:#0e7490;font-size:.8rem;"><i class="bi bi-mortarboard me-1"></i>{% trans "Internship" %}</span>
+                                        <span class="badge" style="background:#cffafe;color:#088395;font-size:.8rem;"><i class="bi bi-mortarboard me-1"></i>{% trans "Internship" %}</span>
                                         {% elif c.contract_type == 'WACS' %}
-                                        <span class="badge" style="background:#ede9fe;color:#6d28d9;font-size:.8rem;"><i class="bi bi-hospital me-1"></i>WACS</span>
+                                        <span class="badge" style="background:#ede9fe;color:#2db4c3;font-size:.8rem;"><i class="bi bi-hospital me-1"></i>WACS</span>
                                         {% elif c.contract_type == 'CDI' %}
                                         <span class="badge" style="background:#dcfce7;color:#1a8fa0;font-size:.8rem;"><i class="bi bi-infinity me-1"></i>CDI</span>
                                         {% else %}
@@ -354,7 +354,7 @@
     <div class="tab-pane fade" id="tab-leaves">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-calendar3 me-2" style="color:#2e7d32;"></i>{% trans "Leave Request History" %}</span>
+                <span><i class="bi bi-calendar3 me-2" style="color:#1a8fa0;"></i>{% trans "Leave Request History" %}</span>
                 <span class="badge bg-success">{{ leave_requests|length }}</span>
             </div>
             <div class="table-responsive">

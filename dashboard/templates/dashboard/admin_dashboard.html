@@ -62,7 +62,7 @@
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
         <div class="stat-card text-center">
-            <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-building"></i></div>
+            <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#1a8fa0;"><i class="bi bi-building"></i></div>
             <div class="stat-value">{{ total_departments }}</div>
             <div class="stat-label">{% trans "Departments" %}</div>
         </div>
@@ -90,7 +90,7 @@
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
         <div class="stat-card text-center">
-            <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-check2-all"></i></div>
+            <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#1a8fa0;"><i class="bi bi-check2-all"></i></div>
             <div class="stat-value">{{ approved_year }}</div>
             <div class="stat-label">Approved {{ year }}</div>
         </div>
@@ -342,8 +342,8 @@
                             <td style="font-size:.85rem;font-weight:600;">{{ row.dept }}</td>
                             <td class="text-center"><span class="badge" style="background:#dcfce7;color:#1a8fa0;">{{ row.CDI }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#fef9c3;color:#a16207;">{{ row.CDD }}</span></td>
-                            <td class="text-center"><span class="badge" style="background:#e0f2fe;color:#0369a1;">{{ row.INTERN }}</span></td>
-                            <td class="text-center"><span class="badge" style="background:#fdf4ff;color:#7e22ce;">{{ row.WACS }}</span></td>
+                            <td class="text-center"><span class="badge" style="background:#e0f2fe;color:#2db4c3;">{{ row.INTERN }}</span></td>
+                            <td class="text-center"><span class="badge" style="background:#fdf4ff;color:#2db4c3;">{{ row.WACS }}</span></td>
                             <td class="text-center"><strong>{{ row.total }}</strong></td>
                         </tr>
                         {% empty %}
@@ -594,7 +594,7 @@
     <!-- Quick Actions -->
     <div class="col-lg-3">
         <div class="card mb-3">
-            <div class="card-header"><i class="bi bi-lightning-charge me-2" style="color:#0891a8;"></i>{% trans "Quick Actions" %}</div>
+            <div class="card-header"><i class="bi bi-lightning-charge me-2" style="color:#2db4c3;"></i>{% trans "Quick Actions" %}</div>
             <div class="card-body p-3">
                 <a href="{% url 'accounts:employee_create' %}" class="btn btn-primary w-100 mb-2">
                     <i class="bi bi-person-plus me-2"></i>{% trans "Add New Employee" %}
@@ -685,7 +685,7 @@
                 {% if recent_logs %}
                 {% for log in recent_logs %}
                 <div class="d-flex align-items-start gap-2 py-2 border-bottom" style="font-size:0.82rem;">
-                    <div style="width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;{% if log.action_flag == 1 %}background:#e8f5e9;color:#2e7d32;{% elif log.action_flag == 3 %}background:#fce4ec;color:#c62828;{% else %}background:#fff8e1;color:#f57f17;{% endif %}">
+                    <div style="width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;{% if log.action_flag == 1 %}background:#e8f5e9;color:#1a8fa0;{% elif log.action_flag == 3 %}background:#fce4ec;color:#c62828;{% else %}background:#fff8e1;color:#f57f17;{% endif %}">
                         <i class="bi bi-{% if log.action_flag == 1 %}plus{% elif log.action_flag == 3 %}trash{% else %}pencil{% endif %}"></i>
                     </div>
                     <div class="flex-grow-1" style="min-width:0;">

@@ -27,10 +27,10 @@
                     <span style="font-size:.78rem;color:#4a6b7c;font-weight:600;">{% trans "Annual Entitlement:" %}</span>
                     <span class="badge bg-primary">{{ balance.total_entitlement }}d</span>
                     <span style="font-size:.78rem;color:#4a6b7c;">+</span>
-                    <span style="font-size:.78rem;color:#0369a1;font-weight:600;">
+                    <span style="font-size:.78rem;color:#2db4c3;font-weight:600;">
                         <i class="bi bi-arrow-right-circle me-1"></i>{% trans "Carried Forward:" %}
                     </span>
-                    <span class="badge" style="background:#0369a1;">{{ balance.carried_forward }}d</span>
+                    <span class="badge" style="background:#2db4c3;">{{ balance.carried_forward }}d</span>
                     <span style="font-size:.78rem;color:#4a6b7c;">=</span>
                     <span class="badge bg-dark">{{ balance.total_available }}d total</span>
                 </div>
@@ -45,7 +45,7 @@
                         <div style="font-size:.68rem;color:#6b7a8d;font-weight:600;">{% trans "Used" %}</div>
                     </div>
                     <div class="col-3">
-                        <div style="font-size:1.6rem;font-weight:800;color:#0d6832;">{{ balance.remaining_days }}</div>
+                        <div style="font-size:1.6rem;font-weight:800;color:#1a8fa0;">{{ balance.remaining_days }}</div>
                         <div style="font-size:.68rem;color:#6b7a8d;font-weight:600;">{% trans "Remaining" %}</div>
                     </div>
                     <div class="col-3">
@@ -64,20 +64,20 @@
     <div class="col-12 col-md-5 animate-in delay-1">
         <div class="card h-100" style="border-color:#86efac;">
             <div class="card-header" style="background:#f0fdf4;font-size:.8rem;border-color:#86efac;">
-                <i class="bi bi-shield-check me-1" style="color:#2e7d32;"></i>
+                <i class="bi bi-shield-check me-1" style="color:#1a8fa0;"></i>
                 <strong>{% trans "Non-Deductible Leaves Taken" %}</strong>
             </div>
             <div class="card-body p-3">
                 {% with nd_list=balance.non_deductible_by_type nd_total=balance.non_deductible_total %}
                 <div class="d-flex align-items-center gap-3 mb-2">
-                    <div style="font-size:1.8rem;font-weight:800;color:#2e7d32;">{{ nd_total }}</div>
+                    <div style="font-size:1.8rem;font-weight:800;color:#1a8fa0;">{{ nd_total }}</div>
                     <div style="font-size:.7rem;color:#6b7a8d;">{% trans "Total days this year" %}</div>
                 </div>
                 {% if nd_list %}
                 {% for item in nd_list %}
                 <div class="d-flex justify-content-between py-1" style="border-top:1px solid #f0f4f8;font-size:.78rem;">
                     <span>{{ item.name }}</span>
-                    <span class="badge" style="background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">{{ item.days }}d</span>
+                    <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">{{ item.days }}d</span>
                 </div>
                 {% endfor %}
                 {% else %}

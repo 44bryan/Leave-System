@@ -48,7 +48,7 @@
         <!-- Year-End: Carry Forward -->
         <div class="card animate-in delay-1 mt-3">
             <div class="card-header" style="background:#e0f2fe;border-color:#7dd3fc;">
-                <i class="bi bi-arrow-right-circle-fill me-2" style="color:#0369a1;"></i>
+                <i class="bi bi-arrow-right-circle-fill me-2" style="color:#2db4c3;"></i>
                 <strong>Year-End: Carry Forward Accumulated Leave</strong>
             </div>
             <div class="card-body p-4">
@@ -57,8 +57,8 @@
                     next year as <strong>accumulated (carried-forward) leave</strong>. This is added on top
                     of the standard annual entitlement for that year.
                 </p>
-                <div class="alert" style="background:#e0f2fe;border-color:#7dd3fc;border-left:4px solid #0369a1;font-size:.82rem;border-radius:10px;">
-                    <i class="bi bi-info-circle me-2" style="color:#0369a1;"></i>
+                <div class="alert" style="background:#e0f2fe;border-color:#7dd3fc;border-left:4px solid #2db4c3;font-size:.82rem;border-radius:10px;">
+                    <i class="bi bi-info-circle me-2" style="color:#2db4c3;"></i>
                     Example: If an employee has <strong>4 days remaining in 2025</strong>, running carry-forward
                     will add <strong>4 days accumulated</strong> to their 2026 balance (18 + 4 = 22 days total).
                 </div>
@@ -75,10 +75,10 @@
                             </select>
                         </div>
                         <div style="padding-bottom:6px;">
-                            <i class="bi bi-arrow-right fs-5" style="color:#0369a1;"></i>
-                            <span style="font-size:.82rem;color:#0369a1;font-weight:600;" id="cfToYearLabel">{{ year|add:1 }}</span>
+                            <i class="bi bi-arrow-right fs-5" style="color:#2db4c3;"></i>
+                            <span style="font-size:.82rem;color:#2db4c3;font-weight:600;" id="cfToYearLabel">{{ year|add:1 }}</span>
                         </div>
-                        <button type="submit" class="btn btn-primary px-4" style="background:#0369a1;border-color:#0369a1;">
+                        <button type="submit" class="btn btn-primary px-4" style="background:#2db4c3;border-color:#2db4c3;">
                             <i class="bi bi-arrow-right-circle me-2"></i>Run Carry Forward
                         </button>
                     </div>
@@ -115,7 +115,7 @@
                             <td class="text-center"><span class="badge bg-primary">{{ item.balance.total_entitlement }}</span></td>
                             <td class="text-center">
                                 {% if item.balance.carried_forward > 0 %}
-                                <span class="badge" style="background:#0369a1;color:white;">+{{ item.balance.carried_forward }}</span>
+                                <span class="badge" style="background:#2db4c3;color:white;">+{{ item.balance.carried_forward }}</span>
                                 {% else %}
                                 <span class="text-muted" style="font-size:.75rem;">—</span>
                                 {% endif %}
@@ -165,7 +165,7 @@
         <!-- Export -->
         <div class="card animate-in delay-2 mb-4">
             <div class="card-header" style="background:#e8f5e9;border-color:#86efac;">
-                <i class="bi bi-cloud-download me-2" style="color:#2e7d32;"></i>
+                <i class="bi bi-cloud-download me-2" style="color:#1a8fa0;"></i>
                 <strong>Export / Backup</strong>
             </div>
             <div class="card-body p-4">
@@ -174,20 +174,20 @@
                     leave types, balances, and leave requests.
                 </p>
                 <div class="d-flex gap-2 flex-wrap mb-3">
-                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">
+                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">
                         <i class="bi bi-people me-1"></i>Employees
                     </div>
-                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">
+                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">
                         <i class="bi bi-building me-1"></i>Departments
                     </div>
-                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">
+                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">
                         <i class="bi bi-calendar-check me-1"></i>Leave Requests
                     </div>
-                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#2e7d32;border:1px solid #86efac;">
+                    <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">
                         <i class="bi bi-bar-chart me-1"></i>Balances
                     </div>
                 </div>
-                <a href="{% url 'dashboard:export_data' %}" class="btn px-4" style="background:#2e7d32;color:white;border:none;">
+                <a href="{% url 'dashboard:export_data' %}" class="btn px-4" style="background:#1a8fa0;color:white;border:none;">
                     <i class="bi bi-download me-2"></i>Download Backup (.json)
                 </a>
             </div>

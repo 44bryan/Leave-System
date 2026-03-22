@@ -15,18 +15,18 @@
     
     <style>
         :root {
-            --primary: #0891a8;
+            --primary: #2db4c3;
             --primary-light: #0da8c0;
             --accent: #17c3d9;
             --accent-soft: #e0f7fa;
-            --success: #0d6832;
+            --success: #1a8fa0;
             --warning-soft: #fff8e1;
             --danger-soft: #fce4ec;
             --bg: #e8f6f9;
             --card-bg: #ffffff;
             --sidebar-bg: #ffffff;
             --sidebar-text: #4a6b7c;
-            --sidebar-active: #0891a8;
+            --sidebar-active: #2db4c3;
             --text-primary: #0d1b2a;
             --text-muted: #6b7a8d;
             --border: #cde8ef;
@@ -81,7 +81,7 @@
         }
         .topbar-search-input::placeholder { color: #9ab4c0; }
         .topbar-search-input:focus {
-            border-color: #0891a8;
+            border-color: #2db4c3;
             box-shadow: 0 0 0 3px rgba(8,145,168,0.1);
             background: white;
             width: 320px;
@@ -113,8 +113,8 @@
             white-space: nowrap;
         }
         .lang-dropdown-btn:hover, .lang-dropdown-btn.show {
-            border-color: #0891a8;
-            color: #0891a8;
+            border-color: #2db4c3;
+            color: #2db4c3;
             background: #f0fafc;
         }
         .lang-dropdown-btn::after { display: none; }
@@ -143,7 +143,7 @@
         .user-chip-avatar {
             width: 26px; height: 26px;
             border-radius: 7px;
-            background: linear-gradient(135deg, #0891a8, #0da8c0);
+            background: linear-gradient(135deg, #2db4c3, #0da8c0);
             color: white;
             font-weight: 800;
             font-size: 0.7rem;
@@ -174,8 +174,8 @@
             padding: 0;
         }
         .settings-btn:hover, .settings-btn.show {
-            border-color: #0891a8;
-            color: #0891a8;
+            border-color: #2db4c3;
+            color: #2db4c3;
             background: #f0fafc;
         }
         .settings-btn::after { display: none; }
@@ -231,12 +231,12 @@
 
         .nav-link-sidebar:hover {
             background: #e0f5f8;
-            color: #0891a8;
+            color: #2db4c3;
         }
 
         .nav-link-sidebar.active {
             background: linear-gradient(135deg, #d0eff5, #c5eaf2);
-            color: #0891a8;
+            color: #2db4c3;
             border: 1px solid #a8dce8;
             font-weight: 600;
         }
@@ -310,7 +310,7 @@
 
         /* ─── TOPBAR ─── */
         .topbar {
-            background: #0891a8;
+            background: #2db4c3;
             border-bottom: none;
             box-shadow: 0 2px 16px rgba(8,145,168,0.28);
             padding: 12px 28px;
@@ -432,7 +432,7 @@
             min-width: 17px; height: 17px;
             display: flex; align-items: center; justify-content: center;
             padding: 0 3px;
-            border: 2px solid #0891a8;
+            border: 2px solid #2db4c3;
         }
         .notif-panel {
             width: 360px;
@@ -483,7 +483,7 @@
         .notif-time { font-size: 0.68rem; color: #9ab4c0; margin-top: 3px; }
         .notif-dot {
             width: 7px; height: 7px;
-            background: #0891a8;
+            background: #2db4c3;
             border-radius: 50%;
             flex-shrink: 0;
             margin-top: 4px;
@@ -769,7 +769,7 @@
                 display: flex; align-items: center; justify-content: center;
                 border-radius: 9px; flex-shrink: 0; cursor: pointer;
             }
-            .mobile-search-back:hover { background: #f0fafc; color: #0891a8; }
+            .mobile-search-back:hover { background: #f0fafc; color: #2db4c3; }
             .mobile-search-input {
                 flex: 1;
                 height: 42px;
@@ -781,7 +781,7 @@
                 outline: none;
             }
             .mobile-search-input:focus {
-                border-color: #0891a8;
+                border-color: #2db4c3;
                 box-shadow: 0 0 0 3px rgba(8,145,168,0.1);
             }
             .mobile-search-body {
@@ -818,7 +818,7 @@
             }
             .sidebar-footer-item:hover, .sidebar-footer-item.show {
                 background: #e0f5f8;
-                color: #0891a8;
+                color: #2db4c3;
             }
             .sidebar-footer-item::after { display: none; }
             .sidebar-footer-icon {
@@ -877,7 +877,7 @@
         .search-result-avatar {
             width: 32px; height: 32px; flex-shrink: 0;
             border-radius: 9px;
-            background: linear-gradient(135deg, #0891a8, #0da8c0);
+            background: linear-gradient(135deg, #2db4c3, #0da8c0);
             color: white; font-weight: 700; font-size: 0.72rem;
             display: flex; align-items: center; justify-content: center;
         }
@@ -885,7 +885,7 @@
             width: 32px; height: 32px; flex-shrink: 0;
             border-radius: 9px;
             background: #e8f6f9;
-            color: #0891a8; font-size: 0.9rem;
+            color: #2db4c3; font-size: 0.9rem;
             display: flex; align-items: center; justify-content: center;
         }
         .search-result-title {
@@ -1018,7 +1018,7 @@
                     <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle me-2"></i>{% trans "My Profile" %}</a></li>
                     {% if user.is_superuser %}
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}"><i class="bi bi-sliders me-2" style="color:#0891a8;"></i>{% trans "System Settings" %}</a></li>
+                    <li><a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}"><i class="bi bi-sliders me-2" style="color:#2db4c3;"></i>{% trans "System Settings" %}</a></li>
                     {% endif %}
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}" data-no-suspend><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}</a></li>
@@ -1499,7 +1499,7 @@ function toggleSidebar() {
     }
 
     function doSearch(q) {
-        dropdown.innerHTML = '<div class="search-spinner"><span class="spinner-border spinner-border-sm me-2" style="color:#0891a8;"></span>Searching…</div>';
+        dropdown.innerHTML = '<div class="search-spinner"><span class="spinner-border spinner-border-sm me-2" style="color:#2db4c3;"></span>Searching…</div>';
         dropdown.classList.add('show');
         fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -1584,7 +1584,7 @@ function toggleSidebar() {
         clearTimeout(debounce);
         const q = this.value.trim();
         if (q.length < 2) { body.innerHTML = ''; return; }
-        body.innerHTML = '<div class="search-spinner"><span class="spinner-border spinner-border-sm me-2" style="color:#0891a8;"></span>Searching…</div>';
+        body.innerHTML = '<div class="search-spinner"><span class="spinner-border spinner-border-sm me-2" style="color:#2db4c3;"></span>Searching…</div>';
         debounce = setTimeout(() => {
             fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(r => r.json()).then(renderMobile).catch(() => { body.innerHTML = ''; });
