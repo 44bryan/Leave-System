@@ -20,6 +20,11 @@ CSRF_TRUSTED_ORIGINS = [
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 
+# Read early so INSTALLED_APPS and storage can be configured conditionally
+CLOUDINARY_URL = config('CLOUDINARY_URL', default=None)
+
+_cloudinary_apps = ['cloudinary_storage', 'cloudinary'] if CLOUDINARY_URL else []
+
 INSTALLED_APPS = [
     'anymail',
     'django.contrib.admin',
@@ -28,8 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage',
-    'cloudinary',
+    *_cloudinary_apps,
     'accounts',
     'leaves',
     'dashboard',
@@ -117,11 +121,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # ── Cloudinary (media file storage) ─────────────────────────────────────────
 # Set CLOUDINARY_URL=cloudinary://key:secret@cloud_name in Railway env vars.
 # Without it, falls back to local media storage (dev only).
-CLOUDINARY_URL = config('CLOUDINARY_URL', default=None)
 if CLOUDINARY_URL:
-    import cloudinary
-    import cloudinary.uploader
-    import cloudinary.api
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
