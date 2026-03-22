@@ -1197,92 +1197,106 @@ def _hr_required(request):
 
 
 def _pdf_report_header(canvas, doc, title, subtitle=''):
-    """Executive-grade PDF header — large logo, clean layout, MICEI brand colors."""
+    """Executive-grade PDF header/footer — matching navy bands top & bottom, MICEI brand."""
     from reportlab.lib import colors
     from reportlab.lib.units import mm
-    from reportlab.lib.utils import ImageReader
     import os
     from django.conf import settings as _s
 
     W = doc.pagesize[0]
     H = doc.pagesize[1]
 
-    TEAL       = colors.HexColor('#2db4c3')
-    TEAL_DARK  = colors.HexColor('#1a8fa0')
-    DARK       = colors.HexColor('#0a2540')
-    GRAY       = colors.HexColor('#6b7280')
-    LIGHT_GRAY = colors.HexColor('#f8fafc')
+    NAVY       = colors.HexColor('#0A4D68')   # primary brand — same for header + footer
+    TEAL       = colors.HexColor('#2db4c3')   # accent stripe
     WHITE      = colors.white
+    OFF_WHITE  = colors.HexColor('#e8f4f8')   # subtitle text on dark bg
+    SILVER     = colors.HexColor('#94a3b8')   # footer secondary text
+
+    HEADER_H   = 30 * mm   # height of top navy band
+    ACCENT_H   = 2.5 * mm  # teal stripe below header
+    FOOTER_H   = 10 * mm   # height of bottom navy band
 
     canvas.saveState()
 
-    # ── 1. Full-width white header background ─────────────────────────
-    canvas.setFillColor(WHITE)
-    canvas.rect(0, H - 38*mm, W, 38*mm, fill=1, stroke=0)
+    # ══════════════════════════════════════════════════
+    # HEADER — full-width navy band
+    # ══════════════════════════════════════════════════
+    canvas.setFillColor(NAVY)
+    canvas.rect(0, H - HEADER_H, W, HEADER_H, fill=1, stroke=0)
 
-    # ── 2. Large logo — centred vertically in header ──────────────────
+    # Logo — left-aligned inside the navy band, vertically centred
     logo_path = os.path.join(_s.BASE_DIR, 'static', 'LOGO.png')
+    logo_w, logo_h = 38 * mm, 24 * mm
+    logo_x = 10 * mm
+    logo_y = H - HEADER_H + (HEADER_H - logo_h) / 2
     if os.path.exists(logo_path):
-        canvas.drawImage(logo_path, 10*mm, H - 36*mm,
-                         width=42*mm, height=33*mm,
+        canvas.drawImage(logo_path, logo_x, logo_y,
+                         width=logo_w, height=logo_h,
                          preserveAspectRatio=True, mask='auto')
 
-    # ── 3. Vertical teal divider after logo ───────────────────────────
-    canvas.setStrokeColor(TEAL)
-    canvas.setLineWidth(1.2)
-    canvas.line(56*mm, H - 33*mm, 56*mm, H - 8*mm)
+    # Vertical white divider after logo
+    divider_x = logo_x + logo_w + 5 * mm
+    canvas.setStrokeColor(colors.HexColor('#4a8fa8'))
+    canvas.setLineWidth(0.8)
+    canvas.line(divider_x, H - HEADER_H + 5*mm, divider_x, H - 5*mm)
 
-    # ── 4. Report metadata (right of divider) ─────────────────────────
-    canvas.setFillColor(DARK)
-    canvas.setFont('Helvetica-Bold', 18)
-    canvas.drawString(60*mm, H - 18*mm, title)
-
-    canvas.setFillColor(TEAL)
-    canvas.setFont('Helvetica', 9)
-    canvas.drawString(60*mm, H - 25*mm, 'MICEI HRM  ·  Human Resource Management System')
-
-    canvas.setFillColor(GRAY)
-    canvas.setFont('Helvetica', 8)
-    canvas.drawString(60*mm, H - 31*mm, subtitle)
-
-    # ── 5. Date + CONFIDENTIAL badge (top-right corner) ───────────────
-    canvas.setFillColor(GRAY)
-    canvas.setFont('Helvetica', 8)
-    canvas.drawRightString(W - 12*mm, H - 12*mm, date.today().strftime('%d %B %Y'))
-
-    # CONFIDENTIAL pill badge
-    badge_x = W - 44*mm
-    badge_y = H - 24*mm
-    canvas.setFillColor(colors.HexColor('#fef2f2'))
-    canvas.roundRect(badge_x, badge_y, 32*mm, 6*mm, 2*mm, fill=1, stroke=0)
-    canvas.setFillColor(colors.HexColor('#dc2626'))
-    canvas.setFont('Helvetica-Bold', 7)
-    canvas.drawCentredString(badge_x + 16*mm, badge_y + 1.8*mm, 'CONFIDENTIAL')
-
-    # ── 6. Teal accent bar (bottom of header, full width) ────────────
-    canvas.setFillColor(TEAL)
-    canvas.rect(0, H - 40*mm, W, 2.5*mm, fill=1, stroke=0)
-
-    # Thin dark accent under teal
-    canvas.setFillColor(TEAL_DARK)
-    canvas.rect(0, H - 40.8*mm, W, 0.8*mm, fill=1, stroke=0)
-
-    # ── 7. Footer bar ────────────────────────────────────────────────
-    canvas.setFillColor(DARK)
-    canvas.rect(0, 0, W, 9*mm, fill=1, stroke=0)
-
-    canvas.setFillColor(TEAL)
-    canvas.setFont('Helvetica-Bold', 7)
-    canvas.drawString(12*mm, 3.2*mm, 'MICEI HRM')
-
-    canvas.setFillColor(colors.HexColor('#94a3b8'))
-    canvas.setFont('Helvetica', 7)
-    canvas.drawString(29*mm, 3.2*mm,
-        '·  Official HR Document  ·  For Internal Use Only')
-
+    # Report title — white, bold, large
+    text_x = divider_x + 6 * mm
     canvas.setFillColor(WHITE)
+    canvas.setFont('Helvetica-Bold', 16)
+    canvas.drawString(text_x, H - 13 * mm, title)
+
+    # Subtitle line
+    canvas.setFillColor(OFF_WHITE)
+    canvas.setFont('Helvetica', 8)
+    canvas.drawString(text_x, H - 20 * mm, 'MICEI HRM  ·  Human Resource Management System')
+    if subtitle:
+        canvas.setFont('Helvetica', 7.5)
+        canvas.drawString(text_x, H - 26 * mm, subtitle)
+
+    # Date — top-right, white
+    canvas.setFillColor(WHITE)
+    canvas.setFont('Helvetica', 7.5)
+    canvas.drawRightString(W - 12 * mm, H - 10 * mm, date.today().strftime('%d %B %Y'))
+
+    # CONFIDENTIAL badge — white pill, navy text — top-right below date
+    badge_w, badge_h = 30 * mm, 5.5 * mm
+    badge_x = W - badge_w - 12 * mm
+    badge_y = H - 22 * mm
+    canvas.setFillColor(WHITE)
+    canvas.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=1, stroke=0)
+    canvas.setFillColor(NAVY)
     canvas.setFont('Helvetica-Bold', 7)
-    canvas.drawRightString(W - 12*mm, 3.2*mm, f'Page {doc.page}')
+    canvas.drawCentredString(badge_x + badge_w / 2, badge_y + 1.6 * mm, 'CONFIDENTIAL')
+
+    # ── Teal accent stripe separating header from body ─────────────
+    canvas.setFillColor(TEAL)
+    canvas.rect(0, H - HEADER_H - ACCENT_H, W, ACCENT_H, fill=1, stroke=0)
+
+    # ══════════════════════════════════════════════════
+    # FOOTER — same navy band as header (bookending)
+    # ══════════════════════════════════════════════════
+    canvas.setFillColor(NAVY)
+    canvas.rect(0, 0, W, FOOTER_H, fill=1, stroke=0)
+
+    # Teal accent stripe on top of footer
+    canvas.setFillColor(TEAL)
+    canvas.rect(0, FOOTER_H, W, 1.2 * mm, fill=1, stroke=0)
+
+    # Footer left — MICEI HRM
+    canvas.setFillColor(WHITE)
+    canvas.setFont('Helvetica-Bold', 7.5)
+    canvas.drawString(12 * mm, 3.5 * mm, 'MICEI HRM')
+
+    # Footer center — confidentiality note
+    canvas.setFillColor(SILVER)
+    canvas.setFont('Helvetica', 7)
+    canvas.drawCentredString(W / 2, 3.5 * mm, 'Official HR Document  ·  For Internal Use Only')
+
+    # Footer right — page number
+    canvas.setFillColor(WHITE)
+    canvas.setFont('Helvetica-Bold', 7.5)
+    canvas.drawRightString(W - 12 * mm, 3.5 * mm, f'Page {doc.page}')
 
     canvas.restoreState()
 
@@ -1313,7 +1327,7 @@ def export_leaves_excel(request):
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
-                            topMargin=46 * mm, bottomMargin=15 * mm,
+                            topMargin=40 * mm, bottomMargin=16 * mm,
                             leftMargin=15 * mm, rightMargin=15 * mm)
 
     header_row = ['#', 'Employee', 'Department', 'Leave Type', 'Start', 'End', 'Days', 'Status', 'Applied On']
@@ -1373,7 +1387,7 @@ def export_contracts_excel(request):
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
-                            topMargin=46 * mm, bottomMargin=15 * mm,
+                            topMargin=40 * mm, bottomMargin=16 * mm,
                             leftMargin=15 * mm, rightMargin=15 * mm)
 
     header_row = ['#', 'Employee', 'Employee ID', 'Department', 'Type', 'Start Date', 'End Date', 'Days Left', 'Contract No.']
@@ -1435,7 +1449,7 @@ def export_discipline_excel(request):
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
-                            topMargin=46 * mm, bottomMargin=15 * mm,
+                            topMargin=40 * mm, bottomMargin=16 * mm,
                             leftMargin=15 * mm, rightMargin=15 * mm)
 
     header_row = ['#', 'Employee', 'Emp. ID', 'Department', 'Action', 'Date Issued', 'Issued By', 'Suspension Period']
