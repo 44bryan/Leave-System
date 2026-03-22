@@ -744,6 +744,7 @@ def hr_dashboard(request, employee):
     total_employees = Employee.objects.filter(is_active=True).count()
     total_requests_year = LeaveRequest.objects.filter(start_date__year=year).count()
     pending_manager = LeaveRequest.objects.filter(status='pending').count()
+    pending_unit_approved = LeaveRequest.objects.filter(status='unit_head_approved').count()
     pending_hr = LeaveRequest.objects.filter(status='manager_approved').count()
     pending_director = LeaveRequest.objects.filter(status='hr_approved').count()
     approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
@@ -840,6 +841,7 @@ def hr_dashboard(request, employee):
         'total_employees': total_employees,
         'total_requests_year': total_requests_year,
         'pending_manager': pending_manager,
+        'pending_unit_approved': pending_unit_approved,
         'pending_hr': pending_hr,
         'pending_director': pending_director,
         'approved_year': approved_year,
