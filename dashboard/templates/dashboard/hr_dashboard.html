@@ -194,35 +194,58 @@
 <div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> {% trans "Overview" %}</div>
 
 <!-- Leave Approval Pipeline -->
-<div class="card mb-3 animate-in">
-    <div class="card-body p-3">
-        <div style="font-size:0.7rem;text-transform:uppercase;font-weight:700;color:#9ab4c0;letter-spacing:.06em;margin-bottom:10px;">
-            <i class="bi bi-signpost-split me-1"></i>{% trans "Leave Approval Pipeline — live counts" %}
+<div class="section-label"><i class="bi bi-arrow-right-circle me-1"></i>{% trans "Leave Approval Pipeline" %}</div>
+<div class="row g-3 mb-3 animate-in">
+    <!-- Step 1 -->
+    <div class="col-6 col-md-3">
+        <div class="hr-kpi-card" style="{% if pending_manager > 0 %}border-left:4px solid #f59e0b;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="hr-kpi-icon" style="background:{% if pending_manager > 0 %}#fffbeb{% else %}#f8fafc{% endif %};color:{% if pending_manager > 0 %}#d97706{% else %}#cbd5e1{% endif %};">
+                    <i class="bi bi-person-clock"></i>
+                </div>
+                <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ab4c0;">{% trans "Step" %} 1</span>
+            </div>
+            <div class="hr-kpi-value" style="color:{% if pending_manager > 0 %}#d97706{% else %}#cbd5e1{% endif %};">{{ pending_manager }}</div>
+            <div class="hr-kpi-label">{% trans "Awaiting Unit Head / Manager" %}</div>
         </div>
-        <div class="d-flex align-items-stretch gap-0 flex-wrap" style="gap:0!important;">
-            <!-- Step 1: Awaiting Unit Head / Manager -->
-            <div class="flex-fill text-center p-2" style="border:1px solid #e2e8f0;border-radius:8px 0 0 8px;background:{% if pending_manager > 0 %}#fffbeb{% else %}#f8fafc{% endif %};">
-                <div style="font-size:1.6rem;font-weight:800;color:{% if pending_manager > 0 %}#d97706{% else %}#cbd5e1{% endif %};">{{ pending_manager }}</div>
-                <div style="font-size:0.68rem;color:#6b7280;line-height:1.3;">{% trans "Awaiting Unit Head" %}<br>{% trans "/ Manager" %}</div>
+    </div>
+    <!-- Step 2 -->
+    <div class="col-6 col-md-3">
+        <div class="hr-kpi-card" style="{% if pending_unit_approved > 0 %}border-left:4px solid #f59e0b;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="hr-kpi-icon" style="background:{% if pending_unit_approved > 0 %}#fffbeb{% else %}#f8fafc{% endif %};color:{% if pending_unit_approved > 0 %}#d97706{% else %}#cbd5e1{% endif %};">
+                    <i class="bi bi-person-check"></i>
+                </div>
+                <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ab4c0;">{% trans "Step" %} 2</span>
             </div>
-            <div class="d-flex align-items-center px-1" style="color:#cbd5e1;font-size:1rem;">›</div>
-            <!-- Step 2: Unit Head Approved — Awaiting Manager -->
-            <div class="flex-fill text-center p-2" style="border:1px solid #e2e8f0;background:{% if pending_unit_approved > 0 %}#fffbeb{% else %}#f8fafc{% endif %};">
-                <div style="font-size:1.6rem;font-weight:800;color:{% if pending_unit_approved > 0 %}#d97706{% else %}#cbd5e1{% endif %};">{{ pending_unit_approved }}</div>
-                <div style="font-size:0.68rem;color:#6b7280;line-height:1.3;">{% trans "Unit Head Approved" %}<br>{% trans "— Awaiting Manager" %}</div>
+            <div class="hr-kpi-value" style="color:{% if pending_unit_approved > 0 %}#d97706{% else %}#cbd5e1{% endif %};">{{ pending_unit_approved }}</div>
+            <div class="hr-kpi-label">{% trans "Unit Head Done — Awaiting Manager" %}</div>
+        </div>
+    </div>
+    <!-- Step 3 — HR's queue -->
+    <div class="col-6 col-md-3">
+        <div class="hr-kpi-card" style="{% if pending_hr > 0 %}border-left:4px solid #2db4c3;background:linear-gradient(135deg,#f0fdff,#fff);{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="hr-kpi-icon" style="background:{% if pending_hr > 0 %}#e0f7fa{% else %}#f8fafc{% endif %};color:{% if pending_hr > 0 %}#2db4c3{% else %}#cbd5e1{% endif %};">
+                    <i class="bi bi-clipboard2-check-fill"></i>
+                </div>
+                <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:{% if pending_hr > 0 %}#088395{% else %}#9ab4c0{% endif %};">{% if pending_hr > 0 %}<span class="pending-pulse"></span>{% endif %}{% trans "Your Queue" %}</span>
             </div>
-            <div class="d-flex align-items-center px-1" style="color:#cbd5e1;font-size:1rem;">›</div>
-            <!-- Step 3: Awaiting HR (you) — highlighted -->
-            <div class="flex-fill text-center p-2" style="border:2px solid {% if pending_hr > 0 %}#2db4c3{% else %}#e2e8f0{% endif %};background:{% if pending_hr > 0 %}linear-gradient(135deg,#e0f7fa,#f0fdff){% else %}#f8fafc{% endif %};">
-                <div style="font-size:1.6rem;font-weight:800;color:{% if pending_hr > 0 %}#2db4c3{% else %}#cbd5e1{% endif %};">{{ pending_hr }}</div>
-                <div style="font-size:0.68rem;color:{% if pending_hr > 0 %}#088395{% else %}#6b7280{% endif %};font-weight:{% if pending_hr > 0 %}700{% else %}400{% endif %};line-height:1.3;">{% trans "Awaiting HR" %}<br><span style="font-size:0.62rem;">{% trans "(Your Queue)" %}</span></div>
+            <div class="hr-kpi-value" style="color:{% if pending_hr > 0 %}#2db4c3{% else %}#cbd5e1{% endif %};">{{ pending_hr }}</div>
+            <div class="hr-kpi-label" style="{% if pending_hr > 0 %}color:#088395;{% endif %}">{% trans "Awaiting HR Review" %}</div>
+        </div>
+    </div>
+    <!-- Step 4 -->
+    <div class="col-6 col-md-3">
+        <div class="hr-kpi-card" style="{% if pending_director > 0 %}border-left:4px solid #0A4D68;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="hr-kpi-icon" style="background:{% if pending_director > 0 %}#e3f2fd{% else %}#f8fafc{% endif %};color:{% if pending_director > 0 %}#0A4D68{% else %}#cbd5e1{% endif %};">
+                    <i class="bi bi-award-fill"></i>
+                </div>
+                <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ab4c0;">{% trans "Step" %} 4</span>
             </div>
-            <div class="d-flex align-items-center px-1" style="color:#cbd5e1;font-size:1rem;">›</div>
-            <!-- Step 4: Awaiting Director -->
-            <div class="flex-fill text-center p-2" style="border:1px solid #e2e8f0;border-radius:0 8px 8px 0;background:{% if pending_director > 0 %}#f0f4ff{% else %}#f8fafc{% endif %};">
-                <div style="font-size:1.6rem;font-weight:800;color:{% if pending_director > 0 %}#0A4D68{% else %}#cbd5e1{% endif %};">{{ pending_director }}</div>
-                <div style="font-size:0.68rem;color:#6b7280;line-height:1.3;">{% trans "HR Approved" %}<br>{% trans "— Awaiting Director" %}</div>
-            </div>
+            <div class="hr-kpi-value" style="color:{% if pending_director > 0 %}#0A4D68{% else %}#cbd5e1{% endif %};">{{ pending_director }}</div>
+            <div class="hr-kpi-label">{% trans "HR Done — Awaiting Director" %}</div>
         </div>
     </div>
 </div>
