@@ -36,10 +36,10 @@
     color: white;
     z-index: 1;
 }
-.ct-dot--active     { background: #16a34a; box-shadow: 0 0 0 4px #dcfce7; }
+.ct-dot--active     { background: #2db4c3; box-shadow: 0 0 0 4px #dcfce7; }
 .ct-dot--terminated { background: #dc2626; box-shadow: 0 0 0 4px #fee2e2; }
 .ct-dot--expired    { background: #6b7280; box-shadow: 0 0 0 4px #f3f4f6; }
-.ct-dot--renewed    { background: #0284c7; box-shadow: 0 0 0 4px #e0f2fe; }
+.ct-dot--renewed    { background: #2db4c3; box-shadow: 0 0 0 4px #e0f2fe; }
 
 .ct-connector {
     width: 2px;
@@ -249,7 +249,7 @@
     <div class="tab-pane fade" id="tab-contracts">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-file-earmark-text me-2" style="color:#0284c7;"></i>{% trans "Contract History" %}</span>
+                <span><i class="bi bi-file-earmark-text me-2" style="color:#2db4c3;"></i>{% trans "Contract History" %}</span>
                 <span class="badge bg-primary">{{ contracts|length }}</span>
             </div>
             <div class="card-body p-4">
@@ -304,7 +304,7 @@
                                         {% elif c.contract_type == 'WACS' %}
                                         <span class="badge" style="background:#ede9fe;color:#6d28d9;font-size:.8rem;"><i class="bi bi-hospital me-1"></i>WACS</span>
                                         {% elif c.contract_type == 'CDI' %}
-                                        <span class="badge" style="background:#dcfce7;color:#15803d;font-size:.8rem;"><i class="bi bi-infinity me-1"></i>CDI</span>
+                                        <span class="badge" style="background:#dcfce7;color:#1a8fa0;font-size:.8rem;"><i class="bi bi-infinity me-1"></i>CDI</span>
                                         {% else %}
                                         <span class="badge" style="background:#fef9c3;color:#a16207;font-size:.8rem;"><i class="bi bi-calendar-range me-1"></i>CDD</span>
                                         {% endif %}

@@ -34,8 +34,8 @@
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card animate-in text-center py-3" style="border-left:3px solid #0891b2;">
-            <div style="font-size:2rem;font-weight:800;color:#0891b2;line-height:1;">
+        <div class="card animate-in text-center py-3" style="border-left:3px solid #2db4c3;">
+            <div style="font-size:2rem;font-weight:800;color:#2db4c3;line-height:1;">
                 {% for item in near_retirement %}{% if item.years_to_retirement <= 1 %}1{% endif %}{% endfor %}
             </div>
             <div style="font-size:0.72rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">≤ 1 Year Remaining</div>
@@ -116,7 +116,7 @@
                         <i class="bi bi-exclamation-triangle-fill me-1"></i>At Retirement Age
                     </span>
                     {% elif ytr == 1 %}
-                    <span class="badge" style="background:#fff7ed;color:#ea580c;font-size:0.72rem;padding:5px 10px;border-radius:8px;">
+                    <span class="badge" style="background:#fff7ed;color:#2db4c3;font-size:0.72rem;padding:5px 10px;border-radius:8px;">
                         <i class="bi bi-alarm me-1"></i>Critical
                     </span>
                     {% elif ytr == 2 %}

@@ -15,9 +15,9 @@
 {% block content %}
 <div class="row g-4 mb-4 animate-in">
     <div class="col-md-4">
-        <div class="stat-card" style="border-top:3px solid #16a34a;">
-            <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-person-check-fill"></i></div>
-            <div class="stat-value" style="color:#16a34a;">{{ created|length }}</div>
+        <div class="stat-card" style="border-top:3px solid #2db4c3;">
+            <div class="stat-icon" style="background:#dcfce7;color:#2db4c3;"><i class="bi bi-person-check-fill"></i></div>
+            <div class="stat-value" style="color:#2db4c3;">{{ created|length }}</div>
             <div class="stat-label">Successfully Imported</div>
         </div>
     </div>
@@ -29,8 +29,8 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="stat-card" style="border-top:3px solid #0891b2;">
-            <div class="stat-icon" style="background:#cffafe;color:#0891b2;"><i class="bi bi-list-check"></i></div>
+        <div class="stat-card" style="border-top:3px solid #2db4c3;">
+            <div class="stat-icon" style="background:#cffafe;color:#2db4c3;"><i class="bi bi-list-check"></i></div>
             <div class="stat-value">{{ total_processed }}</div>
             <div class="stat-label">Total Rows Processed</div>
         </div>
@@ -39,7 +39,7 @@
 
 {% if created %}
 <div class="card animate-in delay-1 mb-4">
-    <div class="card-header" style="background:#f0fdf4;color:#15803d;border-bottom:1px solid #bbf7d0;">
+    <div class="card-header" style="background:#f0fdf4;color:#1a8fa0;border-bottom:1px solid #bbf7d0;">
         <i class="bi bi-check-circle-fill me-2"></i> Successfully Created ({{ created|length }})
     </div>
     <div class="table-responsive">

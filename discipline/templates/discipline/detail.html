@@ -167,7 +167,7 @@
             <!-- Step 2 — HR Proposed Sanction (shown once Step 1 exists or no manager recommendation needed) -->
             <div class="card mb-3" style="border:1.5px solid #bfdbfe;background:#eff6ff;">
                 <div class="card-header" style="background:#eff6ff;border-color:#bfdbfe;">
-                    <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#1d4ed8;font-weight:700;">
+                    <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#2db4c3;font-weight:700;">
                         <i class="bi bi-people me-1"></i> Step 2 — HR Proposed Sanction
                     </span>
                     <small class="text-muted fw-normal ms-1">(not visible to employee)</small>
@@ -177,7 +177,7 @@
                     <div class="row g-3 mb-3">
                         <div class="col-sm-6">
                             <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">HR Proposed Sanction</div>
-                            <div class="mt-1 fw-bold" style="color:#1d4ed8;">{{ record.get_hr_proposed_sanction_display }}</div>
+                            <div class="mt-1 fw-bold" style="color:#2db4c3;">{{ record.get_hr_proposed_sanction_display }}</div>
                         </div>
                         {% if record.hr_proposed_note %}
                         <div class="col-12">
@@ -293,7 +293,7 @@
             <!-- Step 4 — HR Issue Final Discipline -->
             {% if record.director_proposed_sanction and record.director_proposed_sanction != 'no_further_action' %}
             {% if request.user.is_superuser or request.user.employee.is_hr %}
-            <div class="alert alert-success mb-4" style="border-left:4px solid #16a34a;">
+            <div class="alert alert-success mb-4" style="border-left:4px solid #2db4c3;">
                 <i class="bi bi-check-circle-fill me-2"></i>
                 <strong>Director has approved the proposed sanction.</strong>
                 You can now issue the formal discipline notice to the employee.

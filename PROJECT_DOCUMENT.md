@@ -691,4 +691,16 @@ Then open: **http://127.0.0.1:8000**
   - Profile template fix: `Category` now wrapped in `{% trans %}`, sex display uses `{% trans employee.get_sex_display %}`
   - Total: 395 messages compiled to `.mo`
 
+- **Brand color system applied across 14 templates** (2026-03-22)
+  - Replaced legacy blue/purple/orange UI chrome colors with brand palette across all listed templates:
+    - `#0284c7` → `#2db4c3` (brand teal)
+    - `#0891b2` → `#2db4c3` (brand teal)
+    - `#7c3aed` → `#2db4c3` (brand teal)
+    - `#4527a0` → `#0A4D68` (brand navy)
+    - `#1d4ed8` → `#2db4c3` (brand teal)
+    - `#ea580c` → `#2db4c3` (brand teal)
+    - `#15803d` → `#1a8fa0` (brand teal-dark)
+    - `#16a34a` → `#2db4c3` (UI chrome instances only, not semantic status badges)
+  - Files updated: `admin_dashboard.html`, `director_dashboard.html`, `hr_dashboard.html`, `retirement_dashboard.html`, `includes/contract_analytics.html`, `contracts/stats.html`, `contracts/my_contract.html`, `contracts/contract_list.html`, `accounts/profile.html`, `accounts/employee_form.html`, `accounts/employee_history.html`, `accounts/employee_excel_results.html`, `discipline/detail.html`, `leaves/leave_type_list.html`
+  - Semantic status colors (`#059669`, `#d97706`, `#dc2626`, `#10b981`, `#ef4444`, `#f59e0b`) were preserved
 

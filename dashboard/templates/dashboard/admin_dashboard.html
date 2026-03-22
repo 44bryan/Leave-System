@@ -83,7 +83,7 @@
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
         <div class="stat-card text-center">
-            <div class="stat-icon mx-auto" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-shield-check"></i></div>
+            <div class="stat-icon mx-auto" style="background:#ede7f6;color:#0A4D68;"><i class="bi bi-shield-check"></i></div>
             <div class="stat-value">{{ pending_director }}</div>
             <div class="stat-label">{% trans "Awaiting Director" %}</div>
         </div>
@@ -147,8 +147,8 @@
 <div class="row g-3 mb-4 animate-in">
     <div class="col-6 col-sm-4 col-lg-2">
         <a href="{% url 'contracts:list' %}" class="text-decoration-none">
-            <div class="stat-card text-center" style="border-top:3px solid #0284c7;">
-                <div class="stat-icon mx-auto" style="background:#e0f2fe;color:#0284c7;"><i class="bi bi-file-earmark-text-fill"></i></div>
+            <div class="stat-card text-center" style="border-top:3px solid #2db4c3;">
+                <div class="stat-icon mx-auto" style="background:#e0f2fe;color:#2db4c3;"><i class="bi bi-file-earmark-text-fill"></i></div>
                 <div class="stat-value">{{ contract_total_active }}</div>
                 <div class="stat-label">{% trans "Active Contracts" %}</div>
             </div>
@@ -156,8 +156,8 @@
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
         <a href="{% url 'contracts:list' %}?type=CDI" class="text-decoration-none">
-            <div class="stat-card text-center" style="border-top:3px solid #16a34a;">
-                <div class="stat-icon mx-auto" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-infinity"></i></div>
+            <div class="stat-card text-center" style="border-top:3px solid #2db4c3;">
+                <div class="stat-icon mx-auto" style="background:#dcfce7;color:#2db4c3;"><i class="bi bi-infinity"></i></div>
                 <div class="stat-value">{{ contract_total_cdi }}</div>
                 <div class="stat-label">{% trans "CDI (Permanent)" %}</div>
             </div>
@@ -340,7 +340,7 @@
                         {% for row in contract_dept_breakdown %}
                         <tr>
                             <td style="font-size:.85rem;font-weight:600;">{{ row.dept }}</td>
-                            <td class="text-center"><span class="badge" style="background:#dcfce7;color:#15803d;">{{ row.CDI }}</span></td>
+                            <td class="text-center"><span class="badge" style="background:#dcfce7;color:#1a8fa0;">{{ row.CDI }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#fef9c3;color:#a16207;">{{ row.CDD }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#e0f2fe;color:#0369a1;">{{ row.INTERN }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#fdf4ff;color:#7e22ce;">{{ row.WACS }}</span></td>
@@ -384,7 +384,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-activity me-2" style="color:#0284c7;"></i>Recent Contract Activity</span>
+                <span><i class="bi bi-activity me-2" style="color:#2db4c3;"></i>Recent Contract Activity</span>
                 <a href="{% url 'contracts:list' %}" class="btn btn-sm btn-outline-primary">All Contracts</a>
             </div>
             <div class="list-group list-group-flush" style="max-height:260px;overflow-y:auto;">
@@ -396,7 +396,7 @@
                         {% elif c.renewed_from %}
                         <div style="width:30px;height:30px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-arrow-repeat text-success" style="font-size:.82rem;"></i></div>
                         {% else %}
-                        <div style="width:30px;height:30px;border-radius:50%;background:#e0f2fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-file-earmark-plus" style="color:#0284c7;font-size:.82rem;"></i></div>
+                        <div style="width:30px;height:30px;border-radius:50%;background:#e0f2fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-file-earmark-plus" style="color:#2db4c3;font-size:.82rem;"></i></div>
                         {% endif %}
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:.82rem;color:#0d1b2a;">

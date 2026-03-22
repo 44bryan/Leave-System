@@ -14,7 +14,7 @@
                     {% csrf_token %}
 
                     <!-- Personal Info section label -->
-                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
+                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2db4c3;font-weight:700;margin-bottom:14px;">
                         <i class="bi bi-person me-1"></i> {% trans "Personal Information" %}
                     </div>
 
@@ -79,7 +79,7 @@
                     <hr>
 
                     <!-- Employment Details section label -->
-                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
+                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2db4c3;font-weight:700;margin-bottom:14px;">
                         <i class="bi bi-briefcase me-1"></i> {% trans "Employment Details" %}
                     </div>
 
@@ -138,7 +138,7 @@
                     <!-- Intern-specific fields (shown only for INTERN role/contract type) -->
                     <div id="intern-fields-section" class="d-none">
                         <hr class="my-3">
-                        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
+                        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2db4c3;font-weight:700;margin-bottom:14px;">
                             <i class="bi bi-mortarboard me-1"></i> Internship Details
                         </div>
                         <div class="row g-3 mb-3">
@@ -177,10 +177,10 @@
                     <hr class="my-4">
 
                     <!-- Initial Contract section label -->
-                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:14px;">
+                    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2db4c3;font-weight:700;margin-bottom:14px;">
                         <i class="bi bi-file-earmark-text me-1"></i> Initial Contract
                     </div>
-                    <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.82rem;border-left:3px solid #0891b2;background:#f0f9ff;border-radius:8px;">
+                    <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.82rem;border-left:3px solid #2db4c3;background:#f0f9ff;border-radius:8px;">
                         <i class="bi bi-info-circle me-1"></i>
                         A contract is required to activate the employee account. The employee will be notified automatically.
                     </div>
@@ -253,7 +253,7 @@
                 {% if active_contract %}
                 <!-- Current active contract -->
                 <div class="mb-4 p-3 rounded-3 text-white"
-                     style="background:{% if active_contract.contract_type == 'CDI' %}linear-gradient(135deg,#0A4D68,#088395){% elif active_contract.contract_type == 'INTERN' %}linear-gradient(135deg,#7c3aed,#6d28d9){% elif active_contract.contract_type == 'WACS' %}linear-gradient(135deg,#0e7490,#0891a8){% elif active_contract.is_expiring_soon %}linear-gradient(135deg,#d97706,#b45309){% else %}linear-gradient(135deg,#059669,#047857){% endif %};">
+                     style="background:{% if active_contract.contract_type == 'CDI' %}linear-gradient(135deg,#0A4D68,#088395){% elif active_contract.contract_type == 'INTERN' %}linear-gradient(135deg,#2db4c3,#6d28d9){% elif active_contract.contract_type == 'WACS' %}linear-gradient(135deg,#0e7490,#0891a8){% elif active_contract.is_expiring_soon %}linear-gradient(135deg,#d97706,#b45309){% else %}linear-gradient(135deg,#059669,#047857){% endif %};">
                     <div class="d-flex align-items-center gap-3 flex-wrap">
                         <i class="bi bi-file-earmark-check-fill fs-3"></i>
                         <div style="flex:1;">
@@ -281,7 +281,7 @@
 
                 <!-- Contract history -->
                 {% if contract_history %}
-                <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#0891b2;font-weight:700;margin-bottom:10px;">
+                <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2db4c3;font-weight:700;margin-bottom:10px;">
                     <i class="bi bi-clock-history me-1"></i> Contract History
                 </div>
                 <div class="table-responsive">
@@ -300,7 +300,7 @@
                             <tr>
                                 <td>
                                     <span class="badge rounded-pill"
-                                          style="background:{% if c.contract_type == 'CDI' %}#0891a8{% elif c.contract_type == 'CDD' %}#059669{% elif c.contract_type == 'INTERN' %}#7c3aed{% else %}#0e7490{% endif %};">
+                                          style="background:{% if c.contract_type == 'CDI' %}#0891a8{% elif c.contract_type == 'CDD' %}#059669{% elif c.contract_type == 'INTERN' %}#2db4c3{% else %}#0e7490{% endif %};">
                                         {{ c.get_contract_type_display }}
                                     </span>
                                 </td>

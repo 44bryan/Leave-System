@@ -126,7 +126,7 @@
                         <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Contract Type</div>
                         <div class="mt-1 fw-600">
                             {% if contract.contract_type == 'CDI' %}
-                            <span class="badge" style="background:#dcfce7;color:#15803d;font-size:.82rem;"><i class="bi bi-infinity me-1"></i>CDI — Permanent</span>
+                            <span class="badge" style="background:#dcfce7;color:#1a8fa0;font-size:.82rem;"><i class="bi bi-infinity me-1"></i>CDI — Permanent</span>
                             {% elif contract.contract_type == 'INTERN' %}
                             <span class="badge" style="background:#e0f2fe;color:#0369a1;font-size:.82rem;"><i class="bi bi-mortarboard me-1"></i>Internship Contract</span>
                             {% elif contract.contract_type == 'WACS' %}
@@ -339,9 +339,9 @@
         {% else %}
         <!-- Years of Service Card (CDI/CDD only) -->
         <div class="card animate-in mb-4">
-            <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#0284c7;"></i>Years of Service</div>
+            <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#2db4c3;"></i>Years of Service</div>
             <div class="card-body text-center">
-                <div style="font-size:2.5rem;font-weight:900;color:#0284c7;">{{ contract.years_of_service }}</div>
+                <div style="font-size:2.5rem;font-weight:900;color:#2db4c3;">{{ contract.years_of_service }}</div>
                 <div style="font-size:.78rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.06em;">Year{{ contract.years_of_service|pluralize }} of Service</div>
             </div>
         </div>
