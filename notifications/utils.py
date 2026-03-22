@@ -85,11 +85,15 @@ def _send_email(user, title, message, notification_type='system', url=''):
             to=[user.email],
         )
 
-        # Use hosted URL for logo — works on both desktop and mobile Gmail
-        # (reliable once sender domain is verified in Resend)
-        if site_base:
+        # Embed logo as inline CID attachment — displays automatically in all
+        # email clients (Gmail, Outlook, Apple Mail) without "show images" prompt.
+        import os
+        from email.mime.image import MIMEImage
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'LOGO.png')
+        logo_cid  = 'logo@micei-hrm'
+        if os.path.exists(logo_path):
             logo_img = (
-                f'<img src="{site_base}/static/LOGO.png" '
+                f'<img src="cid:{logo_cid}" '
                 f'alt="Magrabi ICO Cameroon Eye Institution" '
                 f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
             )
@@ -204,7 +208,17 @@ def _send_email(user, title, message, notification_type='system', url=''):
 </body>
 </html>"""
 
+        # multipart/related wraps HTML + inline image so CID references resolve
+        email.mixed_subtype = 'related'
         email.attach_alternative(html, 'text/html')
+
+        if os.path.exists(logo_path):
+            with open(logo_path, 'rb') as f:
+                logo_mime = MIMEImage(f.read(), 'png')
+            logo_mime.add_header('Content-ID', f'<{logo_cid}>')
+            logo_mime.add_header('Content-Disposition', 'inline', filename='LOGO.png')
+            email.attach(logo_mime)
+
         try:
             email.send()
             logger.info('Email sent to %s: "%s"', user.email, title)
