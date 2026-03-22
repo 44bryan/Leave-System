@@ -1197,7 +1197,7 @@ def _hr_required(request):
 
 
 def _pdf_report_header(canvas, doc, title, subtitle=''):
-    """Executive-grade PDF header/footer — matching navy bands top & bottom, MICEI brand."""
+    """Executive PDF header/footer — white header with logo, teal footer, MICEI brand."""
     from reportlab.lib import colors
     from reportlab.lib.units import mm
     import os
@@ -1206,27 +1206,27 @@ def _pdf_report_header(canvas, doc, title, subtitle=''):
     W = doc.pagesize[0]
     H = doc.pagesize[1]
 
-    NAVY       = colors.HexColor('#0A4D68')   # primary brand — same for header + footer
-    TEAL       = colors.HexColor('#2db4c3')   # accent stripe
+    TEAL       = colors.HexColor('#2db4c3')   # logo brand color
+    TEAL_DARK  = colors.HexColor('#1a8fa0')   # darker shade for divider
+    DARK       = colors.HexColor('#0a2540')   # title text
+    GRAY       = colors.HexColor('#6b7280')   # subtitle text
     WHITE      = colors.white
-    OFF_WHITE  = colors.HexColor('#e8f4f8')   # subtitle text on dark bg
-    SILVER     = colors.HexColor('#94a3b8')   # footer secondary text
 
-    HEADER_H   = 30 * mm   # height of top navy band
-    ACCENT_H   = 2.5 * mm  # teal stripe below header
-    FOOTER_H   = 10 * mm   # height of bottom navy band
+    HEADER_H   = 28 * mm   # white header band
+    ACCENT_H   = 3 * mm    # teal stripe below header
+    FOOTER_H   = 10 * mm   # teal footer band (matches logo color)
 
     canvas.saveState()
 
     # ══════════════════════════════════════════════════
-    # HEADER — full-width navy band
+    # HEADER — white background (logo breathes naturally)
     # ══════════════════════════════════════════════════
-    canvas.setFillColor(NAVY)
+    canvas.setFillColor(WHITE)
     canvas.rect(0, H - HEADER_H, W, HEADER_H, fill=1, stroke=0)
 
-    # Logo — left-aligned inside the navy band, vertically centred
+    # Logo — left-aligned, vertically centred in header
     logo_path = os.path.join(_s.BASE_DIR, 'static', 'LOGO.png')
-    logo_w, logo_h = 38 * mm, 24 * mm
+    logo_w, logo_h = 40 * mm, 22 * mm
     logo_x = 10 * mm
     logo_y = H - HEADER_H + (HEADER_H - logo_h) / 2
     if os.path.exists(logo_path):
@@ -1234,62 +1234,58 @@ def _pdf_report_header(canvas, doc, title, subtitle=''):
                          width=logo_w, height=logo_h,
                          preserveAspectRatio=True, mask='auto')
 
-    # Vertical white divider after logo
+    # Vertical teal divider after logo
     divider_x = logo_x + logo_w + 5 * mm
-    canvas.setStrokeColor(colors.HexColor('#4a8fa8'))
-    canvas.setLineWidth(0.8)
-    canvas.line(divider_x, H - HEADER_H + 5*mm, divider_x, H - 5*mm)
+    canvas.setStrokeColor(TEAL)
+    canvas.setLineWidth(1)
+    canvas.line(divider_x, H - HEADER_H + 5*mm, divider_x, H - 4*mm)
 
-    # Report title — white, bold, large
+    # Report title — dark, bold
     text_x = divider_x + 6 * mm
-    canvas.setFillColor(WHITE)
+    canvas.setFillColor(DARK)
     canvas.setFont('Helvetica-Bold', 16)
-    canvas.drawString(text_x, H - 13 * mm, title)
+    canvas.drawString(text_x, H - 12 * mm, title)
 
-    # Subtitle line
-    canvas.setFillColor(OFF_WHITE)
-    canvas.setFont('Helvetica', 8)
-    canvas.drawString(text_x, H - 20 * mm, 'MICEI HRM  ·  Human Resource Management System')
+    # System name + subtitle
+    canvas.setFillColor(TEAL)
+    canvas.setFont('Helvetica-Bold', 8)
+    canvas.drawString(text_x, H - 19 * mm, 'MICEI HRM  ·  Human Resource Management System')
+
     if subtitle:
+        canvas.setFillColor(GRAY)
         canvas.setFont('Helvetica', 7.5)
-        canvas.drawString(text_x, H - 26 * mm, subtitle)
+        canvas.drawString(text_x, H - 25 * mm, subtitle)
 
-    # Date — top-right, white
-    canvas.setFillColor(WHITE)
+    # Date — top-right, dark
+    canvas.setFillColor(GRAY)
     canvas.setFont('Helvetica', 7.5)
-    canvas.drawRightString(W - 12 * mm, H - 10 * mm, date.today().strftime('%d %B %Y'))
+    canvas.drawRightString(W - 12 * mm, H - 15 * mm, date.today().strftime('%d %B %Y'))
 
-    # CONFIDENTIAL badge — white pill, navy text — top-right below date
-    badge_w, badge_h = 30 * mm, 5.5 * mm
-    badge_x = W - badge_w - 12 * mm
-    badge_y = H - 22 * mm
-    canvas.setFillColor(WHITE)
-    canvas.roundRect(badge_x, badge_y, badge_w, badge_h, 2 * mm, fill=1, stroke=0)
-    canvas.setFillColor(NAVY)
-    canvas.setFont('Helvetica-Bold', 7)
-    canvas.drawCentredString(badge_x + badge_w / 2, badge_y + 1.6 * mm, 'CONFIDENTIAL')
-
-    # ── Teal accent stripe separating header from body ─────────────
+    # ── Teal accent stripe below header ────────────────────────────
     canvas.setFillColor(TEAL)
     canvas.rect(0, H - HEADER_H - ACCENT_H, W, ACCENT_H, fill=1, stroke=0)
 
+    # Thin darker teal line under stripe
+    canvas.setFillColor(TEAL_DARK)
+    canvas.rect(0, H - HEADER_H - ACCENT_H - 0.8*mm, W, 0.8*mm, fill=1, stroke=0)
+
     # ══════════════════════════════════════════════════
-    # FOOTER — same navy band as header (bookending)
+    # FOOTER — teal band (matches logo / accent color)
     # ══════════════════════════════════════════════════
-    canvas.setFillColor(NAVY)
+    canvas.setFillColor(TEAL)
     canvas.rect(0, 0, W, FOOTER_H, fill=1, stroke=0)
 
-    # Teal accent stripe on top of footer
-    canvas.setFillColor(TEAL)
-    canvas.rect(0, FOOTER_H, W, 1.2 * mm, fill=1, stroke=0)
+    # Thin darker teal line on top of footer
+    canvas.setFillColor(TEAL_DARK)
+    canvas.rect(0, FOOTER_H, W, 0.8 * mm, fill=1, stroke=0)
 
     # Footer left — MICEI HRM
     canvas.setFillColor(WHITE)
     canvas.setFont('Helvetica-Bold', 7.5)
     canvas.drawString(12 * mm, 3.5 * mm, 'MICEI HRM')
 
-    # Footer center — confidentiality note
-    canvas.setFillColor(SILVER)
+    # Footer center — note
+    canvas.setFillColor(colors.HexColor('#d0f0f5'))
     canvas.setFont('Helvetica', 7)
     canvas.drawCentredString(W / 2, 3.5 * mm, 'Official HR Document  ·  For Internal Use Only')
 
