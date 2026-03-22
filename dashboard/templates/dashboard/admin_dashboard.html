@@ -45,8 +45,8 @@
 </div>
 {% endif %}
 
-<!-- ── My Personal Leave Section (admin is also an employee) ── -->
-{% if employee and balance %}
+<!-- ── My Personal Leave Section (admin is also an employee, but not superuser) ── -->
+{% if employee and balance and not request.user.is_superuser %}
 {% include 'dashboard/includes/my_leave_section.html' %}
 {% endif %}
 

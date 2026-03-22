@@ -1064,6 +1064,7 @@
                     <i class="bi bi-grid-1x2"></i> {% trans "Dashboard" %}
                 </a>
             </li>
+            {% if not user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:submit' %}" class="nav-link-sidebar {% block nav_submit %}{% endblock %}" data-suspend-lock>
                     <i class="bi bi-plus-circle"></i> {% trans "Apply for Leave" %}
@@ -1086,6 +1087,7 @@
                     <i class="bi bi-file-earmark-person"></i> {% trans "My Contract" %}
                 </a>
             </li>
+            {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'notifications:list' %}" class="nav-link-sidebar {% block nav_notifications %}{% endblock %}">
                     <i class="bi bi-bell"></i> {% trans "Notifications" %}

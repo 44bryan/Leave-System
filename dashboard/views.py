@@ -130,8 +130,8 @@ def admin_dashboard(request):
     today = date.today()
     year = today.year
 
-    # ── Own employee self-service data (admin may also be an employee) ──
-    admin_employee = get_employee(request)
+    # ── Own employee self-service data (skip for superuser — they are not staff) ──
+    admin_employee = None if request.user.is_superuser else get_employee(request)
     my_balance = None
     my_recent_requests = []
     my_pending_count = 0
