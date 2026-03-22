@@ -857,6 +857,8 @@ def hr_dashboard(request, employee):
         'discipline_dismissed': discipline_dismissed,
         'today_birthdays': today_birthdays,
         'this_month_birthdays': this_month_birthdays,
+        'all_departments': Department.objects.order_by('name'),
+        'all_employees': Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name'),
         **_contract_ctx,
     })
 
@@ -1309,9 +1311,29 @@ def export_leaves_excel(request):
     import io
 
     year = int(request.GET.get('year', date.today().year))
+    dept_id = request.GET.get('department', '')
+    emp_id = request.GET.get('employee', '')
+
     records = LeaveRequest.objects.filter(
         start_date__year=year
     ).select_related('employee__user', 'employee__department', 'leave_type').order_by('-start_date')
+
+    # Apply filters
+    filter_label = f'Year {year}'
+    if emp_id:
+        records = records.filter(employee__pk=emp_id)
+        try:
+            emp_obj = Employee.objects.get(pk=emp_id)
+            filter_label = f'{emp_obj.get_full_name()} — {year}'
+        except Employee.DoesNotExist:
+            pass
+    elif dept_id:
+        records = records.filter(employee__department__pk=dept_id)
+        try:
+            dept_obj = Department.objects.get(pk=dept_id)
+            filter_label = f'{dept_obj} Department — {year}'
+        except Department.DoesNotExist:
+            pass
 
     status_map = {
         'pending': 'Pending', 'unit_head_approved': 'Unit Head Appr.',
@@ -1355,7 +1377,7 @@ def export_leaves_excel(request):
         ('BOTTOMPADDING', (0,0), (-1,-1), 3),
     ]))
 
-    subtitle = f'Leave Requests Report — Year {year}  ·  Total: {len(rows)-1} records'
+    subtitle = f'Leave Requests Report — {filter_label}  ·  Total: {len(rows)-1} records'
     doc.build([t], onFirstPage=lambda c, d: _pdf_report_header(c, d, 'Leave Report', subtitle),
               onLaterPages=lambda c, d: _pdf_report_header(c, d, 'Leave Report', subtitle))
 
@@ -1377,9 +1399,27 @@ def export_contracts_excel(request):
     from contracts.models import Contract
     import io
 
-    contracts = Contract.objects.filter(status='active').select_related(
+    contract_type = request.GET.get('type', '')   # '', 'EMPLOYEE', 'INTERN', 'WACS'
+
+    qs = Contract.objects.filter(status='active').select_related(
         'employee__user', 'employee__department'
     ).order_by('employee__user__last_name')
+
+    type_label_map = {
+        'EMPLOYEE': 'Employees (CDI / CDD)',
+        'INTERN':   'Interns',
+        'WACS':     'WACS Staff',
+    }
+    if contract_type == 'EMPLOYEE':
+        qs = qs.filter(contract_type__in=['CDI', 'CDD'])
+        report_title = 'Contracts — Employees'
+    elif contract_type in ('INTERN', 'WACS'):
+        qs = qs.filter(contract_type=contract_type)
+        report_title = f'Contracts — {type_label_map[contract_type]}'
+    else:
+        report_title = 'Contracts Report'
+
+    contracts = list(qs)
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
@@ -1416,13 +1456,14 @@ def export_contracts_excel(request):
         ('BOTTOMPADDING', (0,0), (-1,-1), 3),
     ]))
 
-    subtitle = f'Active Contracts Report  ·  Total: {len(rows)-1} contracts'
-    doc.build([t], onFirstPage=lambda c, d: _pdf_report_header(c, d, 'Contracts Report', subtitle),
-              onLaterPages=lambda c, d: _pdf_report_header(c, d, 'Contracts Report', subtitle))
+    subtitle = f'{report_title}  ·  Total: {len(rows)-1} contracts'
+    doc.build([t], onFirstPage=lambda c, d: _pdf_report_header(c, d, report_title, subtitle),
+              onLaterPages=lambda c, d: _pdf_report_header(c, d, report_title, subtitle))
 
     buf.seek(0)
+    filename = f'MICEI_HRM_Contracts_{contract_type or "All"}.pdf'
     response = HttpResponse(buf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="MICEI_HRM_Contracts.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
 
