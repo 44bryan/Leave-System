@@ -1195,6 +1195,11 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
+                <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-plus"></i> {% trans "Issue Disciplinary Notice" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar">
                     <i class="bi bi-shield-exclamation"></i> {% trans "Discipline Records" %}
                 </a>
@@ -1217,13 +1222,11 @@
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Discipline" %}</div>
         <ul class="list-unstyled mb-0">
-            {% if not user.employee.is_ceo %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
                     <i class="bi bi-file-earmark-text"></i> {% trans "New Disciplinary Notice" %}
                 </a>
             </li>
-            {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar {% block nav_discipline %}{% endblock %}">
                     <i class="bi bi-shield-exclamation"></i> {% trans "Disciplinary Records" %}

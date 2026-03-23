@@ -53,12 +53,12 @@ def get_employee(request):
 
 
 def can_issue_discipline(emp, is_super):
-    """HR, Director, and Superuser can issue all types. Manager can issue limited types."""
+    """HR, Director, CEO, and Superuser can issue all types. Manager can issue limited types."""
     if is_super:
         return True
     if emp is None:
         return False
-    return emp.is_hr() or emp.is_director() or emp.is_manager()
+    return emp.is_hr() or emp.is_director() or emp.is_ceo() or emp.is_manager()
 
 
 def is_hr_or_above(emp, is_super):
@@ -91,10 +91,10 @@ def issue_discipline(request):
         messages.error(request, "You do not have permission to issue discipline notices.")
         return redirect('dashboard:home')
 
-    is_manager_only = (emp and emp.is_manager() and not emp.is_hr() and not emp.is_director() and not is_super)
+    is_manager_only = (emp and emp.is_manager() and not emp.is_hr() and not emp.is_director() and not emp.is_ceo() and not is_super)
 
     # Determine which employees this issuer can see
-    if is_super or (emp and (emp.is_hr() or emp.is_director())):
+    if is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo())):
         employees = Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
     elif emp and emp.is_manager():
         employees = emp.subordinates.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')

@@ -383,7 +383,7 @@ def home(request):
     if employee.is_director():
         return director_dashboard(request, employee)
     elif employee.is_ceo():
-        return director_dashboard(request, employee)
+        return ceo_dashboard(request, employee)
     elif employee.is_hr():
         return hr_dashboard(request, employee)
     elif employee.is_manager():
@@ -689,6 +689,100 @@ def director_dashboard(request, employee):
         'rejected_year': rejected_year,
         'on_leave_now': on_leave_now,
         'awaiting_director': awaiting_director,
+        'monthly_data': monthly_data,
+        'month_labels': month_labels,
+        'year': year,
+        'discipline_warned': discipline_warned,
+        'discipline_suspended': discipline_suspended,
+        'discipline_dismissed': discipline_dismissed,
+        **_contract_ctx,
+    })
+
+
+def ceo_dashboard(request, employee):
+    from discipline.models import DisciplineRecord
+    today = date.today()
+    year = today.year
+
+    # ── Own employee self-service data ──
+    my_balance, _ = LeaveBalance.objects.get_or_create(
+        employee=employee, year=today.year,
+        defaults={'total_entitlement': 18}
+    )
+    my_recent_requests = employee.leave_requests.all()[:5]
+    my_pending_count = employee.leave_requests.filter(
+        status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved']
+    ).count()
+    my_on_leave = employee.leave_requests.filter(
+        status='approved', start_date__lte=today, end_date__gte=today
+    ).first()
+    my_active_suspension = DisciplineRecord.objects.filter(
+        employee=employee,
+        action_type='suspension',
+        suspension_start__lte=today,
+        suspension_end__gte=today,
+    ).first()
+    my_is_birthday = (
+        employee.date_of_birth is not None
+        and employee.date_of_birth.month == today.month
+        and employee.date_of_birth.day == today.day
+    )
+
+    total_employees = Employee.objects.filter(is_active=True).count()
+    approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
+    rejected_year = LeaveRequest.objects.filter(
+        status__in=['rejected_manager', 'rejected_hr', 'rejected_director'],
+        start_date__year=year
+    ).count()
+    pending_all = LeaveRequest.objects.filter(
+        status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved']
+    ).count()
+
+    on_leave_now = LeaveRequest.objects.filter(
+        status='approved',
+        start_date__lte=today,
+        end_date__gte=today
+    ).select_related('employee__user', 'employee__department', 'leave_type')
+
+    monthly_data = []
+    month_labels = []
+    for m in range(1, 13):
+        count = LeaveRequest.objects.filter(
+            status='approved',
+            start_date__year=year,
+            start_date__month=m
+        ).count()
+        monthly_data.append(count)
+        from datetime import datetime
+        month_labels.append(datetime(year, m, 1).strftime('%b'))
+
+    discipline_warned = DisciplineRecord.objects.filter(
+        action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+    ).values('employee').distinct().count()
+    discipline_suspended = DisciplineRecord.objects.filter(
+        action_type='suspension',
+        suspension_end__gte=today,
+    ).count()
+    discipline_dismissed = DisciplineRecord.objects.filter(
+        action_type='dismissal'
+    ).values('employee').distinct().count()
+
+    _contract_ctx = _build_contract_analytics(today, year)
+
+    return render(request, 'dashboard/ceo_dashboard.html', {
+        'employee': employee,
+        'balance': my_balance,
+        'my_recent_requests': my_recent_requests,
+        'my_pending_count': my_pending_count,
+        'on_leave': my_on_leave,
+        'active_suspension': my_active_suspension,
+        'is_own_birthday': my_is_birthday,
+        'today': today,
+        'total_employees': total_employees,
+        'approved_year': approved_year,
+        'rejected_year': rejected_year,
+        'pending_all': pending_all,
+        'on_leave_now': on_leave_now,
         'monthly_data': monthly_data,
         'month_labels': month_labels,
         'year': year,

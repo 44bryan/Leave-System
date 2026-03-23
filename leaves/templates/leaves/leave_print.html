@@ -242,7 +242,7 @@
         }
 
         /* ─── PRINT MEDIA ─── */
-        @page { margin: 1.5cm; size: A4 portrait; }
+        @page { margin: 1cm; size: A4 portrait; }
         @media print {
             body {
                 background: white;
@@ -250,6 +250,7 @@
                 display: block;
                 align-items: unset;
                 min-height: unset;
+                font-size: 0.82rem;
             }
             .print-bar { display: none; }
             .document {
@@ -258,6 +259,45 @@
                 max-width: 100%;
                 width: 100%;
             }
+            .doc-header {
+                padding: 14px 24px 12px;
+            }
+            .doc-logo-box img { height: 42px; }
+            .doc-header-text h1 { font-size: 0.9rem; }
+            .doc-title-band {
+                padding: 8px 24px;
+            }
+            .doc-title-band h2 { font-size: 1rem; }
+            .doc-body {
+                padding: 16px 24px;
+            }
+            .ref-line {
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+            }
+            .approved-stamp { margin: 8px 0 12px; }
+            .stamp-box { padding: 6px 20px; }
+            .stamp-box .stamp-text { font-size: 1.1rem; }
+            .letter-body {
+                font-size: 0.82rem;
+                line-height: 1.55;
+                margin-bottom: 12px;
+            }
+            .detail-table { margin: 10px 0 14px; font-size: 0.78rem; }
+            .detail-table th, .detail-table td { padding: 6px 10px; }
+            .closing {
+                font-size: 0.82rem;
+                line-height: 1.5;
+                margin-bottom: 12px;
+            }
+            .sig-section {
+                margin-top: 16px;
+                gap: 20px;
+            }
+            .sig-label { margin-bottom: 20px; font-size: 0.68rem; }
+            .sig-name { font-size: 0.8rem; }
+            .sig-title, .sig-date { font-size: 0.7rem; }
+            .doc-footer { padding: 8px 24px; font-size: 0.65rem; }
         }
     </style>
 </head>

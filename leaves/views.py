@@ -632,6 +632,7 @@ def pdf_leave(request, pk):
         request.user.is_superuser or
         (employee and employee.is_hr()) or
         (employee and employee.is_director()) or
+        (employee and employee.is_ceo()) or
         (employee and employee.is_manager() and leave.employee.supervisor == employee) or
         (employee and employee.is_unit_head() and leave.employee.unit_head == employee)
     )

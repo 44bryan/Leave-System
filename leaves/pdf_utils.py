@@ -1,6 +1,6 @@
 """
 Generate a professional Leave Authorisation PDF for
-Magrabi Cameroon Eye Institute — MICEI HRM.
+Magrabi ICO Cameroon Eye Institute — MICEI HRM.
 
 Design: section header bars in logo cyan (#31b8cf), all data cells
         pure white (print-friendly), signatures blend with paper.
@@ -57,8 +57,9 @@ def _pil_to_reader(pil_img):
         pil_img = pil_img.convert('RGB')
     out = _io.BytesIO()
     pil_img.save(out, format='PNG')
-    out.seek(0)
-    return ImageReader(out)
+    # Use getvalue() so the reader gets a fresh BytesIO at position 0,
+    # independent of where 'out' is left after ImageReader reads headers.
+    return ImageReader(_io.BytesIO(out.getvalue()))
 
 
 def _load_sig_b64(b64_str):
@@ -194,7 +195,7 @@ def generate_leave_pdf(leave):
                 reader, x, y_top - max_h,
                 width=max_w, height=max_h,
                 preserveAspectRatio=True,
-                mask=None,
+                mask='auto',
             )
             return True
         except Exception:
@@ -407,7 +408,7 @@ def generate_leave_pdf(leave):
     cv.setLineWidth(1.5)
     cv.line(LM, 14*mm, RM, 14*mm)
 
-    txt("MICEI HRM  ·  Magrabi Cameroon Eye Institute",
+    txt("MICEI HRM  ·  Magrabi ICO Cameroon Eye Institute",
         LM, 9*mm, "Helvetica", 7, _LABEL)
     cv.setFillColorRGB(*_LABEL)
     cv.setFont("Helvetica", 7)
