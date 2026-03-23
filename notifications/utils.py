@@ -77,23 +77,15 @@ def _send_email(user, title, message, notification_type='system', url=''):
             f'Open in MICEI HRM &rarr;</a></td></tr>'
         ) if app_url else ''
 
-        # Build email object first so we can attach inline image
-        email = EmailMultiAlternatives(
-            subject=f'[MICEI HRM] {title}',
-            body=plain,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'MICEI HRM <noreply@micei-hrm.com>'),
-            to=[user.email],
-        )
-
-        # Embed logo as inline CID attachment — displays automatically in all
-        # email clients (Gmail, Outlook, Apple Mail) without "show images" prompt.
         import os
-        from email.mime.image import MIMEImage
-        logo_path = os.path.join(settings.BASE_DIR, 'static', 'LOGO.png')
-        logo_cid  = 'logo@micei-hrm'
-        if os.path.exists(logo_path):
+
+        # Logo: use a public HTTPS URL so it renders on ALL clients including
+        # mobile (Gmail/iOS). CID inline attachments are ignored by most mobile
+        # email apps. WhiteNoise serves /static/LOGO.png from the Railway URL.
+        logo_url = f"{site_base}/static/LOGO.png" if site_base else ''
+        if logo_url:
             logo_img = (
-                f'<img src="cid:{logo_cid}" '
+                f'<img src="{logo_url}" '
                 f'alt="Magrabi ICO Cameroon Eye Institution" '
                 f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
             )
@@ -102,6 +94,13 @@ def _send_email(user, title, message, notification_type='system', url=''):
                 '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
                 'letter-spacing:1px;">Magrabi ICO Cameroon Eye Institution</p>'
             )
+
+        email = EmailMultiAlternatives(
+            subject=f'[MICEI HRM] {title}',
+            body=plain,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'MICEI HRM <noreply@micei-hrm.com>'),
+            to=[user.email],
+        )
 
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -208,16 +207,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
 </body>
 </html>"""
 
-        # multipart/related wraps HTML + inline image so CID references resolve
-        email.mixed_subtype = 'related'
         email.attach_alternative(html, 'text/html')
-
-        if os.path.exists(logo_path):
-            with open(logo_path, 'rb') as f:
-                logo_mime = MIMEImage(f.read(), 'png')
-            logo_mime.add_header('Content-ID', f'<{logo_cid}>')
-            logo_mime.add_header('Content-Disposition', 'inline', filename='LOGO.png')
-            email.attach(logo_mime)
 
         try:
             email.send()
