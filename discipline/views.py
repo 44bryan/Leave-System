@@ -432,7 +432,7 @@ def discipline_stats(request):
     emp = get_employee(request)
     is_super = request.user.is_superuser
 
-    if not is_hr_or_above(emp, is_super):
+    if not is_hr_or_above(emp, is_super) and not (emp and emp.is_ceo()):
         return redirect('dashboard:home')
 
     today = date.today()

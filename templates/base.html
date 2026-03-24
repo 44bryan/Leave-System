@@ -1200,12 +1200,17 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
-                <a href="{% url 'discipline:list' %}" class="nav-link-sidebar">
+                <a href="{% url 'discipline:list' %}" class="nav-link-sidebar {% block nav_discipline_ceo %}{% endblock %}">
                     <i class="bi bi-shield-exclamation"></i> {% trans "Discipline Records" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
-                <a href="{% url 'contracts:list' %}" class="nav-link-sidebar">
+                <a href="{% url 'discipline:stats' %}" class="nav-link-sidebar {% block nav_discipline_stats_ceo %}{% endblock %}">
+                    <i class="bi bi-bar-chart-steps"></i> {% trans "Discipline Statistics" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'contracts:list' %}" class="nav-link-sidebar {% block nav_contracts_ceo %}{% endblock %}">
                     <i class="bi bi-file-earmark-text"></i> {% trans "All Contracts" %}
                 </a>
             </li>
@@ -1218,7 +1223,7 @@
     </div>
     {% endif %}
 
-    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_manager or user.employee.is_ceo %}
+    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_manager %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Discipline" %}</div>
         <ul class="list-unstyled mb-0">
@@ -1232,7 +1237,7 @@
                     <i class="bi bi-shield-exclamation"></i> {% trans "Disciplinary Records" %}
                 </a>
             </li>
-            {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_ceo %}
+            {% if user.is_superuser or user.employee.is_hr or user.employee.is_director %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:stats' %}" class="nav-link-sidebar {% block nav_discipline_stats %}{% endblock %}">
                     <i class="bi bi-bar-chart-steps"></i> {% trans "Statistics" %}
@@ -1243,7 +1248,7 @@
     </div>
     {% endif %}
 
-    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_ceo %}
+    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Contracts" %}</div>
         <ul class="list-unstyled mb-0">
