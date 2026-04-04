@@ -5,6 +5,9 @@
 {% block page_subtitle %}{{ record.cycle }} · {{ record.employee.get_full_name }}{% endblock %}
 
 {% block topbar_actions %}
+<a href="{% url 'appraisals:pdf' record.pk %}" class="btn btn-primary btn-sm me-2" target="_blank">
+    <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+</a>
 <a href="javascript:window.print()" class="btn btn-outline-secondary btn-sm">
     <i class="bi bi-printer me-1"></i>Print
 </a>

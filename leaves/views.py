@@ -204,6 +204,22 @@ def cancel_request(request, pk):
         leave.status = LeaveRequest.STATUS_CANCELLED
         leave.save()
         messages.success(request, "Leave request cancelled.")
+
+        # Notify unit head and/or line manager so they know not to act on it
+        notif_title = f'Leave Request Cancelled — {employee.get_full_name()}'
+        notif_msg = (
+            f'{employee.get_full_name()} has cancelled their {leave.leave_type} leave request '
+            f'({leave.start_date} → {leave.end_date}). No further action is needed.'
+        )
+        detail_url = reverse('leaves:detail', kwargs={'pk': leave.pk})
+        recipients = set()
+        if leave.employee.unit_head:
+            recipients.add(leave.employee.unit_head.user)
+        if leave.employee.supervisor:
+            recipients.add(leave.employee.supervisor.user)
+        for recipient in recipients:
+            notify(recipient, notif_title, notif_msg,
+                   notification_type='leave_cancelled', url=detail_url)
     else:
         messages.error(request, "This request cannot be cancelled.")
     return redirect('leaves:my_requests')
@@ -677,6 +693,23 @@ def leave_edit(request, pk):
             else:
                 updated.save()
                 messages.success(request, "Leave request updated successfully.")
+
+                # Notify unit head and line manager about the change
+                notif_title = f'Leave Request Edited — {employee.get_full_name()}'
+                notif_msg = (
+                    f'{employee.get_full_name()} has edited their {updated.leave_type} leave request '
+                    f'(now: {updated.start_date} → {updated.end_date}, {updated.total_days} day(s)). '
+                    f'Please review the updated request before approving.'
+                )
+                detail_url = reverse('leaves:detail', kwargs={'pk': pk})
+                recipients = set()
+                if employee.unit_head:
+                    recipients.add(employee.unit_head.user)
+                if employee.supervisor:
+                    recipients.add(employee.supervisor.user)
+                for recipient in recipients:
+                    notify(recipient, notif_title, notif_msg,
+                           notification_type='leave_submitted', url=detail_url)
                 return redirect('leaves:detail', pk=pk)
 
     import json

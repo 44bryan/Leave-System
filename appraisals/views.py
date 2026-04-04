@@ -183,51 +183,72 @@ def employee_fill(request, record_pk):
 
     if request.method == 'POST':
         p = request.POST
-        record.tasks_summary          = p.get('tasks_summary', '').strip()
-        record.tasks_assimilated      = p.get('tasks_assimilated', '').strip()
-        record.pf_quality_of_work     = _int_or_none(p.get('pf_quality_of_work'))
-        record.pf_quantity_of_work    = _int_or_none(p.get('pf_quantity_of_work'))
-        record.pf_knowledge_techniques= _int_or_none(p.get('pf_knowledge_techniques'))
-        record.pf_ability_to_learn    = _int_or_none(p.get('pf_ability_to_learn'))
-        record.aa_motivation          = _int_or_none(p.get('aa_motivation'))
-        record.aa_attitude_colleagues = _int_or_none(p.get('aa_attitude_colleagues'))
-        record.aa_relations_patients  = _int_or_none(p.get('aa_relations_patients'))
-        record.aa_judgment_team       = _int_or_none(p.get('aa_judgment_team'))
-        record.aa_punctuality         = _int_or_none(p.get('aa_punctuality'))
-        record.aa_presentation        = _int_or_none(p.get('aa_presentation'))
-        record.goals_to_reach         = p.get('goals_to_reach', '').strip()
-        record.award_employee_of_month= p.get('award_employee_of_month') == 'yes'
-        record.award_other            = p.get('award_other', '').strip()
-        record.comment_on_self        = p.get('comment_on_self', '').strip()
-        record.comment_on_supervision = p.get('comment_on_supervision', '').strip()
-        record.comment_on_org         = p.get('comment_on_org', '').strip()
-        _save_sig(record, 'employee_sig_b64', p.get('signature_data', ''))
-        # Also save to employee profile for reuse
-        sig_b64 = p.get('signature_data', '')
-        if sig_b64 and sig_b64.startswith('data:image/'):
-            emp.signature_b64 = sig_b64
-            emp.save(update_fields=['signature_b64'])
 
-        record.employee_signed_at = timezone.now()
-        record.status = AppraisalRecord.STATUS_COWORKER
-        record.save()
+        # Validate co-worker selection
+        coworker_pk = p.get('selected_coworker', '').strip()
+        selected_coworker = None
+        if coworker_pk:
+            try:
+                selected_coworker = Employee.objects.get(
+                    pk=int(coworker_pk),
+                    department=emp.department,
+                    is_active=True,
+                )
+                if selected_coworker == emp:
+                    selected_coworker = None
+            except (Employee.DoesNotExist, ValueError):
+                selected_coworker = None
 
-        # Notify co-workers in the same department
-        dept_colleagues = Employee.objects.filter(
-            department=emp.department, is_active=True,
-        ).exclude(pk=emp.pk).select_related('user')
-        for col in dept_colleagues:
+        if not selected_coworker:
+            messages.error(request, "Please select a co-worker from your department.")
+            # fall through to re-render form
+        else:
+            record.tasks_summary          = p.get('tasks_summary', '').strip()
+            record.tasks_assimilated      = p.get('tasks_assimilated', '').strip()
+            record.pf_quality_of_work     = _int_or_none(p.get('pf_quality_of_work'))
+            record.pf_quantity_of_work    = _int_or_none(p.get('pf_quantity_of_work'))
+            record.pf_knowledge_techniques= _int_or_none(p.get('pf_knowledge_techniques'))
+            record.pf_ability_to_learn    = _int_or_none(p.get('pf_ability_to_learn'))
+            record.aa_motivation          = _int_or_none(p.get('aa_motivation'))
+            record.aa_attitude_colleagues = _int_or_none(p.get('aa_attitude_colleagues'))
+            record.aa_relations_patients  = _int_or_none(p.get('aa_relations_patients'))
+            record.aa_judgment_team       = _int_or_none(p.get('aa_judgment_team'))
+            record.aa_punctuality         = _int_or_none(p.get('aa_punctuality'))
+            record.aa_presentation        = _int_or_none(p.get('aa_presentation'))
+            record.goals_to_reach         = p.get('goals_to_reach', '').strip()
+            record.award_employee_of_month= p.get('award_employee_of_month') == 'yes'
+            record.award_other            = p.get('award_other', '').strip()
+            record.comment_on_self        = p.get('comment_on_self', '').strip()
+            record.comment_on_supervision = p.get('comment_on_supervision', '').strip()
+            record.comment_on_org         = p.get('comment_on_org', '').strip()
+            _save_sig(record, 'employee_sig_b64', p.get('signature_data', ''))
+            sig_b64 = p.get('signature_data', '')
+            if sig_b64 and sig_b64.startswith('data:image/'):
+                emp.signature_b64 = sig_b64
+                emp.save(update_fields=['signature_b64'])
+
+            # Store chosen co-worker so coworker_fill view can verify identity
+            record.coworker_signed_by = selected_coworker
+            record.employee_signed_at = timezone.now()
+            record.status = AppraisalRecord.STATUS_COWORKER
+            record.save()
+
+            # Notify only the chosen co-worker
             notify(
-                col.user,
+                selected_coworker.user,
                 f'Appraisal Co-Worker Comment Needed — {emp.get_full_name()}',
-                f'{emp.get_full_name()} has completed their appraisal self-assessment. '
-                f'Please add your co-worker comment.',
+                f'{emp.get_full_name()} has selected you as their co-worker evaluator. '
+                f'Please log in to add your comment on their appraisal for {record.cycle}.',
                 notification_type='general',
                 url=f'/appraisals/coworker/{record.pk}/',
             )
 
-        messages.success(request, "Your appraisal section has been submitted.")
-        return redirect('appraisals:my_appraisals')
+            messages.success(request, "Your appraisal section has been submitted.")
+            return redirect('appraisals:my_appraisals')
+
+    dept_colleagues = Employee.objects.filter(
+        department=emp.department, is_active=True,
+    ).exclude(pk=emp.pk).select_related('user').order_by('user__last_name')
 
     discipline_data = record.discipline_deductions()
     pf_fields = [
@@ -269,6 +290,7 @@ def employee_fill(request, record_pk):
         'aa_fields': aa_fields,
         'current_values': current_values,
         'chain_steps': chain_steps,
+        'dept_colleagues': dept_colleagues,
         'current_sig_b64': emp.signature_b64 or '',
     })
 
@@ -288,15 +310,15 @@ def coworker_fill(request, record_pk):
     emp    = get_employee(request)
     record = get_object_or_404(AppraisalRecord, pk=record_pk)
 
-    # Must be in same department, not the employee themselves
+    # Must be the specifically chosen co-worker
     if not emp or emp == record.employee:
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
     if record.status != AppraisalRecord.STATUS_COWORKER:
         messages.error(request, "This appraisal is not awaiting a co-worker comment.")
         return redirect('dashboard:home')
-    if emp.department != record.employee.department:
-        messages.error(request, "You must be in the same department.")
+    if record.coworker_signed_by and record.coworker_signed_by != emp:
+        messages.error(request, "You were not selected as the co-worker for this appraisal.")
         return redirect('dashboard:home')
 
     if request.method == 'POST':
@@ -681,3 +703,37 @@ def pending_ceo(request):
         'action_url_name': 'appraisals:ceo_fill',
         'title': 'Appraisals Awaiting CEO Comment',
     })
+
+
+# ── Appraisal PDF Download ────────────────────────────────────────────────────
+
+@login_required
+def appraisal_pdf(request, record_pk):
+    from django.http import HttpResponse
+    from .pdf_utils import generate_appraisal_pdf
+
+    emp    = get_employee(request)
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+
+    # Employee can only download after the cycle is distributed
+    is_employee_access = (emp == record.employee and record.cycle.is_distributed)
+    # HR, chain members, superuser can always download once the chain is done
+    is_chain_access = (
+        request.user.is_superuser or
+        (emp and (
+            emp == record.employee.supervisor or
+            emp == record.employee.unit_head or
+            emp.is_hr() or emp.is_director() or emp.is_ceo()
+        ))
+    )
+    if not (is_employee_access or is_chain_access):
+        messages.error(request, "Access denied. The appraisal results have not been distributed yet.")
+        return redirect('appraisals:my_appraisals')
+
+    buf = generate_appraisal_pdf(record)
+    last  = record.employee.user.last_name.replace(' ', '_')
+    cycle = str(record.cycle).replace(' ', '_')
+    filename = f"appraisal_{last}_{cycle}.pdf"
+    response = HttpResponse(buf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
+    return response

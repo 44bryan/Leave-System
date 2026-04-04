@@ -25,6 +25,9 @@ urlpatterns = [
     path('pending/director/',            views.pending_director,  name='pending_director'),
     path('pending/ceo/',                 views.pending_ceo,       name='pending_ceo'),
 
+    # PDF download
+    path('pdf/<int:record_pk>/',         views.appraisal_pdf,     name='pdf'),
+
     # HR management
     path('hr/',                          views.hr_dashboard,      name='hr_dashboard'),
     path('hr/initiate/',                 views.hr_initiate,       name='hr_initiate'),
