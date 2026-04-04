@@ -1,0 +1,87 @@
+{% if pending_appraisals %}
+<div class="card animate-in mb-4" style="border-left:4px solid #31b8cf;">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#e0f7fa;">
+        <span class="fw-bold" style="color:#0A4D68;">
+            <i class="bi bi-clipboard2-pulse me-2" style="color:#31b8cf;"></i>
+            Appraisals Requiring Your Action
+        </span>
+        <span class="badge" style="background:#31b8cf;color:#fff;">{{ pending_appraisals|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:.88rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Cycle</th>
+                        <th>Your Role</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for rec in pending_appraisals %}
+                <tr>
+                    <td class="fw-semibold">
+                        {% if rec.employee == employee %}
+                            <i class="bi bi-person-fill me-1 text-primary"></i>You (Self-Assessment)
+                        {% else %}
+                            {{ rec.employee.get_full_name }}
+                        {% endif %}
+                    </td>
+                    <td class="text-muted">{{ rec.cycle }}</td>
+                    <td>
+                        {% if rec.status == 'employee' and rec.employee == employee %}
+                            <span class="badge bg-warning text-dark">Fill Self-Assessment</span>
+                        {% elif rec.status == 'coworker' %}
+                            <span class="badge bg-info text-dark">Co-Worker Comment</span>
+                        {% elif rec.status == 'unit_head' %}
+                            <span class="badge" style="background:#0A4D68;color:#fff;">Supervisor Comment</span>
+                        {% elif rec.status == 'manager' %}
+                            <span class="badge bg-primary">Manager Rating</span>
+                        {% elif rec.status == 'hr' %}
+                            <span class="badge bg-success">HR Review</span>
+                        {% elif rec.status == 'director' %}
+                            <span class="badge" style="background:#7c3aed;color:#fff;">Director Comment</span>
+                        {% elif rec.status == 'ceo' %}
+                            <span class="badge" style="background:#0a2d45;color:#fff;">CEO Comment</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if rec.status == 'employee' and rec.employee == employee %}
+                            <a href="{% url 'appraisals:employee_fill' rec.pk %}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil-square me-1"></i>Fill Now
+                            </a>
+                        {% elif rec.status == 'coworker' %}
+                            <a href="{% url 'appraisals:coworker_fill' rec.pk %}" class="btn btn-sm btn-info">
+                                <i class="bi bi-chat-left-text me-1"></i>Comment
+                            </a>
+                        {% elif rec.status == 'unit_head' %}
+                            <a href="{% url 'appraisals:unit_head_fill' rec.pk %}" class="btn btn-sm btn-dark">
+                                <i class="bi bi-pen me-1"></i>Review
+                            </a>
+                        {% elif rec.status == 'manager' %}
+                            <a href="{% url 'appraisals:manager_fill' rec.pk %}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-star me-1"></i>Rate & Comment
+                            </a>
+                        {% elif rec.status == 'hr' %}
+                            <a href="{% url 'appraisals:hr_fill' rec.pk %}" class="btn btn-sm btn-success">
+                                <i class="bi bi-clipboard2-check me-1"></i>Review
+                            </a>
+                        {% elif rec.status == 'director' %}
+                            <a href="{% url 'appraisals:director_fill' rec.pk %}" class="btn btn-sm" style="background:#7c3aed;color:#fff;">
+                                <i class="bi bi-pen me-1"></i>Comment
+                            </a>
+                        {% elif rec.status == 'ceo' %}
+                            <a href="{% url 'appraisals:ceo_fill' rec.pk %}" class="btn btn-sm" style="background:#0a2d45;color:#fff;">
+                                <i class="bi bi-pen me-1"></i>Final Comment
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}

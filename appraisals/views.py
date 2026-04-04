@@ -471,6 +471,15 @@ def hr_fill(request, record_pk):
         return redirect('appraisals:hr_dashboard')
 
     if request.method == 'POST':
+        # Allow HR to override manager ratings if supplied
+        for fname in ['mgr_pf_quality_of_work','mgr_pf_quantity_of_work',
+                      'mgr_pf_knowledge_techniques','mgr_pf_ability_to_learn',
+                      'mgr_aa_motivation','mgr_aa_attitude_colleagues',
+                      'mgr_aa_relations_patients','mgr_aa_judgment_team',
+                      'mgr_aa_punctuality','mgr_aa_presentation']:
+            v = _int_or_none(request.POST.get(fname))
+            if v is not None:
+                setattr(record, fname, v)
         record.hr_comment   = request.POST.get('hr_comment', '').strip()
         record.hr_signed_by = emp
         record.hr_signed_at = timezone.now()
@@ -489,9 +498,27 @@ def hr_fill(request, record_pk):
         messages.success(request, "HR comment submitted.")
         return redirect('appraisals:hr_dashboard')
 
+    pf_fields = [
+        ('mgr_pf_quality_of_work',      'Quality of Work'),
+        ('mgr_pf_quantity_of_work',     'Quantity of Work'),
+        ('mgr_pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('mgr_pf_ability_to_learn',     'Ability / Interest to Learn'),
+    ]
+    aa_fields = [
+        ('mgr_aa_motivation',          'Motivation and Initiative'),
+        ('mgr_aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
+        ('mgr_aa_relations_patients',  'Relations with Patients and Visitors'),
+        ('mgr_aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
+        ('mgr_aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
+        ('mgr_aa_presentation',        'Personal Presentation and Professional Secrets'),
+    ]
+    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     return render(request, 'appraisals/hr_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
+        'pf_fields': pf_fields,
+        'aa_fields': aa_fields,
+        'current_values': current_values,
     })
 
 
@@ -509,6 +536,14 @@ def director_fill(request, record_pk):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
+        for fname in ['mgr_pf_quality_of_work','mgr_pf_quantity_of_work',
+                      'mgr_pf_knowledge_techniques','mgr_pf_ability_to_learn',
+                      'mgr_aa_motivation','mgr_aa_attitude_colleagues',
+                      'mgr_aa_relations_patients','mgr_aa_judgment_team',
+                      'mgr_aa_punctuality','mgr_aa_presentation']:
+            v = _int_or_none(request.POST.get(fname))
+            if v is not None:
+                setattr(record, fname, v)
         record.director_comment   = request.POST.get('director_comment', '').strip()
         record.director_signed_by = emp
         record.director_signed_at = timezone.now()
@@ -527,9 +562,27 @@ def director_fill(request, record_pk):
         messages.success(request, "Director comment submitted.")
         return redirect('dashboard:home')
 
+    pf_fields = [
+        ('mgr_pf_quality_of_work',      'Quality of Work'),
+        ('mgr_pf_quantity_of_work',     'Quantity of Work'),
+        ('mgr_pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('mgr_pf_ability_to_learn',     'Ability / Interest to Learn'),
+    ]
+    aa_fields = [
+        ('mgr_aa_motivation',          'Motivation and Initiative'),
+        ('mgr_aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
+        ('mgr_aa_relations_patients',  'Relations with Patients and Visitors'),
+        ('mgr_aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
+        ('mgr_aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
+        ('mgr_aa_presentation',        'Personal Presentation and Professional Secrets'),
+    ]
+    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     return render(request, 'appraisals/director_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
+        'pf_fields': pf_fields,
+        'aa_fields': aa_fields,
+        'current_values': current_values,
     })
 
 
@@ -547,6 +600,14 @@ def ceo_fill(request, record_pk):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
+        for fname in ['mgr_pf_quality_of_work','mgr_pf_quantity_of_work',
+                      'mgr_pf_knowledge_techniques','mgr_pf_ability_to_learn',
+                      'mgr_aa_motivation','mgr_aa_attitude_colleagues',
+                      'mgr_aa_relations_patients','mgr_aa_judgment_team',
+                      'mgr_aa_punctuality','mgr_aa_presentation']:
+            v = _int_or_none(request.POST.get(fname))
+            if v is not None:
+                setattr(record, fname, v)
         record.ceo_comment   = request.POST.get('ceo_comment', '').strip()
         record.ceo_signed_by = emp
         record.ceo_signed_at = timezone.now()
@@ -567,9 +628,27 @@ def ceo_fill(request, record_pk):
         messages.success(request, "CEO comment submitted. Appraisal chain complete.")
         return redirect('dashboard:home')
 
+    pf_fields = [
+        ('mgr_pf_quality_of_work',      'Quality of Work'),
+        ('mgr_pf_quantity_of_work',     'Quantity of Work'),
+        ('mgr_pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('mgr_pf_ability_to_learn',     'Ability / Interest to Learn'),
+    ]
+    aa_fields = [
+        ('mgr_aa_motivation',          'Motivation and Initiative'),
+        ('mgr_aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
+        ('mgr_aa_relations_patients',  'Relations with Patients and Visitors'),
+        ('mgr_aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
+        ('mgr_aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
+        ('mgr_aa_presentation',        'Personal Presentation and Professional Secrets'),
+    ]
+    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     return render(request, 'appraisals/ceo_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
+        'pf_fields': pf_fields,
+        'aa_fields': aa_fields,
+        'current_values': current_values,
     })
 
 
@@ -608,14 +687,15 @@ def pending_coworker(request):
     emp = get_employee(request)
     if not emp:
         return redirect('dashboard:home')
+    # Only show the record where this specific employee was chosen as co-worker
     records = AppraisalRecord.objects.filter(
         status=AppraisalRecord.STATUS_COWORKER,
-        employee__department=emp.department,
-    ).exclude(employee=emp).select_related('employee__user', 'cycle')
+        coworker_signed_by=emp,
+    ).select_related('employee__user', 'cycle')
     return render(request, 'appraisals/pending_list.html', {
         'records': records, 'role': 'coworker',
         'action_url_name': 'appraisals:coworker_fill',
-        'title': 'Appraisals Awaiting Co-Worker Comment',
+        'title': 'Appraisals Awaiting Your Co-Worker Comment',
     })
 
 

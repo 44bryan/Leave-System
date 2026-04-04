@@ -7,6 +7,34 @@ from accounts.models import Employee, Department
 from leaves.models import LeaveRequest, LeaveBalance, LeaveType
 
 
+def _pending_appraisals_for(emp):
+    """Return appraisal records that need action from this employee."""
+    try:
+        from appraisals.models import AppraisalRecord as _AR
+        qs = _AR.objects.none()
+        # Employee needs to fill their own form
+        own = _AR.objects.filter(status=_AR.STATUS_EMPLOYEE, employee=emp).select_related('cycle')
+        # Co-worker selected for this employee
+        coworker = _AR.objects.filter(status=_AR.STATUS_COWORKER, coworker_signed_by=emp).select_related('cycle', 'employee__user')
+        # Unit head
+        uh = _AR.objects.filter(status=_AR.STATUS_UNIT_HEAD, employee__unit_head=emp).select_related('cycle', 'employee__user')
+        # Supervisor / line manager (unit_head step)
+        uh2 = _AR.objects.filter(status=_AR.STATUS_UNIT_HEAD, employee__supervisor=emp).select_related('cycle', 'employee__user')
+        # Manager rating step
+        mgr = _AR.objects.filter(status=_AR.STATUS_MANAGER, employee__supervisor=emp).select_related('cycle', 'employee__user')
+        # HR
+        hr_q = _AR.objects.filter(status=_AR.STATUS_HR).select_related('cycle', 'employee__user') if emp.is_hr() else _AR.objects.none()
+        # Director
+        dir_q = _AR.objects.filter(status=_AR.STATUS_DIRECTOR).select_related('cycle', 'employee__user') if emp.is_director() else _AR.objects.none()
+        # CEO
+        ceo_q = _AR.objects.filter(status=_AR.STATUS_CEO).select_related('cycle', 'employee__user') if emp.is_ceo() else _AR.objects.none()
+
+        combined = {r.pk: r for r in list(own) + list(coworker) + list(uh) + list(uh2) + list(mgr) + list(hr_q) + list(dir_q) + list(ceo_q)}
+        return list(combined.values())
+    except Exception:
+        return []
+
+
 def get_employee(request):
     try:
         return request.user.employee
@@ -444,6 +472,7 @@ def employee_dashboard(request, employee):
         'active_suspension': active_suspension,
         'is_own_birthday': is_own_birthday,
         'active_contract': active_contract,
+        'pending_appraisals': _pending_appraisals_for(employee),
     })
 
 
@@ -519,6 +548,7 @@ def manager_dashboard(request, employee):
         'on_leave_today': on_leave_today,
         'team_balances': team_balances,
         'year': today.year,
+        'pending_appraisals': _pending_appraisals_for(employee),
     })
 
 
@@ -598,6 +628,7 @@ def unit_head_dashboard(request, employee):
         'unit_on_leave_today': unit_on_leave_today,
         'unit_balances': unit_balances,
         'year': today.year,
+        'pending_appraisals': _pending_appraisals_for(employee),
     })
 
 
@@ -695,6 +726,7 @@ def director_dashboard(request, employee):
         'discipline_warned': discipline_warned,
         'discipline_suspended': discipline_suspended,
         'discipline_dismissed': discipline_dismissed,
+        'pending_appraisals': _pending_appraisals_for(employee),
         **_contract_ctx,
     })
 
@@ -789,6 +821,7 @@ def ceo_dashboard(request, employee):
         'discipline_warned': discipline_warned,
         'discipline_suspended': discipline_suspended,
         'discipline_dismissed': discipline_dismissed,
+        'pending_appraisals': _pending_appraisals_for(employee),
         **_contract_ctx,
     })
 
@@ -955,6 +988,7 @@ def hr_dashboard(request, employee):
         'this_month_birthdays': this_month_birthdays,
         'all_departments': Department.objects.order_by('name'),
         'all_employees': Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name'),
+        'pending_appraisals': _pending_appraisals_for(employee),
         **_contract_ctx,
     })
 

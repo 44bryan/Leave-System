@@ -95,6 +95,8 @@
 
 {% block content %}
 
+{% include 'dashboard/includes/pending_appraisals.html' %}
+
 <!-- ── Birthday Banners ── -->
 {% if today_birthdays %}
 <div class="p-3 rounded-3 text-white mb-4 animate-in" style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">

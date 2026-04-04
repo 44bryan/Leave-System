@@ -238,115 +238,94 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
-// ── Signature Pad setup ───────────────────────────────────────────────────────
-const canvas       = document.getElementById('sigCanvas');
-const placeholder  = document.getElementById('sigPlaceholder');
-const sigDataInput = document.getElementById('signatureData');
-const sigSection   = document.getElementById('signaturePadSection');
-const sigError     = document.getElementById('sigError');
-let signaturePad   = null;
+(function () {
+    var canvas       = document.getElementById('sigCanvas');
+    var placeholder  = document.getElementById('sigPlaceholder');
+    var sigDataInput = document.getElementById('signatureData');
+    var sigSection   = document.getElementById('signaturePadSection');
+    var sigError     = document.getElementById('sigError');
+    var savedSigB64  = (document.getElementById('savedSigB64') || {}).value || '';
+    var signaturePad = null;
 
-function initPad() {
-    // Set physical pixel size for crisp rendering on HiDPI screens
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    const rect  = canvas.getBoundingClientRect();
-    canvas.width  = rect.width  * ratio;
-    canvas.height = 150 * ratio;
-    canvas.style.height = '150px';
-    canvas.getContext('2d').scale(ratio, ratio);
-
-    if (signaturePad) { signaturePad.off(); }
-    signaturePad = new SignaturePad(canvas, {
-        minWidth: 1,
-        maxWidth: 3,
-        penColor: '#0a2d45',
-    });
-
-    signaturePad.addEventListener('beginStroke', () => {
-        placeholder.style.display = 'none';
-        sigError.style.display    = 'none';
-    });
-}
-
-const savedSigB64 = document.getElementById('savedSigB64') ? document.getElementById('savedSigB64').value : '';
-
-function loadSavedSig() {
-    if (savedSigB64 && signaturePad) {
-        // Load saved signature into canvas via an Image element
-        const img = new Image();
-        img.onload = function () {
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    function initPad() {
+        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+        var w = canvas.offsetWidth || (canvas.parentElement && canvas.parentElement.offsetWidth) || 600;
+        canvas.width  = Math.round(w * ratio);
+        canvas.height = Math.round(160 * ratio);
+        canvas.style.height = '160px';
+        canvas.getContext('2d').scale(ratio, ratio);
+        if (signaturePad) { try { signaturePad.off(); } catch(e){} }
+        signaturePad = new SignaturePad(canvas, { minWidth: 1, maxWidth: 3, penColor: '#0a2d45' });
+        signaturePad.addEventListener('beginStroke', function () {
             placeholder.style.display = 'none';
-        };
-        img.src = savedSigB64;
-    }
-}
-
-// ── Show / hide pad based on decision radio ───────────────────────────────────
-document.querySelectorAll('input[name="action"]').forEach(radio => {
-    radio.addEventListener('change', function () {
-        // Visual feedback on cards
-        document.querySelectorAll('.form-check-label').forEach(l => {
-            l.style.background = '';
-            l.style.color = '';
+            sigError.style.display    = 'none';
         });
-        const lbl = this.nextElementSibling;
-        if (this.value === 'approve') {
-            lbl.style.background  = '#e8f5e9';
-            lbl.style.borderColor = '#059669';
-            sigSection.style.display = 'block';
-            if (!signaturePad) {
-                initPad();
-                loadSavedSig();
+    }
+
+    function loadSavedSig() {
+        if (savedSigB64 && signaturePad) {
+            var img = new Image();
+            img.onload = function () {
+                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                placeholder.style.display = 'none';
+            };
+            img.src = savedSigB64;
+        }
+    }
+
+    document.querySelectorAll('input[name="action"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            document.querySelectorAll('.form-check-label').forEach(function (l) {
+                l.style.background = ''; l.style.color = '';
+            });
+            var lbl = this.nextElementSibling;
+            if (this.value === 'approve') {
+                lbl.style.background  = '#e8f5e9';
+                lbl.style.borderColor = '#059669';
+                sigSection.style.display = 'block';
+                if (!signaturePad) {
+                    requestAnimationFrame(function () { initPad(); loadSavedSig(); });
+                }
+            } else {
+                lbl.style.background  = '#fce4ec';
+                lbl.style.borderColor = '#e53e3e';
+                sigSection.style.display = 'none';
             }
-        } else {
-            lbl.style.background  = '#fce4ec';
-            lbl.style.borderColor = '#e53e3e';
-            sigSection.style.display = 'none';
+        });
+    });
+
+    document.getElementById('clearSig').addEventListener('click', function () {
+        if (signaturePad) { signaturePad.clear(); placeholder.style.display = 'block'; }
+    });
+
+    var _rt;
+    window.addEventListener('resize', function () {
+        clearTimeout(_rt);
+        _rt = setTimeout(function () {
+            if (sigSection.style.display === 'none' || !signaturePad) return;
+            var data = signaturePad.toData();
+            initPad();
+            if (data && data.length) { signaturePad.fromData(data); }
+            else { placeholder.style.display = 'block'; }
+        }, 200);
+    });
+
+    document.getElementById('decisionForm').addEventListener('submit', function (e) {
+        var action = document.querySelector('input[name="action"]:checked');
+        if (action && action.value === 'approve') {
+            if (signaturePad && !signaturePad.isEmpty()) {
+                sigDataInput.value = signaturePad.toDataURL('image/png');
+            } else if (savedSigB64) {
+                sigDataInput.value = savedSigB64;
+            } else {
+                e.preventDefault();
+                sigError.style.display = 'inline';
+                sigSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
     });
-});
-
-// ── Clear button ──────────────────────────────────────────────────────────────
-document.getElementById('clearSig').addEventListener('click', () => {
-    if (signaturePad) {
-        signaturePad.clear();
-        placeholder.style.display = 'block';
-    }
-});
-
-// ── Re-init on window resize so canvas stays sharp ───────────────────────────
-window.addEventListener('resize', () => {
-    if (sigSection.style.display !== 'none' && signaturePad) {
-        const data = signaturePad.toData();
-        initPad();
-        signaturePad.fromData(data);
-        if (data.length === 0) { placeholder.style.display = 'block'; }
-    }
-});
-
-// ── Form submit: validate + attach base64 ────────────────────────────────────
-document.getElementById('decisionForm').addEventListener('submit', function (e) {
-    const action = document.querySelector('input[name="action"]:checked');
-    if (action && action.value === 'approve') {
-        if (signaturePad && !signaturePad.isEmpty()) {
-            // User drew a new signature — use it
-            sigDataInput.value = signaturePad.toDataURL('image/png');
-        } else if (savedSigB64) {
-            // No new drawing but saved sig exists — use saved sig
-            sigDataInput.value = savedSigB64;
-        } else {
-            // No signature at all
-            e.preventDefault();
-            sigError.style.display = 'inline';
-            sigSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-        }
-    }
-});
+})();
 </script>
 {% endblock %}

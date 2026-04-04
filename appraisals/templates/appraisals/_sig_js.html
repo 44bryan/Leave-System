@@ -1,35 +1,85 @@
 <script>
-const canvas = document.getElementById('sigCanvas');
-const placeholder = document.getElementById('sigPlaceholder');
-const dataInput = document.getElementById('signatureData');
-const sigError = document.getElementById('sigError');
-const savedSigB64 = (document.getElementById('savedSigB64') || {}).value || '';
-let signaturePad = null;
-function initPad() {
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * ratio;
-    canvas.height = 120 * ratio;
-    canvas.style.height = '120px';
-    canvas.getContext('2d').scale(ratio, ratio);
-    if (signaturePad) signaturePad.off();
-    signaturePad = new SignaturePad(canvas, { minWidth: 1, maxWidth: 3, penColor: '#0a2d45' });
-    signaturePad.addEventListener('beginStroke', () => { placeholder.style.display = 'none'; sigError.style.display = 'none'; });
-}
-function loadSaved() {
-    if (savedSigB64 && signaturePad) {
-        const img = new Image();
-        img.onload = () => { canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); placeholder.style.display = 'none'; };
-        img.src = savedSigB64;
+(function () {
+    var canvas      = document.getElementById('sigCanvas');
+    var placeholder = document.getElementById('sigPlaceholder');
+    var dataInput   = document.getElementById('signatureData');
+    var sigError    = document.getElementById('sigError');
+    var savedSigB64 = (document.getElementById('savedSigB64') || {}).value || '';
+    var signaturePad = null;
+
+    function initPad() {
+        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+        // offsetWidth is more reliable than getBoundingClientRect on first paint
+        var w = canvas.offsetWidth || (canvas.parentElement && canvas.parentElement.offsetWidth) || 600;
+        canvas.width  = Math.round(w * ratio);
+        canvas.height = Math.round(160 * ratio);
+        canvas.style.height = '160px';
+        var ctx = canvas.getContext('2d');
+        ctx.scale(ratio, ratio);
+        if (signaturePad) { try { signaturePad.off(); } catch(e){} }
+        signaturePad = new SignaturePad(canvas, { minWidth: 1, maxWidth: 3, penColor: '#0a2d45' });
+        signaturePad.addEventListener('beginStroke', function () {
+            placeholder.style.display = 'none';
+            sigError.style.display    = 'none';
+        });
     }
-}
-window.addEventListener('load', () => { initPad(); loadSaved(); });
-window.addEventListener('resize', () => { if (!signaturePad) return; const d = signaturePad.toData(); initPad(); signaturePad.fromData(d); if (!d.length) loadSaved(); });
-document.getElementById('clearSig').addEventListener('click', () => { if (signaturePad) { signaturePad.clear(); placeholder.style.display = 'block'; } });
-document.querySelector('form').addEventListener('submit', function(e) {
-    if (signaturePad && !signaturePad.isEmpty()) { dataInput.value = signaturePad.toDataURL('image/png'); }
-    else if (savedSigB64) { dataInput.value = savedSigB64; }
-    else { e.preventDefault(); sigError.style.display = 'inline'; canvas.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-});
+
+    function loadSaved() {
+        if (savedSigB64 && signaturePad) {
+            var img = new Image();
+            img.onload = function () {
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                placeholder.style.display = 'none';
+            };
+            img.src = savedSigB64;
+        }
+    }
+
+    function safeInit() {
+        // Use rAF to ensure layout is complete before reading dimensions
+        requestAnimationFrame(function () {
+            initPad();
+            loadSaved();
+        });
+    }
+
+    if (document.readyState === 'complete') {
+        safeInit();
+    } else {
+        window.addEventListener('load', safeInit);
+    }
+
+    // Re-init on resize (debounced)
+    var _resizeTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(_resizeTimer);
+        _resizeTimer = setTimeout(function () {
+            if (!signaturePad) return;
+            var data = signaturePad.toData();
+            initPad();
+            if (data && data.length) {
+                signaturePad.fromData(data);
+            } else {
+                loadSaved();
+                if (!savedSigB64) placeholder.style.display = 'block';
+            }
+        }, 200);
+    });
+
+    document.getElementById('clearSig').addEventListener('click', function () {
+        if (signaturePad) { signaturePad.clear(); placeholder.style.display = 'block'; }
+    });
+
+    document.querySelector('form').addEventListener('submit', function (e) {
+        if (signaturePad && !signaturePad.isEmpty()) {
+            dataInput.value = signaturePad.toDataURL('image/png');
+        } else if (savedSigB64) {
+            dataInput.value = savedSigB64;
+        } else {
+            e.preventDefault();
+            sigError.style.display = 'inline';
+            canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+})();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
