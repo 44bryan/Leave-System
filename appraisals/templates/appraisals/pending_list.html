@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }} — MICEI HRM{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}Appraisals waiting for your action{% endblock %}
+
+{% block content %}
+<div class="card animate-in">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clipboard2-pulse me-2"></i>{{ title }}</span>
+        <span class="badge bg-{% if records %}warning{% else %}secondary{% endif %}">{{ records|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        {% if not records %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-clipboard2-check" style="font-size:2.5rem;opacity:.4;"></i>
+            <div class="mt-2">No appraisals waiting for your action.</div>
+        </div>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr><th>Employee</th><th>Department</th><th>Cycle</th><th>Period</th><th>Submitted</th><th></th></tr>
+                </thead>
+                <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>
+                        <div class="fw-semibold">{{ record.employee.get_full_name }}</div>
+                        <div class="text-muted small">{{ record.employee.position }}</div>
+                    </td>
+                    <td class="text-muted small">{{ record.employee.department }}</td>
+                    <td class="fw-semibold">{{ record.cycle }}</td>
+                    <td class="text-muted small">{{ record.cycle.get_trimester_dates }}</td>
+                    <td class="text-muted small">{{ record.updated_at|date:"d M Y" }}</td>
+                    <td class="text-end">
+                        <a href="{% url action_url_name record.pk %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square me-1"></i>Fill Comment
+                        </a>
+                        <a href="{% url 'appraisals:detail' record.pk %}" class="btn btn-sm btn-outline-secondary ms-1">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

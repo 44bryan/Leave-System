@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}CEO Comment — MICEI HRM{% endblock %}
+{% block page_title %}CEO Final Comment{% endblock %}
+{% block page_subtitle %}{{ record.employee.get_full_name }} · {{ record.cycle }}{% endblock %}
+
+{% block content %}
+<div class="row g-4"><div class="col-lg-8">
+{% include 'appraisals/_record_summary.html' %}
+<div class="alert alert-info small mb-4"><i class="bi bi-eye me-1"></i>
+    <a href="{% url 'appraisals:detail' record.pk %}">View full appraisal chain</a> before commenting.
+</div>
+<div class="card animate-in">
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-star me-2"></i>CEO Comment</div>
+    <div class="card-body p-4">
+        <p class="text-muted small mb-3">This is the final step in the appraisal chain. Once you submit, the record will be marked complete and HR can distribute results.</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="signature_data" id="signatureData">
+            <input type="hidden" id="savedSigB64" value="{{ current_sig_b64 }}">
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
+                <textarea name="ceo_comment" class="form-control" rows="5" required
+                          placeholder="Provide the CEO's final comment..."></textarea>
+            </div>
+            {% include 'appraisals/_sig_pad.html' %}
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary px-5"><i class="bi bi-send-check me-2"></i>Submit CEO Comment</button>
+                <a href="{% url 'appraisals:pending_ceo' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</div></div>
+{% endblock %}
+{% block extra_js %}{% include 'appraisals/_sig_js.html' %}{% endblock %}

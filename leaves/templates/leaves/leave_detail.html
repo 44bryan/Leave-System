@@ -150,6 +150,11 @@
                 <a href="{% url 'leaves:pdf_leave' leave.pk %}" class="btn btn-success w-100 mb-2">
                     <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download / Print PDF" %}
                 </a>
+                {% if leave.status == 'pending' and leave.employee == request.user.employee %}
+                <a href="{% url 'leaves:edit' leave.pk %}" class="btn btn-outline-warning w-100 mb-2">
+                    <i class="bi bi-pencil-square me-1"></i>{% trans "Edit Request" %}
+                </a>
+                {% endif %}
                 {% if leave.can_cancel and leave.employee == request.user.employee %}
                 <form method="post" action="{% url 'leaves:cancel' leave.pk %}">
                     {% csrf_token %}
@@ -212,48 +217,53 @@
             </div>
             <div class="card-body p-4">
                 <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
-                    Correct the actual days taken and/or change the status of this request.
-                    Changing <strong>days</strong> directly updates both deductible balance and
-                    non-deductible totals in all reports.
+                    Correct actual dates, days taken, status. Use when employee went on different dates,
+                    was called back early, or didn't go at all.
                 </p>
                 <form method="post" action="{% url 'leaves:admin_edit' leave.pk %}">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label" style="font-size:.82rem;font-weight:600;">
-                            Corrected Days Taken
-                            <span style="font-size:.75rem;font-weight:400;color:#6b7a8d;">
-                                (currently: {{ leave.total_days }})
-                            </span>
-                        </label>
-                        <input type="number" name="corrected_days" class="form-control"
-                               value="{{ leave.total_days }}" min="0" max="365" required
-                               style="font-size:.88rem;">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:.82rem;font-weight:600;">Actual Start Date</label>
+                            <input type="date" name="corrected_start" class="form-control"
+                                   value="{{ leave.start_date|date:'Y-m-d' }}" style="font-size:.82rem;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:.82rem;font-weight:600;">Actual End Date</label>
+                            <input type="date" name="corrected_end" class="form-control"
+                                   value="{{ leave.end_date|date:'Y-m-d' }}" style="font-size:.82rem;">
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" style="font-size:.82rem;font-weight:600;">
-                            Change Status
-                            <span style="font-size:.75rem;font-weight:400;color:#6b7a8d;">(optional)</span>
+                            Corrected Days Taken
+                            <span style="font-size:.75rem;font-weight:400;color:#6b7a8d;">(currently: {{ leave.total_days }})</span>
+                        </label>
+                        <input type="number" name="corrected_days" class="form-control"
+                               value="{{ leave.total_days }}" min="0" max="365" required style="font-size:.88rem;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600;">
+                            Change Status <span style="font-size:.75rem;font-weight:400;color:#6b7a8d;">(optional)</span>
                         </label>
                         <select name="corrected_status" class="form-select" style="font-size:.82rem;">
-                            <option value="">— Keep current status ({{ leave.get_status_display }}) —</option>
+                            <option value="">— Keep current ({{ leave.get_status_display }}) —</option>
                             <option value="approved">Approved</option>
-                            <option value="cancelled">Cancelled</option>
-                            <option value="pending">Pending Manager Approval</option>
+                            <option value="cancelled">Cancelled / Voided</option>
+                            <option value="pending">Revert to Pending</option>
                             <option value="manager_approved">Pending HR Approval</option>
                             <option value="hr_approved">Pending Director Approval</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" style="font-size:.82rem;font-weight:600;">
-                            Correction Note
-                            <span style="font-size:.75rem;font-weight:400;color:#6b7a8d;">(optional)</span>
+                            Correction Note <span style="font-size:.75rem;font-weight:400;color:#6b7a8d;">(optional)</span>
                         </label>
                         <input type="text" name="correction_note" class="form-control"
-                               placeholder="e.g. Employee returned early after 3 days"
+                               placeholder="e.g. Employee called back after 3 days, or didn't go"
                                style="font-size:.82rem;">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100"
-                            style="font-size:.85rem;"
+                    <button type="submit" class="btn btn-primary w-100" style="font-size:.85rem;"
                             onclick="return confirm('Save these corrections to leave #{{ leave.pk }}?')">
                         <i class="bi bi-check-circle me-1"></i>Save Corrections
                     </button>

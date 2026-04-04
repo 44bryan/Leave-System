@@ -28,5 +28,6 @@ urlpatterns = [
     path('discipline/', include('discipline.urls')),
     path('contracts/', include('contracts.urls')),
     path('notifications/', include('notifications.urls')),
+    path('appraisals/', include('appraisals.urls')),
     path('', lambda request: redirect('dashboard:home'), name='home'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

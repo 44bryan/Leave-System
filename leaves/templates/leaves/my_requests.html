@@ -128,6 +128,11 @@
                             <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-sm btn-outline-secondary" title="View">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            {% if req.status == 'pending' %}
+                            <a href="{% url 'leaves:edit' req.pk %}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            {% endif %}
                             {% if req.status == 'approved' %}
                             <a href="{% url 'leaves:pdf_leave' req.pk %}" class="btn btn-sm btn-outline-success" title="Download Official Form">
                                 <i class="bi bi-file-earmark-pdf"></i>

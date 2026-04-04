@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'discipline',
     'contracts',
     'notifications',
+    'appraisals',
 ]
 
 MIDDLEWARE = [

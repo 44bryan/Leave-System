@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Supervisor Comment — MICEI HRM{% endblock %}
+{% block page_title %}Supervisor / Unit Head Comment{% endblock %}
+{% block page_subtitle %}{{ record.employee.get_full_name }} · {{ record.cycle }}{% endblock %}
+
+{% block content %}
+<div class="row g-4"><div class="col-lg-8">
+{% include 'appraisals/_record_summary.html' %}
+<div class="card animate-in">
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-person-check me-2"></i>Supervisor / Unit Head Comment</div>
+    <div class="card-body p-4">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="signature_data" id="signatureData">
+            <input type="hidden" id="savedSigB64" value="{{ current_sig_b64 }}">
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
+                <textarea name="unit_head_comment" class="form-control" rows="5" required
+                          placeholder="Provide your assessment as unit head / supervisor..."></textarea>
+            </div>
+            {% include 'appraisals/_sig_pad.html' %}
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary px-5"><i class="bi bi-send-check me-2"></i>Submit Comment</button>
+                <a href="{% url 'appraisals:pending_unit_head' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</div></div>
+{% endblock %}
+{% block extra_js %}{% include 'appraisals/_sig_js.html' %}{% endblock %}

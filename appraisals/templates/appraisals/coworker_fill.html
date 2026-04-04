@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Co-Worker Comment — {{ record.cycle }} — MICEI HRM{% endblock %}
+{% block page_title %}Co-Worker Appraisal Comment{% endblock %}
+{% block page_subtitle %}{{ record.employee.get_full_name }} · {{ record.cycle }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+<div class="col-lg-8">
+
+{% include 'appraisals/_record_summary.html' %}
+
+<div class="card animate-in">
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-person-heart me-2"></i>Co-Worker Comment</div>
+    <div class="card-body p-4">
+        <p class="text-muted small mb-3">As a colleague in the same department, please provide your honest assessment of {{ record.employee.user.first_name }}'s work.</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="signature_data" id="signatureData">
+            <input type="hidden" id="savedSigB64" value="{{ current_sig_b64 }}">
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
+                <textarea name="coworker_comment" class="form-control" rows="5" required
+                          placeholder="Share your observations about this colleague's work performance, teamwork, and professionalism..."></textarea>
+            </div>
+            {% include 'appraisals/_sig_pad.html' %}
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary px-5"><i class="bi bi-send-check me-2"></i>Submit Comment</button>
+                <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}
+{% block extra_js %}{% include 'appraisals/_sig_js.html' %}{% endblock %}

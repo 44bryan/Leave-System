@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Appraisal Management — MICEI HRM{% endblock %}
+{% block page_title %}Appraisal Management{% endblock %}
+{% block page_subtitle %}Manage appraisal cycles and distribute results{% endblock %}
+{% block nav_hr_appraisals %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'appraisals:hr_initiate' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>New Appraisal Cycle
+</a>
+{% endblock %}
+
+{% block content %}
+{% if not cycles %}
+<div class="card animate-in">
+    <div class="card-body text-center py-5 text-muted">
+        <i class="bi bi-clipboard2" style="font-size:3rem;opacity:.4;"></i>
+        <div class="mt-2 fw-semibold">No appraisal cycles yet.</div>
+        <div class="small mb-3">Start by initiating the first appraisal cycle.</div>
+        <a href="{% url 'appraisals:hr_initiate' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Initiate First Cycle
+        </a>
+    </div>
+</div>
+{% else %}
+{% for cycle in cycles %}
+{% with total=cycle.records.count done=cycle.records.filter.count %}
+<div class="card animate-in mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <span class="fw-bold">{{ cycle }}</span>
+            <span class="text-muted small ms-2">{{ cycle.get_trimester_dates }}</span>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            {% if cycle.is_distributed %}
+            <span class="badge bg-success"><i class="bi bi-send-check me-1"></i>Distributed {{ cycle.distributed_at|date:"d M Y" }}</span>
+            {% else %}
+            <span class="badge bg-warning text-dark">In Progress</span>
+            <form method="post" action="{% url 'appraisals:distribute' cycle.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-success"
+                        onclick="return confirm('Distribute results for {{ cycle }} to all staff?')">
+                    <i class="bi bi-send me-1"></i>Distribute Results
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body p-3">
+        <div class="row g-2 mb-3">
+            <div class="col-sm-3 text-center">
+                <div style="font-size:1.8rem;font-weight:800;color:#0A4D68;">{{ cycle.records.count }}</div>
+                <div class="text-muted small">Total Records</div>
+            </div>
+            <div class="col-sm-3 text-center">
+                {% with done_count=cycle.records.all|length %}
+                <div style="font-size:1.8rem;font-weight:800;color:#1a8fa0;">
+                    {{ cycle.records.filter_status_done_count|default:"—" }}
+                </div>
+                {% endwith %}
+                <div class="text-muted small">Completed</div>
+            </div>
+            <div class="col-sm-3 text-center">
+                <div style="font-size:1.8rem;font-weight:800;color:#b45309;">
+                    {{ cycle.initiated_at|date:"d M Y" }}
+                </div>
+                <div class="text-muted small">Initiated</div>
+            </div>
+            <div class="col-sm-3 text-center">
+                <div class="text-muted small mt-2">Initiated by</div>
+                <div class="fw-semibold small">{{ cycle.initiated_by.get_full_name|default:cycle.initiated_by }}</div>
+            </div>
+        </div>
+        <a href="{% url 'appraisals:cycle_records' cycle.pk %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-list-ul me-1"></i>View All Records
+        </a>
+        {% if not cycle.is_distributed %}
+        <a href="{% url 'appraisals:pending_hr' %}" class="btn btn-sm btn-outline-warning ms-1">
+            <i class="bi bi-clipboard2-pulse me-1"></i>My Pending Reviews
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endwith %}
+{% endfor %}
+{% endif %}
+{% endblock %}

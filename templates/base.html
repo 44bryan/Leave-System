@@ -1087,6 +1087,16 @@
                     <i class="bi bi-file-earmark-person"></i> {% trans "My Contract" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:my_documents' %}" class="nav-link-sidebar {% block nav_my_documents %}{% endblock %}">
+                    <i class="bi bi-folder2-open"></i> {% trans "My Documents" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'appraisals:my_appraisals' %}" class="nav-link-sidebar {% block nav_my_appraisals %}{% endblock %}">
+                    <i class="bi bi-clipboard2-pulse"></i> {% trans "My Appraisals" %}
+                </a>
+            </li>
             {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'notifications:list' %}" class="nav-link-sidebar {% block nav_notifications %}{% endblock %}">
@@ -1108,6 +1118,16 @@
                     <i class="bi bi-person-check"></i> {% trans "Unit Head Queue" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'appraisals:pending_unit_head' %}" class="nav-link-sidebar {% block nav_appraisals_unit_head %}{% endblock %}">
+                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'appraisals:pending_coworker' %}" class="nav-link-sidebar {% block nav_appraisals_coworker %}{% endblock %}">
+                    <i class="bi bi-people"></i> {% trans "Co-Worker Comments" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}
@@ -1118,6 +1138,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:manager_approvals' %}" class="nav-link-sidebar {% block nav_manager %}{% endblock %}">
                     <i class="bi bi-person-check"></i> {% trans "Manager Queue" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'appraisals:pending_manager' %}" class="nav-link-sidebar {% block nav_appraisals_manager %}{% endblock %}">
+                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
                 </a>
             </li>
         </ul>
@@ -1153,6 +1178,16 @@
                     <i class="bi bi-cake2"></i> {% trans "Birthday Calendar" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'appraisals:hr_dashboard' %}" class="nav-link-sidebar {% block nav_hr_appraisals %}{% endblock %}">
+                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisals" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'appraisals:pending_hr' %}" class="nav-link-sidebar {% block nav_hr_appraisals_pending %}{% endblock %}">
+                    <i class="bi bi-clipboard2-check"></i> {% trans "Appraisal Reviews" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}
@@ -1174,6 +1209,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar {% block nav_tracker_dir %}{% endblock %}">
                     <i class="bi bi-bar-chart-line"></i> {% trans "Leave Tracker" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'appraisals:pending_director' %}" class="nav-link-sidebar {% block nav_appraisals_director %}{% endblock %}">
+                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
                 </a>
             </li>
         </ul>
@@ -1217,6 +1257,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:retirement' %}" class="nav-link-sidebar">
                     <i class="bi bi-hourglass-split"></i> {% trans "Retirement Tracker" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'appraisals:pending_ceo' %}" class="nav-link-sidebar {% block nav_appraisals_ceo %}{% endblock %}">
+                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
                 </a>
             </li>
         </ul>

@@ -948,6 +948,61 @@ def document_upload(request, employee_pk):
 
 
 @login_required
+def my_documents(request):
+    """Any employee uploads and views their own documents."""
+    from accounts.models import EmployeeDocument
+    try:
+        employee = request.user.employee
+    except Employee.DoesNotExist:
+        messages.error(request, "No employee profile found.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        category = request.POST.get('category', 'other')
+        file = request.FILES.get('file')
+        if title and file:
+            EmployeeDocument.objects.create(
+                employee=employee,
+                title=title,
+                category=category,
+                file=file,
+                uploaded_by=request.user,
+            )
+            messages.success(request, f'Document "{title}" uploaded successfully.')
+        else:
+            messages.error(request, 'Title and file are required.')
+        return redirect('accounts:my_documents')
+
+    documents = EmployeeDocument.objects.filter(employee=employee).select_related('uploaded_by')
+    from accounts.models import EmployeeDocument as _ED
+    return render(request, 'accounts/my_documents.html', {
+        'employee': employee,
+        'documents': documents,
+        'categories': _ED.CATEGORY_CHOICES,
+    })
+
+
+@login_required
+def my_document_delete(request, doc_pk):
+    """Employee deletes one of their own documents."""
+    from accounts.models import EmployeeDocument
+    doc = get_object_or_404(EmployeeDocument, pk=doc_pk)
+    try:
+        employee = request.user.employee
+    except Employee.DoesNotExist:
+        return redirect('dashboard:home')
+    if doc.employee != employee and not request.user.is_superuser:
+        messages.error(request, "You can only delete your own documents.")
+        return redirect('accounts:my_documents')
+    if request.method == 'POST':
+        doc.file.delete(save=False)
+        doc.delete()
+        messages.success(request, 'Document deleted.')
+    return redirect('accounts:my_documents')
+
+
+@login_required
 def document_delete(request, doc_pk):
     """HR/superuser deletes an employee document."""
     from accounts.models import EmployeeDocument

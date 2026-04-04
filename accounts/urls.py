@@ -23,4 +23,6 @@ urlpatterns = [
     path('employees/<int:pk>/history/', views.employee_history, name='employee_history'),
     path('employees/<int:employee_pk>/documents/upload/', views.document_upload, name='document_upload'),
     path('documents/<int:doc_pk>/delete/', views.document_delete, name='document_delete'),
+    path('my-documents/', views.my_documents, name='my_documents'),
+    path('my-documents/<int:doc_pk>/delete/', views.my_document_delete, name='my_document_delete'),
 ]

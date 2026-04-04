@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Edit Leave Request #{{ leave.pk }} — MICEI HRM{% endblock %}
+{% block page_title %}Edit Leave Request #{{ leave.pk }}{% endblock %}
+{% block page_subtitle %}You can only edit while the request is still pending{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card animate-in">
+            <div class="card-header">
+                <i class="bi bi-pencil-square me-2" style="color:#088395;"></i>Edit Leave Request
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-warning py-2 mb-4" style="font-size:.85rem;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Once your unit head or line manager takes action, you will no longer be able to edit this request.
+                </div>
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label">{% trans "Leave Type" %} <span class="text-danger">*</span></label>
+                        {{ form.leave_type }}
+                        {% if form.leave_type.errors %}<div class="text-danger small mt-1">{{ form.leave_type.errors.0 }}</div>{% endif %}
+                        <div id="deductible-indicator" class="mt-2" style="display:none;">
+                            <div id="deductible-badge-yes" style="display:none;">
+                                <span class="badge" style="background:#fff8e1;color:#b45309;border:1.5px solid #fcd34d;font-size:0.78rem;padding:5px 12px;border-radius:20px;">
+                                    <i class="bi bi-dash-circle me-1"></i>Deductible — subtracted from your annual balance
+                                </span>
+                            </div>
+                            <div id="deductible-badge-no" style="display:none;">
+                                <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1.5px solid #86efac;font-size:0.78rem;padding:5px 12px;border-radius:20px;">
+                                    <i class="bi bi-shield-check me-1"></i>Non-Deductible — does not affect your annual balance
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}<div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Date <span class="text-danger">*</span></label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}<div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="days-preview" style="display:none;">
+                        <div class="alert alert-info py-2">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <strong id="days-count">0</strong> working day(s) selected
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Reason for Leave <span class="text-danger">*</span></label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}<div class="text-danger small mt-1">{{ form.reason.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Back-up Employee <span class="text-muted small">(optional)</span></label>
+                        <select name="backup_employee" class="form-select">
+                            <option value="">— Select a colleague to cover you —</option>
+                            {% for emp in backup_choices %}
+                            <option value="{{ emp.id }}"
+                                {% if leave.backup_employee and leave.backup_employee.pk == emp.id %}selected{% endif %}
+                                data-unavailable="{{ emp.unavailable|yesno:'true,false' }}">
+                                {{ emp.name }}{% if emp.unavailable %} (On Leave){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Supporting Document <span class="text-muted small">(optional)</span></label>
+                        {{ form.supporting_document }}
+                        {% if leave.supporting_document %}
+                        <div class="form-text">Current: <a href="{{ leave.supporting_document.url }}" target="_blank">View existing document</a> — upload a new file to replace it.</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-2"></i>Save Changes
+                        </button>
+                        <a href="{% url 'leaves:detail' leave.pk %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card animate-in delay-1 mb-4">
+            <div class="card-header"><i class="bi bi-pie-chart me-2"></i>Your Leave Balance {{ balance.year }}</div>
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Used</span>
+                    <strong>{{ balance.used_days }} days</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted small">Remaining</span>
+                    <strong style="color:{% if balance.remaining_days <= 3 %}#e53e3e{% else %}#1a8fa0{% endif %};">
+                        {{ balance.remaining_days }} days
+                    </strong>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar {% if balance.usage_percentage > 80 %}bg-danger{% elif balance.usage_percentage > 50 %}bg-warning{% else %}bg-primary{% endif %}"
+                         style="width:{{ balance.usage_percentage }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const startEl = document.querySelector('[name="start_date"]');
+const endEl   = document.querySelector('[name="end_date"]');
+const preview = document.getElementById('days-preview');
+const count   = document.getElementById('days-count');
+
+function countWorkingDays(start, end) {
+    let n = 0, cur = new Date(start); cur.setHours(0,0,0,0);
+    const fin = new Date(end); fin.setHours(0,0,0,0);
+    while (cur <= fin) { if (cur.getDay() !== 0) n++; cur.setDate(cur.getDate()+1); }
+    return n;
+}
+function updateDays() {
+    const s = new Date(startEl.value), e = new Date(endEl.value);
+    if (startEl.value && endEl.value && e >= s) { count.textContent = countWorkingDays(s,e); preview.style.display='block'; }
+    else { preview.style.display='none'; }
+}
+startEl.addEventListener('change', updateDays);
+endEl.addEventListener('change', updateDays);
+updateDays();
+
+const deductibleMap = {{ deductible_map|safe }};
+const leaveTypeEl   = document.querySelector('[name="leave_type"]');
+const indicator     = document.getElementById('deductible-indicator');
+const badgeYes      = document.getElementById('deductible-badge-yes');
+const badgeNo       = document.getElementById('deductible-badge-no');
+function updateDeductible() {
+    const val = leaveTypeEl.value;
+    if (!val) { indicator.style.display='none'; return; }
+    indicator.style.display='block';
+    badgeYes.style.display = deductibleMap[val] ? 'block' : 'none';
+    badgeNo.style.display  = deductibleMap[val] ? 'none'  : 'block';
+}
+leaveTypeEl.addEventListener('change', updateDeductible);
+updateDeductible();
+</script>
+{% endblock %}

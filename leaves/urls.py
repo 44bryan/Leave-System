@@ -5,6 +5,7 @@ app_name = 'leaves'
 
 urlpatterns = [
     path('submit/', views.submit_leave, name='submit'),
+    path('edit/<int:pk>/', views.leave_edit, name='edit'),
     path('my-requests/', views.my_requests, name='my_requests'),
     path('cancel/<int:pk>/', views.cancel_request, name='cancel'),
     path('detail/<int:pk>/', views.leave_detail, name='detail'),

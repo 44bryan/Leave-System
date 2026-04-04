@@ -619,6 +619,82 @@ def leave_detail(request, pk):
 
 
 @login_required
+def leave_edit(request, pk):
+    """Employee edits their own leave request — only while status is still pending."""
+    employee = get_employee(request)
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    if leave.employee != employee:
+        messages.error(request, "You can only edit your own leave requests.")
+        return redirect('dashboard:home')
+    if leave.status != LeaveRequest.STATUS_PENDING:
+        messages.error(request, "This request can no longer be edited — it has already been reviewed.")
+        return redirect('leaves:detail', pk=pk)
+
+    balance, _ = LeaveBalance.objects.get_or_create(
+        employee=employee, year=date.today().year,
+        defaults={'total_entitlement': 18}
+    )
+
+    dept_employees = Employee.objects.filter(
+        department=employee.department, is_active=True,
+    ).exclude(pk=employee.pk).select_related('user')
+    on_leave_pks = set(
+        LeaveRequest.objects.filter(
+            status='approved',
+            employee__in=dept_employees,
+            start_date__lte=date.today(),
+            end_date__gte=date.today(),
+        ).values_list('employee_id', flat=True)
+    )
+    backup_choices = [
+        {'id': e.pk, 'name': e.get_full_name(), 'unavailable': e.pk in on_leave_pks}
+        for e in dept_employees
+    ]
+
+    form = LeaveRequestForm(request.POST or None, request.FILES or None, instance=leave)
+    if request.method == 'POST' and form.is_valid():
+        updated = form.save(commit=False)
+
+        backup_id = request.POST.get('backup_employee')
+        if backup_id:
+            try:
+                updated.backup_employee = Employee.objects.get(pk=backup_id)
+            except Employee.DoesNotExist:
+                pass
+
+        if updated.leave_type.is_deductible and updated.total_days > balance.remaining_days + leave.total_days:
+            messages.error(request, f"Insufficient leave balance.")
+        else:
+            overlapping = LeaveRequest.objects.filter(
+                employee=employee,
+                status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved', 'approved'],
+                start_date__lte=updated.end_date,
+                end_date__gte=updated.start_date,
+            ).exclude(pk=leave.pk)
+            if overlapping.exists():
+                messages.error(request, "You already have a leave request for overlapping dates.")
+            else:
+                updated.save()
+                messages.success(request, "Leave request updated successfully.")
+                return redirect('leaves:detail', pk=pk)
+
+    import json
+    leave_types = LeaveType.objects.filter(is_active=True).values('id', 'is_deductible')
+    deductible_map = json.dumps({str(lt['id']): lt['is_deductible'] for lt in leave_types})
+
+    return render(request, 'leaves/edit_form.html', {
+        'form': form,
+        'leave': leave,
+        'balance': balance,
+        'deductible_map': deductible_map,
+        'backup_choices': backup_choices,
+        'employee': employee,
+        'current_sig_b64': employee.signature_b64 or '',
+    })
+
+
+@login_required
 def pdf_leave(request, pk):
     """Download the official leave authorisation form as a filled PDF."""
     from django.http import HttpResponse
@@ -769,7 +845,7 @@ def admin_override_leave(request, pk):
 
 @login_required
 def admin_edit_leave(request, pk):
-    """Superuser-only: correct total_days, status, and add a note on any leave request."""
+    """Superuser-only: correct total_days, dates, status, and add a note on any leave request."""
     if not request.user.is_superuser:
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
@@ -788,6 +864,8 @@ def admin_edit_leave(request, pk):
 
     new_status = request.POST.get('corrected_status', '').strip()
     admin_note = request.POST.get('correction_note', '').strip()
+    new_start  = request.POST.get('corrected_start', '').strip()
+    new_end    = request.POST.get('corrected_end', '').strip()
 
     valid_statuses = dict(LeaveRequest.STATUS_CHOICES).keys()
     update_fields = {'total_days': new_days}
@@ -795,20 +873,40 @@ def admin_edit_leave(request, pk):
     if new_status and new_status in valid_statuses:
         update_fields['status'] = new_status
 
+    # Update dates if provided — validate first
+    from datetime import datetime as _dt
+    parsed_start = parsed_end = None
+    if new_start:
+        try:
+            parsed_start = _dt.strptime(new_start, '%Y-%m-%d').date()
+            update_fields['start_date'] = parsed_start
+        except ValueError:
+            messages.error(request, "Invalid start date format.")
+            return redirect('leaves:detail', pk=pk)
+    if new_end:
+        try:
+            parsed_end = _dt.strptime(new_end, '%Y-%m-%d').date()
+            update_fields['end_date'] = parsed_end
+        except ValueError:
+            messages.error(request, "Invalid end date format.")
+            return redirect('leaves:detail', pk=pk)
+
     if admin_note:
         existing = leave.director_remarks or ''
         separator = '\n' if existing else ''
         update_fields['director_remarks'] = f"{existing}{separator}[Admin correction] {admin_note}"
 
-    # Use queryset .update() to bypass save() so total_days is NOT recalculated from dates
+    # Use queryset .update() to bypass save() so total_days is NOT recalculated
     LeaveRequest.objects.filter(pk=pk).update(**update_fields)
 
-    messages.success(
-        request,
-        f"Leave #{pk} corrected: {new_days} days"
-        + (f", status → {new_status}" if 'status' in update_fields else "")
-        + "."
-    )
+    parts = [f"{new_days} days"]
+    if 'start_date' in update_fields:
+        parts.append(f"start → {new_start}")
+    if 'end_date' in update_fields:
+        parts.append(f"end → {new_end}")
+    if 'status' in update_fields:
+        parts.append(f"status → {new_status}")
+    messages.success(request, f"Leave #{pk} corrected: {', '.join(parts)}.")
     return redirect('leaves:detail', pk=pk)
 
 

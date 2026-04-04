@@ -1,0 +1,683 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils import timezone
+from accounts.models import Employee
+from .models import AppraisalCycle, AppraisalRecord
+from notifications.utils import notify
+
+
+def get_employee(request):
+    try:
+        return request.user.employee
+    except Employee.DoesNotExist:
+        return None
+
+
+def _save_sig(record, field_name, b64_data):
+    """Store a base64 signature on the record field."""
+    if b64_data and b64_data.startswith('data:image/'):
+        setattr(record, field_name, b64_data)
+
+
+# ── HR: Initiate a new cycle ──────────────────────────────────────────────────
+
+@login_required
+def hr_initiate(request):
+    emp = get_employee(request)
+    if not emp or (not emp.is_hr() and not request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    cycles = AppraisalCycle.objects.all()
+
+    if request.method == 'POST':
+        year      = request.POST.get('year', '').strip()
+        trimester = request.POST.get('trimester', '').strip()
+        title     = request.POST.get('title', '').strip()
+
+        try:
+            year      = int(year)
+            trimester = int(trimester)
+            if trimester not in (1, 2, 3):
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid year or trimester.")
+            return redirect('appraisals:hr_initiate')
+
+        if AppraisalCycle.objects.filter(year=year, trimester=trimester).exists():
+            messages.error(request, "A cycle for that trimester/year already exists.")
+            return redirect('appraisals:hr_initiate')
+
+        cycle = AppraisalCycle.objects.create(
+            year=year, trimester=trimester,
+            title=title or f"Trim {trimester} — {year}",
+            initiated_by=request.user,
+        )
+
+        # Create one AppraisalRecord per active, non-superuser employee
+        employees = Employee.objects.filter(is_active=True).select_related('user')
+        created = 0
+        for e in employees:
+            if e.user.is_superuser:
+                continue
+            AppraisalRecord.objects.get_or_create(cycle=cycle, employee=e)
+            notify(
+                e.user,
+                f'New Appraisal — {cycle}',
+                f'Your appraisal form for {cycle} is now available. Please log in and complete your section.',
+                notification_type='general',
+                url=f'/appraisals/my/',
+            )
+            created += 1
+
+        messages.success(request, f"Appraisal cycle '{cycle}' initiated for {created} employees.")
+        return redirect('appraisals:hr_dashboard')
+
+    from datetime import date
+    return render(request, 'appraisals/hr_initiate.html', {
+        'cycles': cycles,
+        'current_year': date.today().year,
+    })
+
+
+@login_required
+def hr_dashboard(request):
+    emp = get_employee(request)
+    is_privileged = (
+        request.user.is_superuser or
+        (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo()))
+    )
+    if not is_privileged:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    cycles = AppraisalCycle.objects.prefetch_related('records')
+    return render(request, 'appraisals/hr_dashboard.html', {'cycles': cycles})
+
+
+@login_required
+def cycle_records(request, cycle_pk):
+    emp = get_employee(request)
+    is_privileged = (
+        request.user.is_superuser or
+        (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo()))
+    )
+    if not is_privileged:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    cycle   = get_object_or_404(AppraisalCycle, pk=cycle_pk)
+    records = cycle.records.select_related('employee__user', 'employee__department')
+    return render(request, 'appraisals/cycle_records.html', {
+        'cycle': cycle, 'records': records,
+    })
+
+
+@login_required
+def distribute(request, cycle_pk):
+    """HR marks cycle as distributed — staff can now see their completed form."""
+    emp = get_employee(request)
+    if not emp or (not emp.is_hr() and not request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    cycle = get_object_or_404(AppraisalCycle, pk=cycle_pk)
+    if request.method == 'POST':
+        cycle.is_distributed = True
+        cycle.distributed_at = timezone.now()
+        cycle.save()
+
+        # Notify all employees in this cycle
+        for record in cycle.records.select_related('employee__user'):
+            notify(
+                record.employee.user,
+                f'Appraisal Results Available — {cycle}',
+                f'Your appraisal results for {cycle} have been released by HR. You can now view your completed form.',
+                notification_type='general',
+                url=f'/appraisals/my/',
+            )
+        messages.success(request, f"Appraisal cycle '{cycle}' results distributed to all staff.")
+    return redirect('appraisals:hr_dashboard')
+
+
+# ── Employee: My Appraisals ───────────────────────────────────────────────────
+
+@login_required
+def my_appraisals(request):
+    emp = get_employee(request)
+    if not emp:
+        messages.error(request, "No employee profile found.")
+        return redirect('dashboard:home')
+
+    # Active = cycle not yet distributed and record awaiting employee action
+    active_records = AppraisalRecord.objects.filter(
+        employee=emp,
+        status=AppraisalRecord.STATUS_EMPLOYEE,
+        cycle__is_distributed=False,
+    ).select_related('cycle')
+
+    history = AppraisalRecord.objects.filter(
+        employee=emp,
+        cycle__is_distributed=True,
+    ).select_related('cycle').order_by('-cycle__year', '-cycle__trimester')
+
+    return render(request, 'appraisals/my_appraisals.html', {
+        'active_records': active_records,
+        'history': history,
+    })
+
+
+@login_required
+def employee_fill(request, record_pk):
+    """Employee fills their section of the appraisal."""
+    emp    = get_employee(request)
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+
+    if record.employee != emp:
+        messages.error(request, "Access denied.")
+        return redirect('appraisals:my_appraisals')
+    if record.status != AppraisalRecord.STATUS_EMPLOYEE:
+        messages.error(request, "You have already submitted your section.")
+        return redirect('appraisals:my_appraisals')
+
+    if request.method == 'POST':
+        p = request.POST
+        record.tasks_summary          = p.get('tasks_summary', '').strip()
+        record.tasks_assimilated      = p.get('tasks_assimilated', '').strip()
+        record.pf_quality_of_work     = _int_or_none(p.get('pf_quality_of_work'))
+        record.pf_quantity_of_work    = _int_or_none(p.get('pf_quantity_of_work'))
+        record.pf_knowledge_techniques= _int_or_none(p.get('pf_knowledge_techniques'))
+        record.pf_ability_to_learn    = _int_or_none(p.get('pf_ability_to_learn'))
+        record.aa_motivation          = _int_or_none(p.get('aa_motivation'))
+        record.aa_attitude_colleagues = _int_or_none(p.get('aa_attitude_colleagues'))
+        record.aa_relations_patients  = _int_or_none(p.get('aa_relations_patients'))
+        record.aa_judgment_team       = _int_or_none(p.get('aa_judgment_team'))
+        record.aa_punctuality         = _int_or_none(p.get('aa_punctuality'))
+        record.aa_presentation        = _int_or_none(p.get('aa_presentation'))
+        record.goals_to_reach         = p.get('goals_to_reach', '').strip()
+        record.award_employee_of_month= p.get('award_employee_of_month') == 'yes'
+        record.award_other            = p.get('award_other', '').strip()
+        record.comment_on_self        = p.get('comment_on_self', '').strip()
+        record.comment_on_supervision = p.get('comment_on_supervision', '').strip()
+        record.comment_on_org         = p.get('comment_on_org', '').strip()
+        _save_sig(record, 'employee_sig_b64', p.get('signature_data', ''))
+        # Also save to employee profile for reuse
+        sig_b64 = p.get('signature_data', '')
+        if sig_b64 and sig_b64.startswith('data:image/'):
+            emp.signature_b64 = sig_b64
+            emp.save(update_fields=['signature_b64'])
+
+        record.employee_signed_at = timezone.now()
+        record.status = AppraisalRecord.STATUS_COWORKER
+        record.save()
+
+        # Notify co-workers in the same department
+        dept_colleagues = Employee.objects.filter(
+            department=emp.department, is_active=True,
+        ).exclude(pk=emp.pk).select_related('user')
+        for col in dept_colleagues:
+            notify(
+                col.user,
+                f'Appraisal Co-Worker Comment Needed — {emp.get_full_name()}',
+                f'{emp.get_full_name()} has completed their appraisal self-assessment. '
+                f'Please add your co-worker comment.',
+                notification_type='general',
+                url=f'/appraisals/coworker/{record.pk}/',
+            )
+
+        messages.success(request, "Your appraisal section has been submitted.")
+        return redirect('appraisals:my_appraisals')
+
+    discipline_data = record.discipline_deductions()
+    pf_fields = [
+        ('pf_quality_of_work',      'Quality of Work'),
+        ('pf_quantity_of_work',     'Quantity of Work'),
+        ('pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('pf_ability_to_learn',     'Ability / Interest to Learn'),
+    ]
+    aa_fields = [
+        ('aa_motivation',          'Motivation and Initiative'),
+        ('aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
+        ('aa_relations_patients',  'Relations with Patients and Visitors'),
+        ('aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
+        ('aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
+        ('aa_presentation',        'Personal Presentation and Professional Secrets'),
+    ]
+    discipline_labels = [
+        ('verbal_warning',  'Verbal Warning'),
+        ('written_caution', 'Request for Written Explanation / Written Caution'),
+        ('final_warning',   'Written Warning / Final Warning'),
+        ('suspension',      'Written Reprimand / Suspension'),
+        ('dismissal',       'Dismissal'),
+    ]
+    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
+    chain_steps = [
+        ('employee',  'You (Employee)',              True),
+        ('coworker',  'Co-Worker',                   False),
+        ('unit_head', 'Unit Head / Supervisor',      False),
+        ('manager',   'Line Manager (Rating)',        False),
+        ('hr',        'HR Manager',                  False),
+        ('director',  'Admin Director',              False),
+        ('ceo',       'CEO',                         False),
+    ]
+    return render(request, 'appraisals/employee_fill.html', {
+        'record': record,
+        'discipline_data': discipline_data,
+        'discipline_labels': discipline_labels,
+        'pf_fields': pf_fields,
+        'aa_fields': aa_fields,
+        'current_values': current_values,
+        'chain_steps': chain_steps,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
+
+
+def _int_or_none(val):
+    try:
+        v = int(val)
+        return v if 1 <= v <= 5 else None
+    except (TypeError, ValueError):
+        return None
+
+
+# ── Co-Worker ────────────────────────────────────────────────────────────────
+
+@login_required
+def coworker_fill(request, record_pk):
+    emp    = get_employee(request)
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+
+    # Must be in same department, not the employee themselves
+    if not emp or emp == record.employee:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if record.status != AppraisalRecord.STATUS_COWORKER:
+        messages.error(request, "This appraisal is not awaiting a co-worker comment.")
+        return redirect('dashboard:home')
+    if emp.department != record.employee.department:
+        messages.error(request, "You must be in the same department.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        record.coworker_comment   = request.POST.get('coworker_comment', '').strip()
+        record.coworker_signed_by = emp
+        record.coworker_signed_at = timezone.now()
+        _save_sig(record, 'coworker_sig_b64', request.POST.get('signature_data', ''))
+        record.status = AppraisalRecord.STATUS_UNIT_HEAD
+        record.save()
+
+        # Notify unit head or supervisor
+        target = record.employee.unit_head or record.employee.supervisor
+        if target:
+            notify(
+                target.user,
+                f'Appraisal Review Needed — {record.employee.get_full_name()}',
+                f'Co-worker comment added. Please add your supervisor comment for {record.employee.get_full_name()}.',
+                notification_type='general',
+                url=f'/appraisals/unit-head/{record.pk}/',
+            )
+        messages.success(request, "Co-worker comment submitted.")
+        return redirect('dashboard:home')
+
+    return render(request, 'appraisals/coworker_fill.html', {
+        'record': record,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
+
+
+# ── Unit Head / Supervisor ────────────────────────────────────────────────────
+
+@login_required
+def unit_head_fill(request, record_pk):
+    emp    = get_employee(request)
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+
+    is_unit_head   = emp and (emp == record.employee.unit_head or emp.is_unit_head())
+    is_supervisor  = emp and emp == record.employee.supervisor
+    if not (is_unit_head or is_supervisor):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if record.status != AppraisalRecord.STATUS_UNIT_HEAD:
+        messages.error(request, "This appraisal is not awaiting your review.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        record.unit_head_comment   = request.POST.get('unit_head_comment', '').strip()
+        record.unit_head_signed_by = emp
+        record.unit_head_signed_at = timezone.now()
+        _save_sig(record, 'unit_head_sig_b64', request.POST.get('signature_data', ''))
+        record.status = AppraisalRecord.STATUS_MANAGER
+        record.save()
+
+        if record.employee.supervisor:
+            notify(
+                record.employee.supervisor.user,
+                f'Appraisal Manager Review Needed — {record.employee.get_full_name()}',
+                f'Please complete the appraiser rating and your comment for {record.employee.get_full_name()}.',
+                notification_type='general',
+                url=f'/appraisals/manager/{record.pk}/',
+            )
+        messages.success(request, "Unit head comment submitted.")
+        return redirect('dashboard:home')
+
+    return render(request, 'appraisals/unit_head_fill.html', {
+        'record': record,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
+
+
+# ── Line Manager ─────────────────────────────────────────────────────────────
+
+@login_required
+def manager_fill(request, record_pk):
+    emp    = get_employee(request)
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+
+    if not emp or emp != record.employee.supervisor:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if record.status != AppraisalRecord.STATUS_MANAGER:
+        messages.error(request, "This appraisal is not awaiting your review.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        p = request.POST
+        record.mgr_pf_quality_of_work      = _int_or_none(p.get('mgr_pf_quality_of_work'))
+        record.mgr_pf_quantity_of_work     = _int_or_none(p.get('mgr_pf_quantity_of_work'))
+        record.mgr_pf_knowledge_techniques = _int_or_none(p.get('mgr_pf_knowledge_techniques'))
+        record.mgr_pf_ability_to_learn     = _int_or_none(p.get('mgr_pf_ability_to_learn'))
+        record.mgr_aa_motivation           = _int_or_none(p.get('mgr_aa_motivation'))
+        record.mgr_aa_attitude_colleagues  = _int_or_none(p.get('mgr_aa_attitude_colleagues'))
+        record.mgr_aa_relations_patients   = _int_or_none(p.get('mgr_aa_relations_patients'))
+        record.mgr_aa_judgment_team        = _int_or_none(p.get('mgr_aa_judgment_team'))
+        record.mgr_aa_punctuality          = _int_or_none(p.get('mgr_aa_punctuality'))
+        record.mgr_aa_presentation         = _int_or_none(p.get('mgr_aa_presentation'))
+        record.manager_comment   = p.get('manager_comment', '').strip()
+        record.manager_signed_by = emp
+        record.manager_signed_at = timezone.now()
+        _save_sig(record, 'manager_sig_b64', p.get('signature_data', ''))
+        record.status = AppraisalRecord.STATUS_HR
+        record.save()
+
+        for hr_emp in Employee.objects.filter(role='hr', is_active=True):
+            notify(
+                hr_emp.user,
+                f'Appraisal HR Review Needed — {record.employee.get_full_name()}',
+                f'Line manager has completed the appraisal for {record.employee.get_full_name()}. Your review is next.',
+                notification_type='general',
+                url=f'/appraisals/hr-review/{record.pk}/',
+            )
+        messages.success(request, "Manager appraisal rating and comment submitted.")
+        return redirect('dashboard:home')
+
+    pf_fields = [
+        ('mgr_pf_quality_of_work',      'Quality of Work'),
+        ('mgr_pf_quantity_of_work',     'Quantity of Work'),
+        ('mgr_pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('mgr_pf_ability_to_learn',     'Ability / Interest to Learn'),
+    ]
+    aa_fields = [
+        ('mgr_aa_motivation',          'Motivation and Initiative'),
+        ('mgr_aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
+        ('mgr_aa_relations_patients',  'Relations with Patients and Visitors'),
+        ('mgr_aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
+        ('mgr_aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
+        ('mgr_aa_presentation',        'Personal Presentation and Professional Secrets'),
+    ]
+    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
+    return render(request, 'appraisals/manager_fill.html', {
+        'record': record,
+        'pf_fields': pf_fields,
+        'aa_fields': aa_fields,
+        'current_values': current_values,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
+
+
+# ── HR Review ────────────────────────────────────────────────────────────────
+
+@login_required
+def hr_fill(request, record_pk):
+    emp    = get_employee(request)
+    if not emp or (not emp.is_hr() and not request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+    if record.status != AppraisalRecord.STATUS_HR:
+        messages.error(request, "This appraisal is not awaiting HR review.")
+        return redirect('appraisals:hr_dashboard')
+
+    if request.method == 'POST':
+        record.hr_comment   = request.POST.get('hr_comment', '').strip()
+        record.hr_signed_by = emp
+        record.hr_signed_at = timezone.now()
+        _save_sig(record, 'hr_sig_b64', request.POST.get('signature_data', ''))
+        record.status = AppraisalRecord.STATUS_DIRECTOR
+        record.save()
+
+        for dir_emp in Employee.objects.filter(role='admin_director', is_active=True):
+            notify(
+                dir_emp.user,
+                f'Appraisal Director Review — {record.employee.get_full_name()}',
+                f'HR has reviewed the appraisal for {record.employee.get_full_name()}. Your comment is next.',
+                notification_type='general',
+                url=f'/appraisals/director/{record.pk}/',
+            )
+        messages.success(request, "HR comment submitted.")
+        return redirect('appraisals:hr_dashboard')
+
+    return render(request, 'appraisals/hr_fill.html', {
+        'record': record,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
+
+
+# ── Admin Director ───────────────────────────────────────────────────────────
+
+@login_required
+def director_fill(request, record_pk):
+    emp    = get_employee(request)
+    if not emp or not emp.is_director():
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+    if record.status != AppraisalRecord.STATUS_DIRECTOR:
+        messages.error(request, "This appraisal is not awaiting your review.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        record.director_comment   = request.POST.get('director_comment', '').strip()
+        record.director_signed_by = emp
+        record.director_signed_at = timezone.now()
+        _save_sig(record, 'director_sig_b64', request.POST.get('signature_data', ''))
+        record.status = AppraisalRecord.STATUS_CEO
+        record.save()
+
+        for ceo_emp in Employee.objects.filter(role='ceo', is_active=True):
+            notify(
+                ceo_emp.user,
+                f'Appraisal CEO Review — {record.employee.get_full_name()}',
+                f'Admin Director has commented on {record.employee.get_full_name()}\'s appraisal. Your final comment is next.',
+                notification_type='general',
+                url=f'/appraisals/ceo/{record.pk}/',
+            )
+        messages.success(request, "Director comment submitted.")
+        return redirect('dashboard:home')
+
+    return render(request, 'appraisals/director_fill.html', {
+        'record': record,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
+
+
+# ── CEO ───────────────────────────────────────────────────────────────────────
+
+@login_required
+def ceo_fill(request, record_pk):
+    emp    = get_employee(request)
+    if not emp or not emp.is_ceo():
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+    if record.status != AppraisalRecord.STATUS_CEO:
+        messages.error(request, "This appraisal is not awaiting your review.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        record.ceo_comment   = request.POST.get('ceo_comment', '').strip()
+        record.ceo_signed_by = emp
+        record.ceo_signed_at = timezone.now()
+        _save_sig(record, 'ceo_sig_b64', request.POST.get('signature_data', ''))
+        record.status = AppraisalRecord.STATUS_DONE
+        record.save()
+
+        # Notify HR that this appraisal is complete
+        for hr_emp in Employee.objects.filter(role='hr', is_active=True):
+            notify(
+                hr_emp.user,
+                f'Appraisal Complete — {record.employee.get_full_name()}',
+                f'All signatures collected for {record.employee.get_full_name()}\'s appraisal. '
+                f'Distribute results when all records in the cycle are done.',
+                notification_type='general',
+                url=f'/appraisals/cycles/{record.cycle.pk}/',
+            )
+        messages.success(request, "CEO comment submitted. Appraisal chain complete.")
+        return redirect('dashboard:home')
+
+    return render(request, 'appraisals/ceo_fill.html', {
+        'record': record,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
+
+
+# ── Appraisal Detail (read-only view visible to all in the chain) ─────────────
+
+@login_required
+def appraisal_detail(request, record_pk):
+    emp    = get_employee(request)
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+
+    # Access: the employee, their chain, HR, director, CEO, superuser
+    is_in_chain = (
+        request.user.is_superuser or
+        (emp and (
+            emp == record.employee or
+            emp == record.employee.supervisor or
+            emp == record.employee.unit_head or
+            emp.is_hr() or emp.is_director() or emp.is_ceo()
+        ))
+    )
+    if not is_in_chain:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    discipline_data = record.discipline_deductions()
+    return render(request, 'appraisals/appraisal_detail.html', {
+        'record': record,
+        'discipline_data': discipline_data,
+    })
+
+
+# ── Pending queue views for managers, HR, director, CEO ──────────────────────
+
+@login_required
+def pending_coworker(request):
+    emp = get_employee(request)
+    if not emp:
+        return redirect('dashboard:home')
+    records = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_COWORKER,
+        employee__department=emp.department,
+    ).exclude(employee=emp).select_related('employee__user', 'cycle')
+    return render(request, 'appraisals/pending_list.html', {
+        'records': records, 'role': 'coworker',
+        'action_url_name': 'appraisals:coworker_fill',
+        'title': 'Appraisals Awaiting Co-Worker Comment',
+    })
+
+
+@login_required
+def pending_unit_head(request):
+    emp = get_employee(request)
+    if not emp:
+        return redirect('dashboard:home')
+    records = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_UNIT_HEAD,
+        employee__unit_head=emp,
+    ).select_related('employee__user', 'cycle')
+    supervisor_records = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_UNIT_HEAD,
+        employee__supervisor=emp,
+    ).select_related('employee__user', 'cycle')
+    from itertools import chain as _chain
+    combined = list({r.pk: r for r in _chain(records, supervisor_records)}.values())
+    return render(request, 'appraisals/pending_list.html', {
+        'records': combined, 'role': 'unit_head',
+        'action_url_name': 'appraisals:unit_head_fill',
+        'title': 'Appraisals Awaiting Your Supervisor Comment',
+    })
+
+
+@login_required
+def pending_manager(request):
+    emp = get_employee(request)
+    if not emp:
+        return redirect('dashboard:home')
+    records = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_MANAGER,
+        employee__supervisor=emp,
+    ).select_related('employee__user', 'cycle')
+    return render(request, 'appraisals/pending_list.html', {
+        'records': records, 'role': 'manager',
+        'action_url_name': 'appraisals:manager_fill',
+        'title': 'Appraisals Awaiting Manager Rating & Comment',
+    })
+
+
+@login_required
+def pending_hr(request):
+    emp = get_employee(request)
+    if not emp or (not emp.is_hr() and not request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    records = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_HR,
+    ).select_related('employee__user', 'cycle')
+    return render(request, 'appraisals/pending_list.html', {
+        'records': records, 'role': 'hr',
+        'action_url_name': 'appraisals:hr_fill',
+        'title': 'Appraisals Awaiting HR Comment',
+    })
+
+
+@login_required
+def pending_director(request):
+    emp = get_employee(request)
+    if not emp or not emp.is_director():
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    records = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_DIRECTOR,
+    ).select_related('employee__user', 'cycle')
+    return render(request, 'appraisals/pending_list.html', {
+        'records': records, 'role': 'director',
+        'action_url_name': 'appraisals:director_fill',
+        'title': 'Appraisals Awaiting Director Comment',
+    })
+
+
+@login_required
+def pending_ceo(request):
+    emp = get_employee(request)
+    if not emp or not emp.is_ceo():
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    records = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_CEO,
+    ).select_related('employee__user', 'cycle')
+    return render(request, 'appraisals/pending_list.html', {
+        'records': records, 'role': 'ceo',
+        'action_url_name': 'appraisals:ceo_fill',
+        'title': 'Appraisals Awaiting CEO Comment',
+    })
