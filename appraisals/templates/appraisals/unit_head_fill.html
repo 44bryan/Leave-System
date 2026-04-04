@@ -1,14 +1,72 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n appraisal_tags %}
 {% block title %}Supervisor Comment — MICEI HRM{% endblock %}
-{% block page_title %}Supervisor / Unit Head Comment{% endblock %}
+{% block page_title %}Supervisor Comment{% endblock %}
 {% block page_subtitle %}{{ record.employee.get_full_name }} · {{ record.cycle }}{% endblock %}
 
 {% block content %}
-<div class="row g-4"><div class="col-lg-8">
+<div class="row g-4"><div class="col-lg-9">
 {% include 'appraisals/_record_summary.html' %}
-<div class="card animate-in">
-    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-person-check me-2"></i>Supervisor / Unit Head Comment</div>
+
+<!-- Employee's Full Self-Assessment (read-only) -->
+<div class="card animate-in mb-4">
+    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;"><i class="bi bi-eye me-2"></i>Employee's Self-Assessment (Read Only)</div>
+    <div class="card-body p-4">
+        <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+                <div class="text-muted small fw-bold mb-1">Summary of Tasks</div>
+                <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;">{{ record.tasks_summary|default:"—" }}</div>
+            </div>
+            <div class="col-sm-6">
+                <div class="text-muted small fw-bold mb-1">Tasks Assimilated</div>
+                <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;">{{ record.tasks_assimilated|default:"—" }}</div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <div class="text-muted small fw-bold mb-1">Goals to Reach</div>
+            <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;">{{ record.goals_to_reach|default:"—" }}</div>
+        </div>
+
+        <h6 class="fw-bold mb-2 mt-3">Appraisee Self-Rating</h6>
+        <p class="text-muted small mb-2">1 = Does not meet · 2 = Some difficulties · 3 = Meets requirements · 4 = Exceeds · 5 = Greatly exceeds</p>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="text-muted small fw-bold mb-1">Performance Factors</div>
+                <table class="table table-sm table-bordered mb-0" style="font-size:.82rem;">
+                    <tbody>
+                    <tr><td>Quality of Work</td><td class="text-center fw-bold">{{ record.pf_quality_of_work|default:"—" }}</td></tr>
+                    <tr><td>Quantity of Work</td><td class="text-center fw-bold">{{ record.pf_quantity_of_work|default:"—" }}</td></tr>
+                    <tr><td>Knowledge of Techniques</td><td class="text-center fw-bold">{{ record.pf_knowledge_techniques|default:"—" }}</td></tr>
+                    <tr><td>Ability / Interest to Learn</td><td class="text-center fw-bold">{{ record.pf_ability_to_learn|default:"—" }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small fw-bold mb-1">Attitude & Aptitude Factors</div>
+                <table class="table table-sm table-bordered mb-0" style="font-size:.82rem;">
+                    <tbody>
+                    <tr><td>Motivation and Initiative</td><td class="text-center fw-bold">{{ record.aa_motivation|default:"—" }}</td></tr>
+                    <tr><td>Attitude towards Colleagues</td><td class="text-center fw-bold">{{ record.aa_attitude_colleagues|default:"—" }}</td></tr>
+                    <tr><td>Relations with Patients</td><td class="text-center fw-bold">{{ record.aa_relations_patients|default:"—" }}</td></tr>
+                    <tr><td>Judgment & Team Spirit</td><td class="text-center fw-bold">{{ record.aa_judgment_team|default:"—" }}</td></tr>
+                    <tr><td>Punctuality & Attendance</td><td class="text-center fw-bold">{{ record.aa_punctuality|default:"—" }}</td></tr>
+                    <tr><td>Personal Presentation</td><td class="text-center fw-bold">{{ record.aa_presentation|default:"—" }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row g-2 mt-2">
+            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Self</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_self|default:"—" }}</div></div>
+            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Supervision</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_supervision|default:"—" }}</div></div>
+            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Organisation</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_org|default:"—" }}</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Supervisor Comment + Signature -->
+<div class="card animate-in mb-4">
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-person-check me-2"></i>Your Supervisor Comment &amp; Signature</div>
     <div class="card-body p-4">
         <form method="post" novalidate>
             {% csrf_token %}
@@ -17,7 +75,7 @@
             <div class="mb-4">
                 <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
                 <textarea name="unit_head_comment" class="form-control" rows="5" required
-                          placeholder="Provide your assessment as unit head / supervisor..."></textarea>
+                          placeholder="Provide your assessment as supervisor / unit head..."></textarea>
             </div>
             {% include 'appraisals/_sig_pad.html' %}
             <div class="d-flex gap-2 mt-3">
@@ -27,6 +85,7 @@
         </form>
     </div>
 </div>
+
 </div></div>
 {% endblock %}
 {% block extra_js %}{% include 'appraisals/_sig_js.html' %}{% endblock %}

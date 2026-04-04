@@ -73,22 +73,10 @@
 </div>
 {% endif %}
 
-<!-- Co-Worker -->
-{% if record.coworker_signed_at %}
-<div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;">Co-Worker Comment</div>
-    <div class="card-body p-4">
-        <div class="p-2 mb-3" style="background:#f8fafc;border-radius:8px;font-size:.88rem;">{{ record.coworker_comment|default:"—" }}</div>
-        <div class="fw-semibold small">{{ record.coworker_signed_by.get_full_name|default:"—" }} · {{ record.coworker_signed_at|date:"d M Y" }}</div>
-        {% if record.coworker_sig_b64 %}<img src="{{ record.coworker_sig_b64 }}" alt="Signature" style="max-height:40px;margin-top:4px;">{% endif %}
-    </div>
-</div>
-{% endif %}
-
-<!-- Unit Head -->
+<!-- Supervisor / Unit Head Comment -->
 {% if record.unit_head_signed_at %}
 <div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;">Supervisor / Unit Head Comment</div>
+    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;">Supervisor Comment</div>
     <div class="card-body p-4">
         <div class="p-2 mb-3" style="background:#f8fafc;border-radius:8px;font-size:.88rem;">{{ record.unit_head_comment|default:"—" }}</div>
         <div class="fw-semibold small">{{ record.unit_head_signed_by.get_full_name|default:"—" }} · {{ record.unit_head_signed_at|date:"d M Y" }}</div>
@@ -192,18 +180,13 @@
         <div class="card-header"><i class="bi bi-diagram-3 me-2"></i>Chain Progress</div>
         <div class="card-body p-3">
             <div class="timeline">
-                {% with s=record.status %}
                 <div class="timeline-item">
                     <div class="timeline-dot" style="background:{% if record.employee_signed_at %}#31b8cf{% else %}#cbd5e0{% endif %};"></div>
                     <div style="font-size:.82rem;">Employee{% if record.employee_signed_at %} ✓{% endif %}</div>
                 </div>
                 <div class="timeline-item">
-                    <div class="timeline-dot" style="background:{% if record.coworker_signed_at %}#31b8cf{% else %}#cbd5e0{% endif %};"></div>
-                    <div style="font-size:.82rem;">Co-Worker{% if record.coworker_signed_at %} ✓{% endif %}</div>
-                </div>
-                <div class="timeline-item">
                     <div class="timeline-dot" style="background:{% if record.unit_head_signed_at %}#31b8cf{% else %}#cbd5e0{% endif %};"></div>
-                    <div style="font-size:.82rem;">Unit Head{% if record.unit_head_signed_at %} ✓{% endif %}</div>
+                    <div style="font-size:.82rem;">Supervisor{% if record.unit_head_signed_at %} ✓{% endif %}</div>
                 </div>
                 <div class="timeline-item">
                     <div class="timeline-dot" style="background:{% if record.manager_signed_at %}#31b8cf{% else %}#cbd5e0{% endif %};"></div>
@@ -221,7 +204,6 @@
                     <div class="timeline-dot" style="background:{% if record.ceo_signed_at %}#31b8cf{% else %}#cbd5e0{% endif %};"></div>
                     <div style="font-size:.82rem;">CEO{% if record.ceo_signed_at %} ✓{% endif %}</div>
                 </div>
-                {% endwith %}
             </div>
         </div>
     </div>

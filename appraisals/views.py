@@ -184,71 +184,49 @@ def employee_fill(request, record_pk):
     if request.method == 'POST':
         p = request.POST
 
-        # Validate co-worker selection
-        coworker_pk = p.get('selected_coworker', '').strip()
-        selected_coworker = None
-        if coworker_pk:
-            try:
-                selected_coworker = Employee.objects.get(
-                    pk=int(coworker_pk),
-                    department=emp.department,
-                    is_active=True,
-                )
-                if selected_coworker == emp:
-                    selected_coworker = None
-            except (Employee.DoesNotExist, ValueError):
-                selected_coworker = None
+        record.tasks_summary          = p.get('tasks_summary', '').strip()
+        record.tasks_assimilated      = p.get('tasks_assimilated', '').strip()
+        record.pf_quality_of_work     = _int_or_none(p.get('pf_quality_of_work'))
+        record.pf_quantity_of_work    = _int_or_none(p.get('pf_quantity_of_work'))
+        record.pf_knowledge_techniques= _int_or_none(p.get('pf_knowledge_techniques'))
+        record.pf_ability_to_learn    = _int_or_none(p.get('pf_ability_to_learn'))
+        record.aa_motivation          = _int_or_none(p.get('aa_motivation'))
+        record.aa_attitude_colleagues = _int_or_none(p.get('aa_attitude_colleagues'))
+        record.aa_relations_patients  = _int_or_none(p.get('aa_relations_patients'))
+        record.aa_judgment_team       = _int_or_none(p.get('aa_judgment_team'))
+        record.aa_punctuality         = _int_or_none(p.get('aa_punctuality'))
+        record.aa_presentation        = _int_or_none(p.get('aa_presentation'))
+        record.goals_to_reach         = p.get('goals_to_reach', '').strip()
+        record.award_employee_of_month= p.get('award_employee_of_month') == 'yes'
+        record.award_other            = p.get('award_other', '').strip()
+        record.comment_on_self        = p.get('comment_on_self', '').strip()
+        record.comment_on_supervision = p.get('comment_on_supervision', '').strip()
+        record.comment_on_org         = p.get('comment_on_org', '').strip()
+        _save_sig(record, 'employee_sig_b64', p.get('signature_data', ''))
+        sig_b64 = p.get('signature_data', '')
+        if sig_b64 and sig_b64.startswith('data:image/'):
+            emp.signature_b64 = sig_b64
+            emp.save(update_fields=['signature_b64'])
 
-        if not selected_coworker:
-            messages.error(request, "Please select a co-worker from your department.")
-            # fall through to re-render form
-        else:
-            record.tasks_summary          = p.get('tasks_summary', '').strip()
-            record.tasks_assimilated      = p.get('tasks_assimilated', '').strip()
-            record.pf_quality_of_work     = _int_or_none(p.get('pf_quality_of_work'))
-            record.pf_quantity_of_work    = _int_or_none(p.get('pf_quantity_of_work'))
-            record.pf_knowledge_techniques= _int_or_none(p.get('pf_knowledge_techniques'))
-            record.pf_ability_to_learn    = _int_or_none(p.get('pf_ability_to_learn'))
-            record.aa_motivation          = _int_or_none(p.get('aa_motivation'))
-            record.aa_attitude_colleagues = _int_or_none(p.get('aa_attitude_colleagues'))
-            record.aa_relations_patients  = _int_or_none(p.get('aa_relations_patients'))
-            record.aa_judgment_team       = _int_or_none(p.get('aa_judgment_team'))
-            record.aa_punctuality         = _int_or_none(p.get('aa_punctuality'))
-            record.aa_presentation        = _int_or_none(p.get('aa_presentation'))
-            record.goals_to_reach         = p.get('goals_to_reach', '').strip()
-            record.award_employee_of_month= p.get('award_employee_of_month') == 'yes'
-            record.award_other            = p.get('award_other', '').strip()
-            record.comment_on_self        = p.get('comment_on_self', '').strip()
-            record.comment_on_supervision = p.get('comment_on_supervision', '').strip()
-            record.comment_on_org         = p.get('comment_on_org', '').strip()
-            _save_sig(record, 'employee_sig_b64', p.get('signature_data', ''))
-            sig_b64 = p.get('signature_data', '')
-            if sig_b64 and sig_b64.startswith('data:image/'):
-                emp.signature_b64 = sig_b64
-                emp.save(update_fields=['signature_b64'])
+        record.employee_signed_at = timezone.now()
+        # Skip co-worker step — Unit Head IS the co-worker/supervisor comment
+        record.status = AppraisalRecord.STATUS_UNIT_HEAD
+        record.save()
 
-            # Store chosen co-worker so coworker_fill view can verify identity
-            record.coworker_signed_by = selected_coworker
-            record.employee_signed_at = timezone.now()
-            record.status = AppraisalRecord.STATUS_COWORKER
-            record.save()
-
-            # Notify only the chosen co-worker
+        # Notify unit head (or supervisor if no unit head assigned)
+        target = emp.unit_head or emp.supervisor
+        if target:
             notify(
-                selected_coworker.user,
-                f'Appraisal Co-Worker Comment Needed — {emp.get_full_name()}',
-                f'{emp.get_full_name()} has selected you as their co-worker evaluator. '
-                f'Please log in to add your comment on their appraisal for {record.cycle}.',
+                target.user,
+                f'Appraisal Supervisor Comment Needed — {emp.get_full_name()}',
+                f'{emp.get_full_name()} has submitted their self-assessment for {record.cycle}. '
+                f'Please log in to add your supervisor comment.',
                 notification_type='general',
-                url=f'/appraisals/coworker/{record.pk}/',
+                url=f'/appraisals/unit-head/{record.pk}/',
             )
 
-            messages.success(request, "Your appraisal section has been submitted.")
-            return redirect('appraisals:my_appraisals')
-
-    dept_colleagues = Employee.objects.filter(
-        department=emp.department, is_active=True,
-    ).exclude(pk=emp.pk).select_related('user').order_by('user__last_name')
+        messages.success(request, "Your appraisal section has been submitted.")
+        return redirect('appraisals:my_appraisals')
 
     discipline_data = record.discipline_deductions()
     pf_fields = [
@@ -275,9 +253,8 @@ def employee_fill(request, record_pk):
     current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     chain_steps = [
         ('employee',  'You (Employee)',              True),
-        ('coworker',  'Co-Worker',                   False),
         ('unit_head', 'Unit Head / Supervisor',      False),
-        ('manager',   'Line Manager (Rating)',        False),
+        ('manager',   'Line Manager (Grades)',       False),
         ('hr',        'HR Manager',                  False),
         ('director',  'Admin Director',              False),
         ('ceo',       'CEO',                         False),
@@ -290,7 +267,6 @@ def employee_fill(request, record_pk):
         'aa_fields': aa_fields,
         'current_values': current_values,
         'chain_steps': chain_steps,
-        'dept_colleagues': dept_colleagues,
         'current_sig_b64': emp.signature_b64 or '',
     })
 

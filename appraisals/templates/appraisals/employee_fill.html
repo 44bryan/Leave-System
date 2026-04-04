@@ -154,24 +154,6 @@
     </div>
 </div>
 
-<!-- 6b. Choose Co-Worker -->
-<div class="card animate-in mb-4" style="border-color:#fbbf24;">
-    <div class="card-header fw-bold" style="background:#fffbeb;border-color:#fbbf24;color:#92400e;">
-        <i class="bi bi-person-plus me-2"></i>Select Your Co-Worker Evaluator <span class="text-danger">*</span>
-    </div>
-    <div class="card-body p-4">
-        <p class="text-muted small mb-3">Choose one colleague from your department to provide a co-worker comment on your appraisal. Only the person you select will be notified.</p>
-        <select name="selected_coworker" class="form-select" required>
-            <option value="">— Select a colleague from {{ record.employee.department }} —</option>
-            {% for col in dept_colleagues %}
-            <option value="{{ col.pk }}">{{ col.get_full_name }} — {{ col.position|default:"—" }}</option>
-            {% empty %}
-            <option value="" disabled>No colleagues found in your department</option>
-            {% endfor %}
-        </select>
-    </div>
-</div>
-
 <!-- 6. Employee Comments + Signature -->
 <div class="card animate-in mb-4">
     <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;">6. Employee's Comments &amp; Signature</div>

@@ -32,12 +32,10 @@
                     <td>
                         {% if rec.status == 'employee' and rec.employee == employee %}
                             <span class="badge bg-warning text-dark">Fill Self-Assessment</span>
-                        {% elif rec.status == 'coworker' %}
-                            <span class="badge bg-info text-dark">Co-Worker Comment</span>
                         {% elif rec.status == 'unit_head' %}
                             <span class="badge" style="background:#0A4D68;color:#fff;">Supervisor Comment</span>
                         {% elif rec.status == 'manager' %}
-                            <span class="badge bg-primary">Manager Rating</span>
+                            <span class="badge bg-primary">Manager Rating & Grades</span>
                         {% elif rec.status == 'hr' %}
                             <span class="badge bg-success">HR Review</span>
                         {% elif rec.status == 'director' %}
@@ -50,10 +48,6 @@
                         {% if rec.status == 'employee' and rec.employee == employee %}
                             <a href="{% url 'appraisals:employee_fill' rec.pk %}" class="btn btn-sm btn-warning">
                                 <i class="bi bi-pencil-square me-1"></i>Fill Now
-                            </a>
-                        {% elif rec.status == 'coworker' %}
-                            <a href="{% url 'appraisals:coworker_fill' rec.pk %}" class="btn btn-sm btn-info">
-                                <i class="bi bi-chat-left-text me-1"></i>Comment
                             </a>
                         {% elif rec.status == 'unit_head' %}
                             <a href="{% url 'appraisals:unit_head_fill' rec.pk %}" class="btn btn-sm btn-dark">
