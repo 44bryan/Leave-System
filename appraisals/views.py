@@ -604,6 +604,7 @@ def hr_fill(request, record_pk):
     return render(request, 'appraisals/hr_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
+        'discipline_data': record.discipline_deductions(),
         **_score_form_ctx(record),
     })
 
@@ -648,6 +649,7 @@ def director_fill(request, record_pk):
     return render(request, 'appraisals/director_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
+        'discipline_data': record.discipline_deductions(),
         **_score_form_ctx(record),
     })
 
@@ -690,6 +692,7 @@ def ceo_fill(request, record_pk):
     return render(request, 'appraisals/ceo_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
+        'discipline_data': record.discipline_deductions(),
         **_score_form_ctx(record),
     })
 

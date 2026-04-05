@@ -7,9 +7,11 @@
 {% block content %}
 <div class="row g-4"><div class="col-lg-9">
 {% include 'appraisals/_record_summary.html' %}
-<div class="alert alert-info small mb-4"><i class="bi bi-eye me-1"></i>
-    <a href="{% url 'appraisals:detail' record.pk %}">View full appraisal chain</a> before commenting.
-</div>
+
+{% include 'appraisals/_prior_employee.html' %}
+{% include 'appraisals/_prior_coworker.html' %}
+{% include 'appraisals/_prior_supervisor.html' %}
+{% include 'appraisals/_prior_hr.html' %}
 
 <form method="post" novalidate>
 {% csrf_token %}
