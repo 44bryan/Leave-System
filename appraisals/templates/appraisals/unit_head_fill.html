@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n appraisal_tags %}
-{% block title %}Supervisor Comment — AEF HRM{% endblock %}
-{% block page_title %}Supervisor Comment{% endblock %}
+{% block title %}Supervisor Review — AEF HRM{% endblock %}
+{% block page_title %}Supervisor Review & Grading{% endblock %}
 {% block page_subtitle %}{{ record.employee.get_full_name }} · {{ record.cycle }}{% endblock %}
 
 {% block content %}
@@ -10,7 +10,9 @@
 
 <!-- Employee's Full Self-Assessment (read-only) -->
 <div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;"><i class="bi bi-eye me-2"></i>Employee's Self-Assessment (Read Only)</div>
+    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;">
+        <i class="bi bi-eye me-2"></i>Employee's Self-Assessment (Read Only)
+    </div>
     <div class="card-body p-4">
         <div class="row g-3 mb-3">
             <div class="col-sm-6">
@@ -27,8 +29,8 @@
             <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;">{{ record.goals_to_reach|default:"—" }}</div>
         </div>
 
-        <h6 class="fw-bold mb-2 mt-3">Appraisee Self-Rating</h6>
-        <p class="text-muted small mb-2">1 = Does not meet · 2 = Some difficulties · 3 = Meets requirements · 4 = Exceeds · 5 = Greatly exceeds</p>
+        <h6 class="fw-bold mb-2 mt-3">Employee's Self-Rating</h6>
+        <p class="text-muted small mb-2">1 = Does not meet &middot; 2 = Some difficulties &middot; 3 = Meets requirements &middot; 4 = Exceeds &middot; 5 = Greatly exceeds</p>
         <div class="row g-3 mb-3">
             <div class="col-md-6">
                 <div class="text-muted small fw-bold mb-1">Performance Factors</div>
@@ -42,14 +44,14 @@
                 </table>
             </div>
             <div class="col-md-6">
-                <div class="text-muted small fw-bold mb-1">Attitude & Aptitude Factors</div>
+                <div class="text-muted small fw-bold mb-1">Attitude &amp; Aptitude Factors</div>
                 <table class="table table-sm table-bordered mb-0" style="font-size:.82rem;">
                     <tbody>
                     <tr><td>Motivation and Initiative</td><td class="text-center fw-bold">{{ record.aa_motivation|default:"—" }}</td></tr>
                     <tr><td>Attitude towards Colleagues</td><td class="text-center fw-bold">{{ record.aa_attitude_colleagues|default:"—" }}</td></tr>
                     <tr><td>Relations with Patients</td><td class="text-center fw-bold">{{ record.aa_relations_patients|default:"—" }}</td></tr>
-                    <tr><td>Judgment & Team Spirit</td><td class="text-center fw-bold">{{ record.aa_judgment_team|default:"—" }}</td></tr>
-                    <tr><td>Punctuality & Attendance</td><td class="text-center fw-bold">{{ record.aa_punctuality|default:"—" }}</td></tr>
+                    <tr><td>Judgment &amp; Team Spirit</td><td class="text-center fw-bold">{{ record.aa_judgment_team|default:"—" }}</td></tr>
+                    <tr><td>Punctuality &amp; Attendance</td><td class="text-center fw-bold">{{ record.aa_punctuality|default:"—" }}</td></tr>
                     <tr><td>Personal Presentation</td><td class="text-center fw-bold">{{ record.aa_presentation|default:"—" }}</td></tr>
                     </tbody>
                 </table>
@@ -57,29 +59,101 @@
         </div>
 
         <div class="row g-2 mt-2">
-            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Self</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_self|default:"—" }}</div></div>
-            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Supervision</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_supervision|default:"—" }}</div></div>
-            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Organisation</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_org|default:"—" }}</div></div>
+            <div class="col-sm-4">
+                <div class="text-muted small fw-bold mb-1">Comment on Self</div>
+                <div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_self|default:"—" }}</div>
+            </div>
+            <div class="col-sm-4">
+                <div class="text-muted small fw-bold mb-1">Comment on Supervision</div>
+                <div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_supervision|default:"—" }}</div>
+            </div>
+            <div class="col-sm-4">
+                <div class="text-muted small fw-bold mb-1">Comment on Organisation</div>
+                <div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_org|default:"—" }}</div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Supervisor Comment + Signature -->
+<!-- Supervisor Grading Form -->
 <div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-person-check me-2"></i>Your Supervisor Comment &amp; Signature</div>
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;">
+        <i class="bi bi-star-fill me-2"></i>Your Appraiser Rating &amp; Comment (Supervisor / Line Manager)
+    </div>
     <div class="card-body p-4">
         <form method="post" novalidate>
             {% csrf_token %}
             <input type="hidden" name="signature_data" id="signatureData">
             <input type="hidden" id="savedSigB64" value="{{ current_sig_b64 }}">
+
+            <p class="text-muted small mb-3">
+                <strong>Grade the employee below.</strong> &nbsp;
+                1 = Does not meet &middot; 2 = Some difficulties &middot; 3 = Meets requirements &middot; 4 = Exceeds &middot; 5 = Greatly exceeds
+            </p>
+
+            <!-- Performance Factors -->
+            <h6 class="fw-bold mb-2" style="color:#0A4D68;">Performance Factors <span class="text-muted small fw-normal">/ 12.5 pts</span></h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle text-center" style="font-size:.88rem;">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start">Factor</th>
+                            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for fname, label in pf_fields %}
+                    <tr>
+                        <td class="text-start">{{ label }}</td>
+                        <td><input type="radio" name="{{ fname }}" value="1" {% radio_checked current_values fname 1 %} required></td>
+                        <td><input type="radio" name="{{ fname }}" value="2" {% radio_checked current_values fname 2 %}></td>
+                        <td><input type="radio" name="{{ fname }}" value="3" {% radio_checked current_values fname 3 %}></td>
+                        <td><input type="radio" name="{{ fname }}" value="4" {% radio_checked current_values fname 4 %}></td>
+                        <td><input type="radio" name="{{ fname }}" value="5" {% radio_checked current_values fname 5 %}></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Attitude & Aptitude Factors -->
+            <h6 class="fw-bold mb-2" style="color:#0A4D68;">Attitude &amp; Aptitude Factors <span class="text-muted small fw-normal">/ 7.5 pts</span></h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle text-center" style="font-size:.88rem;">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start">Factor</th>
+                            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for fname, label in aa_fields %}
+                    <tr>
+                        <td class="text-start">{{ label }}</td>
+                        <td><input type="radio" name="{{ fname }}" value="1" {% radio_checked current_values fname 1 %} required></td>
+                        <td><input type="radio" name="{{ fname }}" value="2" {% radio_checked current_values fname 2 %}></td>
+                        <td><input type="radio" name="{{ fname }}" value="3" {% radio_checked current_values fname 3 %}></td>
+                        <td><input type="radio" name="{{ fname }}" value="4" {% radio_checked current_values fname 4 %}></td>
+                        <td><input type="radio" name="{{ fname }}" value="5" {% radio_checked current_values fname 5 %}></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Supervisor Comment -->
             <div class="mb-4">
                 <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
                 <textarea name="unit_head_comment" class="form-control" rows="5" required
-                          placeholder="Provide your assessment as supervisor / unit head..."></textarea>
+                          placeholder="Provide your assessment as supervisor / line manager..."></textarea>
             </div>
+
             {% include 'appraisals/_sig_pad.html' %}
+
             <div class="d-flex gap-2 mt-3">
-                <button type="submit" class="btn btn-primary px-5"><i class="bi bi-send-check me-2"></i>Submit Comment</button>
+                <button type="submit" class="btn btn-primary px-5">
+                    <i class="bi bi-send-check me-2"></i>Submit Grades &amp; Comment
+                </button>
                 <a href="{% url 'appraisals:pending_unit_head' %}" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
