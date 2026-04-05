@@ -62,8 +62,8 @@ def _send_email(user, title, message, notification_type='system', url=''):
             f"Dear {first_name},\n\n"
             f"{title}\n\n"
             f"{message}\n\n"
-            + (f"View in MICEI HRM: {app_url}\n\n" if app_url else "")
-            + "—\nMICEI HRM | Magrabi ICO Cameroon Eye Institution\n"
+            + (f"View in AEF HRM: {app_url}\n\n" if app_url else "")
+            + "—\nAEF HRM | Africa Eye Foundation\n"
               "This is an automated message. Please do not reply."
         )
 
@@ -74,7 +74,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
             f'background-color:{color};color:#ffffff;text-decoration:none;'
             f'font-size:14px;font-weight:600;padding:12px 30px;'
             f'border-radius:6px;font-family:Arial,sans-serif;">'
-            f'Open in MICEI HRM &rarr;</a></td></tr>'
+            f'Open in AEF HRM &rarr;</a></td></tr>'
         ) if app_url else ''
 
         import os
@@ -86,19 +86,19 @@ def _send_email(user, title, message, notification_type='system', url=''):
         if logo_url:
             logo_img = (
                 f'<img src="{logo_url}" '
-                f'alt="Magrabi ICO Cameroon Eye Institution" '
+                f'alt="Africa Eye Foundation" '
                 f'width="160" style="max-width:160px;height:auto;display:block;margin:0 auto;" />'
             )
         else:
             logo_img = (
                 '<p style="margin:0;font-size:16px;font-weight:800;color:#0A4D68;'
-                'letter-spacing:1px;">Magrabi ICO Cameroon Eye Institution</p>'
+                'letter-spacing:1px;">Africa Eye Foundation</p>'
             )
 
         email = EmailMultiAlternatives(
-            subject=f'[MICEI HRM] {title}',
+            subject=f'[AEF HRM] {title}',
             body=plain,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'MICEI HRM <noreply@micei-hrm.com>'),
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'AEF HRM <noreply@aef-hrm.com>'),
             to=[user.email],
         )
 
@@ -180,8 +180,8 @@ def _send_email(user, title, message, notification_type='system', url=''):
                 <td style="padding:20px 40px 32px 40px;">
                   <p style="margin:0;font-size:12px;color:#a0aec0;line-height:1.7;">
                     This is an automated notification from
-                    <strong style="color:#718096;">MICEI HRM</strong>
-                    &mdash; Magrabi ICO Cameroon Eye Institution.<br>
+                    <strong style="color:#718096;">AEF HRM</strong>
+                    &mdash; Africa Eye Foundation.<br>
                     Please do not reply. Log in to manage your notifications.
                   </p>
                 </td>
@@ -195,7 +195,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
         <tr>
           <td style="padding-top:18px;text-align:center;">
             <p style="margin:0;font-size:11px;color:#a0aec0;">
-              &copy; Magrabi ICO Cameroon Eye Institution &mdash; All rights reserved
+              &copy; Africa Eye Foundation &mdash; All rights reserved
             </p>
           </td>
         </tr>

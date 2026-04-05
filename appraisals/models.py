@@ -138,6 +138,22 @@ class AppraisalRecord(models.Model):
     ceo_signed_at = models.DateTimeField(null=True, blank=True)
     ceo_sig_b64   = models.TextField(blank=True, default='')
 
+    # Score override — HR / Director / CEO can override the unit head's scores.
+    # Original mgr_* values are kept so the PDF can show both.
+    override_pf_quality_of_work      = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_pf_quantity_of_work     = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_pf_knowledge_techniques = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_pf_ability_to_learn     = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_aa_motivation           = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_aa_attitude_colleagues  = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_aa_relations_patients   = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_aa_judgment_team        = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_aa_punctuality          = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    override_aa_presentation         = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    score_override_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+                                          related_name='score_overrides')
+    score_override_at = models.DateTimeField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -148,8 +164,18 @@ class AppraisalRecord(models.Model):
     def __str__(self):
         return f"{self.employee.get_full_name()} — {self.cycle}"
 
+    def _final_score(self, fname):
+        """Return override value if set, else the supervisor's (mgr_*) value."""
+        v = getattr(self, f'override_{fname}', None)
+        return v if v is not None else getattr(self, f'mgr_{fname}', None)
+
+    @property
+    def has_score_override(self):
+        return self.score_override_by is not None
+
     @property
     def mgr_performance_score(self):
+        """Original score given by the supervisor (unit head)."""
         scores = [s for s in [
             self.mgr_pf_quality_of_work, self.mgr_pf_quantity_of_work,
             self.mgr_pf_knowledge_techniques, self.mgr_pf_ability_to_learn,
@@ -160,12 +186,35 @@ class AppraisalRecord(models.Model):
 
     @property
     def mgr_attitude_score(self):
+        """Original score given by the supervisor (unit head)."""
         scores = [s for s in [
             self.mgr_aa_motivation, self.mgr_aa_attitude_colleagues,
             self.mgr_aa_relations_patients, self.mgr_aa_judgment_team,
             self.mgr_aa_punctuality, self.mgr_aa_presentation,
         ] if s is not None]
         if len(scores) < 6:
+            return None
+        return round((sum(scores) / 30) * 7.5, 2)
+
+    @property
+    def final_performance_score(self):
+        """Final score: override if HR/Director/CEO changed it, else supervisor's score."""
+        scores = [self._final_score(f) for f in [
+            'pf_quality_of_work', 'pf_quantity_of_work',
+            'pf_knowledge_techniques', 'pf_ability_to_learn',
+        ]]
+        if any(v is None for v in scores):
+            return None
+        return round((sum(scores) / 20) * 12.5, 2)
+
+    @property
+    def final_attitude_score(self):
+        """Final score: override if HR/Director/CEO changed it, else supervisor's score."""
+        scores = [self._final_score(f) for f in [
+            'aa_motivation', 'aa_attitude_colleagues', 'aa_relations_patients',
+            'aa_judgment_team', 'aa_punctuality', 'aa_presentation',
+        ]]
+        if any(v is None for v in scores):
             return None
         return round((sum(scores) / 30) * 7.5, 2)
 
@@ -197,8 +246,9 @@ class AppraisalRecord(models.Model):
 
     @property
     def total_score(self):
-        pf = self.mgr_performance_score
-        aa = self.mgr_attitude_score
+        """Uses final scores (override if set, else supervisor original)."""
+        pf = self.final_performance_score
+        aa = self.final_attitude_score
         if pf is None or aa is None:
             return None
         return round(pf + aa + self.discipline_deductions()['deduction'] + self.award_bonus, 2)

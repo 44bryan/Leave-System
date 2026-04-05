@@ -1,6 +1,6 @@
 """
 Generate a professional Leave Authorisation PDF for
-Magrabi ICO Cameroon Eye Institute — MICEI HRM.
+Africa Eye Foundation — AEF HRM.
 
 Design: section header bars in logo cyan (#31b8cf), all data cells
         pure white (print-friendly), signatures blend with paper.
@@ -408,7 +408,7 @@ def generate_leave_pdf(leave):
     cv.setLineWidth(1.5)
     cv.line(LM, 14*mm, RM, 14*mm)
 
-    txt("MICEI HRM  ·  Magrabi ICO Cameroon Eye Institute",
+    txt("AEF HRM  ·  Africa Eye Foundation",
         LM, 9*mm, "Helvetica", 7, _LABEL)
     cv.setFillColorRGB(*_LABEL)
     cv.setFont("Helvetica", 7)

@@ -14,6 +14,47 @@ def get_employee(request):
         return None
 
 
+def _admin_director_on_leave():
+    """Return True if ALL active admin directors have an active approved leave today."""
+    from django.utils.timezone import now as _now
+    today = _now().date()
+    admin_directors = Employee.objects.filter(role='admin_director', is_active=True)
+    if not admin_directors.exists():
+        return True  # no admin director at all → fall back to finance director
+    try:
+        from leaves.models import LeaveRequest
+        for emp in admin_directors:
+            on_leave = LeaveRequest.objects.filter(
+                employee=emp,
+                status='approved',
+                start_date__lte=today,
+                end_date__gte=today,
+            ).exists()
+            if not on_leave:
+                return False  # at least one admin director is available
+    except Exception:
+        return False
+    return True  # all admin directors are on leave
+
+
+def _notify_director(record):
+    """Notify the correct director (admin director, or finance director if admin is on leave)."""
+    if _admin_director_on_leave():
+        recipients = Employee.objects.filter(role='finance_director', is_active=True)
+        role_label = 'Finance Director'
+    else:
+        recipients = Employee.objects.filter(role='admin_director', is_active=True)
+        role_label = 'Admin Director'
+    for dir_emp in recipients:
+        notify(
+            dir_emp.user,
+            f'Appraisal {role_label} Review — {record.employee.get_full_name()}',
+            f'HR has reviewed the appraisal for {record.employee.get_full_name()}. Your comment is next.',
+            notification_type='general',
+            url=f'/appraisals/director/{record.pk}/',
+        )
+
+
 def _save_sig(record, field_name, b64_data):
     """Store a base64 signature on the record field."""
     if b64_data and b64_data.startswith('data:image/'):
@@ -184,49 +225,67 @@ def employee_fill(request, record_pk):
     if request.method == 'POST':
         p = request.POST
 
-        record.tasks_summary          = p.get('tasks_summary', '').strip()
-        record.tasks_assimilated      = p.get('tasks_assimilated', '').strip()
-        record.pf_quality_of_work     = _int_or_none(p.get('pf_quality_of_work'))
-        record.pf_quantity_of_work    = _int_or_none(p.get('pf_quantity_of_work'))
-        record.pf_knowledge_techniques= _int_or_none(p.get('pf_knowledge_techniques'))
-        record.pf_ability_to_learn    = _int_or_none(p.get('pf_ability_to_learn'))
-        record.aa_motivation          = _int_or_none(p.get('aa_motivation'))
-        record.aa_attitude_colleagues = _int_or_none(p.get('aa_attitude_colleagues'))
-        record.aa_relations_patients  = _int_or_none(p.get('aa_relations_patients'))
-        record.aa_judgment_team       = _int_or_none(p.get('aa_judgment_team'))
-        record.aa_punctuality         = _int_or_none(p.get('aa_punctuality'))
-        record.aa_presentation        = _int_or_none(p.get('aa_presentation'))
-        record.goals_to_reach         = p.get('goals_to_reach', '').strip()
-        record.award_employee_of_month= p.get('award_employee_of_month') == 'yes'
-        record.award_other            = p.get('award_other', '').strip()
-        record.comment_on_self        = p.get('comment_on_self', '').strip()
-        record.comment_on_supervision = p.get('comment_on_supervision', '').strip()
-        record.comment_on_org         = p.get('comment_on_org', '').strip()
-        _save_sig(record, 'employee_sig_b64', p.get('signature_data', ''))
-        sig_b64 = p.get('signature_data', '')
-        if sig_b64 and sig_b64.startswith('data:image/'):
-            emp.signature_b64 = sig_b64
-            emp.save(update_fields=['signature_b64'])
+        # Validate co-worker selection
+        coworker_pk = p.get('selected_coworker', '').strip()
+        selected_coworker = None
+        if coworker_pk:
+            try:
+                selected_coworker = Employee.objects.get(
+                    pk=int(coworker_pk), is_active=True,
+                )
+                if selected_coworker == emp:
+                    selected_coworker = None
+            except (Employee.DoesNotExist, ValueError):
+                selected_coworker = None
 
-        record.employee_signed_at = timezone.now()
-        # Skip co-worker step — Unit Head IS the co-worker/supervisor comment
-        record.status = AppraisalRecord.STATUS_UNIT_HEAD
-        record.save()
+        if not selected_coworker:
+            messages.error(request, "Please select a co-worker to provide a comment.")
+        else:
+            record.tasks_summary          = p.get('tasks_summary', '').strip()
+            record.tasks_assimilated      = p.get('tasks_assimilated', '').strip()
+            record.pf_quality_of_work     = _int_or_none(p.get('pf_quality_of_work'))
+            record.pf_quantity_of_work    = _int_or_none(p.get('pf_quantity_of_work'))
+            record.pf_knowledge_techniques= _int_or_none(p.get('pf_knowledge_techniques'))
+            record.pf_ability_to_learn    = _int_or_none(p.get('pf_ability_to_learn'))
+            record.aa_motivation          = _int_or_none(p.get('aa_motivation'))
+            record.aa_attitude_colleagues = _int_or_none(p.get('aa_attitude_colleagues'))
+            record.aa_relations_patients  = _int_or_none(p.get('aa_relations_patients'))
+            record.aa_judgment_team       = _int_or_none(p.get('aa_judgment_team'))
+            record.aa_punctuality         = _int_or_none(p.get('aa_punctuality'))
+            record.aa_presentation        = _int_or_none(p.get('aa_presentation'))
+            record.goals_to_reach         = p.get('goals_to_reach', '').strip()
+            record.award_employee_of_month= p.get('award_employee_of_month') == 'yes'
+            record.award_other            = p.get('award_other', '').strip()
+            record.comment_on_self        = p.get('comment_on_self', '').strip()
+            record.comment_on_supervision = p.get('comment_on_supervision', '').strip()
+            record.comment_on_org         = p.get('comment_on_org', '').strip()
+            _save_sig(record, 'employee_sig_b64', p.get('signature_data', ''))
+            sig_b64 = p.get('signature_data', '')
+            if sig_b64 and sig_b64.startswith('data:image/'):
+                emp.signature_b64 = sig_b64
+                emp.save(update_fields=['signature_b64'])
 
-        # Notify unit head (or supervisor if no unit head assigned)
-        target = emp.unit_head or emp.supervisor
-        if target:
+            record.coworker_signed_by = selected_coworker
+            record.employee_signed_at = timezone.now()
+            record.status = AppraisalRecord.STATUS_COWORKER
+            record.save()
+
+            # Notify selected co-worker
             notify(
-                target.user,
-                f'Appraisal Supervisor Comment Needed — {emp.get_full_name()}',
-                f'{emp.get_full_name()} has submitted their self-assessment for {record.cycle}. '
-                f'Please log in to add your supervisor comment.',
+                selected_coworker.user,
+                f'Co-Worker Comment Needed — {emp.get_full_name()}',
+                f'{emp.get_full_name()} has selected you to provide a co-worker comment '
+                f'on their appraisal for {record.cycle}. Please log in to add your comment.',
                 notification_type='general',
-                url=f'/appraisals/unit-head/{record.pk}/',
+                url=f'/appraisals/coworker/{record.pk}/',
             )
 
-        messages.success(request, "Your appraisal section has been submitted.")
-        return redirect('appraisals:my_appraisals')
+            messages.success(request, "Your appraisal section has been submitted.")
+            return redirect('appraisals:my_appraisals')
+
+    dept_colleagues = Employee.objects.filter(
+        is_active=True,
+    ).exclude(pk=emp.pk).select_related('user', 'department').order_by('user__last_name')
 
     discipline_data = record.discipline_deductions()
     pf_fields = [
@@ -253,8 +312,8 @@ def employee_fill(request, record_pk):
     current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     chain_steps = [
         ('employee',  'You (Employee)',              True),
-        ('unit_head', 'Unit Head / Supervisor',      False),
-        ('manager',   'Line Manager (Grades)',       False),
+        ('coworker',  'Co-Worker',                   False),
+        ('unit_head', 'Supervisor (Grades You)',     False),
         ('hr',        'HR Manager',                  False),
         ('director',  'Admin Director',              False),
         ('ceo',       'CEO',                         False),
@@ -267,6 +326,7 @@ def employee_fill(request, record_pk):
         'aa_fields': aa_fields,
         'current_values': current_values,
         'chain_steps': chain_steps,
+        'dept_colleagues': dept_colleagues,
         'current_sig_b64': emp.signature_b64 or '',
     })
 
@@ -277,6 +337,55 @@ def _int_or_none(val):
         return v if 1 <= v <= 5 else None
     except (TypeError, ValueError):
         return None
+
+
+_RATING_FNAMES = [
+    'pf_quality_of_work', 'pf_quantity_of_work',
+    'pf_knowledge_techniques', 'pf_ability_to_learn',
+    'aa_motivation', 'aa_attitude_colleagues', 'aa_relations_patients',
+    'aa_judgment_team', 'aa_punctuality', 'aa_presentation',
+]
+
+
+def _apply_score_override(post, record, by_emp):
+    """Store any score overrides from HR/Director/CEO in override_* fields."""
+    changed = False
+    for fname in _RATING_FNAMES:
+        v = _int_or_none(post.get(f'override_{fname}'))
+        if v is not None:
+            setattr(record, f'override_{fname}', v)
+            changed = True
+    if changed:
+        record.score_override_by = by_emp
+        record.score_override_at = timezone.now()
+
+
+def _score_form_ctx(record):
+    """Context for the optional override rating form in HR/Director/CEO templates."""
+    pf_fields = [
+        ('pf_quality_of_work',      'Quality of Work'),
+        ('pf_quantity_of_work',     'Quantity of Work'),
+        ('pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('pf_ability_to_learn',     'Ability / Interest to Learn'),
+    ]
+    aa_fields = [
+        ('aa_motivation',          'Motivation and Initiative'),
+        ('aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
+        ('aa_relations_patients',  'Relations with Patients and Visitors'),
+        ('aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
+        ('aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
+        ('aa_presentation',        'Personal Presentation and Professional Secrets'),
+    ]
+    # Current values: show override if already set, else supervisor's original
+    current_values = {
+        f: getattr(record, f'override_{f}') or getattr(record, f'mgr_{f}')
+        for f, _ in pf_fields + aa_fields
+    }
+    return {
+        'pf_fields': pf_fields,
+        'aa_fields': aa_fields,
+        'current_values': current_values,
+    }
 
 
 # ── Co-Worker ────────────────────────────────────────────────────────────────
@@ -341,27 +450,59 @@ def unit_head_fill(request, record_pk):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        record.unit_head_comment   = request.POST.get('unit_head_comment', '').strip()
+        p = request.POST
+        # Unit head fills the appraiser rating (grades the employee)
+        record.mgr_pf_quality_of_work      = _int_or_none(p.get('mgr_pf_quality_of_work'))
+        record.mgr_pf_quantity_of_work     = _int_or_none(p.get('mgr_pf_quantity_of_work'))
+        record.mgr_pf_knowledge_techniques = _int_or_none(p.get('mgr_pf_knowledge_techniques'))
+        record.mgr_pf_ability_to_learn     = _int_or_none(p.get('mgr_pf_ability_to_learn'))
+        record.mgr_aa_motivation           = _int_or_none(p.get('mgr_aa_motivation'))
+        record.mgr_aa_attitude_colleagues  = _int_or_none(p.get('mgr_aa_attitude_colleagues'))
+        record.mgr_aa_relations_patients   = _int_or_none(p.get('mgr_aa_relations_patients'))
+        record.mgr_aa_judgment_team        = _int_or_none(p.get('mgr_aa_judgment_team'))
+        record.mgr_aa_punctuality          = _int_or_none(p.get('mgr_aa_punctuality'))
+        record.mgr_aa_presentation         = _int_or_none(p.get('mgr_aa_presentation'))
+        record.unit_head_comment   = p.get('unit_head_comment', '').strip()
         record.unit_head_signed_by = emp
         record.unit_head_signed_at = timezone.now()
-        _save_sig(record, 'unit_head_sig_b64', request.POST.get('signature_data', ''))
-        record.status = AppraisalRecord.STATUS_MANAGER
+        _save_sig(record, 'unit_head_sig_b64', p.get('signature_data', ''))
+        # After supervisor grades → go straight to HR (skip separate manager step)
+        record.status = AppraisalRecord.STATUS_HR
         record.save()
 
-        if record.employee.supervisor:
+        for hr_emp in Employee.objects.filter(role='hr', is_active=True):
             notify(
-                record.employee.supervisor.user,
-                f'Appraisal Manager Review Needed — {record.employee.get_full_name()}',
-                f'Please complete the appraiser rating and your comment for {record.employee.get_full_name()}.',
+                hr_emp.user,
+                f'Appraisal HR Review Needed — {record.employee.get_full_name()}',
+                f'Supervisor has graded and commented on {record.employee.get_full_name()}\'s '
+                f'appraisal for {record.cycle}. Your review is next.',
                 notification_type='general',
-                url=f'/appraisals/manager/{record.pk}/',
+                url=f'/appraisals/hr-review/{record.pk}/',
             )
-        messages.success(request, "Unit head comment submitted.")
+        messages.success(request, "Supervisor grades and comment submitted.")
         return redirect('dashboard:home')
 
+    pf_fields = [
+        ('mgr_pf_quality_of_work',      'Quality of Work'),
+        ('mgr_pf_quantity_of_work',     'Quantity of Work'),
+        ('mgr_pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('mgr_pf_ability_to_learn',     'Ability / Interest to Learn'),
+    ]
+    aa_fields = [
+        ('mgr_aa_motivation',          'Motivation and Initiative'),
+        ('mgr_aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
+        ('mgr_aa_relations_patients',  'Relations with Patients and Visitors'),
+        ('mgr_aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
+        ('mgr_aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
+        ('mgr_aa_presentation',        'Personal Presentation and Professional Secrets'),
+    ]
+    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     return render(request, 'appraisals/unit_head_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
+        'pf_fields': pf_fields,
+        'aa_fields': aa_fields,
+        'current_values': current_values,
     })
 
 
@@ -447,15 +588,7 @@ def hr_fill(request, record_pk):
         return redirect('appraisals:hr_dashboard')
 
     if request.method == 'POST':
-        # Allow HR to override manager ratings if supplied
-        for fname in ['mgr_pf_quality_of_work','mgr_pf_quantity_of_work',
-                      'mgr_pf_knowledge_techniques','mgr_pf_ability_to_learn',
-                      'mgr_aa_motivation','mgr_aa_attitude_colleagues',
-                      'mgr_aa_relations_patients','mgr_aa_judgment_team',
-                      'mgr_aa_punctuality','mgr_aa_presentation']:
-            v = _int_or_none(request.POST.get(fname))
-            if v is not None:
-                setattr(record, fname, v)
+        _apply_score_override(request.POST, record, emp)
         record.hr_comment   = request.POST.get('hr_comment', '').strip()
         record.hr_signed_by = emp
         record.hr_signed_at = timezone.now()
@@ -463,38 +596,14 @@ def hr_fill(request, record_pk):
         record.status = AppraisalRecord.STATUS_DIRECTOR
         record.save()
 
-        for dir_emp in Employee.objects.filter(role='admin_director', is_active=True):
-            notify(
-                dir_emp.user,
-                f'Appraisal Director Review — {record.employee.get_full_name()}',
-                f'HR has reviewed the appraisal for {record.employee.get_full_name()}. Your comment is next.',
-                notification_type='general',
-                url=f'/appraisals/director/{record.pk}/',
-            )
+        _notify_director(record)
         messages.success(request, "HR comment submitted.")
         return redirect('appraisals:hr_dashboard')
 
-    pf_fields = [
-        ('mgr_pf_quality_of_work',      'Quality of Work'),
-        ('mgr_pf_quantity_of_work',     'Quantity of Work'),
-        ('mgr_pf_knowledge_techniques', 'Knowledge of Techniques'),
-        ('mgr_pf_ability_to_learn',     'Ability / Interest to Learn'),
-    ]
-    aa_fields = [
-        ('mgr_aa_motivation',          'Motivation and Initiative'),
-        ('mgr_aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
-        ('mgr_aa_relations_patients',  'Relations with Patients and Visitors'),
-        ('mgr_aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
-        ('mgr_aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
-        ('mgr_aa_presentation',        'Personal Presentation and Professional Secrets'),
-    ]
-    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     return render(request, 'appraisals/hr_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
-        'pf_fields': pf_fields,
-        'aa_fields': aa_fields,
-        'current_values': current_values,
+        **_score_form_ctx(record),
     })
 
 
@@ -506,20 +615,17 @@ def director_fill(request, record_pk):
     if not emp or not emp.is_director():
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
+    # Finance director can only act when admin director is on leave
+    if emp.role == 'finance_director' and not _admin_director_on_leave():
+        messages.error(request, "Admin Director is available. Finance Director acts as backup only when Admin Director is on leave.")
+        return redirect('dashboard:home')
     record = get_object_or_404(AppraisalRecord, pk=record_pk)
     if record.status != AppraisalRecord.STATUS_DIRECTOR:
         messages.error(request, "This appraisal is not awaiting your review.")
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        for fname in ['mgr_pf_quality_of_work','mgr_pf_quantity_of_work',
-                      'mgr_pf_knowledge_techniques','mgr_pf_ability_to_learn',
-                      'mgr_aa_motivation','mgr_aa_attitude_colleagues',
-                      'mgr_aa_relations_patients','mgr_aa_judgment_team',
-                      'mgr_aa_punctuality','mgr_aa_presentation']:
-            v = _int_or_none(request.POST.get(fname))
-            if v is not None:
-                setattr(record, fname, v)
+        _apply_score_override(request.POST, record, emp)
         record.director_comment   = request.POST.get('director_comment', '').strip()
         record.director_signed_by = emp
         record.director_signed_at = timezone.now()
@@ -538,27 +644,10 @@ def director_fill(request, record_pk):
         messages.success(request, "Director comment submitted.")
         return redirect('dashboard:home')
 
-    pf_fields = [
-        ('mgr_pf_quality_of_work',      'Quality of Work'),
-        ('mgr_pf_quantity_of_work',     'Quantity of Work'),
-        ('mgr_pf_knowledge_techniques', 'Knowledge of Techniques'),
-        ('mgr_pf_ability_to_learn',     'Ability / Interest to Learn'),
-    ]
-    aa_fields = [
-        ('mgr_aa_motivation',          'Motivation and Initiative'),
-        ('mgr_aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
-        ('mgr_aa_relations_patients',  'Relations with Patients and Visitors'),
-        ('mgr_aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
-        ('mgr_aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
-        ('mgr_aa_presentation',        'Personal Presentation and Professional Secrets'),
-    ]
-    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     return render(request, 'appraisals/director_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
-        'pf_fields': pf_fields,
-        'aa_fields': aa_fields,
-        'current_values': current_values,
+        **_score_form_ctx(record),
     })
 
 
@@ -576,14 +665,7 @@ def ceo_fill(request, record_pk):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        for fname in ['mgr_pf_quality_of_work','mgr_pf_quantity_of_work',
-                      'mgr_pf_knowledge_techniques','mgr_pf_ability_to_learn',
-                      'mgr_aa_motivation','mgr_aa_attitude_colleagues',
-                      'mgr_aa_relations_patients','mgr_aa_judgment_team',
-                      'mgr_aa_punctuality','mgr_aa_presentation']:
-            v = _int_or_none(request.POST.get(fname))
-            if v is not None:
-                setattr(record, fname, v)
+        _apply_score_override(request.POST, record, emp)
         record.ceo_comment   = request.POST.get('ceo_comment', '').strip()
         record.ceo_signed_by = emp
         record.ceo_signed_at = timezone.now()
@@ -604,27 +686,10 @@ def ceo_fill(request, record_pk):
         messages.success(request, "CEO comment submitted. Appraisal chain complete.")
         return redirect('dashboard:home')
 
-    pf_fields = [
-        ('mgr_pf_quality_of_work',      'Quality of Work'),
-        ('mgr_pf_quantity_of_work',     'Quantity of Work'),
-        ('mgr_pf_knowledge_techniques', 'Knowledge of Techniques'),
-        ('mgr_pf_ability_to_learn',     'Ability / Interest to Learn'),
-    ]
-    aa_fields = [
-        ('mgr_aa_motivation',          'Motivation and Initiative'),
-        ('mgr_aa_attitude_colleagues', 'Attitude towards Colleagues and Authority'),
-        ('mgr_aa_relations_patients',  'Relations with Patients and Visitors'),
-        ('mgr_aa_judgment_team',       'Judgment, Team Spirit and Discretion'),
-        ('mgr_aa_punctuality',         'Punctuality, Attendance, Availability and Honesty'),
-        ('mgr_aa_presentation',        'Personal Presentation and Professional Secrets'),
-    ]
-    current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
     return render(request, 'appraisals/ceo_fill.html', {
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
-        'pf_fields': pf_fields,
-        'aa_fields': aa_fields,
-        'current_values': current_values,
+        **_score_form_ctx(record),
     })
 
 

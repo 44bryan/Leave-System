@@ -356,7 +356,7 @@ def _send_birthday_notifications():
                 title='🎂 Happy Birthday!',
                 message=(
                     f"Wishing you a very Happy Birthday, {emp.user.first_name or emp.get_full_name()}! "
-                    f"On behalf of the entire Magrabi ICO Cameroon Eye Institute family, "
+                    f"On behalf of the entire Africa Eye Foundation family, "
                     f"we hope your {age}{'st' if age == 1 else 'nd' if age == 2 else 'rd' if age == 3 else 'th'} birthday is filled with joy and wonderful memories. "
                     f"Thank you for your dedication and hard work. "
                     f"Have a fantastic day! 🎉"
@@ -1329,7 +1329,7 @@ def _hr_required(request):
 
 
 def _pdf_report_header(canvas, doc, title, subtitle=''):
-    """Executive PDF header/footer — white header with logo, teal footer, MICEI brand."""
+    """Executive PDF header/footer — white header with logo, teal footer, AEF brand."""
     from reportlab.lib import colors
     from reportlab.lib.units import mm
     import os
@@ -1381,7 +1381,7 @@ def _pdf_report_header(canvas, doc, title, subtitle=''):
     # System name + subtitle
     canvas.setFillColor(TEAL)
     canvas.setFont('Helvetica-Bold', 8)
-    canvas.drawString(text_x, H - 19 * mm, 'MICEI HRM  ·  Human Resource Management System')
+    canvas.drawString(text_x, H - 19 * mm, 'AEF HRM  ·  Human Resource Management System')
 
     if subtitle:
         canvas.setFillColor(GRAY)
@@ -1411,10 +1411,10 @@ def _pdf_report_header(canvas, doc, title, subtitle=''):
     canvas.setFillColor(TEAL_DARK)
     canvas.rect(0, FOOTER_H, W, 0.8 * mm, fill=1, stroke=0)
 
-    # Footer left — MICEI HRM
+    # Footer left — AEF HRM
     canvas.setFillColor(WHITE)
     canvas.setFont('Helvetica-Bold', 7.5)
-    canvas.drawString(12 * mm, 3.5 * mm, 'MICEI HRM')
+    canvas.drawString(12 * mm, 3.5 * mm, 'AEF HRM')
 
     # Footer center — note
     canvas.setFillColor(colors.HexColor('#d0f0f5'))
@@ -1513,7 +1513,7 @@ def export_leaves_excel(request):
 
     buf.seek(0)
     response = HttpResponse(buf, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="MICEI_HRM_Leaves_{year}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="AEF_HRM_Leaves_{year}.pdf"'
     return response
 
 
@@ -1611,7 +1611,7 @@ def export_contracts_excel(request):
               onLaterPages=lambda c, d: _pdf_report_header(c, d, report_title, subtitle))
 
     buf.seek(0)
-    filename = f'MICEI_HRM_Contracts_{contract_type or "All"}.pdf'
+    filename = f'AEF_HRM_Contracts_{contract_type or "All"}.pdf'
     response = HttpResponse(buf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
@@ -1702,7 +1702,7 @@ def export_discipline_excel(request):
 
     buf.seek(0)
     response = HttpResponse(buf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="MICEI_HRM_Discipline.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="AEF_HRM_Discipline.pdf"'
     return response
 
 

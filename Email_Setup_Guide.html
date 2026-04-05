@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MICEI HRM — Email Setup Guide</title>
+  <title>AEF HRM — Email Setup Guide</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; color: #1a202c; line-height: 1.7; }
     h1 { color: #0A4D68; border-bottom: 3px solid #2db4c3; padding-bottom: 10px; }
@@ -20,15 +20,15 @@
 </head>
 <body>
 
-  <h1>MICEI HRM — Email Notification Setup Guide</h1>
-  <p>This guide explains how to fully enable email notifications for all staff on the MICEI HRM system deployed on Railway.</p>
+  <h1>AEF HRM — Email Notification Setup Guide</h1>
+  <p>This guide explains how to fully enable email notifications for all staff on the AEF HRM system deployed on Railway.</p>
 
   <h2>Overview</h2>
-  <p>MICEI HRM uses <strong>Resend</strong> (resend.com) to send email notifications. Resend requires a verified domain to send emails to any recipient (Gmail, iCloud, Outlook, etc.).</p>
+  <p>AEF HRM uses <strong>Resend</strong> (resend.com) to send email notifications. Resend requires a verified domain to send emails to any recipient (Gmail, iCloud, Outlook, etc.).</p>
 
   <table>
     <tr><th>Service</th><th>Purpose</th><th>Cost</th></tr>
-    <tr><td>Railway</td><td>Hosts the MICEI HRM application</td><td>~$5/month</td></tr>
+    <tr><td>Railway</td><td>Hosts the AEF HRM application</td><td>~$5/month</td></tr>
     <tr><td>Resend</td><td>Sends email notifications</td><td>Free (3,000 emails/month)</td></tr>
     <tr><td>Domain (e.g. Namecheap)</td><td>Required for verified sending</td><td>~$10/year</td></tr>
   </table>
@@ -81,12 +81,12 @@
     <strong>Step 5 — Update Railway Environment Variables</strong>
     <ol>
       <li>Log in to <strong>railway.app</strong></li>
-      <li>Open your MICEI HRM project → go to <strong>Variables</strong></li>
+      <li>Open your AEF HRM project → go to <strong>Variables</strong></li>
       <li>Set the following variables:</li>
     </ol>
     <table>
       <tr><th>Variable</th><th>Value</th></tr>
-      <tr><td><code>DEFAULT_FROM_EMAIL</code></td><td><code>MICEI HRM &lt;noreply@yourdomain.com&gt;</code></td></tr>
+      <tr><td><code>DEFAULT_FROM_EMAIL</code></td><td><code>AEF HRM &lt;noreply@yourdomain.com&gt;</code></td></tr>
       <tr><td><code>EMAIL_NOTIFICATIONS_ENABLED</code></td><td><code>True</code></td></tr>
       <tr><td><code>RESEND_API_KEY</code></td><td>Your Resend API key (from resend.com/api-keys)</td></tr>
       <tr><td><code>SITE_URL</code></td><td><code>https://micei-hr.up.railway.app</code></td></tr>
@@ -119,7 +119,7 @@
   </table>
 
   <footer>
-    MICEI HRM &mdash; Magrabi ICO Cameroon Eye Institution &mdash; Setup Guide
+    AEF HRM &mdash; Africa Eye Foundation &mdash; Setup Guide
   </footer>
 
 </body>

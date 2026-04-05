@@ -154,6 +154,6 @@ ANYMAIL = {
     'RESEND_API_KEY': config('RESEND_API_KEY', default=''),
 }
 
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='MICEI HRM <onboarding@resend.dev>')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='AEF HRM <onboarding@resend.dev>')
 # Public URL used in email notification links (e.g. https://yourapp.railway.app)
 SITE_URL            = config('SITE_URL',            default='https://web-production-777c4.up.railway.app')

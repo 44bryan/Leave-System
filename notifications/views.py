@@ -102,8 +102,8 @@ def test_email(request):
     else:
         try:
             msg = EmailMultiAlternatives(
-                subject='[MICEI HRM] Test Email',
-                body='This is a test email from MICEI HRM.',
+                subject='[AEF HRM] Test Email',
+                body='This is a test email from AEF HRM.',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[request.user.email],
             )

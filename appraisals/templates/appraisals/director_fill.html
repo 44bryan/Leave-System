@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n appraisal_tags %}
-{% block title %}Director Comment — MICEI HRM{% endblock %}
+{% block title %}Director Comment — AEF HRM{% endblock %}
 {% block page_title %}Administrative Director Comment{% endblock %}
 {% block page_subtitle %}{{ record.employee.get_full_name }} · {{ record.cycle }}{% endblock %}
 
@@ -32,11 +32,11 @@
                 {% for fname, label in pf_fields %}
                 <tr>
                     <td class="text-start">{{ label }}</td>
-                    <td><input type="radio" name="{{ fname }}" value="1" {% radio_checked current_values fname 1 %}></td>
-                    <td><input type="radio" name="{{ fname }}" value="2" {% radio_checked current_values fname 2 %}></td>
-                    <td><input type="radio" name="{{ fname }}" value="3" {% radio_checked current_values fname 3 %}></td>
-                    <td><input type="radio" name="{{ fname }}" value="4" {% radio_checked current_values fname 4 %}></td>
-                    <td><input type="radio" name="{{ fname }}" value="5" {% radio_checked current_values fname 5 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="1" {% radio_checked current_values fname 1 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="2" {% radio_checked current_values fname 2 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="3" {% radio_checked current_values fname 3 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="4" {% radio_checked current_values fname 4 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="5" {% radio_checked current_values fname 5 %}></td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -50,11 +50,11 @@
                 {% for fname, label in aa_fields %}
                 <tr>
                     <td class="text-start">{{ label }}</td>
-                    <td><input type="radio" name="{{ fname }}" value="1" {% radio_checked current_values fname 1 %}></td>
-                    <td><input type="radio" name="{{ fname }}" value="2" {% radio_checked current_values fname 2 %}></td>
-                    <td><input type="radio" name="{{ fname }}" value="3" {% radio_checked current_values fname 3 %}></td>
-                    <td><input type="radio" name="{{ fname }}" value="4" {% radio_checked current_values fname 4 %}></td>
-                    <td><input type="radio" name="{{ fname }}" value="5" {% radio_checked current_values fname 5 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="1" {% radio_checked current_values fname 1 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="2" {% radio_checked current_values fname 2 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="3" {% radio_checked current_values fname 3 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="4" {% radio_checked current_values fname 4 %}></td>
+                    <td><input type="radio" name="override_{{ fname }}" value="5" {% radio_checked current_values fname 5 %}></td>
                 </tr>
                 {% endfor %}
                 </tbody>

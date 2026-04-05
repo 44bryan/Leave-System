@@ -1,6 +1,6 @@
 """
 Generate a professional Personnel Appraisal PDF for
-Magrabi ICO Cameroon Eye Institute — MICEI HRM.
+Africa Eye Foundation — AEF HRM.
 
 Layout:
   Page 1 — Header, Employee Info, Job Identification, Appraisee Rating tables
@@ -169,7 +169,7 @@ class PDF:
         cv.drawCentredString(cx, H - 9 * mm - 11 * mm, "PERSONNEL APPRAISAL")
         cv.setFillColorRGB(*_LABEL)
         cv.setFont('Helvetica', 9)
-        cv.drawCentredString(cx, H - 9 * mm - 17 * mm, "Magrabi ICO Cameroon Eye Institute")
+        cv.drawCentredString(cx, H - 9 * mm - 17 * mm, "Africa Eye Foundation")
         # Ref top right
         self.txt(f"Trim {record.cycle.trimester}  ·  {record.cycle.year}",
                  RM - 38 * mm, H - 9 * mm - 8 * mm, size=7.5, rgb=_LABEL)
@@ -180,7 +180,7 @@ class PDF:
 
     def page_footer(self, record):
         self.hline(12 * mm)
-        self.txt(f"MICEI HRM  ·  Magrabi ICO Cameroon Eye Institute",
+        self.txt(f"AEF HRM  ·  Africa Eye Foundation",
                  LM, 8 * mm, size=7, rgb=_LABEL)
         self.txt_r(f"Generated: {_date.today().strftime('%d/%m/%Y')}",
                    RM, 8 * mm, size=7, rgb=_LABEL)
@@ -530,11 +530,7 @@ def generate_appraisal_pdf(record):
                         record.unit_head_signed_by, record.unit_head_signed_at,
                         record.unit_head_sig_b64, min_h=22 * mm)
 
-    # Manager comment (rating already on page 1)
-    y = p.comment_block(y, "LINE MANAGER / SUPERVISEUR  (Appraiser)",
-                        record.manager_comment,
-                        record.manager_signed_by, record.manager_signed_at,
-                        record.manager_sig_b64, min_h=22 * mm)
+    # (Line Manager step removed — Supervisor/Unit Head is the appraiser)
 
     # ══════════════════════════════════════════════════════════════════════════
     # PAGE 3
@@ -561,14 +557,27 @@ def generate_appraisal_pdf(record):
     y -= 2 * mm
 
     # Total Ratings Table
-    y = p.section_bar(y, "  TOTAL RATINGS BY ADMINISTRATION")
+    # Build score strings — show original / override if override exists
+    has_override = record.has_score_override
+    if has_override:
+        override_by = record.score_override_by.get_full_name() if record.score_override_by else '?'
+        pf_orig = str(record.mgr_performance_score) if record.mgr_performance_score is not None else "—"
+        pf_final = str(record.final_performance_score) if record.final_performance_score is not None else "—"
+        aa_orig  = str(record.mgr_attitude_score) if record.mgr_attitude_score is not None else "—"
+        aa_final = str(record.final_attitude_score) if record.final_attitude_score is not None else "—"
+        pf_score_str = f"{pf_final} (orig: {pf_orig})"
+        aa_score_str = f"{aa_final} (orig: {aa_orig})"
+    else:
+        pf_score_str = str(record.final_performance_score) if record.final_performance_score is not None else "—"
+        aa_score_str = str(record.final_attitude_score) if record.final_attitude_score is not None else "—"
+
     rows_score = [
-        ("1", "Performance Factors",               "12.5", str(record.mgr_performance_score) if record.mgr_performance_score is not None else "—"),
-        ("2", "Attitude and Aptitude Factors",      "07.5", str(record.mgr_attitude_score)     if record.mgr_attitude_score is not None else "—"),
+        ("1", "Performance Factors",               "12.5", pf_score_str),
+        ("2", "Attitude and Aptitude Factors",      "07.5", aa_score_str),
         ("3", "Discipline Sanctions (–1 per sanc.)", "",   str(disc['deduction'])),
         ("4", "Awards / Bonus (+1 per award)",       "",   f"+{record.award_bonus}"),
     ]
-    col_widths = [8 * mm, CW - 8 * mm - 24 * mm - 24 * mm, 24 * mm, 24 * mm]
+    col_widths = [8 * mm, CW - 8 * mm - 30 * mm - 30 * mm, 30 * mm, 30 * mm]
     headers    = ["SN", "Category / Catégorie", "Total Marks", "Score"]
     rh = 7 * mm
 
@@ -593,8 +602,14 @@ def generate_appraisal_pdf(record):
         cx += col_widths[1]
         p.txt_c(marks, cx + col_widths[2] / 2, y - rh + 2.5 * mm, size=8.5, rgb=_DARK)
         cx += col_widths[2]
-        p.txt_c(score, cx + col_widths[3] / 2, y - rh + 2.5 * mm, 'Helvetica-Bold', 9, _DARK)
+        p.txt_c(score, cx + col_widths[3] / 2, y - rh + 2.5 * mm, 'Helvetica-Bold', 8.5, _DARK)
         y -= rh
+
+    # Override note
+    if has_override:
+        p.txt(f"* Scores modified by: {override_by}  ({_d(record.score_override_at)})",
+              LM, y - 2 * mm, size=6.5, rgb=_LABEL)
+        y -= 7 * mm
 
     # Total row
     p.frect(LM, y, CW, rh + 1 * mm, _CYAN, _BORDER, 0.6)

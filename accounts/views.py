@@ -168,11 +168,11 @@ def employee_create(request):
                 _ctitle, _cmsg = _contract_issue_message(contract)
                 ct = contract.contract_type
                 if ct == 'INTERN':
-                    welcome_intro = f"Welcome to MICEI HRM, {employee.get_full_name()}! Your internship account has been created and activated."
+                    welcome_intro = f"Welcome to AEF HRM, {employee.get_full_name()}! Your internship account has been created and activated."
                 elif ct == 'WACS':
-                    welcome_intro = f"Welcome to MICEI HRM, {employee.get_full_name()}! Your WACS Residency account has been created and activated."
+                    welcome_intro = f"Welcome to AEF HRM, {employee.get_full_name()}! Your WACS Residency account has been created and activated."
                 else:
-                    welcome_intro = f"Welcome to MICEI HRM, {employee.get_full_name()}! Your account has been created and activated."
+                    welcome_intro = f"Welcome to AEF HRM, {employee.get_full_name()}! Your account has been created and activated."
                 site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
                 login_url = f"{site_base}/accounts/login/" if site_base else "/accounts/login/"
                 _plain_password = form.cleaned_data['password']
@@ -825,7 +825,7 @@ def employee_excel_upload(request):
                     user,
                     title='Welcome — Your Account Is Now Active',
                     message=(
-                        f"Welcome to MICEI HRM, {emp.get_full_name()}! Your account has been created. "
+                        f"Welcome to AEF HRM, {emp.get_full_name()}! Your account has been created. "
                         f"A {contract_type} contract starting {contract_start.strftime('%d %b %Y')} has been issued."
                         f"{_excel_creds}"
                     ),
