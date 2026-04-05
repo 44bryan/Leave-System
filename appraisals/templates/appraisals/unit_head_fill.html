@@ -141,6 +141,58 @@
                 </table>
             </div>
 
+            <!-- Total Ratings by Administration (live calculation) -->
+            <div class="card mb-4" style="border-color:#31b8cf;">
+                <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;">
+                    <i class="bi bi-calculator me-2"></i>Total Ratings by Administration
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered align-middle text-center mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-start">SN</th>
+                                <th class="text-start">Category</th>
+                                <th>Total Marks</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td class="text-start">Performance Factors</td>
+                                <td>12.5</td>
+                                <td class="fw-bold" id="pf-score">—</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td class="text-start">Attitude and Aptitude Factors</td>
+                                <td>7.5</td>
+                                <td class="fw-bold" id="aa-score">—</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td class="text-start">Discipline Sanctions (–1 each)</td>
+                                <td></td>
+                                <td class="fw-bold text-danger">{{ discipline_data.deduction }}</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td class="text-start">Awards (Bonus +1 each)</td>
+                                <td></td>
+                                <td class="fw-bold text-success">+{{ record.award_bonus }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-primary">
+                                <th colspan="2" class="text-start">Total</th>
+                                <th>20</th>
+                                <th class="fw-bold" id="total-score" style="font-size:1.2rem;">—</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
             <!-- Supervisor Comment -->
             <div class="mb-4">
                 <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
@@ -162,4 +214,48 @@
 
 </div></div>
 {% endblock %}
-{% block extra_js %}{% include 'appraisals/_sig_js.html' %}{% endblock %}
+{% block extra_js %}
+{% include 'appraisals/_sig_js.html' %}
+<script>
+(function () {
+    var pfFields = ['mgr_pf_quality_of_work','mgr_pf_quantity_of_work',
+                    'mgr_pf_knowledge_techniques','mgr_pf_ability_to_learn'];
+    var aaFields = ['mgr_aa_motivation','mgr_aa_attitude_colleagues',
+                    'mgr_aa_relations_patients','mgr_aa_judgment_team',
+                    'mgr_aa_punctuality','mgr_aa_presentation'];
+    var discipline = {{ discipline_data.deduction }};
+    var awards     = {{ record.award_bonus }};
+
+    function getSum(fields) {
+        var total = 0, allFilled = true;
+        fields.forEach(function(name) {
+            var el = document.querySelector('input[name="' + name + '"]:checked');
+            if (el) { total += parseInt(el.value, 10); }
+            else     { allFilled = false; }
+        });
+        return allFilled ? total : null;
+    }
+
+    function recalc() {
+        var pfSum = getSum(pfFields);
+        var aaSum = getSum(aaFields);
+        var pfScore = pfSum !== null ? Math.round((pfSum / 20) * 12.5 * 100) / 100 : null;
+        var aaScore = aaSum !== null ? Math.round((aaSum / 30) * 7.5  * 100) / 100 : null;
+
+        document.getElementById('pf-score').textContent    = pfScore !== null ? pfScore : '—';
+        document.getElementById('aa-score').textContent    = aaScore !== null ? aaScore : '—';
+        if (pfScore !== null && aaScore !== null) {
+            var total = Math.round((pfScore + aaScore + discipline + awards) * 100) / 100;
+            document.getElementById('total-score').textContent = total;
+        } else {
+            document.getElementById('total-score').textContent = '—';
+        }
+    }
+
+    document.querySelectorAll('input[type="radio"]').forEach(function(r) {
+        r.addEventListener('change', recalc);
+    });
+    recalc();
+})();
+</script>
+{% endblock %}

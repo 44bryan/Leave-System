@@ -503,6 +503,7 @@ def unit_head_fill(request, record_pk):
         'pf_fields': pf_fields,
         'aa_fields': aa_fields,
         'current_values': current_values,
+        'discipline_data': record.discipline_deductions(),
     })
 
 
