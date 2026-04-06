@@ -277,43 +277,80 @@ class Builder:
             self.y -= row_h
         self.y -= 2 * mm
 
-    # ── signature block ─────────────────────────────────────────────────────
+    # ── employee signature row (standalone — no comment text) ───────────────
 
-    def sig_block(self, signed_by, signed_at, sig_b64, record, label='Signature'):
-        """Draw a single-row signature strip: Name | Date | Signature image."""
-        h = 16 * mm
-        self.need(h + 2 * mm, record)
-        self.rect(LM, self.y, CW, h, LGRAY, BORD, 0.4)
-        name = signed_by.get_full_name() if signed_by else '—'
-        self.text('Name:', LM + 2 * mm, self.y - 4 * mm, size=7, color=GRAY)
-        self.text(name,    LM + 2 * mm, self.y - 8.5 * mm, 'Helvetica-Bold', 8.5)
-        self.text('Date:', LM + 2 * mm, self.y - 13 * mm, size=7, color=GRAY)
-        self.text(_fmt_date(signed_at), LM + 12 * mm, self.y - 13 * mm, size=8)
-        # signature image on right side
-        self.text(label + ':', LM + CW * 0.50, self.y - 4 * mm, size=7, color=GRAY)
-        self.sig_image(sig_b64 or '', LM + CW * 0.50, self.y - 2 * mm,
-                       max_w=CW * 0.46, max_h=12 * mm)
-        self.y -= h + 2 * mm
+    def sig_block(self, signed_by, signed_at, sig_b64, record):
+        """Name + date + signature image in one row — atomic, one need() call."""
+        SIG_H = 18 * mm
+        self.need(SIG_H + 3 * mm, record)
+        y = self.y
+        self.rect(LM, y, CW, SIG_H, LGRAY, BORD, 0.4)
+        name = signed_by.get_full_name() if signed_by else 'Pending'
+        self.text('Name:',          LM + 3 * mm, y - 4 * mm,  size=7, color=GRAY)
+        self.text(name,             LM + 3 * mm, y - 9 * mm,  'Helvetica-Bold', 8.5)
+        self.text('Date:',          LM + 3 * mm, y - 14 * mm, size=7, color=GRAY)
+        self.text(_fmt_date(signed_at), LM + 13 * mm, y - 14 * mm, size=8.5)
+        sig_x = LM + CW * 0.48
+        self.text('Signature:', sig_x, y - 4 * mm, size=7, color=GRAY)
+        self.sig_image(sig_b64 or '', sig_x, y - 4.5 * mm,
+                       max_w=CW * 0.49, max_h=SIG_H - 5 * mm)
+        self.y = y - SIG_H - 3 * mm
 
-    # ── comment + signature section ─────────────────────────────────────────
+    # ── comment + signature section (ONE atomic block — no inner need() calls) ──
 
     def comment_section(self, title, comment, signed_by, signed_at, sig_b64, record):
-        lines = self.wrapped_lines(comment or '—', CW - 8 * mm)
-        h = max(14 * mm, len(lines) * 4.8 * mm + 8 * mm)
-        self.need(5.5 * mm + h + 18 * mm + 4 * mm, record)
-        # header strip
-        self.rect(LM, self.y, CW, 5.5 * mm, NAVY)
-        self.text(title, LM + 3 * mm, self.y - 4 * mm, 'Helvetica-Bold', 8, WHITE)
-        self.y -= 5.5 * mm
-        # comment body
-        self.rect(LM, self.y, CW, h, WHITE, BORD, 0.4)
-        cy = self.y - 4 * mm
-        for ln in lines[:10]:
+        """
+        Draws title bar + comment text + name/date/signature as a single block.
+        Pre-calculates total height, calls need() ONCE, then draws everything
+        at fixed offsets so nothing can be split across pages.
+        """
+        LINE_H  = 4.8 * mm
+        HDR_H   = 6.5 * mm
+        SIG_H   = 18 * mm   # name + date + signature row
+        PAD     = 3 * mm    # padding inside comment box
+
+        lines = self.wrapped_lines(comment or '—', CW - 6 * mm)
+        lines = lines[:12]  # cap at 12 lines
+        comment_h = max(10 * mm, len(lines) * LINE_H + PAD * 2)
+        total_h   = HDR_H + comment_h + SIG_H + 3 * mm   # 3 mm gap after block
+
+        # One page-break check for the whole block
+        self.need(total_h, record)
+
+        y = self.y   # anchor — everything measured from here
+
+        # ── title bar ──────────────────────────────────────────────────────
+        self.rect(LM, y, CW, HDR_H, NAVY)
+        self.text(title, LM + 3 * mm, y - HDR_H + 2.2 * mm, 'Helvetica-Bold', 8, WHITE)
+        y -= HDR_H
+
+        # ── comment box ────────────────────────────────────────────────────
+        self.rect(LM, y, CW, comment_h, WHITE, BORD, 0.4)
+        cy = y - PAD - LINE_H * 0.6
+        for ln in lines:
             self.text(ln, LM + 3 * mm, cy, size=8.5)
-            cy -= 4.8 * mm
-        self.y -= h
-        # sig strip
-        self.sig_block(signed_by, signed_at, sig_b64, record)
+            cy -= LINE_H
+        y -= comment_h
+
+        # ── signature row ──────────────────────────────────────────────────
+        self.rect(LM, y, CW, SIG_H, LGRAY, BORD, 0.4)
+
+        # left side: Name + Date
+        name = signed_by.get_full_name() if signed_by else 'Pending'
+        self.text('Name:',          LM + 3 * mm, y - 4 * mm,    size=7, color=GRAY)
+        self.text(name,             LM + 3 * mm, y - 9 * mm,    'Helvetica-Bold', 8.5)
+        self.text('Date:',          LM + 3 * mm, y - 14 * mm,   size=7, color=GRAY)
+        self.text(_fmt_date(signed_at), LM + 13 * mm, y - 14 * mm, size=8.5)
+
+        # right side: Signature label + image
+        sig_x = LM + CW * 0.48
+        self.text('Signature:', sig_x, y - 4 * mm, size=7, color=GRAY)
+        self.sig_image(sig_b64 or '', sig_x, y - 4.5 * mm,
+                       max_w=CW * 0.49, max_h=SIG_H - 5 * mm)
+
+        y -= SIG_H
+
+        self.y = y - 3 * mm   # advance cursor past the full block
 
 
 # ── rating rows definitions ──────────────────────────────────────────────────
