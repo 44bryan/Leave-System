@@ -69,6 +69,10 @@
 <div class="card animate-in mb-4">
     <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-person-badge me-2"></i>Administrative Director Comment & Signature</div>
     <div class="card-body p-4">
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Award / Bonus Points <span class="text-muted small fw-normal">— add points for special achievements (current: {{ record.award_bonus_points }})</span></label>
+            <input type="number" name="award_bonus_points" class="form-control" min="0" max="10" value="{{ record.award_bonus_points }}" style="max-width:120px;">
+        </div>
         <div class="mb-4">
             <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
             <textarea name="director_comment" class="form-control" rows="5" required

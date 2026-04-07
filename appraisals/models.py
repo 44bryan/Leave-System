@@ -80,6 +80,7 @@ class AppraisalRecord(models.Model):
     goals_to_reach          = models.TextField(blank=True)
     award_employee_of_month = models.BooleanField(default=False)
     award_other             = models.CharField(max_length=200, blank=True)
+    award_bonus_points      = models.PositiveSmallIntegerField(default=0)  # manually set by supervisor/director/CEO
     comment_on_self         = models.TextField(blank=True)
     comment_on_supervision  = models.TextField(blank=True)
     comment_on_org          = models.TextField(blank=True)
@@ -242,7 +243,7 @@ class AppraisalRecord(models.Model):
 
     @property
     def award_bonus(self):
-        return (1 if self.award_employee_of_month else 0) + (1 if self.award_other else 0)
+        return self.award_bonus_points
 
     @property
     def total_score(self):

@@ -85,7 +85,17 @@
                             <tr><td>1</td><td class="text-start">Performance Factors</td><td>12.5</td><td class="fw-bold" id="pf-score">—</td></tr>
                             <tr><td>2</td><td class="text-start">Attitude and Aptitude Factors</td><td>7.5</td><td class="fw-bold" id="aa-score">—</td></tr>
                             <tr><td>3</td><td class="text-start">Discipline Sanctions (–1 each)</td><td></td><td class="fw-bold text-danger">{{ discipline_data.deduction }}</td></tr>
-                            <tr><td>4</td><td class="text-start">Awards (Bonus +1 each)</td><td></td><td class="fw-bold text-success">+{{ record.award_bonus }}</td></tr>
+                            <tr>
+                                <td>4</td>
+                                <td class="text-start">Awards / Bonus Points</td>
+                                <td></td>
+                                <td>
+                                    <input type="number" name="award_bonus_points" id="awardBonusInput"
+                                           class="form-control form-control-sm text-center fw-bold text-success"
+                                           min="0" max="10" value="{{ record.award_bonus_points }}"
+                                           style="width:70px;margin:auto;">
+                                </td>
+                            </tr>
                         </tbody>
                         <tfoot>
                             <tr class="table-primary">
@@ -129,7 +139,11 @@
                     'mgr_aa_relations_patients','mgr_aa_judgment_team',
                     'mgr_aa_punctuality','mgr_aa_presentation'];
     var discipline = {{ discipline_data.deduction }};
-    var awards     = {{ record.award_bonus }};
+
+    function getAwards() {
+        var el = document.getElementById('awardBonusInput');
+        return el ? (parseInt(el.value, 10) || 0) : 0;
+    }
 
     function getSum(fields) {
         var total = 0, allFilled = true;
@@ -149,7 +163,7 @@
         document.getElementById('pf-score').textContent = pfScore !== null ? pfScore : '—';
         document.getElementById('aa-score').textContent = aaScore !== null ? aaScore : '—';
         if (pfScore !== null && aaScore !== null) {
-            var total = Math.round((pfScore + aaScore + discipline + awards) * 100) / 100;
+            var total = Math.round((pfScore + aaScore + discipline + getAwards()) * 100) / 100;
             document.getElementById('total-score').textContent = total;
         } else {
             document.getElementById('total-score').textContent = '—';
@@ -159,6 +173,8 @@
     document.querySelectorAll('input[type="radio"]').forEach(function(r) {
         r.addEventListener('change', recalc);
     });
+    var bonusEl = document.getElementById('awardBonusInput');
+    if (bonusEl) bonusEl.addEventListener('input', recalc);
     recalc();
 })();
 </script>

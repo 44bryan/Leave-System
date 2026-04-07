@@ -71,6 +71,10 @@
     <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-star me-2"></i>CEO Comment & Signature</div>
     <div class="card-body p-4">
         <p class="text-muted small mb-3">Once you submit, the appraisal chain is complete and HR can publish the results.</p>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Award / Bonus Points <span class="text-muted small fw-normal">— override if needed (current: {{ record.award_bonus_points }})</span></label>
+            <input type="number" name="award_bonus_points" class="form-control" min="0" max="10" value="{{ record.award_bonus_points }}" style="max-width:120px;">
+        </div>
         <div class="mb-4">
             <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
             <textarea name="ceo_comment" class="form-control" rows="5" required

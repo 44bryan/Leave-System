@@ -462,6 +462,10 @@ def unit_head_fill(request, record_pk):
         record.mgr_aa_judgment_team        = _int_or_none(p.get('mgr_aa_judgment_team'))
         record.mgr_aa_punctuality          = _int_or_none(p.get('mgr_aa_punctuality'))
         record.mgr_aa_presentation         = _int_or_none(p.get('mgr_aa_presentation'))
+        try:
+            record.award_bonus_points = max(0, int(p.get('award_bonus_points', 0) or 0))
+        except (ValueError, TypeError):
+            pass
         record.unit_head_comment   = p.get('unit_head_comment', '').strip()
         record.unit_head_signed_by = emp
         record.unit_head_signed_at = timezone.now()
@@ -628,6 +632,10 @@ def director_fill(request, record_pk):
 
     if request.method == 'POST':
         _apply_score_override(request.POST, record, emp)
+        try:
+            record.award_bonus_points = max(0, int(request.POST.get('award_bonus_points', record.award_bonus_points) or record.award_bonus_points))
+        except (ValueError, TypeError):
+            pass
         record.director_comment   = request.POST.get('director_comment', '').strip()
         record.director_signed_by = emp
         record.director_signed_at = timezone.now()
@@ -669,6 +677,10 @@ def ceo_fill(request, record_pk):
 
     if request.method == 'POST':
         _apply_score_override(request.POST, record, emp)
+        try:
+            record.award_bonus_points = max(0, int(request.POST.get('award_bonus_points', record.award_bonus_points) or record.award_bonus_points))
+        except (ValueError, TypeError):
+            pass
         record.ceo_comment   = request.POST.get('ceo_comment', '').strip()
         record.ceo_signed_by = emp
         record.ceo_signed_at = timezone.now()
