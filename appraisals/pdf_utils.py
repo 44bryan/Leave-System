@@ -1,6 +1,6 @@
 """
 Africa Eye Foundation — Personnel Appraisal PDF
-2-page compact layout. Colors from logo only: teal + navy.
+Clean 3-page layout. Logo on white. Teal + navy from logo only.
 """
 from io import BytesIO
 from datetime import date as _date
@@ -11,26 +11,29 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas as _canvas
 from reportlab.lib.utils import simpleSplit, ImageReader
 
-W, H = A4   # 595 x 842 pt
+W, H = A4  # 595 x 842 pt
 
-# ── 2 colors from the logo ───────────────────────────────────────────────────
-TEAL  = (0.176, 0.706, 0.784)   # #2DB5C8 — logo circle
-NAVY  = (0.051, 0.420, 0.549)   # #0D6B8C — logo text
-LTEAL = (0.90,  0.97,  0.98 )   # very light teal — alt rows
-WHITE = (1.0,   1.0,   1.0  )
-INK   = (0.10,  0.10,  0.10 )   # near-black for body text
+# ── Colors from logo only ────────────────────────────────────────────────────
+TEAL  = (0.161, 0.722, 0.788)  # circle teal  #29B8C9
+NAVY  = (0.051, 0.471, 0.549)  # text navy    #0D7888
+LTEAL = (0.918, 0.969, 0.976)  # light teal bg
+WHITE = (1.0,   1.0,   1.0)
+INK   = (0.12,  0.12,  0.12)
 
-LM = 10 * mm          # left margin
-RM = W - 10 * mm
-BM = 9  * mm          # bottom margin
-CW = RM - LM          # content width = 175mm
+LM = 12 * mm        # left margin
+RM = W - 12 * mm    # right margin
+CW = RM - LM        # 171 mm content width
+BM = 10 * mm        # bottom margin
 
-# ── helpers ──────────────────────────────────────────────────────────────────
+HEADER_H = 22 * mm  # white header height
+FOOTER_H = 8  * mm
 
-def _d(d):
-    if d is None: return '—'
-    if hasattr(d, 'date'): d = d.date()
-    return d.strftime('%d/%m/%Y')
+
+def _d(v):
+    if v is None: return '—'
+    if hasattr(v, 'date'): v = v.date()
+    return v.strftime('%d/%m/%Y')
+
 
 def _load_sig(b64):
     if not b64 or not b64.startswith('data:image/'): return None
@@ -39,8 +42,8 @@ def _load_sig(b64):
         import io as _io, base64 as _b
         raw = _b.b64decode(b64.split(',', 1)[1])
         img = PI.open(_io.BytesIO(raw)); img.load()
-        if img.mode in ('RGBA','LA','P'):
-            bg = PI.new('RGBA', img.size, (255,255,255,255))
+        if img.mode in ('RGBA', 'LA', 'P'):
+            bg = PI.new('RGBA', img.size, (255, 255, 255, 255))
             bg.paste(img.convert('RGBA'), mask=img.convert('RGBA').split()[3])
             img = bg.convert('RGB')
         else:
@@ -50,421 +53,564 @@ def _load_sig(b64):
     except Exception:
         return None
 
-def _logo():
-    return os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'LOGO.png')
+
+def _logo_path():
+    return os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), 'static', 'LOGO.png'
+    )
 
 
-# ── cursor-based builder ─────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+class Builder:
+    """
+    y always points to the TOP of the next element to draw.
+    Every draw call moves y down by the element's height.
+    need(h) inserts a page break if h won't fit.
+    Rating tables: rating_half() does NOT touch self.y — caller manages y.
+    """
 
-class P:
-    def __init__(self, buf):
-        self.cv   = _canvas.Canvas(buf, pagesize=A4)
-        self.y    = H
-        self._pg  = 0
+    def __init__(self, buf, record):
+        self.cv  = _canvas.Canvas(buf, pagesize=A4)
+        self.rec = record
+        self._pg = 0
+        self.y   = 0
+        self._new_page()
 
-    # primitives
-    def R(self, x, y_top, w, h, fill, stroke=None, lw=0.4):
+    # ── primitives ───────────────────────────────────────────────────────────
+
+    def _rect(self, x, y_top, w, h, fill, stroke=None, lw=0.4):
         c = self.cv
         c.setFillColorRGB(*fill)
         if stroke:
             c.setStrokeColorRGB(*stroke); c.setLineWidth(lw)
-            c.rect(x, y_top-h, w, h, fill=1, stroke=1)
+            c.rect(x, y_top - h, w, h, fill=1, stroke=1)
         else:
-            c.rect(x, y_top-h, w, h, fill=1, stroke=0)
+            c.rect(x, y_top - h, w, h, fill=1, stroke=0)
 
-    def T(self, s, x, y, font='Helvetica', sz=8, col=INK, align='L'):
-        c = self.cv; c.setFillColorRGB(*col); c.setFont(font, sz)
+    def _text(self, s, x, y, font='Helvetica', sz=8.5, col=INK, align='L'):
+        c = self.cv
+        c.setFillColorRGB(*col); c.setFont(font, sz)
         s = str(s)
         if   align == 'C': c.drawCentredString(x, y, s)
         elif align == 'R': c.drawRightString(x, y, s)
         else:               c.drawString(x, y, s)
 
-    def lines(self, text, mw, font='Helvetica', sz=8):
-        return simpleSplit(text or '—', font, sz, mw)
+    def _wrap(self, text, max_w, font='Helvetica', sz=8.5):
+        return simpleSplit(text or '', font, sz, max_w)
 
-    def sig(self, b64, x, y_top, mw, mh):
+    def _sig_img(self, b64, x, y_top, mw, mh):
         r = _load_sig(b64)
         if not r: return
-        try: self.cv.drawImage(r, x, y_top-mh, width=mw, height=mh,
-                               preserveAspectRatio=True, mask='auto')
-        except Exception: pass
+        try:
+            self.cv.drawImage(r, x, y_top - mh, width=mw, height=mh,
+                              preserveAspectRatio=True, mask='auto')
+        except Exception:
+            pass
 
-    def need(self, h, rec):
-        if self.y - h < BM + 2*mm:
-            self._end_page(rec)
-            self._start_page(rec)
+    # ── page management ──────────────────────────────────────────────────────
 
-    # page management
-    def _start_page(self, rec):
+    def _new_page(self):
+        rec  = self.rec
         self._pg += 1
-        c = self.cv
-        # teal top bar 12mm
-        self.R(0, H, W, 12*mm, TEAL)
-        # logo
-        lp = _logo()
-        if os.path.exists(lp):
-            c.drawImage(lp, LM, H-12*mm+1*mm, width=38*mm, height=10*mm,
-                        preserveAspectRatio=True, mask='auto')
-        # title centred
-        cx = LM + 42*mm + (CW - 42*mm)/2
-        c.setFillColorRGB(*WHITE); c.setFont('Helvetica-Bold', 11)
-        c.drawCentredString(cx, H-5*mm, 'PERSONNEL APPRAISAL  —  AFRICA EYE FOUNDATION')
-        c.setFont('Helvetica', 7.5)
-        c.drawCentredString(cx, H-9.5*mm,
-            f'Cycle: Trimester {rec.cycle.trimester} · {rec.cycle.year}   |   Page {self._pg}')
-        self.y = H - 14*mm
+        c    = self.cv
 
-    def _end_page(self, rec):
-        c = self.cv
-        # footer line
-        c.setStrokeColorRGB(*TEAL); c.setLineWidth(0.6)
-        c.line(LM, BM-1*mm, RM, BM-1*mm)
+        # ── White header area ────────────────────────────────────────────────
+        # Full white rect
+        self._rect(0, H, W, HEADER_H, WHITE)
+
+        # Logo on the left (white background so logo is fully visible)
+        lp = _logo_path()
+        if os.path.exists(lp):
+            c.drawImage(lp, LM, H - HEADER_H + 3 * mm,
+                        width=46 * mm, height=16 * mm,
+                        preserveAspectRatio=True, mask='auto')
+
+        # Title text to the right of the logo
+        c.setFillColorRGB(*NAVY)
+        c.setFont('Helvetica-Bold', 13)
+        c.drawString(LM + 50 * mm, H - 9 * mm, 'PERSONNEL APPRAISAL')
+        c.setFont('Helvetica', 8.5)
+        c.setFillColorRGB(*TEAL)
+        c.drawString(LM + 50 * mm, H - 14 * mm, 'Africa Eye Foundation')
+
+        # Cycle info top-right
+        c.setFont('Helvetica', 7.5)
+        c.setFillColorRGB(*NAVY)
+        c.drawRightString(RM, H - 8 * mm,
+                          f'Trimester {rec.cycle.trimester}  ·  {rec.cycle.year}')
+        c.drawRightString(RM, H - 14 * mm, f'Page {self._pg}')
+
+        # Teal line under header
+        c.setStrokeColorRGB(*TEAL)
+        c.setLineWidth(1.8)
+        c.line(0, H - HEADER_H, W, H - HEADER_H)
+
+        # Thin navy line just below teal
+        c.setStrokeColorRGB(*NAVY)
+        c.setLineWidth(0.5)
+        c.line(0, H - HEADER_H - 0.8 * mm, W, H - HEADER_H - 0.8 * mm)
+
+        self.y = H - HEADER_H - 2 * mm
+
+    def _end_page(self):
+        rec = self.rec
+        c   = self.cv
+        # footer
+        c.setStrokeColorRGB(*TEAL); c.setLineWidth(1.0)
+        c.line(0, FOOTER_H, W, FOOTER_H)
         c.setFont('Helvetica', 6.5); c.setFillColorRGB(*NAVY)
-        c.drawString(LM, BM-4*mm, 'AEF HRM · Africa Eye Foundation')
-        c.drawRightString(RM, BM-4*mm, f'Generated: {_date.today().strftime("%d/%m/%Y")}')
+        c.drawString(LM, FOOTER_H - 4 * mm, 'AEF HRM  ·  Africa Eye Foundation')
+        c.drawRightString(RM, FOOTER_H - 4 * mm,
+                          f'Generated: {_date.today().strftime("%d/%m/%Y")}')
         c.showPage()
 
-    def bar(self, label, rec, h=5*mm):
-        self.need(h+1*mm, rec)
-        self.R(LM, self.y, CW, h, NAVY)
-        self.T(label, LM+2.5*mm, self.y-h+1.5*mm, 'Helvetica-Bold', 7.5, WHITE)
-        self.y -= h+0.5*mm
+    def need(self, h):
+        if self.y - h < FOOTER_H + 4 * mm:
+            self._end_page()
+            self._new_page()
 
-    def info2(self, ll, lv, rl, rv, bg=WHITE, rh=8.5*mm):
-        hw = CW/2
-        self.R(LM,     self.y, hw, rh, bg, NAVY, 0.3)
-        self.R(LM+hw,  self.y, hw, rh, bg, NAVY, 0.3)
-        self.T(ll, LM+1.5*mm,    self.y-2.5*mm, sz=6, col=NAVY)
-        self.T(str(lv or'—'), LM+1.5*mm, self.y-6.5*mm, 'Helvetica-Bold', 8)
-        self.T(rl, LM+hw+1.5*mm, self.y-2.5*mm, sz=6, col=NAVY)
-        self.T(str(rv or'—'), LM+hw+1.5*mm, self.y-6.5*mm, 'Helvetica-Bold', 8)
+    # ── section bar ──────────────────────────────────────────────────────────
+
+    def bar(self, label):
+        h = 6 * mm
+        self.need(h + 1 * mm)
+        self._rect(LM, self.y, CW, h, NAVY)
+        self._text(label, LM + 3 * mm, self.y - h + 2 * mm,
+                   'Helvetica-Bold', 8, WHITE)
+        self.y -= h + 1 * mm
+
+    # ── two-column info row ───────────────────────────────────────────────────
+
+    def info_row(self, ll, lv, rl, rv, shade=False):
+        rh  = 9 * mm
+        hw  = CW / 2
+        bg  = LTEAL if shade else WHITE
+        self._rect(LM,      self.y, hw, rh, bg, NAVY, 0.3)
+        self._rect(LM + hw, self.y, hw, rh, bg, NAVY, 0.3)
+        self._text(ll, LM + 2 * mm,      self.y - 2.5 * mm, sz=6.5, col=NAVY)
+        self._text(str(lv or '—'), LM + 2 * mm, self.y - 7 * mm,
+                   'Helvetica-Bold', 9)
+        self._text(rl, LM + hw + 2 * mm, self.y - 2.5 * mm, sz=6.5, col=NAVY)
+        self._text(str(rv or '—'), LM + hw + 2 * mm, self.y - 7 * mm,
+                   'Helvetica-Bold', 9)
         self.y -= rh
 
-    def text_box(self, label, text, rec, max_lines=3):
-        ls = self.lines(text, CW-4*mm, sz=8)[:max_lines]
-        bh = max(7*mm, len(ls)*4.2*mm + 4*mm)
-        self.need(4*mm+bh+0.5*mm, rec)
-        self.R(LM, self.y, CW, 4*mm, LTEAL, NAVY, 0.3)
-        self.T(label, LM+1.5*mm, self.y-2.8*mm, sz=6.5, col=NAVY)
-        self.y -= 4*mm
-        self.R(LM, self.y, CW, bh, WHITE, NAVY, 0.3)
-        cy = self.y-3*mm
-        for l in ls:
-            self.T(l, LM+2*mm, cy, sz=8); cy -= 4.2*mm
-        self.y -= bh+0.5*mm
+    # ── text content box ──────────────────────────────────────────────────────
 
-    def rating_half(self, rows, vals, x, w, col_w=7*mm, rh=5*mm, hh=5*mm):
-        """Draw rating table at arbitrary x without moving self.y. Returns bottom y."""
-        lw = w - 5*col_w
-        y  = self.y
-        # header cols 1-5
-        self.R(x, y, w, hh, NAVY)
+    def text_box(self, label, text, max_lines=4):
+        LH = 4.5 * mm
+        ls  = self._wrap(text, CW - 5 * mm)[:max_lines]
+        bh  = max(9 * mm, len(ls) * LH + 5 * mm)
+        self.need(5 * mm + bh + 1 * mm)
+        # label strip
+        self._rect(LM, self.y, CW, 5 * mm, LTEAL, NAVY, 0.3)
+        self._text(label, LM + 2 * mm, self.y - 3.5 * mm, sz=7, col=NAVY)
+        self.y -= 5 * mm
+        # body
+        self._rect(LM, self.y, CW, bh, WHITE, NAVY, 0.3)
+        cy = self.y - 3.5 * mm
+        for ln in ls:
+            self._text(ln, LM + 2.5 * mm, cy, sz=8.5)
+            cy -= LH
+        self.y -= bh + 1 * mm
+
+    # ── rating table (half-width, does NOT touch self.y) ─────────────────────
+
+    def _rating_table_at(self, rows, vals, x, w, y_top):
+        """Draw rating table starting at y_top. Returns bottom y. Does NOT change self.y."""
+        col_w = 7.5 * mm
+        lbl_w = w - 5 * col_w
+        HDR   = 5.5 * mm
+        ROW   = 5.5 * mm
+        y     = y_top
+
+        # header row with 1-5 labels
+        self._rect(x, y, w, HDR, NAVY)
         for i in range(5):
-            cx = x + lw + i*col_w + col_w/2
-            self.T(str(i+1), cx, y-hh+1.2*mm, 'Helvetica-Bold', 7, WHITE, 'C')
-        y -= hh
-        for idx,(field,label) in enumerate(rows):
-            bg = LTEAL if idx%2 else WHITE
-            self.R(x, y, w, rh, bg, NAVY, 0.25)
-            disp = label[:30]+'…' if len(label)>30 else label
-            self.T(disp, x+1.5*mm, y-rh+1.3*mm, sz=6.5)
+            cx = x + lbl_w + i * col_w + col_w / 2
+            self._text(str(i + 1), cx, y - HDR + 1.5 * mm,
+                       'Helvetica-Bold', 7.5, WHITE, 'C')
+        y -= HDR
+
+        for idx, (field, label) in enumerate(rows):
+            bg = LTEAL if idx % 2 else WHITE
+            self._rect(x, y, w, ROW, bg, NAVY, 0.3)
+            disp = label if len(label) <= 32 else label[:29] + '…'
+            self._text(disp, x + 1.5 * mm, y - ROW + 1.5 * mm, sz=7)
             val = vals.get(field)
-            cv  = self.cv
+            c   = self.cv
             for i in range(5):
-                cx = x + lw + i*col_w + col_w/2
-                cy = y - rh/2 - 0.3*mm
-                r  = 1.7*mm
-                cv.setStrokeColorRGB(*NAVY); cv.setLineWidth(0.35)
-                cv.circle(cx, cy, r, fill=0, stroke=1)
-                if val is not None and val == i+1:
-                    cv.setFillColorRGB(*TEAL)
-                    cv.circle(cx, cy, r-0.4, fill=1, stroke=0)
-            y -= rh
-        return y - 0.5*mm
+                cx  = x + lbl_w + i * col_w + col_w / 2
+                cy  = y - ROW / 2 - 0.5 * mm
+                rad = 1.9 * mm
+                c.setStrokeColorRGB(*NAVY); c.setLineWidth(0.4)
+                c.circle(cx, cy, rad, fill=0, stroke=1)
+                if val is not None and val == i + 1:
+                    c.setFillColorRGB(*TEAL)
+                    c.circle(cx, cy, rad - 0.4, fill=1, stroke=0)
+            y -= ROW
+        return y - 1 * mm
 
-    def two_rating_tables(self, left_rows, left_vals, right_rows, right_vals,
-                          left_title, right_title, rec):
-        half = CW/2 - 0.5*mm
-        lh = 4*mm + 5*mm + len(left_rows)*5*mm + 0.5*mm
-        rh = 4*mm + 5*mm + len(right_rows)*5*mm + 0.5*mm
-        self.need(max(lh, rh)+1*mm, rec)
-        # titles
+    def two_tables(self, left_rows, left_vals, right_rows, right_vals,
+                   left_title, right_title):
+        """Two rating tables side by side. One need() call. self.y updated after both."""
+        half  = CW / 2 - 1 * mm
+        # height needed = title + header + rows
+        lh = 4 * mm + 5.5 * mm + len(left_rows)  * 5.5 * mm + 1 * mm
+        rh = 4 * mm + 5.5 * mm + len(right_rows) * 5.5 * mm + 1 * mm
+        self.need(max(lh, rh))
+
         y0 = self.y
-        self.T(left_title,  LM+1*mm,         y0-1.5*mm, 'Helvetica-Bold', 7, NAVY)
-        self.T(right_title, LM+half+1.5*mm,  y0-1.5*mm, 'Helvetica-Bold', 7, NAVY)
-        self.y -= 4*mm
-        y_left  = self.rating_half(left_rows,  left_vals,  LM,           half)
-        y_right = self.rating_half(right_rows, right_vals, LM+half+1*mm, half)
-        self.y  = min(y_left, y_right) + 0.5*mm
+        # sub-titles
+        self._text(left_title,  LM + 1 * mm,            y0 - 1.5 * mm, 'Helvetica-Bold', 7.5, NAVY)
+        self._text(right_title, LM + half + 2 * mm + 1 * mm, y0 - 1.5 * mm, 'Helvetica-Bold', 7.5, NAVY)
+        y_start = y0 - 4 * mm
 
-    def sig_row(self, signed_by, signed_at, sig_b64, rec):
-        """Compact name+date+sig strip — 14mm high."""
-        SH = 14*mm
-        self.need(SH+0.5*mm, rec)
-        self.R(LM, self.y, CW, SH, LTEAL, NAVY, 0.3)
-        name = signed_by.get_full_name() if signed_by else 'Pending'
-        self.T('Name:',           LM+2*mm, self.y-3*mm,  sz=6, col=NAVY)
-        self.T(name,              LM+2*mm, self.y-7.5*mm,'Helvetica-Bold', 8)
-        self.T('Date:',           LM+2*mm, self.y-11*mm, sz=6, col=NAVY)
-        self.T(_d(signed_at),     LM+11*mm,self.y-11*mm, sz=8)
-        self.T('Signature:',      LM+CW*0.48, self.y-3*mm, sz=6, col=NAVY)
-        self.sig(sig_b64 or '', LM+CW*0.48, self.y-2*mm, CW*0.49, SH-3*mm)
-        self.y -= SH+0.5*mm
+        y_l = self._rating_table_at(left_rows,  left_vals,  LM,                 half, y_start)
+        y_r = self._rating_table_at(right_rows, right_vals, LM + half + 2 * mm, half, y_start)
+        self.y = min(y_l, y_r)
 
-    def comment_block(self, title, comment, signed_by, signed_at, sig_b64, rec, max_lines=5):
-        """Atomic: title bar + comment box + sig row. One need() for whole block."""
-        ls   = self.lines(comment, CW-4*mm, sz=8)[:max_lines]
-        cbh  = max(8*mm, len(ls)*4.2*mm + 4*mm)
-        tot  = 5*mm + cbh + 14*mm + 1*mm
-        self.need(tot, rec)
-        # title bar
-        self.R(LM, self.y, CW, 5*mm, NAVY)
-        self.T(title, LM+2.5*mm, self.y-3.5*mm, 'Helvetica-Bold', 7.5, WHITE)
-        self.y -= 5*mm
-        # comment
-        self.R(LM, self.y, CW, cbh, WHITE, NAVY, 0.3)
-        cy = self.y-3*mm
-        for l in ls:
-            self.T(l, LM+2*mm, cy, sz=8); cy -= 4.2*mm
-        self.y -= cbh
-        # sig
-        self.sig_row(signed_by, signed_at, sig_b64, rec)
+    # ── signature strip ───────────────────────────────────────────────────────
 
-    def total_table(self, rec, disc):
-        """Total Ratings by Administration — compact."""
+    def sig_strip(self, signed_by, signed_at, sig_b64):
+        """14mm strip: name + date left, signature image right. Atomic."""
+        SH = 15 * mm
+        self.need(SH + 1 * mm)
+        y = self.y
+        self._rect(LM, y, CW, SH, LTEAL, NAVY, 0.3)
+
+        name = signed_by.get_full_name() if signed_by else 'Pending / Not yet signed'
+        self._text('Name:',        LM + 2 * mm, y - 3 * mm,   sz=6.5, col=NAVY)
+        self._text(name,           LM + 2 * mm, y - 8 * mm,   'Helvetica-Bold', 9)
+        self._text('Date:',        LM + 2 * mm, y - 12.5 * mm, sz=6.5, col=NAVY)
+        self._text(_d(signed_at),  LM + 11 * mm,y - 12.5 * mm, sz=8.5)
+
+        sig_x = LM + CW * 0.47
+        self._text('Signature:', sig_x, y - 3 * mm, sz=6.5, col=NAVY)
+        self._sig_img(sig_b64 or '', sig_x, y - 3 * mm,
+                      CW * 0.50, SH - 4 * mm)
+        self.y = y - SH - 1 * mm
+
+    # ── comment + signature block (fully atomic) ──────────────────────────────
+
+    def comment_block(self, title, comment, signed_by, signed_at, sig_b64,
+                      max_lines=6):
+        """
+        One need() call for: bar (6mm) + comment box + sig strip (15mm).
+        Nothing can be split across pages.
+        """
+        LH  = 4.5 * mm
+        BAR = 6   * mm
+        SIG = 15  * mm
+
+        lines = self._wrap(comment, CW - 5 * mm)[:max_lines]
+        cbh   = max(10 * mm, len(lines) * LH + 5 * mm)
+        total = BAR + cbh + SIG + 2 * mm
+
+        self.need(total)
+        y = self.y
+
+        # bar
+        self._rect(LM, y, CW, BAR, NAVY)
+        self._text(title, LM + 3 * mm, y - BAR + 2 * mm,
+                   'Helvetica-Bold', 8, WHITE)
+        y -= BAR
+
+        # comment body
+        self._rect(LM, y, CW, cbh, WHITE, NAVY, 0.3)
+        cy = y - 3.5 * mm
+        for ln in lines:
+            self._text(ln, LM + 2.5 * mm, cy, sz=8.5)
+            cy -= LH
+        y -= cbh
+
+        # sig strip
+        self._rect(LM, y, CW, SIG, LTEAL, NAVY, 0.3)
+        name = signed_by.get_full_name() if signed_by else 'Pending / Not yet signed'
+        self._text('Name:',         LM + 2 * mm, y - 3 * mm,    sz=6.5, col=NAVY)
+        self._text(name,            LM + 2 * mm, y - 8 * mm,    'Helvetica-Bold', 9)
+        self._text('Date:',         LM + 2 * mm, y - 12.5 * mm, sz=6.5, col=NAVY)
+        self._text(_d(signed_at),   LM + 11 * mm,y - 12.5 * mm, sz=8.5)
+        sig_x = LM + CW * 0.47
+        self._text('Signature:', sig_x, y - 3 * mm, sz=6.5, col=NAVY)
+        self._sig_img(sig_b64 or '', sig_x, y - 3 * mm,
+                      CW * 0.50, SIG - 4 * mm)
+        y -= SIG
+
+        self.y = y - 2 * mm
+
+    # ── total ratings table ───────────────────────────────────────────────────
+
+    def total_table(self, disc):
+        rec = self.rec
         has_ov = rec.has_score_override
         if has_ov:
-            pf_s = f'{rec.final_performance_score} (sup:{rec.mgr_performance_score or"—"})'
-            aa_s = f'{rec.final_attitude_score} (sup:{rec.mgr_attitude_score or"—"})'
+            pf_s = f'{rec.final_performance_score}  (supervisor: {rec.mgr_performance_score or "—"})'
+            aa_s = f'{rec.final_attitude_score}  (supervisor: {rec.mgr_attitude_score or "—"})'
         else:
             pf_s = str(rec.final_performance_score) if rec.final_performance_score is not None else '—'
             aa_s = str(rec.final_attitude_score)     if rec.final_attitude_score     is not None else '—'
 
         rows = [
-            ('1','Performance Factors',           '12.5', pf_s),
-            ('2','Attitude & Aptitude Factors',   '7.5',  aa_s),
-            ('3','Discipline Sanctions (–1 each)','',     str(disc['deduction'])),
-            ('4','Awards / Bonus (+1 each)',       '',     f'+{rec.award_bonus}'),
+            ('1', 'Performance Factors',            '12.5', pf_s),
+            ('2', 'Attitude and Aptitude Factors',  '7.5',  aa_s),
+            ('3', 'Discipline Sanctions (–1 each)', '',     str(disc['deduction'])),
+            ('4', 'Awards / Bonus (+1 each)',        '',     f'+{rec.award_bonus}'),
         ]
-        rh = 6*mm
-        tot = rh*(len(rows)+1)+1*mm
-        self.need(tot, rec)
-        sn=8*mm; mk=20*mm; sc=28*mm; cat=CW-sn-mk-sc
+        ROW = 7 * mm
+        sn  = 9  * mm
+        mk  = 22 * mm
+        sc  = 30 * mm
+        cat = CW - sn - mk - sc
+
+        self.need(ROW * (len(rows) + 1) + 3 * mm)
+        y = self.y
+
         # header
-        self.R(LM, self.y, CW, rh, NAVY)
-        self.T('SN',           LM+sn/2,         self.y-rh+2*mm,'Helvetica-Bold',7,WHITE,'C')
-        self.T('Category',     LM+sn+1.5*mm,    self.y-rh+2*mm,'Helvetica-Bold',7,WHITE)
-        self.T('Total Marks',  LM+sn+cat+mk/2,  self.y-rh+2*mm,'Helvetica-Bold',7,WHITE,'C')
-        self.T('Score',        LM+sn+cat+mk+sc/2,self.y-rh+2*mm,'Helvetica-Bold',7,WHITE,'C')
-        self.y -= rh
-        for idx,(sno,cat_,mk_,sc_) in enumerate(rows):
-            bg = LTEAL if idx%2 else WHITE
-            self.R(LM, self.y, CW, rh, bg, NAVY, 0.3)
-            self.T(sno,  LM+sn/2,          self.y-rh+2*mm, sz=8,col=INK,align='C')
-            self.T(cat_, LM+sn+1.5*mm,     self.y-rh+2*mm, sz=8)
-            self.T(mk_,  LM+sn+cat+mk/2,   self.y-rh+2*mm, sz=8,col=INK,align='C')
-            self.T(sc_,  LM+sn+cat+mk+sc/2,self.y-rh+2*mm,'Helvetica-Bold',8,col=NAVY,align='C')
-            self.y -= rh
+        self._rect(LM, y, CW, ROW, NAVY)
+        self._text('SN',          LM + sn/2,             y - ROW + 2.5 * mm, 'Helvetica-Bold', 8, WHITE, 'C')
+        self._text('Category',    LM + sn + 2 * mm,      y - ROW + 2.5 * mm, 'Helvetica-Bold', 8, WHITE)
+        self._text('Total Marks', LM + sn + cat + mk/2,  y - ROW + 2.5 * mm, 'Helvetica-Bold', 8, WHITE, 'C')
+        self._text('Score',       LM + sn + cat + mk + sc/2, y - ROW + 2.5 * mm, 'Helvetica-Bold', 8, WHITE, 'C')
+        y -= ROW
+
+        for idx, (sno, cat_, mk_, sc_) in enumerate(rows):
+            bg = LTEAL if idx % 2 else WHITE
+            self._rect(LM, y, CW, ROW, bg, NAVY, 0.3)
+            self._text(sno,  LM + sn/2,              y - ROW + 2.5 * mm, sz=8.5, col=INK, align='C')
+            self._text(cat_, LM + sn + 2 * mm,       y - ROW + 2.5 * mm, sz=8.5)
+            self._text(mk_,  LM + sn + cat + mk/2,   y - ROW + 2.5 * mm, sz=8.5, col=INK, align='C')
+            self._text(sc_,  LM + sn + cat + mk + sc/2, y - ROW + 2.5 * mm,
+                       'Helvetica-Bold', 8.5, col=NAVY, align='C')
+            y -= ROW
+
         # total row
-        self.R(LM, self.y, CW, rh+1*mm, TEAL)
-        self.T('TOTAL', LM+sn+1.5*mm, self.y-rh+2*mm,'Helvetica-Bold',9,WHITE)
-        self.T('20',    LM+sn+cat+mk/2,self.y-rh+2*mm,'Helvetica-Bold',9,WHITE,'C')
+        self._rect(LM, y, CW, ROW + 1 * mm, TEAL)
+        self._text('TOTAL',    LM + sn + 2 * mm,       y - ROW + 2.5 * mm, 'Helvetica-Bold', 10, WHITE)
+        self._text('20',       LM + sn + cat + mk/2,   y - ROW + 2.5 * mm, 'Helvetica-Bold', 10, WHITE, 'C')
         ts = str(rec.total_score) if rec.total_score is not None else '—'
-        self.T(ts, LM+sn+cat+mk+sc/2, self.y-rh+2*mm,'Helvetica-Bold',11,WHITE,'C')
-        self.y -= rh+2*mm
+        self._text(ts, LM + sn + cat + mk + sc/2, y - ROW + 2.5 * mm,
+                   'Helvetica-Bold', 13, WHITE, 'C')
+        y -= ROW + 3 * mm
+
         if has_ov and rec.score_override_by:
-            self.T(f'* Modified by: {rec.score_override_by.get_full_name()}  ({_d(rec.score_override_at)})',
-                   LM, self.y, sz=6.5, col=NAVY)
-            self.y -= 4*mm
+            self._text(
+                f'* Scores modified by: {rec.score_override_by.get_full_name()}  ({_d(rec.score_override_at)})',
+                LM, y, sz=7, col=NAVY)
+            y -= 5 * mm
+
+        self.y = y
 
 
-# ── field definitions ────────────────────────────────────────────────────────
+# ── rating field definitions ─────────────────────────────────────────────────
 
-PF = [('pf_quality_of_work','Quality of Work'),
-      ('pf_quantity_of_work','Quantity of Work'),
-      ('pf_knowledge_techniques','Knowledge of Techniques'),
-      ('pf_ability_to_learn','Ability / Interest to Learn')]
+PF_ROWS = [
+    ('pf_quality_of_work',      'Quality of Work'),
+    ('pf_quantity_of_work',     'Quantity of Work'),
+    ('pf_knowledge_techniques', 'Knowledge of Techniques'),
+    ('pf_ability_to_learn',     'Ability / Interest to Learn'),
+]
+AA_ROWS = [
+    ('aa_motivation',          'Motivation and Initiative'),
+    ('aa_attitude_colleagues', 'Attitude towards Colleagues'),
+    ('aa_relations_patients',  'Relations with Patients'),
+    ('aa_judgment_team',       'Judgment, Team Spirit & Discretion'),
+    ('aa_punctuality',         'Punctuality, Attendance & Honesty'),
+    ('aa_presentation',        'Personal Presentation & Professionalism'),
+]
+MGR_PF = [(f'mgr_{f}', l) for f, l in PF_ROWS]
+MGR_AA = [(f'mgr_{f}', l) for f, l in AA_ROWS]
 
-AA = [('aa_motivation','Motivation and Initiative'),
-      ('aa_attitude_colleagues','Attitude towards Colleagues'),
-      ('aa_relations_patients','Relations with Patients'),
-      ('aa_judgment_team','Judgment, Team Spirit & Discretion'),
-      ('aa_punctuality','Punctuality, Attendance & Honesty'),
-      ('aa_presentation','Personal Presentation & Professionalism')]
 
-MGR_PF = [(f'mgr_{f}',l) for f,l in PF]
-MGR_AA = [(f'mgr_{f}',l) for f,l in AA]
-
-
-# ── main ─────────────────────────────────────────────────────────────────────
+# ── entry point ──────────────────────────────────────────────────────────────
 
 def generate_appraisal_pdf(record):
-    buf = BytesIO()
-    b   = P(buf)
-    rec = record
-    emp = record.employee
+    buf  = BytesIO()
+    b    = Builder(buf, record)
+    rec  = record
+    emp  = record.employee
     disc = record.discipline_deductions()
 
-    # ── PAGE 1 ───────────────────────────────────────────────────────────────
-    b._start_page(rec)
+    # ═══════════════════════════════════════════════════════════════════════
+    # PAGE 1 — Employee info · Tasks · Self-rating · Appraiser rating
+    # ═══════════════════════════════════════════════════════════════════════
 
-    # Employee info (3 rows)
-    b.bar('EMPLOYEE INFORMATION', rec)
-    b.info2('Name / Nom',         emp.user.get_full_name(),
-            'Position / Poste',   emp.position or '—')
-    b.info2('Department',         str(emp.department or '—'),
-            'Date Hired',         _d(emp.date_joined_company), bg=LTEAL)
-    b.info2('Period',             rec.cycle.get_trimester_dates(),
-            'Year',               str(rec.cycle.year))
-    b.y -= 1*mm
+    # Employee Information
+    b.bar('EMPLOYEE INFORMATION')
+    b.info_row('Name / Nom',        emp.user.get_full_name(),
+               'Position / Poste',  emp.position or '—')
+    b.info_row('Department',        str(emp.department or '—'),
+               'Date Hired',        _d(emp.date_joined_company), shade=True)
+    b.info_row('Period / Trimestre', rec.cycle.get_trimester_dates(),
+               'Year / Année',       str(rec.cycle.year))
+    b.y -= 2 * mm
 
     # Tasks
-    b.bar('1 & 2.  JOB IDENTIFICATION & TASKS', rec)
-    b.text_box('Summary of main job attributions / tasks:', rec.tasks_summary, rec, max_lines=3)
-    b.text_box('Tasks assimilated by the employee:',        rec.tasks_assimilated, rec, max_lines=2)
+    b.bar('1 & 2.  JOB IDENTIFICATION & TASKS')
+    b.text_box('Summary of main job attributions / tasks:', rec.tasks_summary)
+    b.text_box('Tasks assimilated by the employee:', rec.tasks_assimilated, max_lines=3)
 
-    # Mastery legend
-    b.need(4*mm, rec)
-    b.T('Mastery: 1=Does not meet  2=Some difficulties  3=Meets requirements  4=Exceeds  5=Greatly exceeds',
-        LM, b.y-1.5*mm, sz=6, col=NAVY)
-    b.y -= 4*mm
+    # Legend
+    b.need(4 * mm)
+    b._text(
+        'Mastery levels:  1 = Does not meet   2 = Some difficulties   '
+        '3 = Meets requirements   4 = Exceeds   5 = Greatly exceeds',
+        LM, b.y - 1.5 * mm, sz=7, col=NAVY)
+    b.y -= 5 * mm
 
     # Section 3: Appraisee self-rating
-    b.bar('3.  APPRAISEE SELF-RATING  (Employee)', rec)
-    self_pf = {f: getattr(rec,f) for f,_ in PF}
-    self_aa = {f: getattr(rec,f) for f,_ in AA}
-    b.two_rating_tables(PF, self_pf, AA, self_aa,
-                        'Performance Factors', 'Attitude & Aptitude Factors', rec)
+    b.bar('3.  APPRAISEE SELF-RATING  (Filled by Employee)')
+    self_pf = {f: getattr(rec, f) for f, _ in PF_ROWS}
+    self_aa = {f: getattr(rec, f) for f, _ in AA_ROWS}
+    b.two_tables(PF_ROWS, self_pf, AA_ROWS, self_aa,
+                 'Performance Factors', 'Attitude & Aptitude Factors')
+    b.y -= 1 * mm
 
     # Section 4: Appraiser rating (supervisor)
-    b.bar('4.  APPRAISER RATING  (Supervisor / Line Manager)', rec)
-    mgr_pf = {f: getattr(rec,f) for f,_ in MGR_PF}
-    mgr_aa = {f: getattr(rec,f) for f,_ in MGR_AA}
-    b.two_rating_tables(MGR_PF, mgr_pf, MGR_AA, mgr_aa,
-                        'Performance Factors', 'Attitude & Aptitude Factors', rec)
+    b.bar('4.  APPRAISER RATING  (Supervisor / Line Manager)')
+    mgr_pf = {f: getattr(rec, f) for f, _ in MGR_PF}
+    mgr_aa = {f: getattr(rec, f) for f, _ in MGR_AA}
+    b.two_tables(MGR_PF, mgr_pf, MGR_AA, mgr_aa,
+                 'Performance Factors', 'Attitude & Aptitude Factors')
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PAGE 2 — Goals · Discipline · Awards · Employee sig · Co-worker · Supervisor · Total
+    # ═══════════════════════════════════════════════════════════════════════
+    b.need(999)  # force page 2
 
     # Goals
-    b.bar('5.  GOALS TO REACH', rec)
-    b.text_box('Goals / Action Points:', rec.goals_to_reach, rec, max_lines=2)
+    b.bar('5.  GOALS TO REACH  (Agreed Action Points)')
+    b.text_box('Goals:', rec.goals_to_reach, max_lines=4)
 
-    # Discipline
-    b.bar('6.  DISCIPLINARY SANCTIONS  (–1 per sanction)', rec)
+    # Discipline sanctions
+    b.bar('6.  DISCIPLINARY SANCTIONS RECEIVED  (–1 per sanction)')
     sanctions = [
         ('verbal_warning',  'Verbal Warning'),
-        ('written_caution', 'Written Caution / Request for Explanation'),
+        ('written_caution', 'Written Caution / Request for Written Explanation'),
         ('final_warning',   'Written Warning / Final Written Warning'),
         ('suspension',      'Written Reprimand / Suspension'),
         ('dismissal',       'Dismissal'),
     ]
-    rh = 5*mm
-    col_y = CW*0.73; col_n = CW*0.86
-    b.need((len(sanctions)+2)*rh, rec)
+    RH      = 6 * mm
+    col_yes = CW * 0.73
+    col_no  = CW * 0.86
+    b.need((len(sanctions) + 2) * RH)
     # header
-    b.R(LM, b.y, CW, rh, NAVY)
-    b.T('Sanction Type', LM+1.5*mm, b.y-rh+1.5*mm, 'Helvetica-Bold', 7, WHITE)
-    b.T('YES', LM+col_y+CW*0.065, b.y-rh+1.5*mm, 'Helvetica-Bold', 7, WHITE, 'C')
-    b.T('NO',  LM+col_n+CW*0.07,  b.y-rh+1.5*mm, 'Helvetica-Bold', 7, WHITE, 'C')
-    b.y -= rh
-    for idx,(key,label) in enumerate(sanctions):
-        bg = LTEAL if idx%2 else WHITE
-        b.R(LM, b.y, CW, rh, bg, NAVY, 0.25)
-        b.T(label, LM+1.5*mm, b.y-rh+1.5*mm, sz=7)
-        cy = b.y-rh/2-0.5*mm
-        count = disc['counts'].get(key,0)
-        if count: b.T('✓', LM+col_y+CW*0.065, cy, 'Helvetica-Bold', 9, TEAL, 'C')
-        else:     b.T('✓', LM+col_n+CW*0.07,  cy, 'Helvetica-Bold', 9, NAVY, 'C')
-        b.y -= rh
-    b.R(LM, b.y, CW, rh, LTEAL, NAVY, 0.3)
-    b.T('Total Deduction:', LM+1.5*mm, b.y-rh+1.5*mm, 'Helvetica-Bold', 7, NAVY)
-    col = TEAL if disc['deduction']<0 else NAVY
-    b.T(str(disc['deduction']), LM+col_y-6*mm, b.y-rh+1.5*mm, 'Helvetica-Bold', 9, col)
-    b.y -= rh+1*mm
+    b._rect(LM, b.y, CW, RH, NAVY)
+    b._text('Sanction Type', LM + 2 * mm, b.y - RH + 2 * mm, 'Helvetica-Bold', 8, WHITE)
+    b._text('YES', LM + col_yes + CW * 0.065, b.y - RH + 2 * mm, 'Helvetica-Bold', 8, WHITE, 'C')
+    b._text('NO',  LM + col_no  + CW * 0.07,  b.y - RH + 2 * mm, 'Helvetica-Bold', 8, WHITE, 'C')
+    b.y -= RH
+    for idx, (key, label) in enumerate(sanctions):
+        bg = LTEAL if idx % 2 else WHITE
+        b._rect(LM, b.y, CW, RH, bg, NAVY, 0.3)
+        b._text(label, LM + 2 * mm, b.y - RH + 2 * mm, sz=8)
+        cy = b.y - RH / 2 - 0.5 * mm
+        if disc['counts'].get(key, 0):
+            b._text('✓', LM + col_yes + CW * 0.065, cy, 'Helvetica-Bold', 11, TEAL, 'C')
+        else:
+            b._text('✓', LM + col_no  + CW * 0.07,  cy, 'Helvetica-Bold', 11, NAVY, 'C')
+        b.y -= RH
+    # deduction total
+    b._rect(LM, b.y, CW, RH, LTEAL, NAVY, 0.4)
+    b._text('Total Deduction:', LM + 2 * mm, b.y - RH + 2 * mm, 'Helvetica-Bold', 8, NAVY)
+    col = TEAL if disc['deduction'] < 0 else NAVY
+    b._text(str(disc['deduction']), LM + col_yes - 8 * mm, b.y - RH + 2 * mm,
+            'Helvetica-Bold', 10, col)
+    b.y -= RH + 2 * mm
 
     # Awards
-    b.bar('7.  AWARDS RECEIVED  (+1 per award)', rec)
-    awards = [('Employee of the Month', rec.award_employee_of_month),
-              (f'Other: {rec.award_other or"—"}', bool(rec.award_other))]
-    b.need((len(awards)+1)*rh, rec)
-    b.R(LM, b.y, CW, rh, NAVY)
-    b.T('Award', LM+1.5*mm, b.y-rh+1.5*mm, 'Helvetica-Bold', 7, WHITE)
-    b.T('YES', LM+col_y+CW*0.065, b.y-rh+1.5*mm, 'Helvetica-Bold', 7, WHITE, 'C')
-    b.T('NO',  LM+col_n+CW*0.07,  b.y-rh+1.5*mm, 'Helvetica-Bold', 7, WHITE, 'C')
-    b.y -= rh
-    for idx,(label,has_it) in enumerate(awards):
-        bg = LTEAL if idx%2 else WHITE
-        b.R(LM, b.y, CW, rh, bg, NAVY, 0.25)
-        b.T(label, LM+1.5*mm, b.y-rh+1.5*mm, sz=7)
-        cy = b.y-rh/2-0.5*mm
-        if has_it: b.T('✓', LM+col_y+CW*0.065, cy, 'Helvetica-Bold', 9, TEAL, 'C')
-        else:      b.T('✓', LM+col_n+CW*0.07,  cy, 'Helvetica-Bold', 9, NAVY, 'C')
-        b.y -= rh
-    b.y -= 1*mm
+    b.bar('7.  AWARDS RECEIVED  (+1 per award)')
+    awards_list = [
+        ('Employee of the Month', rec.award_employee_of_month),
+        (f'Other: {rec.award_other or "—"}', bool(rec.award_other)),
+    ]
+    b.need((len(awards_list) + 1) * RH)
+    b._rect(LM, b.y, CW, RH, NAVY)
+    b._text('Award', LM + 2 * mm, b.y - RH + 2 * mm, 'Helvetica-Bold', 8, WHITE)
+    b._text('YES', LM + col_yes + CW * 0.065, b.y - RH + 2 * mm, 'Helvetica-Bold', 8, WHITE, 'C')
+    b._text('NO',  LM + col_no  + CW * 0.07,  b.y - RH + 2 * mm, 'Helvetica-Bold', 8, WHITE, 'C')
+    b.y -= RH
+    for idx, (label, has_it) in enumerate(awards_list):
+        bg = LTEAL if idx % 2 else WHITE
+        b._rect(LM, b.y, CW, RH, bg, NAVY, 0.3)
+        b._text(label, LM + 2 * mm, b.y - RH + 2 * mm, sz=8)
+        cy = b.y - RH / 2 - 0.5 * mm
+        if has_it:
+            b._text('✓', LM + col_yes + CW * 0.065, cy, 'Helvetica-Bold', 11, TEAL, 'C')
+        else:
+            b._text('✓', LM + col_no  + CW * 0.07,  cy, 'Helvetica-Bold', 11, NAVY, 'C')
+        b.y -= RH
+    b.y -= 2 * mm
 
-    # ── PAGE 2 ───────────────────────────────────────────────────────────────
-    b._end_page(rec)
-    b._start_page(rec)
-
-    # Section 8: Employee comments
-    b.bar('8.  EMPLOYEE COMMENTS & SIGNATURE', rec)
-    col3 = CW/3
-    b.need(5*mm+13*mm+14*mm+1*mm, rec)
-    # 3 comment mini-boxes side by side
-    for i,(lbl,val) in enumerate([
-        ('Comment on Self',        rec.comment_on_self),
-        ('Comment on Supervision', rec.comment_on_supervision),
-        ('Comment on Organisation',rec.comment_on_org),
-    ]):
-        x = LM+i*col3
-        b.R(x, b.y, col3, 4.5*mm, NAVY)
-        b.T(lbl, x+1*mm, b.y-3.2*mm, sz=6.5, col=WHITE)
-    b.y -= 4.5*mm
-    ch = 11*mm
-    for i,(_,val) in enumerate([('',rec.comment_on_self),
-                                  ('',rec.comment_on_supervision),
-                                  ('',rec.comment_on_org)]):
-        x = LM+i*col3
-        b.R(x, b.y, col3, ch, WHITE, NAVY, 0.3)
-        ls = b.lines(val, col3-3*mm, sz=7.5)[:2]
-        cy = b.y-3*mm
-        for l in ls: b.T(l, x+1.5*mm, cy, sz=7.5); cy -= 4*mm
+    # Section 8: Employee comments + signature
+    b.bar('8.  EMPLOYEE COMMENTS & SIGNATURE')
+    b.need(5 * mm + 14 * mm + 15 * mm + 1 * mm)
+    col3 = CW / 3
+    # 3 mini header strips
+    for i, lbl in enumerate(['Comment on Self', 'Comment on Supervision', 'Comment on Organisation']):
+        x = LM + i * col3
+        b._rect(x, b.y, col3, 5 * mm, NAVY)
+        b._text(lbl, x + 1.5 * mm, b.y - 3.5 * mm, sz=7, col=WHITE)
+    b.y -= 5 * mm
+    # 3 mini content boxes
+    ch = 14 * mm
+    vals = [rec.comment_on_self, rec.comment_on_supervision, rec.comment_on_org]
+    for i, val in enumerate(vals):
+        x  = LM + i * col3
+        b._rect(x, b.y, col3, ch, WHITE, NAVY, 0.3)
+        ls = b._wrap(val, col3 - 4 * mm)[:3]
+        cy = b.y - 3.5 * mm
+        for ln in ls:
+            b._text(ln, x + 2 * mm, cy, sz=8); cy -= 4.5 * mm
     b.y -= ch
-    b.sig_row(rec.employee, rec.employee_signed_at, rec.employee_sig_b64, rec)
+    b.sig_strip(rec.employee, rec.employee_signed_at, rec.employee_sig_b64)
 
     # Co-worker
-    b.comment_block('CO-WORKER / COLLÈGUE',
-                    rec.coworker_comment, rec.coworker_signed_by,
-                    rec.coworker_signed_at, rec.coworker_sig_b64, rec)
+    b.comment_block(
+        'CO-WORKER / COLLÈGUE',
+        rec.coworker_comment, rec.coworker_signed_by,
+        rec.coworker_signed_at, rec.coworker_sig_b64)
 
     # Supervisor comment
-    b.comment_block('SUPERVISOR COMMENT & SIGNATURE',
-                    rec.unit_head_comment, rec.unit_head_signed_by,
-                    rec.unit_head_signed_at, rec.unit_head_sig_b64, rec)
+    b.comment_block(
+        'SUPERVISOR COMMENT & SIGNATURE  (Appraiser)',
+        rec.unit_head_comment, rec.unit_head_signed_by,
+        rec.unit_head_signed_at, rec.unit_head_sig_b64)
 
-    # Total Ratings
-    b.bar('TOTAL RATINGS BY ADMINISTRATION', rec)
-    b.total_table(rec, disc)
+    # Total Ratings by Administration
+    b.bar('TOTAL RATINGS BY ADMINISTRATION')
+    b.total_table(disc)
 
-    # HR
-    b.comment_block('HR MANAGER / RESP. RESSOURCES HUMAINES',
-                    rec.hr_comment, rec.hr_signed_by,
-                    rec.hr_signed_at, rec.hr_sig_b64, rec)
+    # ═══════════════════════════════════════════════════════════════════════
+    # PAGE 3 — HR · Director · CEO
+    # ═══════════════════════════════════════════════════════════════════════
+    b.need(999)  # force page 3
 
-    # Director
-    b.comment_block('ADMINISTRATIVE DIRECTOR / DIRECTEUR ADMINISTRATIF',
-                    rec.director_comment, rec.director_signed_by,
-                    rec.director_signed_at, rec.director_sig_b64, rec)
+    b.bar('UPPER HIERARCHY COMMENTS & SIGNATURES')
 
-    # CEO
-    b.comment_block('CEO / DIRECTEUR GÉNÉRAL',
-                    rec.ceo_comment, rec.ceo_signed_by,
-                    rec.ceo_signed_at, rec.ceo_sig_b64, rec)
+    b.comment_block(
+        'HR MANAGER / RESP. RESSOURCES HUMAINES',
+        rec.hr_comment, rec.hr_signed_by,
+        rec.hr_signed_at, rec.hr_sig_b64)
 
-    # closing note
-    b.need(6*mm, rec)
-    b.T('Appraisal feedback to be provided to staff by end of first month of next Trimester.',
-        LM, b.y-2*mm, sz=6.5, col=NAVY)
+    b.comment_block(
+        'ADMINISTRATIVE DIRECTOR / DIRECTEUR ADMINISTRATIF',
+        rec.director_comment, rec.director_signed_by,
+        rec.director_signed_at, rec.director_sig_b64)
 
-    b._end_page(rec)
+    b.comment_block(
+        'CEO / DIRECTEUR GÉNÉRAL',
+        rec.ceo_comment, rec.ceo_signed_by,
+        rec.ceo_signed_at, rec.ceo_sig_b64)
+
+    # Closing note
+    b.need(8 * mm)
+    b._text(
+        'Appraisal feedback to be provided to staff by end of first month of next Trimester.',
+        LM, b.y - 2 * mm, sz=7.5, col=NAVY)
+
+    b._end_page()
     b.cv.save()
     buf.seek(0)
     return buf
