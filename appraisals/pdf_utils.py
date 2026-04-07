@@ -344,12 +344,12 @@ class Builder:
     def total_table(self, disc):
         rec = self.rec
         has_ov = rec.has_score_override
+        pf_s = str(rec.final_performance_score) if rec.final_performance_score is not None else '—'
+        aa_s = str(rec.final_attitude_score)     if rec.final_attitude_score     is not None else '—'
+        # add asterisk only if overridden — footnote below explains who changed it
         if has_ov:
-            pf_s = f'{rec.final_performance_score}  (supervisor: {rec.mgr_performance_score or "—"})'
-            aa_s = f'{rec.final_attitude_score}  (supervisor: {rec.mgr_attitude_score or "—"})'
-        else:
-            pf_s = str(rec.final_performance_score) if rec.final_performance_score is not None else '—'
-            aa_s = str(rec.final_attitude_score)     if rec.final_attitude_score     is not None else '—'
+            pf_s += ' *'
+            aa_s += ' *'
 
         rows = [
             ('1', 'Performance Factors',            '12.5', pf_s),
@@ -474,9 +474,9 @@ def generate_appraisal_pdf(record):
                  'Performance Factors', 'Attitude & Aptitude Factors')
 
     # ═══════════════════════════════════════════════════════════════════════
-    # PAGE 2 — Goals · Discipline · Awards · Employee sig · Co-worker · Supervisor · Total
+    # SECTION 2 — Goals · Discipline · Awards · Employee sig · Co-worker · Supervisor · Total
     # ═══════════════════════════════════════════════════════════════════════
-    b.need(999)  # force page 2
+    b.y -= 2 * mm
 
     # Goals
     b.bar('5.  GOALS TO REACH  (Agreed Action Points)')
@@ -583,9 +583,9 @@ def generate_appraisal_pdf(record):
     b.total_table(disc)
 
     # ═══════════════════════════════════════════════════════════════════════
-    # PAGE 3 — HR · Director · CEO
+    # SECTION 3 — HR · Director · CEO
     # ═══════════════════════════════════════════════════════════════════════
-    b.need(999)  # force page 3
+    b.y -= 2 * mm
 
     b.bar('UPPER HIERARCHY COMMENTS & SIGNATURES')
 
