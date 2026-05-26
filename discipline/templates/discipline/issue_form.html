@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}New Disciplinary Notice{% endblock %}
-
-{% block page_title %}New Disciplinary Notice{% endblock %}
-
+{% block title %}{% if is_proposal_only %}Propose Discipline Notice{% else %}New Disciplinary Notice{% endif %}{% endblock %}
+{% block page_title %}{% if is_proposal_only %}Propose Discipline Notice{% else %}New Disciplinary Notice{% endif %}{% endblock %}
 {% block nav_discipline %}active{% endblock %}
 
 {% block topbar_actions %}
@@ -25,12 +23,19 @@
         {% endfor %}
     {% endif %}
 
-    {% if is_manager_only %}
+    {% if is_proposal_only %}
     <div class="alert alert-info mb-4" style="border-left:3px solid #2db4c3;">
         <i class="bi bi-info-circle me-2"></i>
-        As a <strong>Line Manager</strong>, you may issue a <strong>Verbal Warning</strong> only.
-        You must also provide a <strong>Recommended Sanction</strong> for HR to consider.
-        Your recommendation will <em>not</em> be visible to the employee.
+        As a <strong>{{ request.user.employee.get_role_display }}</strong>, you may only
+        <strong>propose a Verbal Warning</strong> to HR.
+        HR will review your proposal and formally issue the notice if appropriate.
+        Your submission will <em>not</em> be visible to the employee until HR executes it.
+    </div>
+    {% elif can_choose %}
+    <div class="alert alert-warning mb-4" style="border-left:3px solid #d97706;">
+        <i class="bi bi-shield-check me-2"></i>
+        You may <strong>issue discipline directly</strong> or <strong>propose to HR</strong> for formal execution.
+        Use the toggle below to choose.
     </div>
     {% endif %}
 
@@ -39,11 +44,39 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center gap-2">
                     <i class="bi bi-file-earmark-text text-danger"></i>
-                    Disciplinary Notice Form
+                    {% if is_proposal_only %}Verbal Warning Proposal{% else %}Disciplinary Notice Form{% endif %}
                 </div>
                 <div class="card-body p-4">
                     <form method="post" enctype="multipart/form-data" id="disciplineForm">
                         {% csrf_token %}
+
+                        {% if can_choose %}
+                        <!-- Formal vs Proposal toggle (CEO / Admin Director only) -->
+                        <div class="mb-4 p-3 rounded" style="background:#f8fafc;border:1.5px solid #cbd5e1;">
+                            <label class="form-label fw-600 mb-2">
+                                <i class="bi bi-toggle2-on me-1"></i>
+                                Submission Mode
+                            </label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="submit_as_proposal"
+                                           id="modeFormal" value="0" checked>
+                                    <label class="form-check-label fw-600" for="modeFormal">
+                                        <i class="bi bi-send-fill me-1 text-danger"></i>Issue Formally
+                                        <small class="d-block text-muted fw-normal">Immediately visible to employee</small>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="submit_as_proposal"
+                                           id="modePropose" value="1">
+                                    <label class="form-check-label fw-600" for="modePropose">
+                                        <i class="bi bi-person-plus me-1 text-primary"></i>Propose to HR
+                                        <small class="d-block text-muted fw-normal">HR reviews before notifying employee</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
 
                         <!-- Step 1: Department -->
                         <div class="mb-4">
@@ -71,7 +104,7 @@
                                 {% for e in employees %}
                                 <option value="{{ e.pk }}"
                                     data-dept="{{ e.department.pk|default:'' }}"
-                                    data-dept-name="{{ e.department|default:'No Department' }}">
+                                    {% if prefill_employee == e.pk|stringformat:"s" %}selected{% endif %}>
                                     {{ e.get_full_name }}{% if e.department %} — {{ e.department }}{% endif %}
                                 </option>
                                 {% endfor %}
@@ -85,18 +118,19 @@
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <span class="badge bg-primary me-2" style="font-size:0.72rem;">3</span>
-                                Notice Type <span class="text-danger">*</span>
+                                {% if is_proposal_only %}Warning Type{% else %}Notice Type{% endif %} <span class="text-danger">*</span>
                             </label>
                             <select name="action_type" class="form-select" required id="actionTypeSelect">
-                                <option value="">— Select notice type —</option>
+                                <option value="">— Select type —</option>
                                 {% for key, label in available_types %}
-                                <option value="{{ key }}">{{ label }}</option>
+                                <option value="{{ key }}" {% if prefill_type == key %}selected{% endif %}>{{ label }}</option>
                                 {% endfor %}
                             </select>
                             <div class="mt-2 px-3 py-2 rounded" id="typeDescription" style="font-size:0.82rem;display:none;"></div>
                         </div>
 
-                        <!-- Suspension dates (shown only for suspension) -->
+                        <!-- Suspension dates (formal notices only) -->
+                        {% if not is_proposal_only %}
                         <div class="mb-4 p-3 rounded" id="suspensionFields" style="display:none;background:#f8fafc;border:1.5px solid #cde8ef;">
                             <label class="form-label fw-600">
                                 <i class="bi bi-calendar-range me-1 text-dark"></i>
@@ -108,6 +142,7 @@
                                 Duration is fixed at <strong>8 days</strong>. The end date is calculated automatically.
                             </div>
                         </div>
+                        {% endif %}
 
                         <!-- Step 4: Reason -->
                         <div class="mb-4">
@@ -129,32 +164,16 @@
                             <div class="form-text">Attach the official notice letter or any supporting document (PDF, Word, or image).</div>
                         </div>
 
-                        <!-- Manager Recommendation (shown only for managers) -->
-                        {% if is_manager_only %}
-                        <div class="mb-4 p-3 rounded" style="background:#fffbeb;border:1.5px solid #fde68a;">
-                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#d97706;font-weight:700;margin-bottom:12px;">
-                                <i class="bi bi-shield-exclamation me-1"></i> Recommended Follow-Up Action
+                        <!-- Proposal context note (for proposal-only roles and CEO/AD proposing) -->
+                        <div class="mb-4 p-3 rounded" id="proposalNoteSection" style="background:#fffbeb;border:1.5px solid #fde68a;{% if is_formal_only %}display:none;{% endif %}">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#d97706;font-weight:700;margin-bottom:10px;">
+                                <i class="bi bi-chat-left-text me-1"></i>
+                                Note to HR
                                 <span class="text-muted fw-normal" style="font-size:0.7rem;text-transform:none;">(not visible to employee)</span>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-600" style="font-size:0.85rem;">Proposed Sanction *</label>
-                                <select name="recommended_sanction" class="form-select" required>
-                                    <option value="">— Select proposed sanction —</option>
-                                    <option value="written_caution">Written Caution</option>
-                                    <option value="final_warning">Final Written Warning</option>
-                                    <option value="suspension">Suspension</option>
-                                    <option value="dismissal">Dismissal</option>
-                                    <option value="no_further_action">No Further Action Required</option>
-                                </select>
-                                <div class="form-text">Recommend the sanction you believe is appropriate. HR and Admin Director will review.</div>
-                            </div>
-                            <div>
-                                <label class="form-label fw-600" style="font-size:0.85rem;">Recommendation Details</label>
-                                <textarea name="recommendation_note" class="form-control" rows="3"
-                                    placeholder="Explain your recommendation and any additional context for HR consideration..."></textarea>
-                            </div>
+                            <textarea name="proposal_note" class="form-control" rows="3"
+                                placeholder="Explain your recommendation and any additional context for HR..."></textarea>
                         </div>
-                        {% endif %}
 
                         <!-- Internal Notes -->
                         <div class="mb-4">
@@ -167,8 +186,9 @@
                         </div>
 
                         <div class="d-flex gap-3 pt-2">
-                            <button type="submit" class="btn btn-danger px-5">
-                                <i class="bi bi-send me-2"></i> Issue Notice
+                            <button type="submit" class="btn btn-danger px-5" id="submitBtn">
+                                <i class="bi bi-send me-2"></i>
+                                {% if is_proposal_only %}Submit Proposal to HR{% else %}Issue Notice{% endif %}
                             </button>
                             <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
                         </div>
@@ -188,16 +208,9 @@ const allOptions = Array.from(employeeSelect.querySelectorAll('option[value]')).
 deptSelect.addEventListener('change', function () {
     const deptId = this.value;
     employeeSelect.value = '';
-
-    // Remove all employee options except placeholder
     allOptions.forEach(opt => opt.remove());
-
-    const filtered = deptId
-        ? allOptions.filter(opt => opt.dataset.dept === deptId)
-        : allOptions;
-
+    const filtered = deptId ? allOptions.filter(opt => opt.dataset.dept === deptId) : allOptions;
     filtered.forEach(opt => employeeSelect.appendChild(opt));
-
     noEmployeesMsg.style.display = filtered.length === 0 && deptId ? 'block' : 'none';
 });
 
@@ -226,13 +239,44 @@ actionTypeSelect.addEventListener('change', function () {
     } else {
         typeDesc.style.display = 'none';
     }
-    if (val === 'suspension') {
-        suspFields.style.display = 'block';
-        suspStart.required = true;
-    } else {
-        suspFields.style.display = 'none';
-        suspStart.required = false;
+    if (suspFields) {
+        if (val === 'suspension') {
+            suspFields.style.display = 'block';
+            if (suspStart) suspStart.required = true;
+        } else {
+            suspFields.style.display = 'none';
+            if (suspStart) suspStart.required = false;
+        }
     }
 });
+
+{% if can_choose %}
+// ── Formal vs Proposal toggle ──
+const radios = document.querySelectorAll('input[name="submit_as_proposal"]');
+const proposalNoteSection = document.getElementById('proposalNoteSection');
+const submitBtn = document.getElementById('submitBtn');
+
+function updateMode() {
+    const isProposal = document.getElementById('modePropose').checked;
+    proposalNoteSection.style.display = isProposal ? 'block' : 'none';
+    submitBtn.innerHTML = isProposal
+        ? '<i class="bi bi-person-plus me-2"></i>Submit Proposal to HR'
+        : '<i class="bi bi-send me-2"></i>Issue Notice';
+}
+radios.forEach(r => r.addEventListener('change', updateMode));
+updateMode();
+{% endif %}
+
+// Pre-select if prefill_type was passed
+{% if prefill_type %}
+(function(){
+    const sel = document.getElementById('actionTypeSelect');
+    if (sel) {
+        for (let opt of sel.options) {
+            if (opt.value === '{{ prefill_type }}') { sel.value = '{{ prefill_type }}'; sel.dispatchEvent(new Event('change')); break; }
+        }
+    }
+})();
+{% endif %}
 </script>
 {% endblock %}

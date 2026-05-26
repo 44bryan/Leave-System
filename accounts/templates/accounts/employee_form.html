@@ -113,10 +113,20 @@
                         </div>
                         <div class="col-md-6 optional-field">
                             <label class="form-label">{% trans "Line Manager / Supervisor" %}</label>
+                            <div class="searchable-select-wrap" data-target="id_supervisor">
+                                <input type="text" class="form-control searchable-select-input"
+                                       placeholder="Type to search…" autocomplete="off">
+                                <div class="searchable-select-dropdown"></div>
+                            </div>
                             {{ form.supervisor }}
                         </div>
                         <div class="col-md-6 optional-field">
                             <label class="form-label">{% trans "Unit Head" %}</label>
+                            <div class="searchable-select-wrap" data-target="id_unit_head">
+                                <input type="text" class="form-control searchable-select-input"
+                                       placeholder="Type to search…" autocomplete="off">
+                                <div class="searchable-select-dropdown"></div>
+                            </div>
                             {{ form.unit_head }}
                             <div class="form-text text-muted">Optional — leave blank if this employee has no unit head above their manager.</div>
                         </div>
@@ -151,17 +161,13 @@
                                 <label class="form-label">School / University</label>
                                 {{ form.school_name }}
                                 <div class="form-text">Name of institution the intern is from</div>
-                                {% if form.school_name.errors %}
-                                <div class="text-danger" style="font-size:0.8rem;">{{ form.school_name.errors.0 }}</div>
-                                {% endif %}
+                                {% for error in form.school_name.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Field of Study / Speciality</label>
                                 {{ form.speciality }}
                                 <div class="form-text">e.g. Medicine, Nursing, Ophthalmology</div>
-                                {% if form.speciality.errors %}
-                                <div class="text-danger" style="font-size:0.8rem;">{{ form.speciality.errors.0 }}</div>
-                                {% endif %}
+                                {% for error in form.speciality.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
                     </div>
@@ -194,24 +200,18 @@
                         <div class="col-md-4">
                             <label class="form-label">Contract Type *</label>
                             {{ form.contract_type }}
-                            {% if form.contract_type.errors %}
-                            <div class="text-danger" style="font-size:0.8rem;">{{ form.contract_type.errors.0 }}</div>
-                            {% endif %}
+                            {% for error in form.contract_type.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Start Date *</label>
                             {{ form.contract_start_date }}
-                            {% if form.contract_start_date.errors %}
-                            <div class="text-danger" style="font-size:0.8rem;">{{ form.contract_start_date.errors.0 }}</div>
-                            {% endif %}
+                            {% for error in form.contract_start_date.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-md-4" id="end-date-wrap">
                             <label class="form-label">End Date <span id="end-required-star">*</span></label>
                             {{ form.contract_end_date }}
                             <div class="form-text">Required for CDD / INTERN / WACS.</div>
-                            {% if form.contract_end_date.errors %}
-                            <div class="text-danger" style="font-size:0.8rem;">{{ form.contract_end_date.errors.0 }}</div>
-                            {% endif %}
+                            {% for error in form.contract_end_date.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                         </div>
                     </div>
                     {% endif %}
@@ -403,8 +403,118 @@
 {% endif %}
 {% endblock %}
 
+{% block extra_css %}
+.searchable-select-wrap { position: relative; }
+#id_supervisor, #id_unit_head { display: none !important; }
+.searchable-select-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: #fff;
+    border: 1.5px solid #2db4c3;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(10,77,104,0.14);
+    z-index: 500;
+    max-height: 220px;
+    overflow-y: auto;
+}
+.searchable-select-dropdown.open { display: block; }
+.ssd-item {
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f0f4f8;
+    transition: background 0.12s;
+}
+.ssd-item:last-child { border-bottom: none; }
+.ssd-item:hover, .ssd-item.highlighted { background: #e0f7fa; color: #0A4D68; }
+.ssd-item.selected { background: #d0eff5; font-weight: 600; color: #0A4D68; }
+.ssd-empty { padding: 12px 14px; font-size: 0.82rem; color: #9ab4c0; }
+{% endblock %}
+
 {% block extra_js %}
 <script>
+// ── Searchable select combobox ─────────────────────────────────────────────
+(function() {
+    document.querySelectorAll('.searchable-select-wrap').forEach(function(wrap) {
+        const targetId = wrap.dataset.target;
+        const select   = document.getElementById(targetId);
+        if (!select) return;
+
+        const input    = wrap.querySelector('.searchable-select-input');
+        const dropdown = wrap.querySelector('.searchable-select-dropdown');
+        const options  = Array.from(select.options).filter(o => o.value !== '');
+        const emptyOpt = Array.from(select.options).find(o => o.value === '');
+
+        function buildList(query) {
+            dropdown.innerHTML = '';
+            const q = query.toLowerCase();
+
+            // Always show "clear" option
+            if (emptyOpt) {
+                const clearItem = document.createElement('div');
+                clearItem.className = 'ssd-item' + (!select.value ? ' selected' : '');
+                clearItem.textContent = emptyOpt.text || '— None —';
+                clearItem.dataset.value = '';
+                dropdown.appendChild(clearItem);
+            }
+
+            const filtered = options.filter(o => o.text.toLowerCase().includes(q));
+            if (filtered.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'ssd-empty';
+                empty.textContent = 'No matches found.';
+                dropdown.appendChild(empty);
+            } else {
+                filtered.forEach(function(opt) {
+                    const item = document.createElement('div');
+                    item.className = 'ssd-item' + (opt.value === select.value ? ' selected' : '');
+                    item.textContent = opt.text;
+                    item.dataset.value = opt.value;
+                    dropdown.appendChild(item);
+                });
+            }
+        }
+
+        function setInputDisplay() {
+            const chosen = options.find(o => o.value === select.value);
+            input.value = chosen ? chosen.text : '';
+        }
+
+        // Init display
+        setInputDisplay();
+
+        input.addEventListener('focus', function() {
+            buildList('');
+            dropdown.classList.add('open');
+        });
+
+        input.addEventListener('input', function() {
+            buildList(this.value);
+            dropdown.classList.add('open');
+        });
+
+        dropdown.addEventListener('mousedown', function(e) {
+            const item = e.target.closest('.ssd-item');
+            if (!item) return;
+            e.preventDefault();
+            select.value = item.dataset.value;
+            setInputDisplay();
+            dropdown.classList.remove('open');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!wrap.contains(e.target)) dropdown.classList.remove('open');
+        });
+
+        // Keep select in sync when form is submitted
+        input.addEventListener('blur', function() {
+            setTimeout(() => dropdown.classList.remove('open'), 150);
+        });
+    });
+})();
+
 // Auto-generate username from first name + last name (e.g. john.smith)
 (function() {
     const firstNameInput = document.querySelector('input[name="first_name"]');

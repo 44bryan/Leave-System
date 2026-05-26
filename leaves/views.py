@@ -184,15 +184,30 @@ def my_requests(request):
     if not employee:
         return redirect('dashboard:home')
 
-    requests = LeaveRequest.objects.filter(employee=employee).select_related('leave_type', 'manager_action_by__user', 'hr_action_by__user')
+    current_year = date.today().year
+    year_filter = int(request.GET.get('year', current_year))
+    status_filter = request.GET.get('status', '')
+
+    qs = LeaveRequest.objects.filter(
+        employee=employee,
+        start_date__year=year_filter,
+    ).select_related('leave_type', 'manager_action_by__user', 'hr_action_by__user')
+
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+
     balance, _ = LeaveBalance.objects.get_or_create(
-        employee=employee, year=date.today().year,
+        employee=employee, year=current_year,
         defaults={'total_entitlement': 18}
     )
 
     return render(request, 'leaves/my_requests.html', {
-        'leave_requests': requests,
+        'leave_requests': qs,
         'balance': balance,
+        'year_filter': year_filter,
+        'status_filter': status_filter,
+        'status_choices': LeaveRequest.STATUS_CHOICES,
+        'years': range(2000, current_year + 11),
     })
 
 
@@ -1111,6 +1126,48 @@ def backfill_signatures(request):
                 updated += 1
         messages.success(request, f"Signatures synced to {updated} leave record(s).")
         return redirect('leaves:all_leaves')
+
+
+@login_required
+def set_leave_entitlement(request):
+    """
+    Superuser/HR: set a custom annual leave entitlement for a specific employee + year.
+    Accessed via POST from the Leave Tracker modal.
+    """
+    employee = get_employee(request)
+    if not (request.user.is_superuser or (employee and employee.is_hr())):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        emp_pk = request.POST.get('employee_id')
+        year   = request.POST.get('year')
+        days   = request.POST.get('total_entitlement')
+
+        try:
+            emp_pk = int(emp_pk)
+            year   = int(year)
+            days   = int(days)
+            if days < 0 or days > 365:
+                raise ValueError
+        except (TypeError, ValueError):
+            messages.error(request, "Invalid entitlement value.")
+            return redirect('dashboard:tracker')
+
+        target = get_object_or_404(Employee, pk=emp_pk)
+        balance, _ = LeaveBalance.objects.get_or_create(
+            employee=target, year=year,
+            defaults={'total_entitlement': days}
+        )
+        if balance.total_entitlement != days:
+            balance.total_entitlement = days
+            balance.save(update_fields=['total_entitlement'])
+        messages.success(
+            request,
+            f"Leave entitlement for {target.get_full_name()} ({year}) set to {days} days."
+        )
+
+    return redirect(f'{request.POST.get("next", "")}' or 'dashboard:tracker')
 
     total = LeaveRequest.objects.count()
     missing = LeaveRequest.objects.filter(

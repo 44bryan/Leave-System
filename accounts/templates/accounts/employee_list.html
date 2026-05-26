@@ -12,14 +12,49 @@
 {% endblock %}
 
 {% block content %}
-<!-- Former / Active toggle -->
-<div class="mb-3 d-flex gap-2 align-items-center">
-    <a href="?show_former=0" class="btn btn-sm {% if not show_former %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-        <i class="bi bi-people me-1"></i> {% trans "Active Employees" %}
-    </a>
-    <a href="?show_former=1" class="btn btn-sm {% if show_former %}btn-danger{% else %}btn-outline-secondary{% endif %}">
-        <i class="bi bi-person-dash me-1"></i> {% trans "Former / Dismissed" %}
-    </a>
+<!-- Filters -->
+<div class="card mb-4 animate-in">
+    <div class="card-body p-3">
+        <form method="get" class="d-flex flex-wrap gap-2 align-items-end">
+            <input type="hidden" name="show_former" value="{{ show_former|yesno:'1,0' }}">
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Name / ID</label>
+                <input type="text" name="q" value="{{ name_q }}" class="form-control form-control-sm"
+                       placeholder="Search name or ID…" style="min-width:180px;">
+            </div>
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Department</label>
+                <select name="dept" class="form-select form-select-sm" style="min-width:160px;">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.pk }}" {% if dept_q == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Role</label>
+                <select name="role" class="form-select form-select-sm" style="min-width:150px;">
+                    <option value="">All Roles</option>
+                    {% for val, label in role_choices %}
+                    <option value="{{ val }}" {% if role_q == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="d-flex gap-2 align-items-end">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>Filter</button>
+                <a href="?show_former={{ show_former|yesno:'1,0' }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+            </div>
+            <!-- Active / Former toggle -->
+            <div class="ms-auto d-flex gap-2 align-items-end">
+                <a href="?show_former=0" class="btn btn-sm {% if not show_former %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                    <i class="bi bi-people me-1"></i> Active
+                </a>
+                <a href="?show_former=1" class="btn btn-sm {% if show_former %}btn-danger{% else %}btn-outline-secondary{% endif %}">
+                    <i class="bi bi-person-dash me-1"></i> Former
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <div class="card animate-in">
@@ -35,18 +70,18 @@
         </a>
         {% endif %}
     </div>
-    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-        <table class="table mb-0" style="min-width: 900px; white-space: nowrap;">
+    <div class="table-responsive">
+        <table class="table mb-0" style="min-width: 480px;">
             <thead>
                 <tr>
-                    <th style="min-width:200px;">{% trans "Employee" %}</th>
-                    <th style="min-width:110px;">{% trans "ID" %}</th>
-                    <th style="min-width:140px;">{% trans "Department" %}</th>
-                    <th style="min-width:150px;">{% trans "Position" %}</th>
-                    <th style="min-width:110px;">{% trans "Role" %}</th>
-                    <th style="min-width:160px;">{% trans "Supervisor" %}</th>
-                    <th style="min-width:90px;">{% trans "Status" %}</th>
-                    <th style="min-width:100px;">{% trans "Actions" %}</th>
+                    <th>{% trans "Employee" %}</th>
+                    <th class="th-opt text-nowrap">{% trans "ID" %}</th>
+                    <th>{% trans "Department" %}</th>
+                    <th class="th-opt">{% trans "Position" %}</th>
+                    <th>{% trans "Role" %}</th>
+                    <th class="th-opt">{% trans "Supervisor" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th>{% trans "Actions" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,23 +90,23 @@
                     <td>
                         <a href="{% url 'accounts:employee_history' emp.pk %}" class="text-decoration-none text-dark">
                         <div class="d-flex align-items-center gap-2">
-                            <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#05BFDB,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.75rem;flex-shrink:0;">
+                            <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#1a8fa0,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.75rem;flex-shrink:0;">
                                 {{ emp.user.first_name|first|upper }}
                             </div>
                             <div>
                                 <div style="font-weight:600;font-size:.875rem;">{{ emp.get_full_name }}</div>
-                                <div style="font-size:.72rem;color:#6b7a8d;">{{ emp.user.email|default:"no email" }}</div>
+                                <div class="t-secondary">{{ emp.user.email|default:"no email" }}</div>
                             </div>
                         </div>
                         </a>
                     </td>
-                    <td style="font-size:.82rem;font-family:monospace;color:#6b7a8d;">{{ emp.employee_id }}</td>
-                    <td style="font-size:.82rem;">{{ emp.department|default:"—" }}</td>
-                    <td style="font-size:.82rem;">{{ emp.position|default:"—" }}</td>
+                    <td class="td-opt" style="font-size:.82rem;font-family:monospace;color:#6b7a8d;">{{ emp.employee_id }}</td>
+                    <td class="t-sm">{{ emp.department|default:"—" }}</td>
+                    <td class="td-opt t-sm">{{ emp.position|default:"—" }}</td>
                     <td>
                         <span class="badge bg-{{ emp.get_role_display_badge }}">{{ emp.get_effective_role_display }}</span>
                     </td>
-                    <td style="font-size:.82rem;">{{ emp.supervisor.get_full_name|default:"—" }}</td>
+                    <td class="td-opt t-sm">{{ emp.supervisor.get_full_name|default:"—" }}</td>
                     <td>
                         {% if emp.is_active %}
                         <span class="badge bg-success">{% trans "Active" %}</span>
@@ -96,8 +131,12 @@
                 {% empty %}
                 <tr>
                     <td colspan="8" class="text-center text-muted py-5">
-                        <i class="bi bi-people fs-2 d-block mb-2"></i>
+                        <i class="bi bi-person-x fs-2 d-block mb-2"></i>
+                        {% if name_q or dept_q or role_q %}
+                        No employees match your filters. <a href="?show_former={{ show_former|yesno:'1,0' }}">Clear filters</a>
+                        {% else %}
                         {% trans "No employees yet." %} <a href="{% url 'accounts:employee_create' %}">{% trans "Add the first one" %}</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

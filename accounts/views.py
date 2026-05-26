@@ -108,12 +108,39 @@ def _generate_username(first_name, last_name=''):
 
 @hr_or_superuser_required
 def employee_list(request):
+    from django.db.models import Q
     show_former = request.GET.get('show_former', '0') == '1'
-    if show_former:
-        employees = Employee.objects.filter(is_active=False).select_related('user', 'department', 'supervisor__user')
-    else:
-        employees = Employee.objects.filter(is_active=True).select_related('user', 'department', 'supervisor__user')
-    return render(request, 'accounts/employee_list.html', {'employees': employees, 'show_former': show_former})
+    name_q = request.GET.get('q', '').strip()
+    dept_q = request.GET.get('dept', '').strip()
+    role_q = request.GET.get('role', '').strip()
+
+    employees = Employee.objects.filter(
+        is_active=not show_former
+    ).select_related('user', 'department', 'supervisor__user')
+
+    if name_q:
+        employees = employees.filter(
+            Q(user__first_name__icontains=name_q) |
+            Q(user__last_name__icontains=name_q) |
+            Q(employee_id__icontains=name_q)
+        )
+    if dept_q:
+        employees = employees.filter(department_id=dept_q)
+    if role_q:
+        employees = employees.filter(role=role_q)
+
+    from accounts.models import Department
+    departments = Department.objects.all().order_by('name')
+
+    return render(request, 'accounts/employee_list.html', {
+        'employees': employees,
+        'show_former': show_former,
+        'departments': departments,
+        'name_q': name_q,
+        'dept_q': dept_q,
+        'role_q': role_q,
+        'role_choices': Employee.ROLE_CHOICES,
+    })
 
 
 @hr_or_superuser_required

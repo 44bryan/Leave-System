@@ -269,6 +269,225 @@ Then open: **http://127.0.0.1:8000**
 
 ## Change Log
 
+### 2026-05-26 (Session 3) — Discipline permissions overhaul, sidebar badges, employee list & form improvements
+
+- **Employee list — search & filter bar** (`accounts/views.py`, `accounts/templates/accounts/employee_list.html`)
+  - Added name/ID search input, department dropdown, and role dropdown filters to the employee list
+  - Server-side filtering via `Q(first_name__icontains) | Q(last_name__icontains) | Q(employee_id__icontains)`
+  - Active/Former toggle moved inside the filter bar for cleaner layout
+  - Empty state shows "No employees match your filters" with a clear link when filters are active
+
+- **Employee form — searchable combobox** (`accounts/templates/accounts/employee_form.html`)
+  - Line Manager / Supervisor and Unit Head selects replaced with searchable comboboxes
+  - Pure JS (no external library): live-filter as you type, dropdown list, click to select
+  - Native `<select>` hidden but still submitted with the form for full Django form compatibility
+  - Clear/None option always shown at the top of the dropdown
+
+- **Discipline permissions overhaul** (`discipline/models.py`, `discipline/views.py`, `discipline/urls.py`, all discipline templates)
+  - New `is_proposal` + `proposal_note` fields on `DisciplineRecord` (migration `0004_add_is_proposal_flag`)
+  - **HR / Superuser**: can formally issue all discipline types; proposals are NOT needed
+  - **Admin Director / CEO**: can issue all types directly OR choose "Propose to HR" toggle
+  - **Line Manager / Unit Head / Finance Director**: verbal warning only; always saved as a proposal to HR
+  - Proposals are NOT visible to the target employee until HR formally executes them
+  - New `execute_proposal` view (`/discipline/<pk>/execute/`) — HR converts a proposal to a formal notice
+  - Detail page: proposals show a teal "Pending HR Execution" banner with "Execute" button for HR
+  - Detail page: "proposal note" card visible to HR and the original submitter
+  - List page: "Pending Proposals" section always shows above formal records (teal header)
+  - List page: submitter stat cards simplified to "Executed Notices" + "Pending Proposals"
+  - List page: name-search filter added (searches first/last name, privileged roles only)
+  - Issue form: "Submit Proposal to HR" language for proposal-only roles; CEO/AD get a formal/propose toggle
+  - Sidebar discipline section now only shows for HR, Admin Director, and Superuser (role-specific "Propose Discipline" links appear in manager/unit_head sections instead)
+  - `is_director()` quirk (includes FD) handled explicitly — FD now correctly treated as proposal-only role
+  - Context processor `notifications_ctx` updated to filter suspension check against `is_proposal=False` records
+
+- **Sidebar badges** (`notifications/context_processors.py`, `templates/base.html`)
+  - Context processor now injects `pending_leave_count` and `pending_discipline_proposals` for all templates
+  - `pending_leave_count` = role-appropriate leave approval count (unit_head, manager, HR, director each get the right status)
+  - `pending_discipline_proposals` = pending proposals count (HR and Admin Director only)
+  - Badges added to: Unit Head Queue, Manager Queue, HR Approvals, Director Queue, Disciplinary Records
+  - Unit Head and Manager sections now include a "Propose Discipline" shortcut link
+
+- **Manager dashboard** (`dashboard/templates/dashboard/manager_dashboard.html`, `dashboard/views.py`)
+  - Removed duplicate "My Leave Balance" KPI tile (already shown in `my_leave_section.html` at top of page)
+  - Replaced with "Discipline Proposals" tile showing count of the manager's own pending proposals
+  - "Issue Notice" topbar button renamed to "Propose Notice"
+
+### 2026-05-26 (older) — Finishing pass: sidebar, appraisals popup, discipline list, leave entitlement, contracts
+
+- **Discipline permissions overhaul** (`discipline/models.py`, `discipline/views.py`, `discipline/urls.py`, all discipline templates)
+  - New `is_proposal` + `proposal_note` fields on `DisciplineRecord` (migration `0004_add_is_proposal_flag`)
+  - **HR / Superuser**: can formally issue all discipline types; proposals are NOT needed
+  - **Admin Director / CEO**: can issue all types directly OR choose "Propose to HR" toggle
+  - **Line Manager / Unit Head / Finance Director**: verbal warning only; always saved as a proposal to HR
+  - Proposals are NOT visible to the target employee until HR formally executes them
+  - New `execute_proposal` view (`/discipline/<pk>/execute/`) — HR converts a proposal to a formal notice
+  - Detail page: proposals show a teal "Pending HR Execution" banner with "Execute" button for HR
+  - Detail page: "proposal note" card visible to HR and the original submitter
+  - List page: "Pending Proposals" section always shows above formal records (teal header)
+  - List page: submitter stat cards simplified to "Executed Notices" + "Pending Proposals"
+  - List page: name-search filter added (searches first/last name, privileged roles only)
+  - Issue form: "Submit Proposal to HR" language for proposal-only roles; CEO/AD get a formal/propose toggle
+  - Sidebar discipline section now only shows for HR, Admin Director, and Superuser (role-specific "Propose Discipline" links appear in manager/unit_head sections instead)
+  - `is_director()` quirk (includes FD) handled explicitly — FD now correctly treated as proposal-only role
+  - Context processor `notifications_ctx` updated to filter suspension check against `is_proposal=False` records
+
+- **Sidebar badges** (`notifications/context_processors.py`, `templates/base.html`)
+  - Context processor now injects `pending_leave_count` and `pending_discipline_proposals` for all templates
+  - `pending_leave_count` = role-appropriate leave approval count (unit_head, manager, HR, director each get the right status)
+  - `pending_discipline_proposals` = pending proposals count (HR and Admin Director only)
+  - Badges added to: Unit Head Queue, Manager Queue, HR Approvals, Director Queue, Disciplinary Records
+  - Unit Head and Manager sections now include a "Propose Discipline" shortcut link
+
+- **Manager dashboard** (`dashboard/templates/dashboard/manager_dashboard.html`, `dashboard/views.py`)
+  - Removed duplicate "My Leave Balance" KPI tile (already shown in `my_leave_section.html` at top of page)
+  - Replaced with "Discipline Proposals" tile showing count of the manager's own pending proposals
+  - "Issue Notice" topbar button renamed to "Propose Notice"
+
+### 2026-05-26 — Finishing pass: sidebar, appraisals popup, discipline list, leave entitlement, contracts
+
+- **Notifications tab moved** (`templates/base.html`)
+  - Notifications sidebar link moved to right after Dashboard (was last item in Main section)
+  - Now visible immediately for every role — the universally-standard position in HR apps
+
+- **Appraisals pending card — dismissible** (`dashboard/templates/dashboard/includes/pending_appraisals.html`)
+  - Added a × close button to the "Appraisals Requiring Your Action" card
+  - Dismissal stored in `localStorage` keyed by `date + count` so the banner returns the next day or when a new item is added
+  - Card auto-hides on load if already dismissed for today's count
+
+- **Discipline records list — full visual redesign** (`discipline/templates/discipline/list.html`)
+  - Added left-border severity colour strip per row (amber → orange → red → dark)
+  - Replaced plain text badges with rich icon+text badges (colour-coded per type)
+  - Added **Reason** column with 80-char truncated preview (full text in tooltip)
+  - Removed always-empty "Suspension Period" column; suspension dates now shown below the badge when applicable
+  - Added **Workflow** column showing current step: "Awaiting HR" / "Awaiting Director" / "Complete"
+  - Improved empty state with descriptive message and filter-clear link
+  - Manager stat cards now have coloured top border
+
+- **Per-employee deductible leave entitlement** (`leaves/views.py`, `leaves/urls.py`, `dashboard/templates/dashboard/leave_tracker.html`)
+  - New view `set_leave_entitlement` (POST, HR/superuser only) at `/leaves/set-entitlement/`
+  - Leave Tracker now shows a pencil icon next to each employee's entitlement figure
+  - Clicking opens a Bootstrap modal pre-filled with current days; admin can change and save
+  - Creates `LeaveBalance` for that year if it doesn't exist yet; uses `update_fields` for efficiency
+  - Success message confirms the change; redirects back to the same tracker page/filters
+
+- **Contract list — visual improvements** (`contracts/templates/contracts/contract_list.html`)
+  - Added left urgency colour strip per row (green CDI, teal active, amber expiring-60, red expiring-30/expired)
+  - Start + End dates merged into one "Period" column (two lines)
+  - Row background tinted amber (≤60 days) or red (≤30 days) for at-a-glance urgency
+  - Employee sub-line now shows position (truncated)
+  - Status badges now include icons
+  - Improved empty state with filter-clear link
+
+- **My Contract page — richer right column** (`contracts/templates/contracts/my_contract.html`)
+  - CDI/CDD employees: "Years of Service" card replaced with "Service & Contract" 2-stat card (years + days-remaining side-by-side)
+  - Added "My Profile" card showing position, department, line manager, staff category, age, years-to-retirement
+  - Added "Quick Actions" card (Apply for Leave, My Leave History, My Profile)
+  - Expiry warning banner shown inside the card when ≤60 days remaining
+
+---
+
+
+
+### 2026-04-29 — Responsive tables, noise color cleanup, and filter improvements
+
+- **Responsive tables** (`templates/base.html` + 8 template files)
+  - Added global CSS: `.table-responsive > .table { white-space: normal !important; }` — removes forced horizontal scroll on desktop; text wraps naturally at the table level
+  - Added `@media (max-width: 992px)`: `.page-content { padding: 16px; }` (mobile padding) and `.th-opt, .td-opt { display: none !important; }` (optional column utility)
+  - Fixed 8 tables: `all_leaves.html`, `my_requests.html`, `hr_approvals.html`, `manager_approvals.html`, `unit_head_approvals.html`, `director_approvals.html`, `employee_list.html`, `leave_tracker.html`
+  - Each table: removed `min-width: 820–900px; white-space: nowrap` from `<table>` → set smaller `min-width: 480–580px`
+  - Added `class="text-nowrap"` to date, period, status, action cells so they still never break mid-word
+  - Columns hidden on tablet/mobile (`.th-opt`/`.td-opt`): Applied On, Reason, End Date (my_requests), Manager Approved By, HR Approved By, HR Date, Supervisor, Position, Balance Bar progress
+
+- **Noise color cleanup — #05BFDB eliminated** (17 files total)
+  - `#05BFDB` (off-brand bright cyan) replaced with `#2db4c3` (official brand teal) across all 17 HTML templates
+  - Affected: avatar gradients, chart color palettes, KPI tile gradients, login page background
+  - Zero `#05BFDB` remaining anywhere in the codebase
+
+### 2026-04-28 — Desktop density pass, filter fixes, and my_requests filtering
+
+- **Global desktop density** (`templates/base.html`)
+  - Added `@media (min-width: 993px)` block: `body { font-size: 14px }`, navbar 60px, sidebar 240px, table padding 10px, buttons 7px, logo 46px in 60px bar
+  - Intentionally used `body { font-size: 14px }` (not `html`) to avoid shrinking small rem values like `.6rem`
+
+- **Dashboard cleanup** (`ceo_dashboard.html`, `director_dashboard.html`, `hr_dashboard.html`)
+  - Removed duplicate `@keyframes pulse` blocks (moved to `base.html`)
+  - Fixed all inline card-header styles → `class="card-header card-header-chart"`
+  - CEO: removed duplicate `{% include 'contract_analytics.html' %}` (was inserted twice)
+  - HR: added 4-tile Rate Indicators row (Approval Rate, % Staff on Leave, Absent Today, Decisions Made)
+  - HR: `pipeline-steps-row` CSS with connecting line and hover lift
+  - Director: added Workforce Analytics section with `dirDeptChart` and `dirTypeChart` horizontal bar charts
+
+- **Filter fixes** (`leaves/templates/leaves/all_leaves.html`, `leaves/views.py`)
+  - Fixed year dropdown bug: `{% if y|stringformat:"s" == year_filter %}` → `{% if y == year_filter %}` (both are ints; Python 3 strict equality was returning False)
+  - Fixed page subtitle: `{{ year }}` → `{{ year_filter }}` (context key is `year_filter`)
+
+- **Employee filter added to My Requests** (`leaves/templates/leaves/my_requests.html`, `leaves/views.py`)
+  - `my_requests` view now reads `year` and `status` GET params, filters queryset by `start_date__year` and `status`
+  - Template gained a compact Year + Status filter form with Filter and Clear buttons
+  - Card header now shows year and record count badge
+
+### 2026-04-26 — Phase 3: Comprehensive Power BI redesign across ALL dashboards
+
+- **Gradient KPI tiles (`.pbi-kpi` CSS class)** added to all six role dashboards
+  - Each tile uses a `linear-gradient(135deg, …)` background with brand colors: navy for staff totals, green for approved, amber for pending, red for rejected, purple for discipline/director, teal for personal balance
+  - Conditional color: pipeline/action tiles switch to amber/teal when count > 0, grey when count = 0 — matches Power BI conditional formatting pattern
+  - Hover lift effect (`transform: translateY(-3px)`, increased `box-shadow`) via CSS transition
+  - Added to: `ceo_dashboard.html`, `director_dashboard.html`, `admin_dashboard.html`, `manager_dashboard.html`, `unit_head_dashboard.html`
+
+- **Polar Area chart — Contract Mix** (`ceo_dashboard.html`, `director_dashboard.html`)
+  - Replaced existing doughnut `contractMixChart` with `type: 'polarArea'`
+  - Semi-transparent `rgba()` background colors with solid `borderColor`
+  - `scales.r` axis with `ticks.backdropColor: 'transparent'` and `grid.color: '#eef2f7'`
+
+- **Attendance Donut** — Present vs On Leave today added to three dashboards
+  - `ceo_dashboard.html`: `attendanceChart` canvas + `id="ceoPresent"` display in new `col-lg-3` card; present count computed in JS as `Math.max(0, total - onLeave)`
+  - `director_dashboard.html`: `dirAttendanceChart` + `dirPresent` display, same layout
+  - `manager_dashboard.html`: `teamAttendanceChart` + `mgrPresent` display in Team Analytics row
+  - All attendance donuts use `cutout: '72%'`, `legend.display: false`, green/red color scheme; fallback to grey on zero total
+
+- **Radar Chart — Team Leave Usage** (`manager_dashboard.html`)
+  - `type: 'radar'`, member names as labels, usage % as data
+  - `pointBackgroundColor` mapped per-member: red ≥ 90 %, amber ≥ 70 %, teal otherwise — visual risk indicator
+  - `scales.r` with `min: 0, max: 100, stepSize: 25`, percentage tick callback
+
+- **Team Leave Mix Polar Area** (`manager_dashboard.html`)
+  - `teamLeaveOutcomeChart`: polar area showing Approved / Rejected / Pending counts for the team
+  - Placed in `col-lg-3` of the new Team Analytics row alongside radar and attendance donut
+
+- **Pipeline Funnel Chart** (`hr_dashboard.html`)
+  - Horizontal bar chart (`indexAxis: 'y'`) above the 4 pipeline KPI step cards
+  - 4 bars: Step 1 Manager (amber), Step 2 Unit Head Done (cyan), Step 3 HR Review (teal), Step 4 Director (navy)
+  - Simulates Power BI funnel visual; decreasing bar lengths show attrition through approval stages
+
+- **Department Headcount Vertical Bar** (`admin_dashboard.html`)
+  - `deptHeadcountChart`: vertical bar with per-department `emp_count`, multi-color bars (10-color palette cycling)
+  - Full-width card inserted above existing analytics row
+  - Data injected via `{% for d in departments %}` loops in template; `truncatechars:14` for label readability
+
+- **Unit Head dashboard full chart treatment** (`unit_head_dashboard.html`)
+  - Four new charts added: `myLeaveDonut` (personal usage), `unitAttendanceChart` (present vs on leave), `unitOverviewChart` (horizontal bar leave snapshot), `unitBalanceChart` (per-member usage bar above balance table)
+  - Balance bars color-coded: green < 70 %, amber 70–89 %, red ≥ 90 %
+  - `{% block extra_css %}` added with pulse animation; `{% block extra_js %}` added with Chart.js CDN + all four inits
+
+- **Contract Analytics include** (`dashboard/includes/contract_analytics.html`)
+  - "Staff Category Distribution" CSS progress bars → horizontal bar chart `staffCatChart`
+  - "Contracts by Department" HTML table → grouped bar chart `contractDeptChart` (one dataset per contract type)
+  - Inline Chart.js CDN `<script src>` + IIFE at bottom of include (renders inside `{% block content %}` without waiting for parent `{% block extra_js %}`)
+  - Affects CEO, Director, HR, and Admin dashboards simultaneously
+
+- **Power BI-style dashboard chart enhancements — Phase 2** — remaining dashboards and shared include fully charted
+  - **Unit Head dashboard** (`unit_head_dashboard.html`): Added full chart treatment — My Leave Usage donut (`myLeaveDonut`), Unit Attendance Today donut (`unitAttendanceChart`, present vs on-leave computed in JS), Leave Usage Snapshot horizontal bar (`unitOverviewChart` in top row), and Leave Usage by Member horizontal bar (`unitBalanceChart`) above the balance table; bars color-coded green/amber/red; `{% block extra_css %}` added with pulse animation; `{% block extra_js %}` added with Chart.js CDN + all four chart inits
+  - **Contract Analytics include** (`dashboard/includes/contract_analytics.html`): Replaced "Staff Category Distribution" CSS progress bars with a horizontal bar chart (`staffCatChart`, colored by category color); replaced "Contracts by Department" HTML table with a grouped bar chart (`contractDeptChart`, one dataset per contract type — CDI teal, CDD amber, Internship cyan, Residents purple); inline `<script>` with Chart.js CDN + IIFE at bottom of include so charts render inside `{% block content %}` without waiting for parent `{% block extra_js %}`; affects CEO, Director, HR, and Admin dashboards simultaneously
+- **Power BI-style dashboard chart enhancements — Phase 1** (same session, earlier work)
+  - **All dashboards**: Monthly leave trend chart upgraded from plain bar → gradient line chart with hover tooltips
+  - **CEO dashboard** (`ceo_dashboard.html`): Replaced flat discipline summary cards with 3-donut analytics row — Leave Outcomes (Approved/Rejected/Pending), Discipline Overview (Warnings/Suspensions/Dismissals), Contract Mix (CDI/CDD/Intern/WACS)
+  - **Director / Finance Director dashboard** (`director_dashboard.html`): Same 3-donut analytics row as CEO; Leave Outcomes uses `pending_director` ("Awaiting Final") instead of `pending_all`
+  - **HR dashboard** (`hr_dashboard.html`): Added new analytics row inside sortable "analytics" block — Leave Type Distribution (horizontal bar from `type_stats`), Leave Status donut (Approved/Rejected/Pending HR/Pending Dir.), Contract Mix donut; replaced department progress bars with a stacked horizontal bar chart (`deptActivityChart`); monthly chart now line with gradient
+  - **Admin dashboard** (`admin_dashboard.html`): "Staff by Role" card now includes a role distribution donut chart (`roleDonutChart`); Analytics section now has Department Activity stacked bar chart, Discipline donut, and Contract Mix donut; low-balance section reformatted as a responsive card grid; monthly chart now line with gradient
+  - **Manager dashboard** (`manager_dashboard.html`): Added team leave usage horizontal bar chart (`teamBalanceChart`) above the balance table; bars color-coded green (< 70%), amber (70–89%), red (≥ 90%)
+  - All donut charts use consistent Power BI-style palette: teal `#088395`, navy `#0A4D68`, green `#059669`, amber `#d97706`, red `#dc2626`, purple `#7c3aed`
+  - `Chart.defaults.font.family = 'Plus Jakarta Sans'` set globally in each dashboard's extra_js block
+
 ### 2026-03-22
 
 - **Noise color cleanup — 14 HTML templates** — Replaced all off-brand hex colors with the official brand palette across 14 Django templates. Mappings applied:
@@ -700,6 +919,47 @@ Then open: **http://127.0.0.1:8000**
     - Common UI: Active/Inactive, Filter, Clear, Pending, View, Notes, etc.
   - Profile template fix: `Category` now wrapped in `{% trans %}`, sex display uses `{% trans employee.get_sex_display %}`
   - Total: 395 messages compiled to `.mo`
+
+- **Appraisal: full score audit chain + signature PNG fix** (2026-04-29)
+  - **Signature PNG fix**: `appraisals/pdf_utils.py` — replaced `_load_sig` with a Pillow-first implementation (mirrors leave PDF's `_load_sig_b64`). Always composites RGBA→RGB on white before handing to ReportLab. Previously `ImageReader` silently accepted RGBA but `drawImage` failed; now Pillow handles all modes. Also added `flattenToRgbPng()` in `_sig_js.html` and `employee_fill.html` so future signatures are stored as RGB PNG from the browser.
+  - **Per-role score snapshots**: Added `hr_score_changes`, `director_score_changes`, `ceo_score_changes` JSONField to `AppraisalRecord` (migration `0005`). Each stores `{fname: value}` for only the fields that role actually changed. `_apply_score_override` now saves per-role snapshots alongside the running `override_*` fields.
+  - **Model method `score_changes_display()`**: Returns list of dicts `{label, supervisor, hr, director, ceo, final}` for every field where any role changed a score — used by both templates and PDF.
+  - **Web review pages**: `_prior_hr.html` shows a diff table (Factor / Supervisor / HR Modified) when HR changed scores. `_prior_director.html` shows (Factor / Before / Director Modified). CEO's fill page sees both tables via the included partials.
+  - **PDF audit table**: `override_diff_table()` now shows dynamic columns — only the roles that made changes appear. Columns: Factor | Supervisor | [HR] | [Director] | [CEO] | Final. Footer line attributes each modification with name and date.
+
+- **Appraisal PDF + signatures + score tracking + co-worker section** (2026-04-29)
+  - **`appraisals/templates/appraisals/_sig_js.html`** and **`employee_fill.html`**: Added `flattenToRgbPng()` — composites signature canvas onto a white background before encoding as PNG. This ensures the stored data URI is always RGB (not RGBA), which ReportLab's `ImageReader` can render directly without Pillow. Previously RGBA transparent PNGs failed to render, causing "(not signed)" to appear.
+  - **`appraisals/pdf_utils.py`**: Added `override_diff_table(field_labels)` method — renders an amber-header comparison table showing each factor where the score differs from the supervisor's original, listing the final value and attributing each role (HR / Director / CEO) that made changes. Called after Section 4 in `generate_appraisal_pdf`. Section 4 bar label updated to "(Original Scores)". `_render_sig` helper now handles both image rendering and italic-name fallback.
+  - **Co-worker reviews embedded on My Appraisals page** (`my_appraisals.html` + `my_appraisals` view): Removed standalone sidebar link for "Co-Worker Reviews". The `my_appraisals` view now passes `coworker_pending` (STATUS_COWORKER) and `coworker_submitted` (STATUS_UNIT_HEAD, editable) to the template. Two sections appear above the history table: a blue "awaiting comment" section and a grey "submitted (editable)" list. "My Appraisals" sidebar link now shows a red badge for `pending_coworker_count`.
+
+- **Appraisal score override audit, PDF signatures, HR false-positive fix** (2026-04-29)
+  - **`appraisals/models.py`**: Added 6 per-role score-modification tracking fields: `score_modified_by_hr / at_hr`, `score_modified_by_director / at_director`, `score_modified_by_ceo / at_ceo` (FK to Employee, null=True). Migration `0004_per_role_score_modification_tracking` created and applied.
+  - **`appraisals/views.py` — `_apply_score_override`**: Fixed false positive — now compares each submitted value against `mgr_{fname}`; only marks `changed=True` if the value actually differs from the supervisor's score. Accepts new `role` kwarg ('hr'/'director'/'ceo') and sets the corresponding per-role fields when changed. Updated `hr_fill`, `director_fill`, `ceo_fill` calls to pass `role=`.
+  - **`appraisals/templates/appraisals/_prior_hr.html`**: Changed `score_override_by == hr_signed_by` condition to `score_modified_by_hr` direct field check — eliminates false "HR modified scores" alert.
+  - **`appraisals/templates/appraisals/_prior_director.html`**: Same — now uses `score_modified_by_director`.
+  - **`appraisals/pdf_utils.py`**: Added `_render_sig(sig_b64, signed_by, ...)` helper on Builder — tries image first, falls back to italic name in BLUE when image is empty/fails, only shows "(not signed)" if `signed_by` is None. Updated `sig_strip` and `comment_block` to call `_render_sig` instead of inline `if sig_b64` logic.
+
+- **Appraisal re-editing, sidebar co-worker link, live search dropdown** (2026-04-29)
+  - **`appraisals/views.py` — employee_fill**: Changed blocking condition from `status != STATUS_EMPLOYEE` to allow `STATUS_COWORKER` and `STATUS_UNIT_HEAD`. Initial submit advances status and notifies coworker as before. Re-edit when `STATUS_COWORKER` saves fields and updates coworker assignment (notifies new coworker if changed). Re-edit when `STATUS_UNIT_HEAD` saves employee fields only, status stays unchanged.
+  - **`appraisals/views.py` — coworker_fill**: Changed blocking condition to allow `STATUS_COWORKER` or `STATUS_UNIT_HEAD`. Initial submit (STATUS_COWORKER) advances to STATUS_UNIT_HEAD and notifies unit head. Re-edit (STATUS_UNIT_HEAD) saves comment/signature, keeps status, no re-notification.
+  - **`notifications/context_processors.py`**: Added `pending_coworker_count` (count of AppraisalRecords where `coworker_signed_by=emp` and `status=STATUS_COWORKER`) injected into every template.
+  - **`templates/base.html`**: Added "Co-Worker Reviews" nav link (with red badge for `pending_coworker_count`) to the general employee section (after "My Appraisals"), visible to all non-superuser employees. Removed duplicate link from unit_head-only section.
+  - **`appraisals/templates/appraisals/employee_fill.html`**: Coworker `<select>` now has `size="6"` (visible list, no dropdown), live search input above it filters options as user types. Pre-selects current coworker on re-edit via `{% if record.coworker_signed_by ... %}selected{% endif %}`.
+
+- **Power BI analytics amplification — CEO, Director, HR dashboards** (2026-04-28)
+  - **New context variables** added to `views.py` for all three views: `dept_stats` (approved requests per department, year-filtered), `type_stats` (approved requests per leave type, year-filtered), `on_leave_count` (int count, avoids re-calling `.count()`), `approval_rate` (integer %, zero-division guarded), `on_leave_pct` (integer %, zero-division guarded).
+  - **CEO dashboard** (`ceo_dashboard.html`): Added 4-tile "Org Health Rate Indicators" row (Approval Rate %, Staff on Leave %, Absent Today, Decisions Made) with colored left-border KPI cards. Added "Workforce Analytics" section with 2 Power BI-style horizontal bar charts — `ceoDeptChart` (approved leave by department) and `ceoTypeChart` (approved leave by type), both using `indexAxis: 'y'` with IIFE pattern and empty-state fallback. Added missing `{% include 'dashboard/includes/contract_analytics.html' %}`.
+  - **Director dashboard** (`director_dashboard.html`): Same 4-tile rate indicators row (Approval Rate %, Staff on Leave %, Absent Today, Awaiting Your Signature). Added "Workforce Analytics" section with `dirDeptChart` + `dirTypeChart` horizontal bar charts. Fixed 3 donut card headers: `style="background:#f8fbfd;..."` → `class="card-header card-header-chart"`. Removed duplicate `@keyframes pulse`.
+  - **HR dashboard** (`hr_dashboard.html`): Added "Rate Indicators" 4-tile row inside overview block using existing `.hr-kpi-card` style (Approval Rate %, % Staff on Leave, Absent Today count, Decisions Made). Fixed 7 card headers to `card-header-chart`, 1 to `card-header-chart d-flex ...`. Removed duplicate `@keyframes pulse`.
+
+- **Frontend audit — 7 improvements** (2026-04-28)
+  - **Chart.js deduplication**: Moved CDN load + `Chart.defaults` to `base.html` before `{% block extra_js %}`. Removed duplicate `<script src="chart.js">` lines from all 7 dashboard templates. `contract_analytics.html` keeps its own load intentionally (renders in `{% block content %}` before base.html scripts execute).
+  - **Mobile table responsiveness**: Added `min-width` + `white-space: nowrap` to all multi-column tables (`all_leaves.html`, `manager_approvals.html`, `hr_approvals.html`, `director_approvals.html`, `unit_head_approvals.html`, `my_requests.html`). Removed redundant inline overflow styles from `employee_list.html`'s `table-responsive` wrapper (Bootstrap already handles it).
+  - **Form error display**: Replaced `{{ form.field.errors.0 }}` (first error only) with `{% for error in form.field.errors %}` loop in `request_form.html` and `employee_form.html` — all validation messages now show.
+  - **Empty states**: Verified all tables have `{% empty %}` states — `all_leaves.html`, `my_requests.html`, `employee_leave_summary.html`, all approval pages already had them.
+  - **Card header CSS utility classes**: Added to `base.html`: `.card-header-sm` (0.82rem), `.card-header-chart` (#f8fbfd bg), `.card-header-green` (#f0fdf4 bg), `.card-header-blue` (#f0fafc bg), `.t-xs`/`.t-sm`/`.t-secondary` text helpers. Replaced inline `style="..."` on all card headers across 7+ templates.
+  - **Active nav state**: Confirmed JS already strips query strings — `window.location.pathname` excludes QS, `href.split('?')[0]` handles QS on hrefs. No change needed.
+  - **Inline style reduction**: Moved `.pending-pulse` + `@keyframes pulse` to `base.html`; removed 4 duplicate template-local definitions. Replaced 40+ `style="font-size:0.72rem;color:#6b7a8d;"` inline styles with `class="t-secondary"` and `style="font-size:0.82rem;"` with `class="t-sm"` across approval and listing templates.
 
 - **Brand color system applied across 14 templates** (2026-03-22)
   - Replaced legacy blue/purple/orange UI chrome colors with brand palette across all listed templates:

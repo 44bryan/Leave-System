@@ -5,7 +5,7 @@
 {% block nav_discipline %}active{% endblock %}
 
 {% block topbar_actions %}
-{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_manager %}
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' or request.user.employee.is_ceo or request.user.employee.role in "manager unit_head finance_director" %}
 <a href="{% url 'discipline:list' %}" class="btn btn-outline-primary btn-sm">
     <i class="bi bi-arrow-left me-1"></i> Disciplinary Records
 </a>
@@ -35,7 +35,71 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
 
-            <!-- Type Banner -->
+            <!-- Proposal Banner (shown only for pending proposals) -->
+            {% if record.is_proposal %}
+            <div class="mb-4 p-4 rounded-3" style="background:linear-gradient(135deg,#0A4D68,#088395);color:#fff;">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-hourglass-split fs-2 flex-shrink-0"></i>
+                    <div style="flex:1;">
+                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;opacity:.8;">Pending HR Execution — Proposal</div>
+                        <div style="font-size:1.05rem;font-weight:800;">{{ record.get_action_type_display }}</div>
+                        <div style="font-size:0.82rem;opacity:0.85;">
+                            Proposed by {{ record.issued_by.get_full_name|default:record.issued_by.username }}
+                            on {{ record.date_issued|date:"d F Y" }}
+                        </div>
+                    </div>
+                    {% if request.user.is_superuser or request.user.employee.is_hr %}
+                    <div>
+                        <button type="button" class="btn btn-light btn-sm fw-bold"
+                                data-bs-toggle="modal" data-bs-target="#executeModal">
+                            <i class="bi bi-check-circle-fill me-1 text-success"></i>Execute Proposal
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Execute Proposal Modal (HR only) -->
+            {% if request.user.is_superuser or request.user.employee.is_hr %}
+            <div class="modal fade" id="executeModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content" style="border-radius:12px;">
+                        <div class="modal-header" style="background:linear-gradient(135deg,#088395,#2db4c3);border-radius:12px 12px 0 0;">
+                            <h6 class="modal-title text-white fw-bold">
+                                <i class="bi bi-check-circle-fill me-2"></i>Execute Proposal
+                            </h6>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="post" action="{% url 'discipline:execute_proposal' record.pk %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <p style="font-size:.875rem;color:#4a6b7c;">
+                                    Formally execute this <strong>{{ record.get_action_type_display }}</strong>
+                                    for <strong>{{ record.employee.get_full_name }}</strong>?
+                                    <br><small class="text-muted">The employee will be notified and the record will become permanent.</small>
+                                </p>
+                                {% if record.action_type == 'suspension' and not record.suspension_start %}
+                                <div class="mb-3">
+                                    <label class="form-label fw-600" style="font-size:.85rem;">Suspension Start Date <span class="text-danger">*</span></label>
+                                    <input type="date" name="suspension_start" class="form-control form-control-sm" required>
+                                    <div class="form-text">End date is auto-calculated (8 days).</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer border-0 pt-0">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="bi bi-check2 me-1"></i>Confirm & Execute
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <!-- Type Banner (formal notice) -->
             <div class="mb-4 p-4 rounded-3 text-white
                 {% if record.action_type == 'dismissal' or record.action_type == 'final_warning' %}
                     " style="background: linear-gradient(135deg, #dc2626, #b91c1c);"
@@ -55,6 +119,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
 
             <div class="card mb-4">
                 <div class="card-header"><i class="bi bi-person me-2"></i>Employee Details</div>
@@ -133,8 +198,23 @@
                 </div>
             </div>
 
-            <!-- ══ SANCTION REVIEW WORKFLOW (HR / Director / Superuser only) ══ -->
-            {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director %}
+            <!-- Proposal Note (shown to HR and the submitter) -->
+            {% if record.proposal_note %}
+            {% if request.user.is_superuser or request.user.employee.is_hr or record.issued_by == request.user %}
+            <div class="card mb-4" style="border:1.5px solid #fde68a;background:#fffbeb;">
+                <div class="card-header" style="background:#fffbeb;border-color:#fde68a;font-size:.75rem;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:.06em;">
+                    <i class="bi bi-chat-left-text me-1"></i> Note to HR from Proposer
+                    <small class="text-muted fw-normal ms-1 text-lowercase">(not visible to employee)</small>
+                </div>
+                <div class="card-body">
+                    <p style="font-size:0.875rem;color:#4a6b7c;margin:0;">{{ record.proposal_note|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <!-- ══ SANCTION REVIEW WORKFLOW (HR / Admin Director / Superuser only) ══ -->
+            {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' %}
 
             <!-- Step 1 — Manager's Recommendation -->
             {% if record.recommended_sanction %}
@@ -253,7 +333,7 @@
                     </div>
                     {% endif %}
 
-                    {% if request.user.is_superuser or request.user.employee.is_director %}
+                    {% if request.user.is_superuser or request.user.employee.role == 'admin_director' %}
                     <form method="post" action="{% url 'discipline:propose_sanction' record.pk %}">
                         {% csrf_token %}
                         <input type="hidden" name="role" value="director">

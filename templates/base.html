@@ -24,7 +24,7 @@
             --success: #059669;
             --warning-soft: #fff8e1;
             --danger-soft: #fce4ec;
-            --bg: #e8f6f9;
+            --bg: #f5f6fa;
             --card-bg: #ffffff;
             --sidebar-bg: #ffffff;
             --sidebar-text: #4a6b7c;
@@ -526,6 +526,29 @@
             font-size: 0.9rem;
         }
 
+        /* Card header tint variants */
+        .card-header-sm   { font-size: .82rem; font-weight: 600; }
+        .card-header-chart { background: #f8fbfd; border-bottom-color: #eef2f7; font-size: .82rem; }
+        .card-header-green { background: #f0fdf4; border-bottom-color: #86efac; font-size: .82rem; }
+        .card-header-blue  { background: #f0fafc; border-bottom-color: #cde8ef; font-size: .82rem; }
+
+        /* Common text size helpers */
+        .t-xs  { font-size: .72rem; }
+        .t-sm  { font-size: .82rem; }
+        .t-secondary { font-size: .72rem; color: #6b7a8d; }
+
+        /* Pulse indicator dot */
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.4);} }
+        .pending-pulse {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: #e53e3e;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
         /* ─── STAT CARDS ─── */
         .stat-card {
             border-radius: 16px;
@@ -605,6 +628,10 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
+
+        /* Tables: text wraps naturally at the table level.
+           Apply Bootstrap's .text-nowrap to date/ID/badge/action cells only. */
+        .table-responsive > .table { white-space: normal !important; }
 
         /*
          * Full-page list tables: the table-responsive is a direct child of .card
@@ -741,6 +768,12 @@
             .main-content { margin-left: 0; }
             .sidebar-overlay.show { display: block; }
 
+            /* Tighter page padding on tablet and mobile */
+            .page-content { padding: 16px; }
+
+            /* Optional table columns: hidden on tablet/mobile, visible on desktop */
+            .th-opt, .td-opt { display: none !important; }
+
             /* Hide desktop top-bar controls on mobile */
             .desktop-topbar-controls { display: none !important; }
 
@@ -846,6 +879,72 @@
             .mobile-search-btn { display: none !important; }
             .mobile-search-overlay { display: none !important; }
             .sidebar-mobile-footer { display: none !important; }
+
+            /* ─── Desktop density — enterprise standard (Workday / BambooHR level) ─── */
+            /*
+             * 14px body (industry standard for HR/SaaS apps vs Bootstrap's 16px default).
+             * Using px throughout so values are explicit and not affected by rem cascade.
+             * Mobile breakpoint (≤992px) is untouched.
+             */
+            body { font-size: 14px; }
+
+            /* Logo bar: 76px → 60px  (enterprise range: 56–64px) */
+            .logo-bar { height: 60px; padding: 0 22px; }
+            .logo-bar img { height: 46px; }
+
+            /* Sidebar: 260px → 240px  (enterprise norm: 220–240px) */
+            .sidebar { top: 60px; width: 240px; }
+            .sidebar-section { padding: 14px 12px 6px; }
+            .sidebar-section-label { font-size: 11px; }
+            /* Nav items: 40px natural height — enterprise uses 40–44px */
+            .nav-link-sidebar { padding: 8px 12px; font-size: 13px; }
+            .nav-link-sidebar .bi { font-size: 15px; width: 20px; }
+            .sidebar-footer { padding: 12px; }
+            .user-card { padding: 8px 10px; }
+            .user-avatar { width: 30px; height: 30px; font-size: 11px; }
+            .user-name { font-size: 13px; }
+            .user-role { font-size: 11px; }
+
+            .main-content { margin-left: 240px; margin-top: 60px; min-height: calc(100vh - 60px); }
+            /* Topbar: keep teal bar comfortable but not as tall */
+            .topbar { top: 60px; padding: 9px 22px; }
+            .topbar-title { font-size: 14px; }
+            .notif-btn { width: 34px; height: 34px; font-size: 15px; }
+            .topbar-search-input { height: 34px; font-size: 13px; width: 220px; }
+            .topbar-search-input:focus { width: 280px; }
+            .lang-dropdown-btn { height: 34px; padding: 0 12px; font-size: 13px; }
+            .user-chip { height: 34px; }
+            .user-chip-name { font-size: 13px; }
+            .settings-btn { width: 34px; height: 34px; }
+
+            /* Page content: 28px → 22px/26px  (enterprise: 24–32px) */
+            .page-content { padding: 22px 26px; }
+
+            .card { border-radius: 12px; }
+            /* Card header: 16px/20px → 12px/16px */
+            .card-header { padding: 12px 16px; font-size: 13px; }
+
+            /* Tables: enterprise standard is 12px/16px; we use 10px/14px — slightly
+               tighter for dashboard widget tables without going to "dense mode" */
+            .table th { padding: 10px 14px; }
+            .table td { padding: 10px 14px; font-size: 13px; }
+
+            /* Buttons: enterprise medium = 8px/16px; small = 6px/12px */
+            .btn { padding: 7px 15px; font-size: 13px; }
+            .btn-sm { padding: 4px 11px; font-size: 12px; }
+
+            /* Stat cards */
+            .stat-card { padding: 16px 18px; border-radius: 12px; }
+            .stat-icon { width: 40px; height: 40px; font-size: 18px; margin-bottom: 10px; }
+            .stat-value { font-size: 26px; }
+            .stat-label { font-size: 12px; }
+
+            /* Badges */
+            .badge { padding: 3px 8px; font-size: 11px; }
+
+            /* Forms */
+            .form-control, .form-select { font-size: 13px; padding: 8px 12px; }
+            .form-label { font-size: 13px; }
         }
 
         /* ─── SEARCH DROPDOWN ─── */
@@ -1066,6 +1165,14 @@
                     <i class="bi bi-grid-1x2"></i> {% trans "Dashboard" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'notifications:list' %}" class="nav-link-sidebar {% block nav_notifications %}{% endblock %}">
+                    <i class="bi bi-bell"></i> {% trans "Notifications" %}
+                    {% if notif_unread > 0 %}
+                    <span class="badge bg-danger ms-auto" style="font-size:0.65rem;padding:2px 6px;">{{ notif_unread }}</span>
+                    {% endif %}
+                </a>
+            </li>
             {% if not user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:submit' %}" class="nav-link-sidebar {% block nav_submit %}{% endblock %}" data-suspend-lock>
@@ -1097,17 +1204,12 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:my_appraisals' %}" class="nav-link-sidebar {% block nav_my_appraisals %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "My Appraisals" %}
-                </a>
-            </li>
-            {% endif %}
-            <li class="nav-item-sidebar">
-                <a href="{% url 'notifications:list' %}" class="nav-link-sidebar {% block nav_notifications %}{% endblock %}">
-                    <i class="bi bi-bell"></i> {% trans "Notifications" %}
-                    {% if notif_unread > 0 %}
-                    <span class="badge bg-danger ms-auto" style="font-size:0.65rem;padding:2px 6px;">{{ notif_unread }}</span>
+                    {% if pending_coworker_count > 0 %}
+                    <span class="badge bg-danger ms-auto" style="font-size:0.65rem;padding:2px 6px;">{{ pending_coworker_count }}</span>
                     {% endif %}
                 </a>
             </li>
+            {% endif %}
         </ul>
     </div>
 
@@ -1118,6 +1220,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:unit_head_approvals' %}" class="nav-link-sidebar {% block nav_unit_head %}{% endblock %}">
                     <i class="bi bi-person-check"></i> {% trans "Unit Head Queue" %}
+                    {% if pending_leave_count > 0 %}<span class="nav-badge">{{ pending_leave_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1126,8 +1229,8 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
-                <a href="{% url 'appraisals:pending_coworker' %}" class="nav-link-sidebar {% block nav_appraisals_coworker %}{% endblock %}">
-                    <i class="bi bi-people"></i> {% trans "Co-Worker Comments" %}
+                <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-plus"></i> {% trans "Propose Discipline" %}
                 </a>
             </li>
         </ul>
@@ -1140,11 +1243,17 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:manager_approvals' %}" class="nav-link-sidebar {% block nav_manager %}{% endblock %}">
                     <i class="bi bi-person-check"></i> {% trans "Manager Queue" %}
+                    {% if pending_leave_count > 0 %}<span class="nav-badge">{{ pending_leave_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_manager' %}" class="nav-link-sidebar {% block nav_appraisals_manager %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-plus"></i> {% trans "Propose Discipline" %}
                 </a>
             </li>
         </ul>
@@ -1158,6 +1267,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:hr_approvals' %}" class="nav-link-sidebar {% block nav_hr_approvals %}{% endblock %}">
                     <i class="bi bi-clipboard2-check"></i> {% trans "HR Approvals" %}
+                    {% if pending_leave_count > 0 %}<span class="nav-badge">{{ pending_leave_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1201,6 +1311,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:director_approvals' %}" class="nav-link-sidebar {% block nav_director %}{% endblock %}">
                     <i class="bi bi-shield-check"></i> {% trans "Director Queue" %}
+                    {% if pending_leave_count > 0 %}<span class="nav-badge">{{ pending_leave_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1270,27 +1381,26 @@
     </div>
     {% endif %}
 
-    {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_manager %}
+    {% if user.is_superuser or user.employee.is_hr or user.employee.role == 'admin_director' %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Discipline" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
-                    <i class="bi bi-file-earmark-text"></i> {% trans "New Disciplinary Notice" %}
+                    <i class="bi bi-file-earmark-plus"></i> {% trans "New Disciplinary Notice" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar {% block nav_discipline %}{% endblock %}">
                     <i class="bi bi-shield-exclamation"></i> {% trans "Disciplinary Records" %}
+                    {% if pending_discipline_proposals > 0 %}<span class="nav-badge">{{ pending_discipline_proposals }}</span>{% endif %}
                 </a>
             </li>
-            {% if user.is_superuser or user.employee.is_hr or user.employee.is_director %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:stats' %}" class="nav-link-sidebar {% block nav_discipline_stats %}{% endblock %}">
                     <i class="bi bi-bar-chart-steps"></i> {% trans "Statistics" %}
                 </a>
             </li>
-            {% endif %}
         </ul>
     </div>
     {% endif %}
@@ -1699,6 +1809,13 @@ function toggleSidebar() {
     });
 })();
 {% endif %}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+if (typeof Chart !== 'undefined') {
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+    Chart.defaults.font.size   = 12;
+}
 </script>
 {% block extra_js %}{% endblock %}
 </body>

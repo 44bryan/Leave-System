@@ -5,15 +5,37 @@
 {% block page_title %}Discipline Records{% endblock %}
 {% block nav_discipline %}active{% endblock %}
 
+{% block extra_css %}
+<style>
+.disc-type-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: .75rem; font-weight: 700;
+    padding: 4px 10px; border-radius: 20px; white-space: nowrap;
+}
+.disc-reason-preview {
+    font-size: .78rem; color: #6b7a8d; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px;
+}
+.disc-severity-bar {
+    width: 4px; border-radius: 4px; flex-shrink: 0; align-self: stretch; min-height: 36px;
+}
+</style>
+{% endblock %}
+
 {% block topbar_actions %}
 {% if is_privileged or request.user.is_superuser %}
 <a href="{% url 'discipline:stats' %}" class="btn btn-outline-secondary btn-sm d-none d-sm-inline-flex">
     <i class="bi bi-bar-chart-line me-1"></i> Stats
 </a>
 {% endif %}
-{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_manager %}
-<a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-plus-circle me-1"></i> Issue Notice
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' or request.user.employee.is_ceo or request.user.employee.role in "manager unit_head finance_director" %}
+<a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-circle me-1"></i>
+    {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' or request.user.employee.is_ceo %}
+        Issue Notice
+    {% else %}
+        Propose Notice
+    {% endif %}
 </a>
 {% endif %}
 {% endblock %}
@@ -56,30 +78,77 @@
     </div>
     {% endif %}
 
-    <!-- Manager Success Rate Card -->
-    {% if is_manager_only and manager_stats %}
+    <!-- Pending Proposals (HR/Superuser: see all; submitters: see their own) -->
+    {% if proposals %}
+    <div class="card mb-4" style="border:2px solid #0A4D68;">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,#0A4D68,#088395);color:#fff;">
+            <span>
+                <i class="bi bi-hourglass-split me-2"></i>Pending Proposals — Awaiting HR Execution
+                <span class="badge ms-2" style="background:rgba(255,255,255,.25);">{{ proposals|length }}</span>
+            </span>
+            <small style="opacity:.8;font-size:.75rem;">These are not yet visible to the employees</small>
+        </div>
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:28px;"></th>
+                        <th>Employee</th>
+                        <th>Proposed Type</th>
+                        <th>Reason</th>
+                        <th>Proposed By</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prop in proposals %}
+                    <tr style="background:#f0f9ff;">
+                        <td style="padding:0;vertical-align:middle;">
+                            <div class="disc-severity-bar" style="background:#0A4D68;margin:8px 0 8px 8px;"></div>
+                        </td>
+                        <td>
+                            <div style="font-weight:600;">{{ prop.employee.get_full_name }}</div>
+                            <div style="font-size:.72rem;color:#9ab4c0;">{{ prop.employee.employee_id }}</div>
+                        </td>
+                        <td>
+                            <span class="disc-type-badge" style="background:#e0f2fe;color:#0A4D68;">
+                                <i class="bi bi-chat-left-dots-fill"></i>
+                                {{ prop.get_action_type_display }}
+                            </span>
+                        </td>
+                        <td><div class="disc-reason-preview" title="{{ prop.reason }}">{{ prop.reason|truncatechars:70 }}</div></td>
+                        <td style="font-size:.82rem;">{{ prop.issued_by.get_full_name|default:prop.issued_by.username }}</td>
+                        <td style="white-space:nowrap;font-size:.82rem;">{{ prop.date_issued|date:"d M Y" }}</td>
+                        <td>
+                            <a href="{% url 'discipline:detail' prop.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i>Review
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Submitter stat cards (managers/unit_heads/FD see counts of their own submissions) -->
+    {% if is_submitter %}
     <div class="row g-3 mb-4">
-        <div class="col-sm-4">
-            <div class="card text-center h-100">
+        <div class="col-sm-6">
+            <div class="card text-center h-100" style="border-top:3px solid #2db4c3;">
                 <div class="card-body py-3">
-                    <div style="font-size:2rem;font-weight:800;color:#2db4c3;">{{ manager_stats.total }}</div>
-                    <div class="text-muted" style="font-size:.8rem;">Notices Issued by You</div>
+                    <div style="font-size:2rem;font-weight:800;color:#2db4c3;">{{ records|length }}</div>
+                    <div class="text-muted" style="font-size:.8rem;">Executed Notices</div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-4">
-            <div class="card text-center h-100">
+        <div class="col-sm-6">
+            <div class="card text-center h-100" style="border-top:3px solid #0A4D68;">
                 <div class="card-body py-3">
-                    <div style="font-size:2rem;font-weight:800;color:#059669;">{{ manager_stats.director_approved }}</div>
-                    <div class="text-muted" style="font-size:.8rem;">Director Reviewed</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="card text-center h-100">
-                <div class="card-body py-3">
-                    <div style="font-size:2rem;font-weight:800;color:#d97706;">{{ manager_stats.no_action }}</div>
-                    <div class="text-muted" style="font-size:.8rem;">No Further Action</div>
+                    <div style="font-size:2rem;font-weight:800;color:#0A4D68;">{{ proposals|length }}</div>
+                    <div class="text-muted" style="font-size:.8rem;">Pending Proposals</div>
                 </div>
             </div>
         </div>
@@ -101,19 +170,22 @@
                 </div>
                 {% if is_privileged %}
                 <div>
+                    <label class="form-label mb-1" style="font-size:0.78rem;">Employee Name</label>
+                    <input type="text" name="name" value="{{ name_filter }}" class="form-control form-control-sm"
+                           placeholder="Search by name…" style="min-width:160px;">
+                </div>
+                <div>
                     <label class="form-label mb-1" style="font-size:0.78rem;">Department</label>
-                    <select name="dept" id="discDeptSelect" class="form-select form-select-sm" style="min-width:180px;">
+                    <select name="dept" id="discDeptSelect" class="form-select form-select-sm" style="min-width:170px;">
                         <option value="">All Departments</option>
                         {% for d in departments %}
                         <option value="{{ d.pk }}" {% if dept_filter == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                {% endif %}
-                {% if is_privileged %}
                 <div>
                     <label class="form-label mb-1" style="font-size:0.78rem;">Employee</label>
-                    <select name="employee" id="discEmpSelect" class="form-select form-select-sm" style="min-width:200px;">
+                    <select name="employee" id="discEmpSelect" class="form-select form-select-sm" style="min-width:190px;">
                         <option value="">All Employees</option>
                         {% for emp in all_employees %}
                         <option value="{{ emp.pk }}"
@@ -125,7 +197,7 @@
                 {% endif %}
                 <div class="d-flex gap-2 align-items-end">
                     <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>Filter</button>
-                    {% if type_filter or dept_filter or emp_filter %}
+                    {% if type_filter or dept_filter or emp_filter or name_filter %}
                     <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
                     {% endif %}
                 </div>
@@ -133,104 +205,142 @@
         </div>
     </div>
 
-    <!-- Records Table -->
+    <!-- Records -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-shield-exclamation me-2 text-danger"></i>Discipline Records
+            <span>
+                <i class="bi bi-shield-exclamation me-2 text-danger"></i>Discipline Records
                 <span class="badge bg-secondary ms-2">{{ records|length }}</span>
             </span>
             {% if is_privileged %}
-            <a href="{% url 'dashboard:export_discipline' %}?department={{ dept_filter }}&type={{ type_filter }}" class="btn btn-sm btn-primary" title="Download exactly what you see as PDF">
+            <a href="{% url 'dashboard:export_discipline' %}?department={{ dept_filter }}&type={{ type_filter }}" class="btn btn-sm btn-primary" title="Download PDF">
                 <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
             </a>
             {% endif %}
         </div>
+
+        {% if records %}
         <div class="table-responsive">
             <table class="table mb-0">
                 <thead>
                     <tr>
+                        <th style="width:28px;"></th>
                         <th>Employee</th>
-                        <th>Type</th>
-                        <th>Date Issued</th>
+                        <th>Notice Type</th>
+                        <th>Reason</th>
+                        <th>Date</th>
                         {% if is_privileged %}<th>Issued By</th><th>Department</th>{% endif %}
-                        {% if is_manager_only %}<th>Director's Decision</th>{% endif %}
-                        <th>Suspension Period</th>
+                        <th>Workflow</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for record in records %}
                     <tr>
+                        <!-- Severity colour strip -->
+                        <td style="padding:0;vertical-align:middle;">
+                            <div class="disc-severity-bar"
+                                style="background:
+                                    {% if record.action_type == 'dismissal' %}#dc2626
+                                    {% elif record.action_type == 'suspension' %}#374151
+                                    {% elif record.action_type == 'final_warning' %}#dc2626
+                                    {% elif record.action_type == 'written_caution' %}#d97706
+                                    {% else %}#f59e0b{% endif %};
+                                    margin: 8px 0 8px 8px;">
+                            </div>
+                        </td>
                         <td>
                             {% if is_privileged or request.user.is_superuser %}
                             <a href="{% url 'accounts:employee_history' record.employee.pk %}" class="text-decoration-none text-dark">
-                                <div class="fw-600">{{ record.employee.get_full_name }}</div>
-                                <div style="font-size:0.75rem; color:#9ab4c0;">{{ record.employee.employee_id }}</div>
+                                <div style="font-weight:600;">{{ record.employee.get_full_name }}</div>
+                                <div style="font-size:.72rem;color:#9ab4c0;">{{ record.employee.employee_id }}</div>
                             </a>
                             {% else %}
-                            <div class="fw-600">{{ record.employee.get_full_name }}</div>
-                            <div style="font-size:0.75rem; color:#9ab4c0;">{{ record.employee.employee_id }}</div>
+                            <div style="font-weight:600;">{{ record.employee.get_full_name }}</div>
+                            <div style="font-size:.72rem;color:#9ab4c0;">{{ record.employee.employee_id }}</div>
                             {% endif %}
                         </td>
                         <td>
                             {% if record.action_type == 'verbal_warning' %}
-                                <span class="badge" style="background:#fef3c7; color:#92400e;">Verbal Warning</span>
+                                <span class="disc-type-badge" style="background:#fef3c7;color:#92400e;">
+                                    <i class="bi bi-chat-left-text-fill"></i> Verbal Warning
+                                </span>
                             {% elif record.action_type == 'written_caution' %}
-                                <span class="badge" style="background:#fed7aa; color:#92400e;">Written Caution</span>
+                                <span class="disc-type-badge" style="background:#fed7aa;color:#9a3412;">
+                                    <i class="bi bi-envelope-exclamation-fill"></i> Written Caution
+                                </span>
                             {% elif record.action_type == 'final_warning' %}
-                                <span class="badge bg-danger">Final Warning</span>
+                                <span class="disc-type-badge" style="background:#fee2e2;color:#991b1b;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Final Warning
+                                </span>
                             {% elif record.action_type == 'suspension' %}
-                                <span class="badge bg-dark">Suspension</span>
-                            {% elif record.action_type == 'dismissal' %}
-                                <span class="badge bg-danger">Dismissal</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ record.date_issued|date:"d M Y" }}</td>
-                        {% if is_privileged %}
-                        <td style="font-size:0.82rem;">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</td>
-                        <td style="font-size:0.82rem;">{{ record.employee.department|default:"—" }}</td>
-                        {% endif %}
-                        {% if is_manager_only %}
-                        <td style="font-size:0.82rem;">
-                            {% if record.director_proposed_sanction %}
-                                {{ record.get_director_proposed_sanction_display }}
-                            {% else %}
-                                <span class="text-muted">Pending</span>
-                            {% endif %}
-                        </td>
-                        {% endif %}
-                        <td style="font-size:0.82rem;">
-                            {% if record.action_type == 'suspension' %}
-                                {% if record.suspension_start and record.suspension_end %}
-                                    {{ record.suspension_start|date:"d M Y" }} – {{ record.suspension_end|date:"d M Y" }}
+                                <span class="disc-type-badge" style="background:#1f2937;color:#fff;">
+                                    <i class="bi bi-person-lock"></i> Suspension
                                     {% if record.is_currently_suspended %}
-                                        <span class="badge bg-dark ms-1" style="font-size:0.65rem;">Active</span>
+                                    <span style="background:rgba(255,255,255,.2);border-radius:4px;padding:1px 5px;font-size:.65rem;">Active</span>
                                     {% endif %}
-                                {% else %}
-                                    <span class="text-muted">Dates pending</span>
+                                </span>
+                                {% if record.suspension_start and record.suspension_end %}
+                                <div style="font-size:.72rem;color:#6b7a8d;margin-top:3px;">
+                                    {{ record.suspension_start|date:"d M" }} – {{ record.suspension_end|date:"d M Y" }}
+                                </div>
                                 {% endif %}
+                            {% elif record.action_type == 'dismissal' %}
+                                <span class="disc-type-badge" style="background:#dc2626;color:#fff;">
+                                    <i class="bi bi-person-x-fill"></i> Dismissal
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="disc-reason-preview" title="{{ record.reason }}">
+                                {{ record.reason|truncatechars:80 }}
+                            </div>
+                        </td>
+                        <td style="white-space:nowrap;font-size:.82rem;">{{ record.date_issued|date:"d M Y" }}</td>
+                        {% if is_privileged %}
+                        <td style="font-size:.82rem;">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</td>
+                        <td style="font-size:.82rem;">{{ record.employee.department|default:"—" }}</td>
+                        {% endif %}
+                        <td>
+                            {% if record.hr_proposed_sanction and record.director_proposed_sanction %}
+                                <span class="badge" style="background:#059669;color:#fff;font-size:.68rem;">
+                                    <i class="bi bi-check2-circle me-1"></i>Complete
+                                </span>
+                            {% elif record.hr_proposed_sanction %}
+                                <span class="badge" style="background:#2db4c3;color:#fff;font-size:.68rem;">
+                                    <i class="bi bi-hourglass-split me-1"></i>Awaiting Director
+                                </span>
                             {% else %}
-                                —
+                                <span class="badge" style="background:#f59e0b;color:#fff;font-size:.68rem;">
+                                    <i class="bi bi-hourglass me-1"></i>Awaiting HR
+                                </span>
                             {% endif %}
                         </td>
                         <td>
                             <a href="{% url 'discipline:detail' record.pk %}" class="btn btn-sm btn-outline-primary">
-                                View
+                                <i class="bi bi-eye me-1"></i>View
                             </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center py-5" style="color:#9ab4c0;">
-                            <i class="bi bi-shield-check fs-2 d-block mb-2"></i>
-                            No discipline records found.
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% else %}
+        <div class="text-center py-5" style="color:#9ab4c0;">
+            <i class="bi bi-shield-check" style="font-size:2.5rem;display:block;margin-bottom:12px;opacity:.5;"></i>
+            <div style="font-weight:600;font-size:.95rem;color:#4a6b7c;">No discipline records found</div>
+            <div style="font-size:.82rem;margin-top:4px;">
+                {% if type_filter or dept_filter or emp_filter or name_filter %}
+                Try adjusting your filters, or <a href="{% url 'discipline:list' %}">clear all filters</a>.
+                {% else %}
+                No disciplinary actions have been recorded yet.
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
+
 {% endblock %}
 
 {% block extra_js %}

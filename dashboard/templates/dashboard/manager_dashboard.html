@@ -6,7 +6,7 @@
 
 {% block topbar_actions %}
 <a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-shield-exclamation me-1"></i> {% trans "Issue Notice" %}
+    <i class="bi bi-shield-plus me-1"></i> {% trans "Propose Notice" %}
 </a>
 <a href="{% url 'leaves:manager_approvals' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
     <i class="bi bi-person-check me-1"></i> {% trans "Approval Queue" %}
@@ -26,36 +26,32 @@
 </div>
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3 animate-in">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fff8e1;color:#f57f17;"><i class="bi bi-hourglass-split"></i></div>
-            <div class="stat-value">{{ pending_approvals|length }}</div>
-            <div class="stat-label">{% trans "Awaiting Your Approval" %}</div>
-            {% if pending_approvals %}
-            <a href="{% url 'leaves:manager_approvals' %}" class="btn btn-sm btn-outline-warning mt-3 w-100">{% trans "Review Now" %}</a>
-            {% endif %}
-        </div>
+        <a href="{% url 'leaves:manager_approvals' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#d97706,#f59e0b);">
+            <span class="pbi-kpi-icon"><i class="bi bi-hourglass-split"></i></span>
+            <div class="pbi-kpi-val">{{ pending_approvals|length }}</div>
+            <div class="pbi-kpi-lbl">{% trans "Awaiting Approval" %}</div>
+        </a>
     </div>
     <div class="col-sm-6 col-lg-3 animate-in delay-1">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
-            <div class="stat-value">{{ subordinates|length }}</div>
-            <div class="stat-label">{% trans "Team Members" %}</div>
+        <div class="pbi-kpi" style="background:linear-gradient(135deg,#0A4D68,#1d7da0);">
+            <span class="pbi-kpi-icon"><i class="bi bi-people-fill"></i></span>
+            <div class="pbi-kpi-val">{{ subordinates|length }}</div>
+            <div class="pbi-kpi-lbl">{% trans "Team Members" %}</div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3 animate-in delay-2">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-person-dash"></i></div>
-            <div class="stat-value">{{ on_leave_today|length }}</div>
-            <div class="stat-label">{% trans "Team On Leave Today" %}</div>
+        <div class="pbi-kpi" style="background:linear-gradient(135deg,{% if on_leave_today %}#dc2626,#ef4444{% else %}#059669,#10b981{% endif %});">
+            <span class="pbi-kpi-icon"><i class="bi bi-person-dash"></i></span>
+            <div class="pbi-kpi-val">{{ on_leave_today|length }}</div>
+            <div class="pbi-kpi-lbl">{% trans "On Leave Today" %}</div>
         </div>
     </div>
     <div class="col-sm-6 col-lg-3 animate-in delay-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#e0f7fa;color:#088395;"><i class="bi bi-calendar-check"></i></div>
-            <div class="stat-value">{{ balance.remaining_days }}</div>
-            <div class="stat-label">{% trans "My Leave Balance" %}</div>
-            <a href="{% url 'leaves:submit' %}" class="btn btn-sm btn-outline-primary mt-3 w-100">{% trans "Apply for Leave" %}</a>
-        </div>
+        <a href="{% url 'discipline:list' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#374151,#1f2937);">
+            <span class="pbi-kpi-icon"><i class="bi bi-shield-exclamation"></i></span>
+            <div class="pbi-kpi-val">{{ discipline_proposals_count }}</div>
+            <div class="pbi-kpi-lbl">{% trans "Discipline Proposals" %}</div>
+        </a>
     </div>
 </div>
 
@@ -118,14 +114,14 @@
     <div class="col-lg-6">
         <div class="card h-100">
             <div class="card-header d-flex align-items-center gap-2">
-                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e53e3e;animation:pulse 1.5s infinite;"></span>
+                <span class="pending-pulse"></span>
                 {% trans "On Leave Today" %}
                 <span class="badge bg-danger ms-auto">{{ on_leave_today|length }}</span>
             </div>
             <div class="card-body p-3">
                 {% for req in on_leave_today %}
                 <div class="d-flex align-items-center gap-3 py-2 border-bottom">
-                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#2db4c3,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ req.employee.user.first_name|first|upper }}{{ req.employee.user.last_name|first|upper }}
                     </div>
                     <div>
@@ -176,10 +172,75 @@
 
 </div>
 
-<!-- ── Team Leave Balances ── -->
+<!-- ── Team Analytics Charts ── -->
+<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin:24px 0 12px;">
+    <i class="bi bi-graph-up me-1"></i> {% trans "Team Analytics" %}
+</div>
+{% if team_balances %}
+<div class="row g-4 mb-4 animate-in">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-radar me-2" style="color:#088395;"></i>{% trans "Team Leave Usage — Radar" %}
+            </div>
+            <div class="card-body p-3 d-flex align-items-center justify-content-center">
+                <canvas id="teamRadarChart" style="max-height:240px;max-width:240px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header card-header-chart">
+                <span class="pending-pulse"></span>
+                {% trans "Team Attendance Today" %}
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
+                <canvas id="teamAttendanceChart" style="max-height:155px;max-width:155px;"></canvas>
+                <div class="d-flex gap-4 mt-3 justify-content-center">
+                    <div class="text-center">
+                        <div style="font-size:1.4rem;font-weight:800;color:#059669;" id="mgrPresent">—</div>
+                        <div style="font-size:.62rem;color:#9ab4c0;text-transform:uppercase;">{% trans "Present" %}</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.4rem;font-weight:800;color:#dc2626;">{{ on_leave_today|length }}</div>
+                        <div style="font-size:.62rem;color:#9ab4c0;text-transform:uppercase;">{% trans "On Leave" %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card h-100">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-pie-chart-fill me-2" style="color:#7c3aed;"></i>{% trans "Leave Mix" %}
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
+                <canvas id="teamLeaveOutcomeChart" style="max-height:155px;max-width:155px;"></canvas>
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-2" style="font-size:.7rem;color:#6b7a8d;">
+                    <span style="color:#059669;">&#9679; Present</span>
+                    <span style="color:#dc2626;">&#9679; On Leave</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Team Leave Balance Chart ── -->
 <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin:24px 0 12px;">
     <i class="bi bi-bar-chart-steps me-1"></i> {% trans "Team Leave Balances" %} — {{ year }}
 </div>
+{% if team_balances %}
+<div class="card mb-4 animate-in" style="border-radius:14px;">
+    <div class="card-header" style="background:#f8fbfd;border-bottom:1px solid #eef2f7;">
+        <i class="bi bi-bar-chart-fill me-2" style="color:#088395;"></i>
+        <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Leave Usage by Team Member" %}</span>
+    </div>
+    <div class="card-body p-3">
+        <canvas id="teamBalanceChart" style="max-height:220px;"></canvas>
+    </div>
+</div>
+{% endif %}
 <div class="card mb-4 animate-in">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-calendar2-check me-2" style="color:#0A4D68;"></i>{% trans "Deductible Leave Remaining — Your Team" %}</span>
@@ -256,4 +317,117 @@
     0%, 100% { opacity:1; transform:scale(1); }
     50% { opacity:0.5; transform:scale(1.4); }
 }
+.pbi-kpi { border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,0.12);transition:transform .15s,box-shadow .15s;color:white;display:block; }
+.pbi-kpi:hover { transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.18); }
+.pbi-kpi-icon { font-size:1.4rem;opacity:0.85;margin-bottom:7px;display:block; }
+.pbi-kpi-val { font-size:1.8rem;font-weight:800;line-height:1; }
+.pbi-kpi-lbl { font-size:0.67rem;text-transform:uppercase;letter-spacing:.08em;opacity:0.82;margin-top:4px; }
+{% endblock %}
+
+{% block extra_js %}
+{% if team_balances %}
+<script>
+
+const memberNames  = [{% for tb in team_balances %}'{{ tb.employee.user.first_name|truncatechars:14|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+const memberUsage  = [{% for tb in team_balances %}{{ tb.balance.usage_percentage }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const memberRemain = [{% for tb in team_balances %}{{ tb.balance.remaining_days }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+// ── Team Radar Chart ──────────────────────────────────────────────────────────
+new Chart(document.getElementById('teamRadarChart'), {
+    type: 'radar',
+    data: {
+        labels: memberNames,
+        datasets: [{
+            label: 'Leave Used %',
+            data: memberUsage,
+            backgroundColor: 'rgba(8,131,149,0.18)',
+            borderColor: '#088395',
+            borderWidth: 2.5,
+            pointBackgroundColor: memberUsage.map(u => u >= 90 ? '#dc2626' : u >= 70 ? '#d97706' : '#088395'),
+            pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 7
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.raw}% leave used` } }
+        },
+        scales: { r: { min: 0, max: 100, ticks: { stepSize: 25, callback: v => v + '%', font: { size: 10 }, backdropColor: 'transparent' }, grid: { color: '#eef2f7' }, pointLabels: { font: { size: 11 } } } }
+    }
+});
+
+// ── Team Attendance Donut ──────────────────────────────────────────────────────
+const mgrTeamTotal = {{ subordinates|length }};
+const mgrOnLeave   = {{ on_leave_today|length }};
+const mgrPresent   = Math.max(0, mgrTeamTotal - mgrOnLeave);
+document.getElementById('mgrPresent').textContent = mgrPresent;
+new Chart(document.getElementById('teamAttendanceChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Present', 'On Leave'],
+        datasets: [{
+            data: mgrTeamTotal > 0 ? [mgrPresent, mgrOnLeave] : [1, 0],
+            backgroundColor: mgrTeamTotal > 0 ? ['#059669','#dc2626'] : ['#e2e8f0','#f0f4f8'],
+            borderWidth: 2, borderColor: '#fff', hoverOffset: 6
+        }]
+    },
+    options: { responsive: true, cutout: '72%', plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 } } }
+});
+
+// ── Leave Mix Polar Area ───────────────────────────────────────────────────────
+new Chart(document.getElementById('teamLeaveOutcomeChart'), {
+    type: 'polarArea',
+    data: {
+        labels: ['Present', 'On Leave'],
+        datasets: [{
+            data: mgrTeamTotal > 0 ? [mgrPresent, mgrOnLeave] : [1, 0],
+            backgroundColor: ['rgba(5,150,105,.72)','rgba(220,38,38,.72)'],
+            borderColor: ['#059669','#dc2626'], borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 } },
+        scales: { r: { ticks: { display: false }, grid: { color: '#eef2f7' } } }
+    }
+});
+
+const barColors = memberUsage.map(u => u >= 90 ? '#dc2626' : u >= 70 ? '#d97706' : '#088395');
+
+new Chart(document.getElementById('teamBalanceChart'), {
+    type: 'bar',
+    data: {
+        labels: memberNames,
+        datasets: [{
+            label: 'Leave Used (%)',
+            data: memberUsage,
+            backgroundColor: barColors,
+            borderRadius: 6,
+            borderSkipped: false
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8,
+                callbacks: {
+                    label: (c) => {
+                        const i = c.dataIndex;
+                        return ` ${c.parsed.x}% used · ${memberRemain[i]}d remaining`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f0f4f8' } },
+            y: { grid: { display: false } }
+        }
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

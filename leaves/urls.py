@@ -29,4 +29,5 @@ urlpatterns = [
     path('leave-types/<int:pk>/delete/', views.leave_type_delete, name='leave_type_delete'),
     path('leave-types/restore-defaults/', views.restore_default_leave_types, name='restore_default_leave_types'),
     path('hr/backfill-signatures/', views.backfill_signatures, name='backfill_signatures'),
+    path('set-entitlement/', views.set_leave_entitlement, name='set_entitlement'),
 ]

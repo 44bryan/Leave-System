@@ -27,24 +27,6 @@ def _process_pending_dismissals():
         pass
 
 
-@login_required
-def my_discipline_notices(request):
-    """Employee's personal discipline record — visible only to the employee themselves."""
-    emp = get_employee(request)
-    if not emp:
-        messages.error(request, "Employee profile not found.")
-        return redirect('dashboard:home')
-
-    notices = DisciplineRecord.objects.filter(employee=emp).select_related(
-        'issued_by'
-    ).order_by('-date_issued')
-
-    return render(request, 'discipline/my_notices.html', {
-        'notices': notices,
-        'employee': emp,
-    })
-
-
 def get_employee(request):
     try:
         return request.user.employee
@@ -52,13 +34,50 @@ def get_employee(request):
         return None
 
 
-def can_issue_discipline(emp, is_super):
-    """HR, Director, CEO, and Superuser can issue all types. Manager can issue limited types."""
+# ── Permission helpers ──────────────────────────────────────────────────────
+
+def can_issue_formally(emp, is_super):
+    """HR, Admin Director, CEO, and Superuser can formally issue discipline notices."""
     if is_super:
         return True
     if emp is None:
         return False
-    return emp.is_hr() or emp.is_director() or emp.is_ceo() or emp.is_manager()
+    return emp.is_hr() or emp.role == 'admin_director' or emp.is_ceo()
+
+
+def is_proposal_only_role(emp):
+    """Manager, Unit Head, and Finance Director can only submit verbal-warning proposals to HR."""
+    if emp is None:
+        return False
+    return emp.role in ('manager', 'unit_head', 'finance_director')
+
+
+def can_access_issue_form(emp, is_super):
+    """Any role that may use the issue/propose form."""
+    if is_super:
+        return True
+    if emp is None:
+        return False
+    return (
+        emp.is_hr()
+        or emp.role == 'admin_director'
+        or emp.is_ceo()
+        or is_proposal_only_role(emp)
+    )
+
+
+def can_view_discipline(emp, is_super):
+    """HR, Admin Director, CEO, Manager, Unit Head, Finance Director, and Superuser can view records."""
+    if is_super:
+        return True
+    if emp is None:
+        return False
+    return (
+        emp.is_hr()
+        or emp.role == 'admin_director'
+        or emp.is_ceo()
+        or is_proposal_only_role(emp)
+    )
 
 
 def is_hr_or_above(emp, is_super):
@@ -66,20 +85,27 @@ def is_hr_or_above(emp, is_super):
         return True
     if emp is None:
         return False
-    return emp.is_hr() or emp.is_director()
+    return emp.is_hr() or emp.role == 'admin_director'
 
 
-def can_view_discipline(emp, is_super):
-    """HR, Director, CEO, Manager, and Superuser can view records."""
-    if is_super:
-        return True
-    if emp is None:
-        return False
-    return emp.is_hr() or emp.is_director() or emp.is_ceo() or emp.is_manager()
+# ── Views ───────────────────────────────────────────────────────────────────
 
+@login_required
+def my_discipline_notices(request):
+    """Employee's personal discipline record — shows only formally-issued (non-proposal) records."""
+    emp = get_employee(request)
+    if not emp:
+        messages.error(request, "Employee profile not found.")
+        return redirect('dashboard:home')
 
-# Managers can ONLY issue verbal warnings (with a recommendation for follow-up)
-MANAGER_ALLOWED_TYPES = ['verbal_warning']
+    notices = DisciplineRecord.objects.filter(
+        employee=emp, is_proposal=False
+    ).select_related('issued_by').order_by('-date_issued')
+
+    return render(request, 'discipline/my_notices.html', {
+        'notices': notices,
+        'employee': emp,
+    })
 
 
 @login_required
@@ -87,24 +113,36 @@ def issue_discipline(request):
     emp = get_employee(request)
     is_super = request.user.is_superuser
 
-    if not can_issue_discipline(emp, is_super):
-        messages.error(request, "You do not have permission to issue discipline notices.")
+    if not can_access_issue_form(emp, is_super):
+        messages.error(request, "You do not have permission to issue or propose discipline notices.")
         return redirect('dashboard:home')
 
-    is_manager_only = (emp and emp.is_manager() and not emp.is_hr() and not emp.is_director() and not emp.is_ceo() and not is_super)
+    # Classify issuer
+    _formal = can_issue_formally(emp, is_super)
+    _proposal_only = is_proposal_only_role(emp)
+    # CEO and Admin Director can choose formal or proposal
+    _can_choose = emp and emp.role in ('admin_director', 'ceo') and not is_super
 
     # Determine which employees this issuer can see
-    if is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo())):
+    if is_super or (emp and (emp.is_hr() or emp.role == 'admin_director' or emp.is_ceo())):
         employees = Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
     elif emp and emp.is_manager():
         employees = emp.subordinates.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
+    elif emp and emp.role == 'unit_head':
+        employees = emp.unit_head_of.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
+    elif emp and emp.role == 'finance_director':
+        employees = Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
     else:
         employees = Employee.objects.none()
 
-    # Action types available to this issuer
+    # Pre-fill support (from Step 4 "Issue Final Discipline" on detail page)
+    prefill_employee = request.GET.get('prefill_employee', '')
+    prefill_type = request.GET.get('prefill_type', '')
+
+    # Available action types
     all_types = DisciplineRecord.ACTION_CHOICES
-    if is_manager_only:
-        available_types = [(k, v) for k, v in all_types if k in MANAGER_ALLOWED_TYPES]
+    if _proposal_only:
+        available_types = [(k, v) for k, v in all_types if k == 'verbal_warning']
     else:
         available_types = all_types
 
@@ -115,8 +153,16 @@ def issue_discipline(request):
         notes = request.POST.get('notes', '').strip()
         suspension_start = request.POST.get('suspension_start') or None
         document = request.FILES.get('document')
-        recommended_sanction = request.POST.get('recommended_sanction', '').strip()
-        recommendation_note = request.POST.get('recommendation_note', '').strip()
+        proposal_note = request.POST.get('proposal_note', '').strip()
+        submit_as_proposal = request.POST.get('submit_as_proposal') == '1'
+
+        # Determine if this submission becomes a proposal
+        if _proposal_only:
+            is_prop = True
+        elif _can_choose:
+            is_prop = submit_as_proposal
+        else:
+            is_prop = False  # HR / superuser always formal
 
         # Validate
         errors = []
@@ -126,9 +172,9 @@ def issue_discipline(request):
             errors.append("Please select a discipline type.")
         if not reason:
             errors.append("Reason is required.")
-        if is_manager_only and action_type not in MANAGER_ALLOWED_TYPES:
-            errors.append("You are not authorised to issue this type of discipline notice. As a Line Manager, you may only issue a Verbal Warning.")
-        if action_type == 'suspension' and not suspension_start:
+        if _proposal_only and action_type != 'verbal_warning':
+            errors.append("You may only propose a Verbal Warning. Other discipline types must go through HR.")
+        if action_type == 'suspension' and not suspension_start and not is_prop:
             errors.append("Please provide the suspension start date.")
 
         if errors:
@@ -147,8 +193,8 @@ def issue_discipline(request):
                 issued_by=request.user,
                 reason=reason,
                 notes=notes,
-                recommended_sanction=recommended_sanction if is_manager_only else '',
-                recommendation_note=recommendation_note if is_manager_only else '',
+                is_proposal=is_prop,
+                proposal_note=proposal_note,
             )
             if action_type == 'suspension' and suspension_start:
                 record.suspension_start = suspension_start
@@ -157,54 +203,56 @@ def issue_discipline(request):
 
             record.save()
 
-            # If dismissal, set dismissal_date on employee (account auto-deactivates after 14 days)
-            if action_type == 'dismissal':
-                from datetime import timedelta
-                target_employee.dismissal_date = date.today()
-                target_employee.save(update_fields=['dismissal_date'])
-
-            # Notify the employee via the main notification system
             from notifications.utils import notify
             issuer_name = request.user.get_full_name() or request.user.username
-            notify(
-                target_employee.user,
-                title=f'Discipline Notice: {record.get_action_type_display()}',
-                message=(
-                    f"A {record.get_action_type_display()} has been issued to you by {issuer_name}. "
-                    f"Reason: {reason}. "
-                    f"Please review the notice and contact HR if you have any questions."
-                ),
-                notification_type='discipline',
-                url=reverse('discipline:detail', kwargs={'pk': record.pk}),
-            )
 
-            # Notify all HR staff when a manager issues a verbal warning / recommendation
-            if is_manager_only:
+            if is_prop:
+                # Notify HR staff of the proposal
                 hr_staff = Employee.objects.filter(role='hr', is_active=True).select_related('user')
                 for hr_emp in hr_staff:
                     notify(
                         hr_emp.user,
-                        title=f'Manager Discipline Report: {record.get_action_type_display()}',
+                        title=f'Discipline Proposal: {record.get_action_type_display()} — {target_employee.get_full_name()}',
                         message=(
-                            f"{issuer_name} has issued a {record.get_action_type_display()} to "
-                            f"{target_employee.get_full_name()} and submitted a sanction recommendation. "
-                            f"Please review and complete the HR proposal."
+                            f"{issuer_name} has submitted a {record.get_action_type_display()} proposal "
+                            f"for {target_employee.get_full_name()}. "
+                            f"Please review and formally execute if appropriate."
                         ),
                         notification_type='discipline',
                         url=reverse('discipline:detail', kwargs={'pk': record.pk}),
                     )
-
-            messages.success(
-                request,
-                f"{record.get_action_type_display()} issued to {target_employee.get_full_name()} successfully."
-            )
-
-            # Notify HR/Admin for dismissal
-            if action_type == 'dismissal':
-                messages.warning(
+                messages.success(
                     request,
-                    f"DISMISSAL issued for {target_employee.get_full_name()}. "
-                    f"HR and Admin must manually deactivate this employee's account."
+                    f"Proposal submitted. HR has been notified to review and formally execute the "
+                    f"{record.get_action_type_display()} for {target_employee.get_full_name()}."
+                )
+            else:
+                # Formal notice — notify employee
+                notify(
+                    target_employee.user,
+                    title=f'Discipline Notice: {record.get_action_type_display()}',
+                    message=(
+                        f"A {record.get_action_type_display()} has been issued to you by {issuer_name}. "
+                        f"Reason: {reason}. "
+                        f"Please contact HR if you have any questions."
+                    ),
+                    notification_type='discipline',
+                    url=reverse('discipline:detail', kwargs={'pk': record.pk}),
+                )
+
+                if action_type == 'dismissal':
+                    from datetime import timedelta
+                    target_employee.dismissal_date = date.today()
+                    target_employee.save(update_fields=['dismissal_date'])
+                    messages.warning(
+                        request,
+                        f"DISMISSAL issued for {target_employee.get_full_name()}. "
+                        f"HR and Admin must manually deactivate this employee's account."
+                    )
+
+                messages.success(
+                    request,
+                    f"{record.get_action_type_display()} issued to {target_employee.get_full_name()} successfully."
                 )
 
             return redirect('discipline:detail', pk=record.pk)
@@ -215,9 +263,68 @@ def issue_discipline(request):
     return render(request, 'discipline/issue_form.html', {
         'employees': employees,
         'available_types': available_types,
-        'is_manager_only': is_manager_only,
+        'is_proposal_only': _proposal_only,
+        'can_choose': _can_choose,
+        'is_formal_only': _formal and not _can_choose,
         'departments': departments,
+        'prefill_employee': prefill_employee,
+        'prefill_type': prefill_type,
     })
+
+
+@login_required
+def execute_proposal(request, pk):
+    """HR formally executes a discipline proposal — makes it a real notice visible to the employee."""
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+
+    if not (is_super or (emp and emp.is_hr())):
+        messages.error(request, "Only HR can formally execute discipline proposals.")
+        return redirect('discipline:list')
+
+    record = get_object_or_404(DisciplineRecord, pk=pk, is_proposal=True)
+
+    if request.method == 'POST':
+        suspension_start = request.POST.get('suspension_start') or None
+
+        if record.action_type == 'suspension' and not record.suspension_start and not suspension_start:
+            messages.error(request, "Please provide the suspension start date to execute this notice.")
+            return redirect('discipline:detail', pk=pk)
+
+        if suspension_start and not record.suspension_start:
+            record.suspension_start = suspension_start
+
+        record.is_proposal = False
+        record.issued_by = request.user  # HR becomes the formal issuer
+        record.date_issued = date.today()
+        record.save()
+
+        if record.action_type == 'dismissal':
+            from datetime import timedelta
+            record.employee.dismissal_date = date.today()
+            record.employee.save(update_fields=['dismissal_date'])
+
+        from notifications.utils import notify
+        issuer_name = request.user.get_full_name() or request.user.username
+        notify(
+            record.employee.user,
+            title=f'Discipline Notice: {record.get_action_type_display()}',
+            message=(
+                f"A {record.get_action_type_display()} has been formally issued to you by {issuer_name}. "
+                f"Reason: {record.reason}. "
+                f"Please contact HR if you have any questions."
+            ),
+            notification_type='discipline',
+            url=reverse('discipline:detail', kwargs={'pk': record.pk}),
+        )
+
+        messages.success(
+            request,
+            f"Proposal executed. {record.get_action_type_display()} formally issued to "
+            f"{record.employee.get_full_name()} on {date.today().strftime('%d %b %Y')}."
+        )
+
+    return redirect('discipline:detail', pk=pk)
 
 
 @login_required
@@ -226,27 +333,33 @@ def discipline_list(request):
     emp = get_employee(request)
     is_super = request.user.is_superuser
 
-    is_privileged = is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo()))
-    is_manager_only = (emp and emp.is_manager() and not emp.is_hr() and not emp.is_director() and not is_super)
+    is_privileged = is_super or (emp and (emp.is_hr() or emp.role == 'admin_director' or emp.is_ceo()))
+    is_submitter = emp and is_proposal_only_role(emp)
 
-    # Filter records by role
+    if not (is_privileged or is_submitter):
+        # Regular employees go to their personal notices
+        return redirect('discipline:my_notices')
+
+    # Build queryset
     if is_privileged:
-        records = DisciplineRecord.objects.select_related(
+        records = DisciplineRecord.objects.filter(is_proposal=False).select_related(
             'employee__user', 'employee__department', 'issued_by'
-        ).all()
-    elif is_manager_only:
-        # Managers see ONLY records they personally issued
+        )
+        proposals = DisciplineRecord.objects.filter(is_proposal=True).select_related(
+            'employee__user', 'employee__department', 'issued_by'
+        )
+    elif is_submitter:
         records = DisciplineRecord.objects.filter(
-            issued_by=request.user
+            issued_by=request.user, is_proposal=False
         ).select_related('employee__user', 'employee__department', 'issued_by')
-    elif emp:
-        records = DisciplineRecord.objects.filter(
-            employee=emp
-        ).select_related('employee__user', 'issued_by')
+        proposals = DisciplineRecord.objects.filter(
+            issued_by=request.user, is_proposal=True
+        ).select_related('employee__user', 'employee__department', 'issued_by')
     else:
         records = DisciplineRecord.objects.none()
+        proposals = DisciplineRecord.objects.none()
 
-    # Filters
+    # Filters (apply to formal records only)
     type_filter = request.GET.get('type', '')
     if type_filter:
         records = records.filter(action_type=type_filter)
@@ -259,48 +372,41 @@ def discipline_list(request):
     if emp_filter and is_privileged:
         records = records.filter(employee_id=emp_filter)
 
+    name_filter = request.GET.get('name', '').strip()
+    if name_filter and is_privileged:
+        records = records.filter(
+            Q(employee__user__first_name__icontains=name_filter) |
+            Q(employee__user__last_name__icontains=name_filter)
+        )
+
     from accounts.models import Department
     departments = Department.objects.all()
 
-    # Dismissal alert (HR/Admin/Superuser only — not CEO, they're view-only)
+    # Dismissal alert (HR/Admin only)
     dismissal_alert = []
-    if is_super or (emp and (emp.is_hr() or emp.is_director())):
+    if is_super or (emp and (emp.is_hr() or emp.role == 'admin_director')):
         dismissal_alert = DisciplineRecord.objects.filter(
-            action_type='dismissal'
+            action_type='dismissal', is_proposal=False
         ).select_related('employee__user').order_by('-date_issued')[:10]
 
-    # Manager success rate stats
-    manager_stats = None
-    if is_manager_only:
-        all_issued = DisciplineRecord.objects.filter(issued_by=request.user)
-        total = all_issued.count()
-        director_approved = all_issued.exclude(
-            director_proposed_sanction=''
-        ).exclude(director_proposed_sanction__isnull=True).count()
-        no_action = all_issued.filter(director_proposed_sanction='no_further_action').count()
-        manager_stats = {
-            'total': total,
-            'director_approved': director_approved,
-            'no_action': no_action,
-            'match': all_issued.filter(
-                recommended_sanction=F('director_proposed_sanction')
-            ).count() if total else 0,
-        }
-
-    all_employees = Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name') if is_privileged else Employee.objects.none()
+    all_employees = (
+        Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
+        if is_privileged else Employee.objects.none()
+    )
 
     return render(request, 'discipline/list.html', {
         'records': records,
+        'proposals': proposals,
         'type_filter': type_filter,
         'dept_filter': dept_filter,
         'emp_filter': emp_filter,
+        'name_filter': name_filter,
         'departments': departments,
         'all_employees': all_employees,
         'action_types': DisciplineRecord.ACTION_CHOICES,
         'dismissal_alert': dismissal_alert,
         'is_privileged': is_privileged,
-        'is_manager_only': is_manager_only,
-        'manager_stats': manager_stats,
+        'is_submitter': is_submitter,
     })
 
 
@@ -321,7 +427,6 @@ def delete_discipline_record(request, pk):
         employee = record.employee
         action_type = record.action_type
 
-        # If dismissal record is deleted, clear the dismissal date so account is not deactivated
         if action_type == 'dismissal' and employee.dismissal_date:
             employee.dismissal_date = None
             employee.save(update_fields=['dismissal_date'])
@@ -347,15 +452,16 @@ def discipline_detail(request, pk):
     )
 
     # Access control
-    if is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo())):
+    if is_super or (emp and (emp.is_hr() or emp.role == 'admin_director' or emp.is_ceo())):
         pass  # full access
-    elif emp and emp.is_manager():
-        # Managers can view records they issued (regardless of current supervisor assignment)
+    elif emp and is_proposal_only_role(emp):
+        # Submitters can view records/proposals they personally submitted
         if record.issued_by != request.user:
             messages.error(request, "Access denied.")
             return redirect('discipline:list')
     elif emp:
-        if record.employee != emp:
+        # Regular employees see only their own formal notices
+        if record.employee != emp or record.is_proposal:
             messages.error(request, "Access denied.")
             return redirect('dashboard:home')
     else:
@@ -366,7 +472,7 @@ def discipline_detail(request, pk):
 
 @login_required
 def propose_sanction(request, pk):
-    """HR or Director submits their proposed sanction on a discipline record."""
+    """HR or Admin Director submits their proposed sanction on a discipline record."""
     if request.method != 'POST':
         return redirect('discipline:detail', pk=pk)
 
@@ -387,7 +493,6 @@ def propose_sanction(request, pk):
         record.hr_proposed_note = note
         record.save()
         messages.success(request, "HR proposed sanction saved.")
-        # Notify all Admin Directors
         directors = _Emp.objects.filter(role='admin_director', is_active=True).select_related('user')
         for director in directors:
             notify(
@@ -401,12 +506,11 @@ def propose_sanction(request, pk):
                 notification_type='discipline',
                 url=f'/discipline/{record.pk}/',
             )
-    elif role == 'director' and (is_super or (emp and emp.is_director())):
+    elif role == 'director' and (is_super or (emp and emp.role == 'admin_director')):
         record.director_proposed_sanction = sanction
         record.director_proposed_note = note
         record.save()
         messages.success(request, "Director proposed sanction saved.")
-        # Notify all HR staff
         hr_staff = _Emp.objects.filter(role='hr', is_active=True).select_related('user')
         for hr_emp in hr_staff:
             notify(
@@ -436,7 +540,9 @@ def discipline_stats(request):
         return redirect('dashboard:home')
 
     today = date.today()
-    all_records = DisciplineRecord.objects.select_related('employee__user', 'employee__department')
+    all_records = DisciplineRecord.objects.filter(is_proposal=False).select_related(
+        'employee__user', 'employee__department'
+    )
 
     type_filter = request.GET.get('type', '')
     if type_filter:
@@ -445,16 +551,19 @@ def discipline_stats(request):
         filtered = all_records
 
     warned_employees = Employee.objects.filter(
-        discipline_records__action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+        discipline_records__action_type__in=['verbal_warning', 'written_caution', 'final_warning'],
+        discipline_records__is_proposal=False,
     ).distinct().select_related('user', 'department')
 
     suspended_employees = Employee.objects.filter(
         discipline_records__action_type='suspension',
         discipline_records__suspension_end__gte=today,
+        discipline_records__is_proposal=False,
     ).distinct().select_related('user', 'department')
 
     dismissed_employees = Employee.objects.filter(
-        discipline_records__action_type='dismissal'
+        discipline_records__action_type='dismissal',
+        discipline_records__is_proposal=False,
     ).distinct().select_related('user', 'department')
 
     return render(request, 'discipline/stats.html', {

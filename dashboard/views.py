@@ -534,6 +534,10 @@ def manager_dashboard(request, employee):
         })
     team_balances.sort(key=lambda x: x['balance'].remaining_days)
 
+    discipline_proposals_count = DisciplineRecord.objects.filter(
+        issued_by=request.user, is_proposal=True
+    ).count()
+
     return render(request, 'dashboard/manager_dashboard.html', {
         'employee': employee,
         'balance': balance,
@@ -549,6 +553,7 @@ def manager_dashboard(request, employee):
         'team_balances': team_balances,
         'year': today.year,
         'pending_appraisals': _pending_appraisals_for(employee),
+        'discipline_proposals_count': discipline_proposals_count,
     })
 
 
@@ -703,6 +708,28 @@ def director_dashboard(request, employee):
         action_type='dismissal'
     ).values('employee').distinct().count()
 
+    dept_stats = Department.objects.annotate(
+        approved_requests=Count(
+            'employee__leave_requests',
+            filter=Q(
+                employee__leave_requests__status='approved',
+                employee__leave_requests__start_date__year=year
+            )
+        )
+    ).filter(approved_requests__gt=0).order_by('-approved_requests')
+
+    type_stats = LeaveType.objects.annotate(
+        total=Count(
+            'leaverequest',
+            filter=Q(leaverequest__start_date__year=year, leaverequest__status='approved')
+        )
+    ).filter(total__gt=0).order_by('-total')
+
+    on_leave_count = on_leave_now.count()
+    _total_decided = approved_year + rejected_year
+    approval_rate = round(approved_year / _total_decided * 100) if _total_decided > 0 else 0
+    on_leave_pct  = round(on_leave_count / total_employees * 100) if total_employees > 0 else 0
+
     _contract_ctx = _build_contract_analytics(today, year)
 
     return render(request, 'dashboard/director_dashboard.html', {
@@ -719,6 +746,7 @@ def director_dashboard(request, employee):
         'approved_year': approved_year,
         'rejected_year': rejected_year,
         'on_leave_now': on_leave_now,
+        'on_leave_count': on_leave_count,
         'awaiting_director': awaiting_director,
         'monthly_data': monthly_data,
         'month_labels': month_labels,
@@ -726,6 +754,10 @@ def director_dashboard(request, employee):
         'discipline_warned': discipline_warned,
         'discipline_suspended': discipline_suspended,
         'discipline_dismissed': discipline_dismissed,
+        'dept_stats': dept_stats,
+        'type_stats': type_stats,
+        'approval_rate': approval_rate,
+        'on_leave_pct': on_leave_pct,
         'pending_appraisals': _pending_appraisals_for(employee),
         **_contract_ctx,
     })
@@ -799,6 +831,28 @@ def ceo_dashboard(request, employee):
         action_type='dismissal'
     ).values('employee').distinct().count()
 
+    dept_stats = Department.objects.annotate(
+        approved_requests=Count(
+            'employee__leave_requests',
+            filter=Q(
+                employee__leave_requests__status='approved',
+                employee__leave_requests__start_date__year=year
+            )
+        )
+    ).filter(approved_requests__gt=0).order_by('-approved_requests')
+
+    type_stats = LeaveType.objects.annotate(
+        total=Count(
+            'leaverequest',
+            filter=Q(leaverequest__start_date__year=year, leaverequest__status='approved')
+        )
+    ).filter(total__gt=0).order_by('-total')
+
+    on_leave_count = on_leave_now.count()
+    _total_decided = approved_year + rejected_year
+    approval_rate = round(approved_year / _total_decided * 100) if _total_decided > 0 else 0
+    on_leave_pct  = round(on_leave_count / total_employees * 100) if total_employees > 0 else 0
+
     _contract_ctx = _build_contract_analytics(today, year)
 
     return render(request, 'dashboard/ceo_dashboard.html', {
@@ -815,12 +869,17 @@ def ceo_dashboard(request, employee):
         'rejected_year': rejected_year,
         'pending_all': pending_all,
         'on_leave_now': on_leave_now,
+        'on_leave_count': on_leave_count,
         'monthly_data': monthly_data,
         'month_labels': month_labels,
         'year': year,
         'discipline_warned': discipline_warned,
         'discipline_suspended': discipline_suspended,
         'discipline_dismissed': discipline_dismissed,
+        'dept_stats': dept_stats,
+        'type_stats': type_stats,
+        'approval_rate': approval_rate,
+        'on_leave_pct': on_leave_pct,
         'pending_appraisals': _pending_appraisals_for(employee),
         **_contract_ctx,
     })
@@ -956,6 +1015,11 @@ def hr_dashboard(request, employee):
         key=lambda e: e.date_of_birth.day
     )
 
+    on_leave_count = on_leave_now.count()
+    _total_decided = approved_year + rejected_year
+    approval_rate = round(approved_year / _total_decided * 100) if _total_decided > 0 else 0
+    on_leave_pct  = round(on_leave_count / total_employees * 100) if total_employees > 0 else 0
+
     return render(request, 'dashboard/hr_dashboard.html', {
         'employee': employee,
         'balance': my_balance,
@@ -974,6 +1038,7 @@ def hr_dashboard(request, employee):
         'approved_year': approved_year,
         'rejected_year': rejected_year,
         'on_leave_now': on_leave_now,
+        'on_leave_count': on_leave_count,
         'dept_stats': dept_stats,
         'monthly_data': monthly_data,
         'month_labels': month_labels,
@@ -984,6 +1049,8 @@ def hr_dashboard(request, employee):
         'discipline_warned': discipline_warned,
         'discipline_suspended': discipline_suspended,
         'discipline_dismissed': discipline_dismissed,
+        'approval_rate': approval_rate,
+        'on_leave_pct': on_leave_pct,
         'today_birthdays': today_birthdays,
         'this_month_birthdays': this_month_birthdays,
         'all_departments': Department.objects.order_by('name'),

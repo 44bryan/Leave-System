@@ -58,6 +58,14 @@ class DisciplineRecord(models.Model):
     director_proposed_note = models.TextField(blank=True, default='')
 
     notes = models.TextField(blank=True)
+
+    # Proposal flag — True when submitted by non-HR awaiting formal HR execution
+    is_proposal = models.BooleanField(
+        default=False,
+        help_text='Awaiting formal HR execution; not yet visible to the employee as a notice'
+    )
+    proposal_note = models.TextField(blank=True, default='', help_text='Additional context submitted with the proposal')
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
