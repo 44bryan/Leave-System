@@ -20,22 +20,18 @@
 {% block extra_css %}
 .section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
 .hr-kpi-card {
-    background:color-mix(in srgb,var(--kpi-color,#2db4c3) 6%,#fff);
-    border-radius:14px;padding:24px 16px 20px;
-    box-shadow:0 1px 4px rgba(10,77,104,0.08),0 4px 16px rgba(10,77,104,0.06);
-    border:1px solid color-mix(in srgb,var(--kpi-color,#2db4c3) 22%,transparent);
-    border-left:4px solid var(--kpi-color,#2db4c3);
-    transition:transform .2s,box-shadow .2s,background .2s;
-    position:relative;text-align:center;
+    background:#fff;border-radius:14px;padding:18px 16px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid #eef2f7;
+    transition:box-shadow .15s,transform .15s;
 }
-.hr-kpi-card:hover { transform:translateY(-3px);box-shadow:0 4px 12px rgba(10,77,104,0.12),0 12px 28px rgba(10,77,104,0.10);background:color-mix(in srgb,var(--kpi-color,#2db4c3) 11%,#fff); }
+.hr-kpi-card:hover { box-shadow:0 4px 16px rgba(8,131,149,0.12);transform:translateY(-1px); }
 .hr-kpi-icon {
-    width:52px;height:52px;border-radius:50%;
+    width:42px;height:42px;border-radius:12px;
     display:flex;align-items:center;justify-content:center;
-    font-size:1.4rem;flex-shrink:0;margin:0 auto 12px;
+    font-size:1.1rem;flex-shrink:0;margin-bottom:10px;
 }
-.hr-kpi-value { font-size:2.4rem;font-weight:800;line-height:1;color:#0A4D68; }
-.hr-kpi-label { font-size:0.67rem;color:color-mix(in srgb,var(--kpi-color,#2db4c3) 55%,#6b7a8d);font-weight:600;text-transform:uppercase;letter-spacing:.09em;margin-top:6px; }
+.hr-kpi-value { font-size:1.9rem;font-weight:800;line-height:1;color:#0d1b2a; }
+.hr-kpi-label { font-size:0.72rem;color:#9ab4c0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px; }
 .disc-pill {
     display:flex;align-items:center;gap:10px;
     padding:10px 14px;border-radius:10px;border:1px solid #eef2f7;
@@ -120,9 +116,9 @@
     }
 }
 @media (min-width: 992px) {
-    .pipeline-steps-row .hr-kpi-card { padding: 16px 12px 14px; }
-    .pipeline-steps-row .hr-kpi-icon { width: 42px; height: 42px; font-size: 1rem; margin-bottom: 8px; }
-    .pipeline-steps-row .hr-kpi-value { font-size: 1.7rem; }
+    .pipeline-steps-row .hr-kpi-card { padding: 12px 14px; }
+    .pipeline-steps-row .hr-kpi-icon { width: 34px; height: 34px; font-size: 0.88rem; margin-bottom: 5px; border-radius: 9px; }
+    .pipeline-steps-row .hr-kpi-value { font-size: 1.45rem; }
     .pipeline-steps-row .hr-kpi-label { font-size: 0.62rem; }
 }
 {% endblock %}
