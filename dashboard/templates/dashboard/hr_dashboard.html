@@ -20,18 +20,27 @@
 {% block extra_css %}
 .section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
 .hr-kpi-card {
-    background:#fff;border-radius:14px;padding:18px 16px;
-    box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid #eef2f7;
-    transition:box-shadow .15s,transform .15s;
+    background:#fff;border-radius:18px;padding:26px 16px 22px;
+    box-shadow:0 2px 8px rgba(10,77,104,0.06),0 8px 28px rgba(10,77,104,0.07);
+    border:1px solid rgba(10,77,104,0.05);
+    transition:transform .2s,box-shadow .2s;
+    position:relative;overflow:hidden;text-align:center;
 }
-.hr-kpi-card:hover { box-shadow:0 4px 16px rgba(8,131,149,0.12);transform:translateY(-1px); }
+.hr-kpi-card::before {
+    content:'';position:absolute;top:-24px;right:-24px;width:110px;height:110px;
+    border-radius:50%;background:radial-gradient(circle,var(--kpi-color,#2db4c3) 0%,transparent 70%);
+    opacity:0.1;pointer-events:none;
+}
+.hr-kpi-card:hover { transform:translateY(-4px);box-shadow:0 4px 16px rgba(10,77,104,0.10),0 16px 40px rgba(10,77,104,0.13); }
 .hr-kpi-icon {
-    width:42px;height:42px;border-radius:12px;
+    width:56px;height:56px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
-    font-size:1.1rem;flex-shrink:0;margin-bottom:10px;
+    font-size:1.45rem;flex-shrink:0;margin:0 auto 14px;
+    position:relative;z-index:1;
+    box-shadow:0 2px 8px rgba(10,77,104,0.10);
 }
-.hr-kpi-value { font-size:1.9rem;font-weight:800;line-height:1;color:#0d1b2a; }
-.hr-kpi-label { font-size:0.72rem;color:#9ab4c0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px; }
+.hr-kpi-value { font-size:2.2rem;font-weight:800;line-height:1;color:#0A4D68;position:relative;z-index:1; }
+.hr-kpi-label { font-size:0.67rem;color:#9ab4c0;font-weight:600;text-transform:uppercase;letter-spacing:.09em;margin-top:6px;position:relative;z-index:1; }
 .disc-pill {
     display:flex;align-items:center;gap:10px;
     padding:10px 14px;border-radius:10px;border:1px solid #eef2f7;
@@ -116,16 +125,16 @@
     }
 }
 @media (min-width: 992px) {
-    .pipeline-steps-row .hr-kpi-card { padding: 12px 14px; }
-    .pipeline-steps-row .hr-kpi-icon { width: 34px; height: 34px; font-size: 0.88rem; margin-bottom: 5px; border-radius: 9px; }
-    .pipeline-steps-row .hr-kpi-value { font-size: 1.45rem; }
+    .pipeline-steps-row .hr-kpi-card { padding: 16px 12px 14px; }
+    .pipeline-steps-row .hr-kpi-icon { width: 44px; height: 44px; font-size: 1.1rem; margin-bottom: 8px; }
+    .pipeline-steps-row .hr-kpi-value { font-size: 1.6rem; }
     .pipeline-steps-row .hr-kpi-label { font-size: 0.62rem; }
 }
 {% endblock %}
 
 {% block content %}
 
-\{% include 'dashboard/includes/hero_banner.html' %\}
+{% include 'dashboard/includes/hero_banner.html' %}
 
 {% include 'dashboard/includes/pending_appraisals.html' %}
 
