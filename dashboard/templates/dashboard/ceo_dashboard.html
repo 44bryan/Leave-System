@@ -21,61 +21,101 @@
 <div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> {% trans "Organisation at a Glance" %}</div>
 <div class="row g-3 mb-4 animate-in">
     <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'accounts:employee_list' %}" class="text-decoration-none">
-            <div class="stat-card text-center">
-                <div class="stat-icon mx-auto" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
-                <div class="stat-value">{{ total_employees }}</div>
-                <div class="stat-label">{% trans "Active Staff" %}</div>
-            </div>
+        <a href="{% url 'accounts:employee_list' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#0A4D68,#1d7da0);">
+            <span class="pbi-kpi-icon"><i class="bi bi-people-fill"></i></span>
+            <div class="pbi-kpi-val">{{ total_employees }}</div>
+            <div class="pbi-kpi-lbl">{% trans "Active Staff" %}</div>
         </a>
     </div>
     <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'leaves:all_leaves' %}" class="text-decoration-none">
-            <div class="stat-card text-center">
-                <div class="stat-icon mx-auto" style="background:#e8f5e9;color:#1a8fa0;"><i class="bi bi-check2-all"></i></div>
-                <div class="stat-value">{{ approved_year }}</div>
-                <div class="stat-label">{% blocktrans with y=year %}Approved {{ y }}{% endblocktrans %}</div>
-            </div>
+        <a href="{% url 'leaves:all_leaves' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#059669,#10b981);">
+            <span class="pbi-kpi-icon"><i class="bi bi-check2-all"></i></span>
+            <div class="pbi-kpi-val">{{ approved_year }}</div>
+            <div class="pbi-kpi-lbl">{% blocktrans with y=year %}Approved {{ y }}{% endblocktrans %}</div>
         </a>
     </div>
     <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'leaves:all_leaves' %}?status=pending" class="text-decoration-none">
-            <div class="stat-card text-center">
-                <div class="stat-icon mx-auto" style="background:#fff8e1;color:#d97706;"><i class="bi bi-hourglass-split"></i></div>
-                <div class="stat-value" style="color:#d97706;">{{ pending_all }}</div>
-                <div class="stat-label">{% trans "Pending Requests" %}</div>
-            </div>
+        <a href="{% url 'leaves:all_leaves' %}?status=pending" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#d97706,#f59e0b);">
+            <span class="pbi-kpi-icon"><i class="bi bi-hourglass-split"></i></span>
+            <div class="pbi-kpi-val">{{ pending_all }}</div>
+            <div class="pbi-kpi-lbl">{% trans "Pending" %}</div>
         </a>
     </div>
     <div class="col-6 col-sm-4 col-lg">
-        <div class="stat-card text-center">
-            <div class="stat-icon mx-auto" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
-            <div class="stat-value">{{ rejected_year }}</div>
-            <div class="stat-label">{% blocktrans with y=year %}Rejected {{ y }}{% endblocktrans %}</div>
+        <div class="pbi-kpi" style="background:linear-gradient(135deg,#dc2626,#ef4444);">
+            <span class="pbi-kpi-icon"><i class="bi bi-x-circle-fill"></i></span>
+            <div class="pbi-kpi-val">{{ rejected_year }}</div>
+            <div class="pbi-kpi-lbl">{% blocktrans with y=year %}Rejected {{ y }}{% endblocktrans %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="stat-card text-center" style="border-top:3px solid #f59e0b;">
-                <div class="stat-icon mx-auto" style="background:#fff8e1;color:#d97706;"><i class="bi bi-shield-exclamation"></i></div>
-                <div class="stat-value" style="color:#d97706;">{{ discipline_warned|add:discipline_suspended|add:discipline_dismissed }}</div>
-                <div class="stat-label">{% trans "Discipline Cases" %}</div>
-            </div>
+        <a href="{% url 'discipline:stats' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#7c3aed,#9f6ef5);">
+            <span class="pbi-kpi-icon"><i class="bi bi-shield-exclamation"></i></span>
+            <div class="pbi-kpi-val">{{ discipline_warned|add:discipline_suspended|add:discipline_dismissed }}</div>
+            <div class="pbi-kpi-lbl">{% trans "Discipline Cases" %}</div>
         </a>
+    </div>
+</div>
+
+<!-- ── Org Health Rate Indicators ── -->
+<div class="row g-3 mb-4 animate-in">
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #059669;">
+            <div style="font-size:2.2rem;font-weight:800;color:#059669;line-height:1;">{{ approval_rate }}%</div>
+            <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Approval Rate" %} {{ year }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #d97706;">
+            <div style="font-size:2.2rem;font-weight:800;color:#d97706;line-height:1;">{{ on_leave_pct }}%</div>
+            <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Staff on Leave Today" %}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #2db4c3;">
+            <div style="font-size:2.2rem;font-weight:800;color:#2db4c3;line-height:1;">{{ on_leave_count }}</div>
+            <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Absent Today" %}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #7c3aed;">
+            <div style="font-size:2.2rem;font-weight:800;color:#7c3aed;line-height:1;">{{ approved_year|add:rejected_year }}</div>
+            <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Decisions Made" %} {{ year }}</div>
+        </div>
     </div>
 </div>
 
 <!-- ── Leave Activity ── -->
 <div class="section-label"><i class="bi bi-activity me-1"></i> {% trans "Leave Activity" %}</div>
 <div class="row g-4 animate-in delay-1">
-    <div class="col-lg-8">
+    <div class="col-lg-5">
         <div class="card h-100">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Leave Approvals — {{ year }}</span>
+                <span><i class="bi bi-graph-up me-2 text-primary"></i>{% trans "Monthly Leave Approvals" %} — {{ year }}</span>
                 <a href="{% url 'leaves:all_leaves' %}" class="btn btn-sm btn-outline-primary">{% trans "View All" %}</a>
             </div>
-            <div class="card-body p-4">
-                <canvas id="monthlyChart" height="100"></canvas>
+            <div class="card-body p-3">
+                <canvas id="monthlyChart" height="130"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card h-100">
+            <div class="card-header card-header-chart">
+                <span class="pending-pulse"></span>{% trans "Attendance Today" %}
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
+                <canvas id="attendanceChart" style="max-height:155px;max-width:155px;"></canvas>
+                <div class="d-flex gap-4 mt-3 justify-content-center">
+                    <div class="text-center">
+                        <div style="font-size:1.5rem;font-weight:800;color:#059669;" id="ceoPresent">—</div>
+                        <div style="font-size:.62rem;color:#9ab4c0;text-transform:uppercase;">{% trans "Present" %}</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.5rem;font-weight:800;color:#dc2626;">{{ on_leave_now|length }}</div>
+                        <div style="font-size:.62rem;color:#9ab4c0;text-transform:uppercase;">{% trans "On Leave" %}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -88,7 +128,7 @@
             <div class="card-body p-3" style="max-height:320px;overflow-y:auto;">
                 {% for req in on_leave_now %}
                 <div class="d-flex align-items-center gap-2 py-2 border-bottom">
-                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2db4c3,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ req.employee.user.first_name|first|upper }}
                     </div>
                     <div class="flex-grow-1">
@@ -109,41 +149,119 @@
 
 {% include 'dashboard/includes/contract_analytics.html' %}
 
-<!-- ── Discipline Summary ── -->
-<div class="section-label mt-4"><i class="bi bi-shield-exclamation me-1"></i> {% trans "Discipline Overview" %}</div>
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-4">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="card border-0 shadow-sm text-center p-3">
-                <div style="width:44px;height:44px;background:#fff8e1;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
-                    <i class="bi bi-exclamation-triangle-fill" style="color:#d97706;font-size:1.3rem;"></i>
-                </div>
-                <div style="font-size:1.6rem;font-weight:800;color:#d97706;">{{ discipline_warned }}</div>
-                <div style="font-size:0.75rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">{% trans "Warnings Issued" %}</div>
+<!-- ── Analytics: 3 Donut Charts ── -->
+<div class="section-label mt-4"><i class="bi bi-graph-up me-1"></i> {% trans "Analytics" %}</div>
+<div class="row g-4 mb-4 animate-in">
+
+    <!-- Leave Outcomes Donut -->
+    <div class="col-md-4">
+        <div class="card h-100" style="border-radius:14px;">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-check2-circle me-2" style="color:#059669;"></i>
+                <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Leave Outcomes" %} — {{ year }}</span>
             </div>
-        </a>
+            <div class="card-body d-flex flex-column align-items-center p-3">
+                <canvas id="leaveOutcomeChart" style="max-height:200px;max-width:200px;"></canvas>
+                <div class="d-flex gap-4 mt-3 justify-content-center">
+                    <div class="text-center">
+                        <div style="font-size:1.4rem;font-weight:800;color:#059669;">{{ approved_year }}</div>
+                        <div style="font-size:.68rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.05em;">{% trans "Approved" %}</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.4rem;font-weight:800;color:#dc2626;">{{ rejected_year }}</div>
+                        <div style="font-size:.68rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.05em;">{% trans "Rejected" %}</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.4rem;font-weight:800;color:#d97706;">{{ pending_all }}</div>
+                        <div style="font-size:.68rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.05em;">{% trans "Pending" %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-6 col-md-4">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="card border-0 shadow-sm text-center p-3">
-                <div style="width:44px;height:44px;background:#fce4ec;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
-                    <i class="bi bi-person-slash" style="color:#c62828;font-size:1.3rem;"></i>
-                </div>
-                <div style="font-size:1.6rem;font-weight:800;color:#c62828;">{{ discipline_suspended }}</div>
-                <div style="font-size:0.75rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">{% trans "Active Suspensions" %}</div>
+
+    <!-- Discipline Donut -->
+    <div class="col-md-4">
+        <div class="card h-100" style="border-radius:14px;">
+            <div class="card-header card-header-chart">
+                <a href="{% url 'discipline:stats' %}" class="text-decoration-none d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-exclamation" style="color:#d97706;"></i>
+                    <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Discipline Overview" %}</span>
+                </a>
             </div>
-        </a>
+            <div class="card-body d-flex flex-column align-items-center p-3">
+                <canvas id="disciplineChart" style="max-height:200px;max-width:200px;"></canvas>
+                <div class="d-flex gap-4 mt-3 justify-content-center">
+                    <div class="text-center">
+                        <div style="font-size:1.2rem;font-weight:800;color:#d97706;">{{ discipline_warned }}</div>
+                        <div style="font-size:.65rem;color:#9ab4c0;text-transform:uppercase;">{% trans "Warned" %}</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.2rem;font-weight:800;color:#dc2626;">{{ discipline_suspended }}</div>
+                        <div style="font-size:.65rem;color:#9ab4c0;text-transform:uppercase;">{% trans "Suspended" %}</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.2rem;font-weight:800;color:#0A4D68;">{{ discipline_dismissed }}</div>
+                        <div style="font-size:.65rem;color:#9ab4c0;text-transform:uppercase;">{% trans "Dismissed" %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-6 col-md-4">
-        <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="card border-0 shadow-sm text-center p-3">
-                <div style="width:44px;height:44px;background:#f3e5f5;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
-                    <i class="bi bi-person-x-fill" style="color:#0A4D68;font-size:1.3rem;"></i>
-                </div>
-                <div style="font-size:1.6rem;font-weight:800;color:#0A4D68;">{{ discipline_dismissed }}</div>
-                <div style="font-size:0.75rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">{% trans "Dismissals" %}</div>
+
+    <!-- Contract Mix Donut -->
+    <div class="col-md-4">
+        <div class="card h-100" style="border-radius:14px;">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-file-earmark-person me-2 text-primary"></i>
+                <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Contract Mix" %}</span>
             </div>
-        </a>
+            <div class="card-body d-flex flex-column align-items-center p-3">
+                <canvas id="contractMixChart" style="max-height:200px;max-width:200px;"></canvas>
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3" style="font-size:.74rem;color:#6b7a8d;">
+                    <span><span style="color:#059669;font-size:1rem;">&#9679;</span> CDI <strong>{{ contract_total_cdi }}</strong></span>
+                    <span><span style="color:#d97706;font-size:1rem;">&#9679;</span> CDD <strong>{{ contract_total_cdd }}</strong></span>
+                    <span><span style="color:#2db4c3;font-size:1rem;">&#9679;</span> Intern <strong>{{ contract_total_intern }}</strong></span>
+                    <span><span style="color:#7c3aed;font-size:1rem;">&#9679;</span> WACS <strong>{{ contract_total_wacs }}</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Workforce Analytics ── -->
+<div class="section-label mt-2"><i class="bi bi-bar-chart-steps me-1"></i> {% trans "Workforce Analytics" %}</div>
+<div class="row g-4 mb-4 animate-in">
+    <div class="col-lg-6">
+        <div class="card h-100" style="border-radius:14px;">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-building me-2" style="color:#2db4c3;"></i>
+                <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Approved Leave by Department" %} — {{ year }}</span>
+            </div>
+            <div class="card-body p-3">
+                {% if dept_stats %}
+                <canvas id="ceoDeptChart"></canvas>
+                {% else %}
+                <div class="text-center text-muted py-4"><i class="bi bi-inbox fs-2 d-block mb-2"></i><small>{% trans "No approved leaves this year yet" %}</small></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100" style="border-radius:14px;">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-bar-chart-steps me-2" style="color:#7c3aed;"></i>
+                <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Approved Leave by Type" %} — {{ year }}</span>
+            </div>
+            <div class="card-body p-3">
+                {% if type_stats %}
+                <canvas id="ceoTypeChart"></canvas>
+                {% else %}
+                <div class="text-center text-muted py-4"><i class="bi bi-inbox fs-2 d-block mb-2"></i><small>{% trans "No approved leaves this year yet" %}</small></div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -151,34 +269,193 @@
 
 {% block extra_css %}
 .section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
-.pending-pulse { display:inline-block;width:8px;height:8px;background:#e53e3e;border-radius:50%;animation:pulse 1.5s infinite;margin-right:6px; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.4);} }
+.pbi-kpi { border-radius:14px;padding:18px 12px;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,0.12);transition:transform .15s,box-shadow .15s;color:white;display:block; }
+.pbi-kpi:hover { transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.18); }
+.pbi-kpi-icon { font-size:1.5rem;opacity:0.85;margin-bottom:8px;display:block; }
+.pbi-kpi-val { font-size:2rem;font-weight:800;line-height:1; }
+.pbi-kpi-lbl { font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:0.82;margin-top:5px; }
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <script>
+
+// ── Monthly line chart with gradient fill ────────────────────────────────────
 const ctx = document.getElementById('monthlyChart').getContext('2d');
+const lineGrad = ctx.createLinearGradient(0, 0, 0, 280);
+lineGrad.addColorStop(0, 'rgba(10,77,104,0.28)');
+lineGrad.addColorStop(1, 'rgba(10,77,104,0)');
 new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
         labels: {{ month_labels|safe }},
         datasets: [{
             label: 'Approved Leaves',
             data: {{ monthly_data|safe }},
-            backgroundColor: 'rgba(10,77,104,0.12)',
+            fill: true,
+            backgroundColor: lineGrad,
             borderColor: '#0A4D68',
-            borderWidth: 2,
-            borderRadius: 8,
-            borderSkipped: false,
+            borderWidth: 2.5,
+            pointBackgroundColor: '#0A4D68',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.4
         }]
     },
     options: {
         responsive: true,
-        plugins: { legend: { display: false } },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8,
+                callbacks: { label: c => ` ${c.parsed.y} approved` }
+            }
+        },
         scales: {
-            y: { beginAtZero:true, ticks:{stepSize:1,font:{family:'Plus Jakarta Sans'}}, grid:{color:'#f0f4f8'} },
-            x: { ticks:{font:{family:'Plus Jakarta Sans'}}, grid:{display:false} }
+            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+const donutDefaults = {
+    responsive: true, cutout: '72%',
+    plugins: {
+        legend: { position: 'bottom', labels: { padding: 14, boxWidth: 10, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } },
+        tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
+    }
+};
+
+// ── Leave Outcome Donut ───────────────────────────────────────────────────────
+(function(){
+    const aY = {{ approved_year }}, rY = {{ rejected_year }}, pA = {{ pending_all }};
+    const hasData = aY + rY + pA > 0;
+    new Chart(document.getElementById('leaveOutcomeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: hasData ? ['Approved','Rejected','Pending'] : ['No data yet'],
+            datasets: [{ data: hasData ? [aY,rY,pA] : [1], backgroundColor: hasData ? ['#059669','#dc2626','#d97706'] : ['#e2e8f0'], borderWidth: hasData ? 2 : 0, borderColor: '#fff', hoverOffset: 8 }]
+        },
+        options: donutDefaults
+    });
+})();
+
+// ── Discipline Donut ──────────────────────────────────────────────────────────
+(function(){
+    const dW = {{ discipline_warned }}, dS = {{ discipline_suspended }}, dD = {{ discipline_dismissed }};
+    const hasDisc = dW + dS + dD > 0;
+    new Chart(document.getElementById('disciplineChart'), {
+        type: 'doughnut',
+        data: {
+            labels: hasDisc ? ['Warnings','Suspensions','Dismissals'] : ['No data yet'],
+            datasets: [{ data: hasDisc ? [dW,dS,dD] : [1], backgroundColor: hasDisc ? ['#d97706','#dc2626','#0A4D68'] : ['#e2e8f0'], borderWidth: hasDisc ? 2 : 0, borderColor: '#fff', hoverOffset: 8 }]
+        },
+        options: donutDefaults
+    });
+})();
+
+// ── Contract Mix — Polar Area ────────────────────────────────────────────────
+(function(){
+    const cCDI = {{ contract_total_cdi }}, cCDD = {{ contract_total_cdd }}, cINT = {{ contract_total_intern }}, cWACS = {{ contract_total_wacs }};
+    const hasCtr = cCDI + cCDD + cINT + cWACS > 0;
+    new Chart(document.getElementById('contractMixChart'), {
+        type: hasCtr ? 'polarArea' : 'doughnut',
+        data: {
+            labels: hasCtr ? ['CDI','CDD','Internship','Residents'] : ['No data yet'],
+            datasets: [{ data: hasCtr ? [cCDI,cCDD,cINT,cWACS] : [1], backgroundColor: hasCtr ? ['rgba(5,150,105,.72)','rgba(217,119,6,.72)','rgba(45,180,195,.72)','rgba(124,58,237,.72)'] : ['#e2e8f0'], borderColor: hasCtr ? ['#059669','#d97706','#2db4c3','#7c3aed'] : ['#e2e8f0'], borderWidth: hasCtr ? 2 : 0 }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 11 } } },
+                tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
+            },
+            scales: hasCtr ? { r: { ticks: { display: false }, grid: { color: '#f0f4f8' } } } : {}
+        }
+    });
+})();
+
+// ── Dept horizontal bar ──────────────────────────────────────────────────────
+{% if dept_stats %}
+(function(){
+    const dColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#7c3aed','#db2777','#dc2626'];
+    new Chart(document.getElementById('ceoDeptChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for d in dept_stats %}'{{ d.name|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '{% trans "Approved" %}',
+                data: [{% for d in dept_stats %}{{ d.approved_requests }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [{% for d in dept_stats %}dColors[{{ forloop.counter0 }} % dColors.length]{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderRadius: 6, borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y', responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.parsed.x} approved` } }
+            },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+                y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+            }
+        }
+    });
+})();
+{% endif %}
+
+// ── Leave type horizontal bar ─────────────────────────────────────────────────
+{% if type_stats %}
+(function(){
+    const tColors = ['#0A4D68','#088395','#2db4c3','#059669','#d97706','#7c3aed','#dc2626','#db2777','#2db4c3'];
+    new Chart(document.getElementById('ceoTypeChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for lt in type_stats %}'{{ lt.name|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: '{% trans "Approved" %}',
+                data: [{% for lt in type_stats %}{{ lt.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [{% for lt in type_stats %}tColors[{{ forloop.counter0 }} % tColors.length]{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderRadius: 6, borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y', responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.parsed.x} requests` } }
+            },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+                y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+            }
+        }
+    });
+})();
+{% endif %}
+
+// ── Attendance Donut ──────────────────────────────────────────────────────────
+const ceoTotal    = {{ total_employees }};
+const ceoOnLeave  = {{ on_leave_now|length }};
+const ceoPresent  = Math.max(0, ceoTotal - ceoOnLeave);
+document.getElementById('ceoPresent').textContent = ceoPresent;
+new Chart(document.getElementById('attendanceChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Present', 'On Leave'],
+        datasets: [{
+            data: ceoTotal > 0 ? [ceoPresent, ceoOnLeave] : [1, 0],
+            backgroundColor: ceoTotal > 0 ? ['#059669','#dc2626'] : ['#e2e8f0','#f0f4f8'],
+            borderWidth: 2, borderColor: '#fff', hoverOffset: 6
+        }]
+    },
+    options: {
+        responsive: true, cutout: '72%',
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
         }
     }
 });

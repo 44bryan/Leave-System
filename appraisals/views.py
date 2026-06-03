@@ -203,9 +203,23 @@ def my_appraisals(request):
         cycle__is_distributed=True,
     ).select_related('cycle').order_by('-cycle__year', '-cycle__trimester')
 
+    # Co-worker reviews this employee has been asked to complete
+    coworker_pending = AppraisalRecord.objects.filter(
+        coworker_signed_by=emp,
+        status=AppraisalRecord.STATUS_COWORKER,
+    ).select_related('employee__user', 'cycle')
+
+    # Co-worker reviews already submitted (can still edit before manager stage)
+    coworker_submitted = AppraisalRecord.objects.filter(
+        coworker_signed_by=emp,
+        status=AppraisalRecord.STATUS_UNIT_HEAD,
+    ).select_related('employee__user', 'cycle')
+
     return render(request, 'appraisals/my_appraisals.html', {
         'active_records': active_records,
         'history': history,
+        'coworker_pending': coworker_pending,
+        'coworker_submitted': coworker_submitted,
     })
 
 
@@ -218,14 +232,20 @@ def employee_fill(request, record_pk):
     if record.employee != emp:
         messages.error(request, "Access denied.")
         return redirect('appraisals:my_appraisals')
-    if record.status != AppraisalRecord.STATUS_EMPLOYEE:
-        messages.error(request, "You have already submitted your section.")
+    _editable_by_employee = {
+        AppraisalRecord.STATUS_EMPLOYEE,
+        AppraisalRecord.STATUS_COWORKER,
+        AppraisalRecord.STATUS_UNIT_HEAD,
+    }
+    if record.status not in _editable_by_employee:
+        messages.error(request, "You can no longer edit this appraisal.")
         return redirect('appraisals:my_appraisals')
 
     if request.method == 'POST':
         p = request.POST
+        is_initial_submit = record.status == AppraisalRecord.STATUS_EMPLOYEE
 
-        # Validate co-worker selection
+        # Validate co-worker selection (required only on first submit)
         coworker_pk = p.get('selected_coworker', '').strip()
         selected_coworker = None
         if coworker_pk:
@@ -238,7 +258,7 @@ def employee_fill(request, record_pk):
             except (Employee.DoesNotExist, ValueError):
                 selected_coworker = None
 
-        if not selected_coworker:
+        if is_initial_submit and not selected_coworker:
             messages.error(request, "Please select a co-worker to provide a comment.")
         else:
             record.tasks_summary          = p.get('tasks_summary', '').strip()
@@ -265,22 +285,37 @@ def employee_fill(request, record_pk):
                 emp.signature_b64 = sig_b64
                 emp.save(update_fields=['signature_b64'])
 
-            record.coworker_signed_by = selected_coworker
-            record.employee_signed_at = timezone.now()
-            record.status = AppraisalRecord.STATUS_COWORKER
-            record.save()
-
-            # Notify selected co-worker
-            notify(
-                selected_coworker.user,
-                f'Co-Worker Comment Needed — {emp.get_full_name()}',
-                f'{emp.get_full_name()} has selected you to provide a co-worker comment '
-                f'on their appraisal for {record.cycle}. Please log in to add your comment.',
-                notification_type='general',
-                url=f'/appraisals/coworker/{record.pk}/',
-            )
-
-            messages.success(request, "Your appraisal section has been submitted.")
+            if is_initial_submit:
+                record.coworker_signed_by = selected_coworker
+                record.employee_signed_at = timezone.now()
+                record.status = AppraisalRecord.STATUS_COWORKER
+                record.save()
+                notify(
+                    selected_coworker.user,
+                    f'Co-Worker Comment Needed — {emp.get_full_name()}',
+                    f'{emp.get_full_name()} has selected you to provide a co-worker comment '
+                    f'on their appraisal for {record.cycle}. Please log in to add your comment.',
+                    notification_type='general',
+                    url=f'/appraisals/coworker/{record.pk}/',
+                )
+                messages.success(request, "Your appraisal section has been submitted.")
+            elif record.status == AppraisalRecord.STATUS_COWORKER and selected_coworker:
+                old_coworker = record.coworker_signed_by
+                record.coworker_signed_by = selected_coworker
+                record.save()
+                if old_coworker != selected_coworker:
+                    notify(
+                        selected_coworker.user,
+                        f'Co-Worker Comment Needed — {emp.get_full_name()}',
+                        f'{emp.get_full_name()} has updated their appraisal and re-selected '
+                        f'you as co-worker for {record.cycle}. Please log in to add your comment.',
+                        notification_type='general',
+                        url=f'/appraisals/coworker/{record.pk}/',
+                    )
+                messages.success(request, "Your appraisal has been updated.")
+            else:
+                record.save()
+                messages.success(request, "Your appraisal has been updated.")
             return redirect('appraisals:my_appraisals')
 
     dept_colleagues = Employee.objects.filter(
@@ -347,17 +382,33 @@ _RATING_FNAMES = [
 ]
 
 
-def _apply_score_override(post, record, by_emp):
-    """Store any score overrides from HR/Director/CEO in override_* fields."""
-    changed = False
+def _apply_score_override(post, record, by_emp, role='hr'):
+    """Store score overrides only when values actually differ from the supervisor's scores.
+    Saves a per-role snapshot of which fields changed and to what value."""
+    snapshot = {}
     for fname in _RATING_FNAMES:
         v = _int_or_none(post.get(f'override_{fname}'))
-        if v is not None:
+        if v is None:
+            continue
+        if v != getattr(record, f'mgr_{fname}'):
             setattr(record, f'override_{fname}', v)
-            changed = True
-    if changed:
+            snapshot[fname] = v
+    if snapshot:
+        now = timezone.now()
         record.score_override_by = by_emp
-        record.score_override_at = timezone.now()
+        record.score_override_at = now
+        if role == 'hr':
+            record.score_modified_by_hr = by_emp
+            record.score_modified_at_hr = now
+            record.hr_score_changes = snapshot
+        elif role == 'director':
+            record.score_modified_by_director = by_emp
+            record.score_modified_at_director = now
+            record.director_score_changes = snapshot
+        elif role == 'ceo':
+            record.score_modified_by_ceo = by_emp
+            record.score_modified_at_ceo = now
+            record.ceo_score_changes = snapshot
 
 
 def _score_form_ctx(record):
@@ -399,7 +450,8 @@ def coworker_fill(request, record_pk):
     if not emp or emp == record.employee:
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
-    if record.status != AppraisalRecord.STATUS_COWORKER:
+    _coworker_editable = {AppraisalRecord.STATUS_COWORKER, AppraisalRecord.STATUS_UNIT_HEAD}
+    if record.status not in _coworker_editable:
         messages.error(request, "This appraisal is not awaiting a co-worker comment.")
         return redirect('dashboard:home')
     if record.coworker_signed_by and record.coworker_signed_by != emp:
@@ -407,24 +459,28 @@ def coworker_fill(request, record_pk):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
+        is_initial_coworker_submit = record.status == AppraisalRecord.STATUS_COWORKER
         record.coworker_comment   = request.POST.get('coworker_comment', '').strip()
         record.coworker_signed_by = emp
         record.coworker_signed_at = timezone.now()
         _save_sig(record, 'coworker_sig_b64', request.POST.get('signature_data', ''))
-        record.status = AppraisalRecord.STATUS_UNIT_HEAD
+        if is_initial_coworker_submit:
+            record.status = AppraisalRecord.STATUS_UNIT_HEAD
         record.save()
 
-        # Notify unit head or supervisor
-        target = record.employee.unit_head or record.employee.supervisor
-        if target:
-            notify(
-                target.user,
-                f'Appraisal Review Needed — {record.employee.get_full_name()}',
-                f'Co-worker comment added. Please add your supervisor comment for {record.employee.get_full_name()}.',
-                notification_type='general',
-                url=f'/appraisals/unit-head/{record.pk}/',
-            )
-        messages.success(request, "Co-worker comment submitted.")
+        if is_initial_coworker_submit:
+            target = record.employee.unit_head or record.employee.supervisor
+            if target:
+                notify(
+                    target.user,
+                    f'Appraisal Review Needed — {record.employee.get_full_name()}',
+                    f'Co-worker comment added. Please add your supervisor comment for {record.employee.get_full_name()}.',
+                    notification_type='general',
+                    url=f'/appraisals/unit-head/{record.pk}/',
+                )
+            messages.success(request, "Co-worker comment submitted.")
+        else:
+            messages.success(request, "Co-worker comment updated.")
         return redirect('dashboard:home')
 
     return render(request, 'appraisals/coworker_fill.html', {
@@ -593,7 +649,7 @@ def hr_fill(request, record_pk):
         return redirect('appraisals:hr_dashboard')
 
     if request.method == 'POST':
-        _apply_score_override(request.POST, record, emp)
+        _apply_score_override(request.POST, record, emp, role='hr')
         record.hr_comment   = request.POST.get('hr_comment', '').strip()
         record.hr_signed_by = emp
         record.hr_signed_at = timezone.now()
@@ -631,7 +687,7 @@ def director_fill(request, record_pk):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        _apply_score_override(request.POST, record, emp)
+        _apply_score_override(request.POST, record, emp, role='director')
         try:
             record.award_bonus_points = max(0, int(request.POST.get('award_bonus_points', record.award_bonus_points) or record.award_bonus_points))
         except (ValueError, TypeError):
@@ -676,7 +732,7 @@ def ceo_fill(request, record_pk):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        _apply_score_override(request.POST, record, emp)
+        _apply_score_override(request.POST, record, emp, role='ceo')
         try:
             record.award_bonus_points = max(0, int(request.POST.get('award_bonus_points', record.award_bonus_points) or record.award_bonus_points))
         except (ValueError, TypeError):

@@ -70,9 +70,20 @@
         if (signaturePad) { signaturePad.clear(); placeholder.style.display = 'block'; }
     });
 
+    function flattenToRgbPng() {
+        var off = document.createElement('canvas');
+        off.width  = canvas.width;
+        off.height = canvas.height;
+        var ctx = off.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, off.width, off.height);
+        ctx.drawImage(canvas, 0, 0);
+        return off.toDataURL('image/png');
+    }
+
     document.querySelector('form').addEventListener('submit', function (e) {
         if (signaturePad && !signaturePad.isEmpty()) {
-            dataInput.value = signaturePad.toDataURL('image/png');
+            dataInput.value = flattenToRgbPng();
         } else if (savedSigB64) {
             dataInput.value = savedSigB64;
         } else {

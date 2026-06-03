@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}Leave Tracker — AEF HRM{% endblock %}
 {% block page_title %}Leave Balance Tracker{% endblock %}
 {% block page_subtitle %}Annual entitlement overview for all employees{% endblock %}
 {% block nav_tracker %}active{% endblock %}
+{% block nav_tracker_dir %}active{% endblock %}
 
 {% block content %}
 <!-- Filter -->
@@ -36,9 +38,16 @@
 </div>
 
 <div class="card animate-in delay-1">
-    <div class="card-header">
-        <i class="bi bi-bar-chart-line me-2"></i>Leave Balances — {{ year }}
-        <span class="badge bg-primary ms-2">{{ balances|length }} employees</span>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            <i class="bi bi-bar-chart-line me-2"></i>Leave Balances — {{ year }}
+            <span class="badge bg-primary ms-2">{{ balances|length }} employees</span>
+        </span>
+        {% if request.user.is_superuser or request.user.employee.is_hr %}
+        <span class="text-muted" style="font-size:.75rem;">
+            <i class="bi bi-pencil-square me-1"></i>Click the pencil to edit an employee's entitlement
+        </span>
+        {% endif %}
     </div>
     <div class="table-responsive">
         <table class="table mb-0">
@@ -46,12 +55,12 @@
                 <tr>
                     <th>Employee</th>
                     <th>Department</th>
-                    <th>Position</th>
-                    <th>Total Days</th>
+                    <th class="th-opt">Position</th>
+                    <th class="text-nowrap">Entitlement</th>
                     <th>Used</th>
                     <th>Remaining</th>
                     <th>Usage</th>
-                    <th>Balance Bar</th>
+                    <th class="th-opt">Balance Bar</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,7 +69,7 @@
                 <tr>
                     <td>
                         <a href="{% url 'leaves:employee_summary' e.pk %}?year={{ year }}" class="d-flex align-items-center gap-2 text-decoration-none" style="color:inherit;">
-                            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#05BFDB,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.7rem;flex-shrink:0;">
+                            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1a8fa0,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.7rem;flex-shrink:0;">
                                 {{ e.user.first_name|first|upper }}
                             </div>
                             <div>
@@ -70,8 +79,21 @@
                         </a>
                     </td>
                     <td style="font-size:.82rem;">{{ e.department|default:"—" }}</td>
-                    <td style="font-size:.82rem;color:#6b7a8d;">{{ e.position|default:"—" }}</td>
-                    <td><strong>{{ b.total_entitlement }}</strong></td>
+                    <td class="td-opt" style="font-size:.82rem;color:#6b7a8d;">{{ e.position|default:"—" }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <strong>{{ b.total_entitlement }}</strong>
+                            <span style="font-size:.7rem;color:#9ab4c0;">days</span>
+                            {% if request.user.is_superuser or request.user.employee.is_hr %}
+                            <button type="button" class="btn btn-sm p-0"
+                                title="Edit entitlement"
+                                onclick="openEntitlementModal('{{ e.pk }}', '{{ e.get_full_name }}', {{ b.total_entitlement }}, {{ year }})"
+                                style="background:none;border:none;color:#9ab4c0;font-size:.8rem;line-height:1;cursor:pointer;">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
                     <td>
                         <span class="badge bg-light text-dark border">{{ b.used_days }}</span>
                     </td>
@@ -83,7 +105,7 @@
                     <td style="font-weight:600;color:{% if b.usage_percentage > 80 %}#e53e3e{% elif b.usage_percentage > 60 %}#f57f17{% else %}#1a8fa0{% endif %};">
                         {{ b.usage_percentage }}%
                     </td>
-                    <td style="min-width:120px;">
+                    <td class="td-opt" style="min-width:120px;">
                         <div class="progress">
                             <div class="progress-bar {% if b.usage_percentage > 80 %}bg-danger{% elif b.usage_percentage > 60 %}bg-warning{% else %}bg-primary{% endif %}"
                                  style="width:{{ b.usage_percentage }}%;"
@@ -104,8 +126,67 @@
 </div>
 
 <div class="d-flex gap-3 mt-3" style="font-size:.78rem;">
-    <span><span class="badge bg-success me-1">■</span> Healthy (>40% left)</span>
+    <span><span class="badge bg-success me-1">■</span> Healthy (&gt;40% left)</span>
     <span><span class="badge bg-warning text-dark me-1">■</span> Low (≤40%)</span>
     <span><span class="badge bg-danger me-1">■</span> Critical (≤3 days)</span>
 </div>
+
+<!-- Edit Entitlement Modal (HR/Admin only) -->
+{% if request.user.is_superuser or request.user.employee.is_hr %}
+<div class="modal fade" id="entitlementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:14px;border:none;box-shadow:0 12px 40px rgba(10,77,104,.2);">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0A4D68,#088395);border-radius:14px 14px 0 0;border:none;">
+                <h6 class="modal-title text-white fw-bold">
+                    <i class="bi bi-calendar2-check me-2"></i>Set Leave Entitlement
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'leaves:set_entitlement' %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <input type="hidden" name="employee_id" id="modalEmpId">
+                <input type="hidden" name="year" id="modalYear">
+                <div class="modal-body p-4">
+                    <p class="mb-3" style="font-size:.85rem;color:#4a6b7c;">
+                        Setting annual leave entitlement for:
+                        <br><strong id="modalEmpName" style="color:#0A4D68;"></strong>
+                        <span id="modalYearDisplay" class="badge bg-light text-dark ms-1"></span>
+                    </p>
+                    <label class="form-label">Deductible Leave Days</label>
+                    <div class="input-group">
+                        <input type="number" name="total_entitlement" id="modalEntitlement"
+                               class="form-control" min="0" max="365" required>
+                        <span class="input-group-text">days</span>
+                    </div>
+                    <div class="mt-2 text-muted" style="font-size:.75rem;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Default is 18. This only affects deductible leave types (Annual Leave, Permission, etc.).
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-check2 me-1"></i>Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openEntitlementModal(empId, empName, currentDays, year) {
+    document.getElementById('modalEmpId').value = empId;
+    document.getElementById('modalYear').value = year;
+    document.getElementById('modalEmpName').textContent = empName;
+    document.getElementById('modalYearDisplay').textContent = year;
+    document.getElementById('modalEntitlement').value = currentDays;
+    new bootstrap.Modal(document.getElementById('entitlementModal')).show();
+}
+</script>
 {% endblock %}

@@ -39,33 +39,32 @@ def _d(v):
     return v.strftime('%d/%m/%Y')
 
 
+def _pil_to_reader(pil_img):
+    """Flatten any PIL image to RGB and return a ReportLab ImageReader."""
+    from PIL import Image as _PI
+    if pil_img.mode in ('RGBA', 'LA', 'P'):
+        rgba = pil_img.convert('RGBA')
+        bg   = _PI.new('RGBA', rgba.size, (255, 255, 255, 255))
+        bg.paste(rgba, mask=rgba.split()[3])
+        pil_img = bg.convert('RGB')
+    else:
+        pil_img = pil_img.convert('RGB')
+    out = _io.BytesIO()
+    pil_img.save(out, format='PNG')
+    return ImageReader(_io.BytesIO(out.getvalue()))
+
+
 def _load_sig(b64):
-    """Return ReportLab ImageReader from a data-URI base64 string, or None."""
+    """Return a ReportLab ImageReader from a data-URI base64 signature, or None.
+    Always routes through Pillow so RGBA/transparent PNGs are composited on white."""
     if not b64 or not b64.startswith('data:image/'):
         return None
     try:
-        raw = _b64.b64decode(b64.split(',', 1)[1])
-        # Try direct ReportLab read first (PNG / JPEG without PIL)
-        try:
-            return ImageReader(_io.BytesIO(raw))
-        except Exception:
-            pass
-        # Fallback: flatten via Pillow (handles RGBA transparency)
-        from PIL import Image as PI
-        img = PI.open(_io.BytesIO(raw))
-        img.load()
-        if img.mode != 'RGB':
-            bg = PI.new('RGB', img.size, (255, 255, 255))
-            if img.mode in ('RGBA', 'LA', 'P'):
-                converted = img.convert('RGBA')
-                bg.paste(converted, mask=converted.split()[3])
-            else:
-                bg.paste(img.convert('RGB'))
-            img = bg
-        out = _io.BytesIO()
-        img.save(out, 'PNG')
-        out.seek(0)
-        return ImageReader(out)
+        from PIL import Image as _PI
+        raw     = _b64.b64decode(b64.split(',', 1)[1])
+        pil_img = _PI.open(_io.BytesIO(raw))
+        pil_img.load()
+        return _pil_to_reader(pil_img)
     except Exception:
         return None
 
@@ -118,12 +117,21 @@ class Builder:
     def _sig_img(self, b64, x, y_top, mw, mh):
         r = _load_sig(b64)
         if not r:
-            return
+            return False
         try:
             self.cv.drawImage(r, x, y_top - mh, width=mw, height=mh,
                               preserveAspectRatio=True)
+            return True
         except Exception:
-            pass
+            return False
+
+    def _render_sig(self, sig_b64, signed_by, x, y_top, mw, mh):
+        """Draw signature image. If sig_b64 is absent, show (not signed) — should not happen
+        for submitted appraisals since the form enforces signing before submission."""
+        if sig_b64:
+            self._sig_img(sig_b64, x, y_top, mw, mh)
+        else:
+            self._text('(not signed)', x, y_top - mh * 0.55, sz=7.5, col=BORD)
 
     # ── page management ──────────────────────────────────────────────────────
 
@@ -289,10 +297,7 @@ class Builder:
 
         sig_x = LM + CW * 0.47
         self._text('Signature:', sig_x, y - 3 * mm, sz=6.5, col=LABEL)
-        if sig_b64:
-            self._sig_img(sig_b64, sig_x + 1 * mm, y - 4 * mm, CW * 0.50, SH - 5 * mm)
-        else:
-            self._text('(not signed)', sig_x + 1 * mm, y - 9 * mm, sz=7.5, col=BORD)
+        self._render_sig(sig_b64, signed_by, sig_x + 1 * mm, y - 4 * mm, CW * 0.50, SH - 5 * mm)
 
         self.y = y - SH - 1 * mm
 
@@ -333,13 +338,113 @@ class Builder:
         self._text(_d(signed_at), LM + 12 * mm,y - 13  * mm, sz=8.5, col=DARK)
         sig_x = LM + CW * 0.47
         self._text('Signature:', sig_x, y - 3 * mm, sz=6.5, col=LABEL)
-        if sig_b64:
-            self._sig_img(sig_b64, sig_x + 1 * mm, y - 4 * mm, CW * 0.50, SIG - 5 * mm)
-        else:
-            self._text('(not signed)', sig_x + 1 * mm, y - 9 * mm, sz=7.5, col=BORD)
+        self._render_sig(sig_b64, signed_by, sig_x + 1 * mm, y - 4 * mm, CW * 0.50, SIG - 5 * mm)
         y -= SIG
 
         self.y = y - 2 * mm
+
+    # ── score modification table ──────────────────────────────────────────────
+
+    def override_diff_table(self):
+        """Show full score modification chain — only rendered when at least one role changed a score."""
+        rec  = self.rec
+        rows = rec.score_changes_display()
+        if not rows:
+            return
+
+        AMBER      = (0.984, 0.753, 0.176)
+        AMBER_TEXT = (0.573, 0.247, 0.000)
+        RH  = 6.5 * mm
+        HDR = 6   * mm
+
+        # Decide which columns to show (only include roles that made changes)
+        show_hr  = rec.score_modified_by_hr is not None
+        show_dir = rec.score_modified_by_director is not None
+        show_ceo = rec.score_modified_by_ceo is not None
+
+        n_mod_cols = sum([show_hr, show_dir, show_ceo])
+        lbl_w  = CW * (0.40 if n_mod_cols >= 3 else 0.44 if n_mod_cols == 2 else 0.50)
+        sup_w  = CW * 0.12
+        mod_w  = (CW - lbl_w - sup_w) / max(n_mod_cols, 1) if n_mod_cols else 0
+        fin_w  = CW * 0.12
+
+        total_h = HDR + RH + len(rows) * RH + 10 * mm
+        self.need(total_h)
+        y = self.y
+
+        # Header bar
+        self._rect(LM, y, CW, HDR, AMBER)
+        self._text('SCORE MODIFICATION AUDIT TRAIL  (Supervisor Original → Final)',
+                   LM + 3 * mm, y - HDR + 1.5 * mm, 'Helvetica-Bold', 8, AMBER_TEXT)
+        y -= HDR
+
+        # Column headers
+        self._rect(LM, y, CW, RH, LCYAN, BORD, 0.3)
+        x = LM
+        self._text('Factor',     x + 2 * mm, y - RH + 2 * mm, 'Helvetica-Bold', 7, LABEL)
+        x += lbl_w
+        self._text('Supervisor', x + sup_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 7, LABEL, 'C')
+        x += sup_w
+        if show_hr:
+            by = rec.score_modified_by_hr
+            lbl = f'HR ({by.user.last_name if by else ""})' if by else 'HR'
+            self._text(lbl, x + mod_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 6.5, LABEL, 'C')
+            x += mod_w
+        if show_dir:
+            by = rec.score_modified_by_director
+            lbl = f'Director ({by.user.last_name if by else ""})' if by else 'Director'
+            self._text(lbl, x + mod_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 6.5, LABEL, 'C')
+            x += mod_w
+        if show_ceo:
+            by = rec.score_modified_by_ceo
+            lbl = f'CEO ({by.user.last_name if by else ""})' if by else 'CEO'
+            self._text(lbl, x + mod_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 6.5, LABEL, 'C')
+            x += mod_w
+        self._text('Final', x + (CW - (x - LM)) / 2, y - RH + 2 * mm, 'Helvetica-Bold', 7, BLUE, 'C')
+        y -= RH
+
+        for idx, row in enumerate(rows):
+            bg = LCYAN if idx % 2 else WHITE
+            self._rect(LM, y, CW, RH, bg, BORD, 0.3)
+            x = LM
+            disp = row['label'] if len(row['label']) <= 34 else row['label'][:31] + '…'
+            self._text(disp, x + 2 * mm, y - RH + 2 * mm, sz=7, col=DARK)
+            x += lbl_w
+            self._text(str(row['supervisor'] or '—'), x + sup_w / 2, y - RH + 2 * mm, sz=8, col=LABEL, align='C')
+            x += sup_w
+            if show_hr:
+                v = row['hr']
+                self._text(str(v) if v else '—', x + mod_w / 2, y - RH + 2 * mm,
+                           'Helvetica-Bold' if v else 'Helvetica', 8, CYAN if v else LABEL, 'C')
+                x += mod_w
+            if show_dir:
+                v = row['director']
+                self._text(str(v) if v else '—', x + mod_w / 2, y - RH + 2 * mm,
+                           'Helvetica-Bold' if v else 'Helvetica', 8, CYAN if v else LABEL, 'C')
+                x += mod_w
+            if show_ceo:
+                v = row['ceo']
+                self._text(str(v) if v else '—', x + mod_w / 2, y - RH + 2 * mm,
+                           'Helvetica-Bold' if v else 'Helvetica', 8, CYAN if v else LABEL, 'C')
+                x += mod_w
+            fin_x = LM + CW - (CW - (x - LM))
+            self._text(str(row['final'] or '—'), fin_x + (CW - (x - LM)) / 2, y - RH + 2 * mm,
+                       'Helvetica-Bold', 9, BLUE, 'C')
+            y -= RH
+
+        # Footer attribution line
+        parts = []
+        if rec.score_modified_by_hr:
+            parts.append(f"HR: {rec.score_modified_by_hr.get_full_name()}  ({_d(rec.score_modified_at_hr)})")
+        if rec.score_modified_by_director:
+            parts.append(f"Director: {rec.score_modified_by_director.get_full_name()}  ({_d(rec.score_modified_at_director)})")
+        if rec.score_modified_by_ceo:
+            parts.append(f"CEO: {rec.score_modified_by_ceo.get_full_name()}  ({_d(rec.score_modified_at_ceo)})")
+        if parts:
+            self._text('Modified by:  ' + '   ·   '.join(parts), LM + 1 * mm, y - 2.5 * mm, sz=6.5, col=LABEL)
+            y -= 5 * mm
+
+        self.y = y - 1 * mm
 
     # ── total ratings table ───────────────────────────────────────────────────
 
@@ -464,12 +569,15 @@ def generate_appraisal_pdf(record):
     b.y -= 1 * mm
 
     # ── Section 4: Appraiser rating ──────────────────────────────────────────
-    b.bar('4.  APPRAISER RATING  (Supervisor / Line Manager)')
+    b.bar('4.  APPRAISER RATING  (Supervisor / Line Manager — Original Scores)')
     mgr_pf = {f: getattr(rec, f) for f, _ in MGR_PF}
     mgr_aa = {f: getattr(rec, f) for f, _ in MGR_AA}
     b.two_tables(MGR_PF, mgr_pf, MGR_AA, mgr_aa,
                  'Performance Factors', 'Attitude & Aptitude Factors')
     b.y -= 2 * mm
+
+    # ── Section 4b: Score modifications — only shown when scores were changed ─
+    b.override_diff_table()
 
     # ── Section 5: Goals ─────────────────────────────────────────────────────
     b.bar('5.  GOALS TO REACH  (Agreed Action Points)')

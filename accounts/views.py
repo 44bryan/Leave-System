@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.urls import reverse
 from .models import Employee, Department
-from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm
+from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm, EmployeeSelfEditForm
 from .signature_utils import process_signature
 
 
@@ -33,8 +33,22 @@ def profile_view(request):
     except Employee.DoesNotExist:
         messages.error(request, "No employee profile found.")
         return redirect('dashboard:home')
+
     change_form = ChangePasswordForm(request.user)
-    return render(request, 'accounts/profile.html', {'employee': employee, 'change_form': change_form})
+    self_edit_form = EmployeeSelfEditForm(instance=employee)
+
+    if request.method == 'POST' and 'self_edit' in request.POST:
+        self_edit_form = EmployeeSelfEditForm(request.POST, request.FILES, instance=employee)
+        if self_edit_form.is_valid():
+            self_edit_form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('accounts:profile')
+
+    return render(request, 'accounts/profile.html', {
+        'employee': employee,
+        'change_form': change_form,
+        'self_edit_form': self_edit_form,
+    })
 
 
 def _is_hr_or_superuser(user):
@@ -131,6 +145,9 @@ def employee_list(request):
 
     from accounts.models import Department
     departments = Department.objects.all().order_by('name')
+    managers = Employee.objects.filter(
+        role__in=('manager', 'unit_head', 'hr', 'admin_director', 'finance_director', 'ceo')
+    ).select_related('user').order_by('user__last_name', 'user__first_name')
 
     return render(request, 'accounts/employee_list.html', {
         'employees': employees,
@@ -140,6 +157,7 @@ def employee_list(request):
         'dept_q': dept_q,
         'role_q': role_q,
         'role_choices': Employee.ROLE_CHOICES,
+        'managers': managers,
     })
 
 
@@ -467,6 +485,50 @@ def username_suggest(request):
     return JsonResponse({'username': username})
 
 
+@hr_or_superuser_required
+def bulk_assign_manager(request):
+    """Assign a line manager or unit head to multiple selected employees at once."""
+    if request.method != 'POST':
+        return redirect('accounts:employee_list')
+
+    employee_ids = request.POST.getlist('employee_ids')
+    assignment_type = request.POST.get('assignment_type')
+    manager_id = request.POST.get('manager_id')
+
+    if not employee_ids:
+        messages.error(request, "No employees selected.")
+        return redirect('accounts:employee_list')
+    if not manager_id:
+        messages.error(request, "Please select a manager to assign.")
+        return redirect('accounts:employee_list')
+
+    try:
+        manager = Employee.objects.get(pk=manager_id)
+    except Employee.DoesNotExist:
+        messages.error(request, "Selected manager/unit head not found.")
+        return redirect('accounts:employee_list')
+
+    qs = Employee.objects.filter(pk__in=employee_ids)
+    count = qs.count()
+
+    if assignment_type == 'department':
+        try:
+            dept = Department.objects.get(pk=manager_id)
+        except Department.DoesNotExist:
+            messages.error(request, "Selected department not found.")
+            return redirect('accounts:employee_list')
+        qs.update(department=dept)
+        messages.success(request, f"Department set to {dept.name} for {count} employee(s).")
+    elif assignment_type == 'unit_head':
+        qs.update(unit_head=manager)
+        messages.success(request, f"Unit Head set to {manager.get_full_name()} for {count} employee(s).")
+    else:
+        qs.update(supervisor=manager)
+        messages.success(request, f"Line Manager set to {manager.get_full_name()} for {count} employee(s).")
+
+    return redirect('accounts:employee_list')
+
+
 @login_required
 def employee_import(request):
     if not request.user.is_superuser:
@@ -693,25 +755,73 @@ def _parse_cell(value, cell_type):
     return value
 
 
+def _normalize_col(val):
+    """Normalise a column header: lowercase, collapse non-alphanumeric runs to underscore."""
+    import re
+    return re.sub(r'[^a-z0-9]+', '_', str(val or '').strip().lower()).strip('_')
+
+
+# Maps normalised column names from any source (staff list, custom template) to internal keys.
+_COL_ALIAS = {
+    'matricule':            'employee_id',
+    'employee_id':          'employee_id',
+    'name':                 'full_name',
+    'full_name':            'full_name',
+    'first_name':           'first_name',
+    'last_name':            'last_name',
+    'category':             'staff_category',
+    'staff_category':       'staff_category',
+    'date_of_birth':        'date_of_birth',
+    'sex':                  'sex',
+    'nat':                  'nationality',
+    'nationality':          'nationality',
+    'date_employment':      'date_joined_company',
+    'date_joined_hospital': 'date_joined_company',
+    'date_joined_company':  'date_joined_company',
+    'contrat_n':            'contract_number',
+    'contract_n':           'contract_number',
+    'contract_number':      'contract_number',
+    'status':               'contract_type_raw',
+    'contract_type':        'contract_type_raw',
+    'position':             'position',
+    'department':           'department',
+    'qualifications':       'qualifications',
+    'certifications':       'certifications',
+    'email':                'email',
+    'phone':                'phone',
+    'contract_start_date':  'contract_start_date',
+    'contract_end_date':    'contract_end_date',
+    'role':                 'role',
+}
+
+_RECOGNIZED = set(_COL_ALIAS.keys())
+
+
+def _map_contract_type(raw):
+    """Map any Status/contract_type string to a valid contract type code."""
+    raw = str(raw or '').strip().upper()
+    for code in ('CDI', 'CDD', 'INTERN', 'WACS'):
+        if code in raw:
+            return code
+    return 'CDI'  # default
+
+
 @hr_or_superuser_required
 def employee_excel_upload(request):
     """
-    GET  → show upload form with template download
-    POST → parse Excel, create employees, return results page
+    GET  → show upload form / template download
+    POST → parse Excel (supports the actual staff list format), create employees
     """
-    import io
-    from django.http import HttpResponse as _HR
     from datetime import date as _today_dt
 
     if request.method == 'GET':
-        # Check if template download requested
         if request.GET.get('download_template') == '1':
             return _excel_template_download()
         return render(request, 'accounts/employee_excel_upload.html', {
             'column_info': EXCEL_COLUMNS,
         })
 
-    # ── POST: process uploaded file ──────────────────────────
+    # ── POST ────────────────────────────────────────────────
     uploaded = request.FILES.get('excel_file')
     if not uploaded:
         messages.error(request, "No file uploaded.")
@@ -725,84 +835,111 @@ def employee_excel_upload(request):
         messages.error(request, f"Could not open Excel file: {e}")
         return redirect('accounts:employee_excel_upload')
 
-    # Read header row (row 1) — normalise to lowercase, replace spaces with underscores
-    headers = []
-    for cell in ws[1]:
-        val = str(cell.value or '').strip().lower().replace(' ', '_')
-        headers.append(val)
+    # ── Detect header row (row 1 may be a title row) ────────
+    def _read_headers(row_idx):
+        return [_normalize_col(ws.cell(row=row_idx, column=c).value)
+                for c in range(1, ws.max_column + 1)]
+
+    headers_r1 = _read_headers(1)
+    headers_r2 = _read_headers(2)
+    recognized_r1 = sum(1 for h in headers_r1 if h in _RECOGNIZED)
+    recognized_r2 = sum(1 for h in headers_r2 if h in _RECOGNIZED)
+
+    if recognized_r2 > recognized_r1:
+        # Row 1 is a title; real headers are on row 2
+        headers = headers_r2
+        data_start_row = 3
+    else:
+        headers = headers_r1
+        data_start_row = 2
+
+    # Map positional headers → internal keys
+    mapped_headers = [_COL_ALIAS.get(h, h) for h in headers]
 
     created_rows = []
     skipped_rows = []
     today = _today_dt.today()
 
-    for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+    for row_idx, row in enumerate(ws.iter_rows(min_row=data_start_row, values_only=True), start=data_start_row):
         if all(v is None or str(v).strip() == '' for v in row):
-            continue  # blank row
+            continue  # blank
 
-        row_data = {headers[i]: row[i] for i in range(min(len(headers), len(row)))}
+        row_data = {mapped_headers[i]: row[i] for i in range(min(len(mapped_headers), len(row)))}
         errors = []
 
-        # ── Extract values ──
-        first_name = _parse_cell(row_data.get('first_name'), 'str') or ''
-        last_name  = _parse_cell(row_data.get('last_name'),  'str') or ''
-        email      = _parse_cell(row_data.get('email'),      'str') or ''
-        emp_id     = _parse_cell(row_data.get('employee_id'), 'str') or ''
+        # ── Name resolution ──────────────────────────────────
+        if row_data.get('full_name'):
+            full = _parse_cell(row_data['full_name'], 'str') or ''
+            parts = full.split(None, 1)
+            last_name  = parts[0] if parts else ''
+            first_name = parts[1] if len(parts) > 1 else last_name
+        else:
+            first_name = _parse_cell(row_data.get('first_name'), 'str') or ''
+            last_name  = _parse_cell(row_data.get('last_name'),  'str') or ''
+
+        emp_id = _parse_cell(row_data.get('employee_id'), 'str') or ''
 
         if not first_name:
-            errors.append("Missing first_name")
-        if not last_name:
-            errors.append("Missing last_name")
+            errors.append("Missing name / first_name")
         if not emp_id:
-            errors.append("Missing employee_id")
+            errors.append("Missing Matricule / employee_id")
 
-        contract_type = (_parse_cell(row_data.get('contract_type'), 'str') or '').upper()
-        if contract_type not in VALID_CONTRACT_TYPES:
-            errors.append(f"Invalid contract_type '{contract_type}' (use CDI, CDD, INTERN, WACS)")
-        contract_start = _parse_cell(row_data.get('contract_start_date'), 'date')
+        # ── Contract type ───────────────────────────────────
+        contract_type = _map_contract_type(
+            _parse_cell(row_data.get('contract_type_raw'), 'str') or ''
+        )
+
+        # ── Dates ───────────────────────────────────────────
+        date_joined = _parse_cell(row_data.get('date_joined_company'), 'date')
+        contract_start = _parse_cell(row_data.get('contract_start_date'), 'date') or date_joined
+        contract_end   = _parse_cell(row_data.get('contract_end_date'), 'date')
         if not contract_start:
-            errors.append("Missing contract_start_date")
-        contract_end = _parse_cell(row_data.get('contract_end_date'), 'date')
-        if contract_type in ('CDD', 'INTERN', 'WACS') and not contract_end:
-            errors.append(f"contract_end_date required for {contract_type}")
+            contract_start = today  # last resort default
 
-        # Department lookup
+        # ── Department ──────────────────────────────────────
         dept_name = _parse_cell(row_data.get('department'), 'dept')
         dept_obj = None
         if dept_name:
-            try:
-                dept_obj = Department.objects.get(name__iexact=dept_name)
-            except Department.DoesNotExist:
+            dept_obj = Department.objects.filter(name__iexact=dept_name).first()
+            if not dept_obj:
                 errors.append(f"Department '{dept_name}' not found")
 
-        # Role
+        # ── Role ────────────────────────────────────────────
         role = _parse_cell(row_data.get('role'), 'str') or ''
         if not role:
-            role = 'intern' if contract_type == 'INTERN' else ('wacs_resident' if contract_type == 'WACS' else 'employee')
+            if contract_type == 'INTERN':
+                role = 'intern'
+            elif contract_type == 'WACS':
+                role = 'wacs_resident'
+            else:
+                role = 'employee'
         if role not in VALID_ROLES:
-            errors.append(f"Invalid role '{role}'")
+            role = 'employee'
 
-        # Duplicate checks
+        # ── Duplicate check ─────────────────────────────────
         if emp_id and Employee.objects.filter(employee_id=emp_id).exists():
             errors.append(f"Employee ID '{emp_id}' already exists")
 
-        from django.contrib.auth.models import User as _User
-        if email and _User.objects.filter(email=email).exists():
-            errors.append(f"Email '{email}' already in use")
+        # ── Qualifications (merge qualifications + certifications) ──
+        qualif = _parse_cell(row_data.get('qualifications'), 'str') or ''
+        certif = _parse_cell(row_data.get('certifications'), 'str') or ''
+        combined_qualif = ' | '.join(filter(None, [qualif, certif]))
 
         if errors:
-            skipped_rows.append({'row': row_idx, 'name': f"{first_name} {last_name}", 'errors': errors})
+            skipped_rows.append({'row': row_idx, 'name': f"{first_name} {last_name}".strip(), 'errors': errors})
             continue
 
-        # ── Create user + employee + contract ──
+        # ── Create user + employee + contract ───────────────
         try:
             with transaction.atomic():
-                username = _generate_username(first_name)
-                user = _User(
-                    username=username,
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                )
+                from django.contrib.auth.models import User as _User
+                username = _generate_username(first_name, last_name)
+                email = _parse_cell(row_data.get('email'), 'str') or ''
+                if not email:
+                    email = f"{username}@hospital.local"
+
+                user = _User(username=username, first_name=first_name,
+                             last_name=last_name, email=email)
                 user.set_password(DEFAULT_PASSWORD)
                 user.save()
 
@@ -815,16 +952,19 @@ def employee_excel_upload(request):
                     position=_parse_cell(row_data.get('position'), 'str') or '',
                     phone=_parse_cell(row_data.get('phone'), 'str') or '',
                     date_of_birth=_parse_cell(row_data.get('date_of_birth'), 'date'),
-                    date_joined_company=_parse_cell(row_data.get('date_joined_hospital'), 'date'),
-                    sex=_parse_cell(row_data.get('sex'), 'str') or '',
+                    date_joined_company=date_joined,
+                    sex=(_parse_cell(row_data.get('sex'), 'str') or '')[:1].upper(),
                     nationality=_parse_cell(row_data.get('nationality'), 'str') or '',
                     contract_number=_parse_cell(row_data.get('contract_number'), 'str') or '',
-                    qualifications=_parse_cell(row_data.get('qualifications'), 'str') or '',
+                    qualifications=combined_qualif,
                 )
                 emp.save()
 
                 from leaves.models import LeaveBalance
-                LeaveBalance.objects.create(employee=emp, year=today.year, total_entitlement=18)
+                LeaveBalance.objects.get_or_create(
+                    employee=emp, year=today.year,
+                    defaults={'total_entitlement': 18},
+                )
 
                 from contracts.models import Contract
                 Contract.objects.create(
@@ -841,20 +981,14 @@ def employee_excel_upload(request):
                 from django.conf import settings as _settings
                 _site_base = getattr(_settings, 'SITE_URL', '').rstrip('/')
                 _login_url = f"{_site_base}/accounts/login/" if _site_base else "/accounts/login/"
-                _excel_creds = (
-                    f"\n\nYour login credentials:\n"
-                    f"Username: {username}\n"
-                    f"Password: {DEFAULT_PASSWORD}\n"
-                    f"Login at: {_login_url}\n\n"
-                    f"Please change your password after your first login."
-                )
                 notify(
                     user,
                     title='Welcome — Your Account Is Now Active',
                     message=(
                         f"Welcome to AEF HRM, {emp.get_full_name()}! Your account has been created. "
-                        f"A {contract_type} contract starting {contract_start.strftime('%d %b %Y')} has been issued."
-                        f"{_excel_creds}"
+                        f"A {contract_type} contract starting {contract_start.strftime('%d %b %Y')} has been issued.\n\n"
+                        f"Username: {username}\nPassword: {DEFAULT_PASSWORD}\nLogin at: {_login_url}\n\n"
+                        f"Please change your password after first login."
                     ),
                     notification_type='account_activated',
                     url='/contracts/my/',
@@ -862,7 +996,7 @@ def employee_excel_upload(request):
 
             created_rows.append({'row': row_idx, 'name': emp.get_full_name(), 'emp_id': emp_id, 'contract': contract_type})
         except Exception as exc:
-            skipped_rows.append({'row': row_idx, 'name': f"{first_name} {last_name}", 'errors': [str(exc)]})
+            skipped_rows.append({'row': row_idx, 'name': f"{first_name} {last_name}".strip(), 'errors': [str(exc)]})
 
     return render(request, 'accounts/employee_excel_results.html', {
         'created': created_rows,
@@ -872,7 +1006,7 @@ def employee_excel_upload(request):
 
 
 def _excel_template_download():
-    """Return a downloadable .xlsx template with the correct column headers."""
+    """Return a .xlsx template that mirrors the staff list column layout."""
     import openpyxl
     from openpyxl.styles import Font, PatternFill, Alignment
     from django.http import HttpResponse
@@ -881,15 +1015,14 @@ def _excel_template_download():
     ws = wb.active
     ws.title = "Employees"
 
+    # Columns match the actual staff list format
     headers = [
-        'first_name', 'last_name', 'email', 'employee_id',
-        'date_of_birth', 'sex', 'nationality', 'phone',
-        'position', 'department', 'role', 'staff_category',
-        'date_joined_hospital', 'qualifications', 'contract_number',
-        'contract_type', 'contract_start_date', 'contract_end_date',
+        'Matricule', 'Name', 'Category', 'Date of Birth', 'Sex',
+        'Nat.', 'Date Employment', 'Contrat N°', 'Status',
+        'Position', 'Department', 'Qualifications', 'Certifications',
+        'Email', 'Contract End Date',
     ]
-
-    required = {'first_name', 'last_name', 'email', 'employee_id', 'contract_type', 'contract_start_date'}
+    required_cols = {'Matricule', 'Name', 'Status'}
 
     header_fill   = PatternFill(start_color="0A4D68", end_color="0A4D68", fill_type="solid")
     required_fill = PatternFill(start_color="DC2626", end_color="DC2626", fill_type="solid")
@@ -899,19 +1032,15 @@ def _excel_template_download():
         cell = ws.cell(row=1, column=col_idx, value=h)
         cell.font = header_font
         cell.alignment = Alignment(horizontal='center')
-        if h in required:
-            cell.fill = required_fill
-        else:
-            cell.fill = header_fill
+        cell.fill = required_fill if h in required_cols else header_fill
         ws.column_dimensions[cell.column_letter].width = max(18, len(h) + 4)
 
     # Sample row
     ws.append([
-        'Jane', 'Doe', 'jane.doe@hospital.cm', 'EMP-001',
-        '1990-05-15', 'F', 'Cameroonian', '+237 600000000',
-        'Nurse', 'Nursing', 'employee', 'A',
-        '2024-01-01', 'BSc Nursing', 'CTR-2024-001',
-        'CDI', '2024-01-01', '',
+        'AEF001', 'Doe Jane', '12B-J', '1990-05-15', 'F',
+        'CMR', '2020-01-15', 'AEF00120200115', 'CDI',
+        'Staff Nurse', 'Nursing', 'BSc Nursing', 'WACS',
+        'jane.doe@hospital.cm', '',
     ])
 
     # Notes sheet
@@ -919,19 +1048,27 @@ def _excel_template_download():
     notes_ws['A1'] = "Field Notes"
     notes_ws['A1'].font = Font(bold=True)
     notes = [
-        ['sex',           'Use: M or F'],
-        ['role',          'employee | manager | hr | admin_director | finance_director | ceo | intern | wacs_resident'],
-        ['contract_type', 'CDI | CDD | INTERN | WACS'],
-        ['department',    'Must match an existing department name exactly'],
-        ['staff_category','A–L, AA–AL, or BA–BL'],
-        ['contract_end_date', 'Required for CDD, INTERN, WACS. Leave blank for CDI.'],
-        ['date_of_birth / contract dates', 'Format: YYYY-MM-DD'],
+        ('Matricule',         'Unique employee ID (required)'),
+        ('Name',              'Full name — Family name first, e.g. "Doe Jane". Required.'),
+        ('Category',          'Staff category — any format (e.g. 5, 12B-J, A, III)'),
+        ('Date of Birth',     'Format: YYYY-MM-DD or DD/MM/YYYY'),
+        ('Sex',               'M or F'),
+        ('Nat.',              'Nationality (e.g. CMR, Cameroonian)'),
+        ('Date Employment',   'Employment start date — used as contract start if Contract Start Date is absent'),
+        ('Contrat N°',        'Official contract/personnel number'),
+        ('Status',            'Contract type: CDI | CDD | INTERN | WACS  (default: CDI)'),
+        ('Position',          'Job title / position'),
+        ('Department',        'Must match an existing department name'),
+        ('Qualifications',    'Academic qualifications'),
+        ('Certifications',    'Professional certifications (merged with Qualifications)'),
+        ('Email',             'Work email — auto-generated if blank'),
+        ('Contract End Date', 'Required for CDD, INTERN, WACS. Leave blank for CDI.'),
     ]
     for r, (field, note) in enumerate(notes, start=3):
         notes_ws.cell(row=r, column=1, value=field).font = Font(bold=True)
         notes_ws.cell(row=r, column=2, value=note)
-    notes_ws.column_dimensions['A'].width = 30
-    notes_ws.column_dimensions['B'].width = 70
+    notes_ws.column_dimensions['A'].width = 22
+    notes_ws.column_dimensions['B'].width = 65
 
     buf = __import__('io').BytesIO()
     wb.save(buf)
@@ -940,7 +1077,34 @@ def _excel_template_download():
         buf.read(),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     )
-    response['Content-Disposition'] = 'attachment; filename="employee_import_template.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="staff_import_template.xlsx"'
+    return response
+
+
+
+@hr_or_superuser_required
+def export_credentials(request):
+    """Download a CSV of all employee usernames (passwords cannot be recovered - shows default)."""
+    import csv
+    from django.http import HttpResponse
+    from datetime import date as _date
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="staff_credentials_' + str(_date.today()) + '.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Employee ID', 'Full Name', 'Username', 'Email', 'Role', 'Department', 'Default Password'])
+
+    for emp in Employee.objects.select_related('user', 'department').order_by('user__last_name', 'user__first_name'):
+        writer.writerow([
+            emp.employee_id,
+            emp.get_full_name(),
+            emp.user.username,
+            emp.user.email,
+            emp.get_role_display(),
+            emp.department.name if emp.department else '',
+            'Micei2021 (default - may have been changed by employee)',
+        ])
     return response
 
 

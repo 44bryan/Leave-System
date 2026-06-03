@@ -19,9 +19,7 @@
                     <div class="mb-4">
                         <label class="form-label">{% trans "Leave Type" %} <span class="text-danger">*</span></label>
                         {{ form.leave_type }}
-                        {% if form.leave_type.errors %}
-                        <div class="text-danger small mt-1">{{ form.leave_type.errors.0 }}</div>
-                        {% endif %}
+                        {% for error in form.leave_type.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                         <div id="deductible-indicator" class="mt-2" style="display:none;">
                             <div id="deductible-badge-yes" style="display:none;">
                                 <span class="badge" style="background:#fff8e1;color:#b45309;border:1.5px solid #fcd34d;font-size:0.78rem;padding:5px 12px;border-radius:20px;">
@@ -40,16 +38,12 @@
                         <div class="col-md-6">
                             <label class="form-label">{% trans "Start Date" %} <span class="text-danger">*</span></label>
                             {{ form.start_date }}
-                            {% if form.start_date.errors %}
-                            <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
-                            {% endif %}
+                            {% for error in form.start_date.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{% trans "End Date" %} <span class="text-danger">*</span></label>
                             {{ form.end_date }}
-                            {% if form.end_date.errors %}
-                            <div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>
-                            {% endif %}
+                            {% for error in form.end_date.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                         </div>
                     </div>
 
@@ -63,9 +57,7 @@
                     <div class="mb-4">
                         <label class="form-label">{% trans "Reason for Leave" %} <span class="text-danger">*</span></label>
                         {{ form.reason }}
-                        {% if form.reason.errors %}
-                        <div class="text-danger small mt-1">{{ form.reason.errors.0 }}</div>
-                        {% endif %}
+                        {% for error in form.reason.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="mb-4">
@@ -86,9 +78,7 @@
                         <label class="form-label">{% trans "Supporting Document" %} <span class="text-muted small">({% trans "optional" %})</span></label>
                         {{ form.supporting_document }}
                         <div class="form-text">{% trans "Upload a medical certificate, marriage certificate, etc. if applicable." %}</div>
-                        {% if form.supporting_document.errors %}
-                        <div class="text-danger small mt-1">{{ form.supporting_document.errors.0 }}</div>
-                        {% endif %}
+                        {% for error in form.supporting_document.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     {% if form.non_field_errors %}

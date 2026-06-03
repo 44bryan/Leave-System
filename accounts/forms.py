@@ -86,8 +86,7 @@ class EmployeeCreateForm(forms.ModelForm):
         }
 
     def clean_staff_category(self):
-        value = self.cleaned_data.get('staff_category', '').strip().upper()
-        return value
+        return self.cleaned_data.get('staff_category', '').strip()
 
     def clean(self):
         cleaned = super().clean()
@@ -142,8 +141,7 @@ class EmployeeEditForm(forms.ModelForm):
         }
 
     def clean_staff_category(self):
-        value = self.cleaned_data.get('staff_category', '').strip().upper()
-        return value
+        return self.cleaned_data.get('staff_category', '').strip()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -157,6 +155,40 @@ class EmployeeEditForm(forms.ModelForm):
         employee.user.first_name = self.cleaned_data['first_name']
         employee.user.last_name = self.cleaned_data['last_name']
         employee.user.email = self.cleaned_data['email']
+        if commit:
+            employee.user.save()
+            employee.save()
+        return employee
+
+
+class EmployeeSelfEditForm(forms.ModelForm):
+    """Fields an employee can edit on their own profile."""
+    first_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Employee
+        fields = ['phone', 'date_of_birth', 'profile_photo']
+        widgets = {
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'profile_photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['first_name'].initial = self.instance.user.first_name
+            self.fields['last_name'].initial = self.instance.user.last_name
+            self.fields['email'].initial = self.instance.user.email
+
+    def save(self, commit=True):
+        employee = super().save(commit=False)
+        employee.user.first_name = self.cleaned_data['first_name']
+        employee.user.last_name = self.cleaned_data['last_name']
+        if self.cleaned_data.get('email'):
+            employee.user.email = self.cleaned_data['email']
         if commit:
             employee.user.save()
             employee.save()

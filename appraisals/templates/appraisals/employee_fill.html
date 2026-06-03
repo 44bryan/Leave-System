@@ -154,9 +154,34 @@
     </div>
 </div>
 
-<!-- 6. Employee Comments + Signature -->
+<!-- 6. Select Co-Worker -->
+<div class="card animate-in mb-4" style="border-left:4px solid #31b8cf;">
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;">
+        6. Select a Co-Worker <span style="font-weight:400;font-size:.85em;">— who will comment on your work</span>
+    </div>
+    <div class="card-body p-4">
+        <p class="text-muted small mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            Choose a colleague (from any department) who will provide a brief comment about your work.
+            They will be notified automatically after you submit.
+        </p>
+        <label class="form-label fw-semibold">Co-Worker <span class="text-danger">*</span></label>
+        <input type="text" id="coworkerSearch" class="form-control mb-2" placeholder="Type to search by name or department..." autocomplete="off" style="font-size:.88rem;">
+        <select name="selected_coworker" id="coworkerSelect" class="form-select" required size="6" style="height:auto;overflow-y:auto;">
+            <option value="">— Select a colleague —</option>
+            {% for colleague in dept_colleagues %}
+            <option value="{{ colleague.pk }}" {% if record.coworker_signed_by and record.coworker_signed_by.pk == colleague.pk %}selected{% endif %}>
+                {{ colleague.get_full_name }}{% if colleague.department %} · {{ colleague.department }}{% endif %}
+            </option>
+            {% endfor %}
+        </select>
+        <div class="form-text mt-1">This person cannot be yourself. They will receive a notification to log in and add their comment.</div>
+    </div>
+</div>
+
+<!-- 7. Employee Comments + Signature -->
 <div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;">6. Employee's Comments &amp; Signature</div>
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;">7. Employee's Comments &amp; Signature</div>
     <div class="card-body p-4">
         <div class="mb-3">
             <label class="form-label fw-semibold">On Self</label>
@@ -282,9 +307,20 @@
         if (signaturePad) { signaturePad.clear(); placeholder.style.display = 'block'; }
     });
 
+    function flattenToRgbPng() {
+        var off = document.createElement('canvas');
+        off.width  = canvas.width;
+        off.height = canvas.height;
+        var ctx = off.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, off.width, off.height);
+        ctx.drawImage(canvas, 0, 0);
+        return off.toDataURL('image/png');
+    }
+
     document.querySelector('form').addEventListener('submit', function (e) {
         if (signaturePad && !signaturePad.isEmpty()) {
-            dataInput.value = signaturePad.toDataURL('image/png');
+            dataInput.value = flattenToRgbPng();
         } else if (savedSigB64) {
             dataInput.value = savedSigB64;
         } else {
@@ -292,6 +328,20 @@
             sigError.style.display = 'inline';
             canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+    });
+})();
+
+// Co-worker live search
+(function () {
+    var searchInput = document.getElementById('coworkerSearch');
+    var select      = document.getElementById('coworkerSelect');
+    if (!searchInput || !select) return;
+    var allOptions  = Array.from(select.options);
+    searchInput.addEventListener('input', function () {
+        var term = this.value.toLowerCase().trim();
+        allOptions.forEach(function (opt) {
+            opt.hidden = term && !opt.text.toLowerCase().includes(term);
+        });
     });
 })();
 </script>

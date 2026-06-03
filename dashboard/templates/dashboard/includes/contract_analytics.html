@@ -234,21 +234,9 @@
     <div class="col-lg-5">
         <div class="card h-100">
             <div class="card-header"><i class="bi bi-diagram-3 me-2" style="color:#2db4c3;"></i>Staff Category Distribution</div>
-            <div class="card-body p-4">
-                {% for g in staff_category_groups %}
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <div style="font-size:.82rem;font-weight:600;">
-                            <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:{{ g.color }};margin-right:5px;"></span>
-                            {{ g.label }}
-                        </div>
-                        <div style="font-size:.8rem;color:#6b7a8d;"><strong>{{ g.count }}</strong> staff &nbsp;<span style="font-size:.7rem;">{{ g.pct }}%</span></div>
-                    </div>
-                    <div class="progress" style="height:7px;background:#f0f4f8;">
-                        <div class="progress-bar" style="width:{{ g.pct }}%;background:{{ g.color }};border-radius:4px;"></div>
-                    </div>
-                </div>
-                {% endfor %}
+            <div class="card-body p-3">
+                {% if staff_category_groups %}
+                <canvas id="staffCatChart" style="max-height:220px;"></canvas>
                 {% if staff_category_detail %}
                 <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin:16px 0 8px;">Per Category</div>
                 <div class="d-flex flex-wrap gap-1">
@@ -258,6 +246,7 @@
                     </span>
                     {% endfor %}
                 </div>
+                {% endif %}
                 {% else %}
                 <div class="text-center text-muted py-3" style="font-size:.85rem;">No staff categories assigned yet.</div>
                 {% endif %}
@@ -267,26 +256,12 @@
     <div class="col-lg-7">
         <div class="card h-100">
             <div class="card-header"><i class="bi bi-building me-2" style="color:#059669;"></i>Contracts by Department</div>
-            <div class="table-responsive">
-                <table class="table mb-0">
-                    <thead>
-                        <tr><th>Department</th><th class="text-center">CDI</th><th class="text-center">CDD</th><th class="text-center">Internship</th><th class="text-center">Residents</th><th class="text-center">Total</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for row in contract_dept_breakdown %}
-                        <tr>
-                            <td style="font-size:.85rem;font-weight:600;">{{ row.dept }}</td>
-                            <td class="text-center"><span class="badge" style="background:#dcfce7;color:#1a8fa0;">{{ row.CDI }}</span></td>
-                            <td class="text-center"><span class="badge" style="background:#fef9c3;color:#a16207;">{{ row.CDD }}</span></td>
-                            <td class="text-center"><span class="badge" style="background:#e0f2fe;color:#2db4c3;">{{ row.INTERN }}</span></td>
-                            <td class="text-center"><span class="badge" style="background:#fdf4ff;color:#2db4c3;">{{ row.WACS }}</span></td>
-                            <td class="text-center"><strong>{{ row.total }}</strong></td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="6" class="text-center text-muted py-4">No contracts yet.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card-body p-3">
+                {% if contract_dept_breakdown %}
+                <canvas id="contractDeptChart" style="max-height:280px;"></canvas>
+                {% else %}
+                <div class="text-center text-muted py-4" style="font-size:.85rem;">No department contract data yet.</div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -357,3 +332,65 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    if (typeof Chart === 'undefined') return;
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+    {% if staff_category_groups %}
+    new Chart(document.getElementById('staffCatChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for g in staff_category_groups %}'{{ g.label|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Staff',
+                data: [{% for g in staff_category_groups %}{{ g.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [{% for g in staff_category_groups %}'{{ g.color }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
+            },
+            scales: {
+                x: { grid: { color: '#f0f4f8' }, ticks: { stepSize: 1 } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+    {% endif %}
+
+    {% if contract_dept_breakdown %}
+    new Chart(document.getElementById('contractDeptChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for row in contract_dept_breakdown %}'{{ row.dept|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [
+                { label: 'CDI',        data: [{% for row in contract_dept_breakdown %}{{ row.CDI }}{% if not forloop.last %},{% endif %}{% endfor %}],   backgroundColor: '#088395', borderRadius: 4 },
+                { label: 'CDD',        data: [{% for row in contract_dept_breakdown %}{{ row.CDD }}{% if not forloop.last %},{% endif %}{% endfor %}],   backgroundColor: '#d97706', borderRadius: 4 },
+                { label: 'Internship', data: [{% for row in contract_dept_breakdown %}{{ row.INTERN }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: '#2db4c3', borderRadius: 4 },
+                { label: 'Residents',  data: [{% for row in contract_dept_breakdown %}{{ row.WACS }}{% if not forloop.last %},{% endif %}{% endfor %}],  backgroundColor: '#7c3aed', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: { size: 11 } } },
+                tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
+            },
+            scales: {
+                x: { grid: { color: '#f0f4f8' }, ticks: { stepSize: 1 } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+    {% endif %}
+})();
+</script>

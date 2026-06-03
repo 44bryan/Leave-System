@@ -319,10 +319,13 @@ def generate_leave_pdf(leave):
     sig_w = CW * 0.42
     sig_h = 18*mm
     txt("Signature du demandeur", sig_x, y - 4*mm, "Helvetica", 7, _LABEL)
-    if not draw_sig(emp, sig_x, y - 5*mm, max_w=sig_w, max_h=sig_h,
-                    stored_b64=leave.employee_sig_b64):
-        txt(emp.user.get_full_name(), sig_x, y - 16*mm,
-            "Helvetica-Oblique", 8.5, _LABEL)
+    sig_drawn = draw_sig(emp, sig_x, y - 5*mm, max_w=sig_w, max_h=sig_h,
+                         stored_b64=leave.employee_sig_b64)
+    if not sig_drawn:
+        # No digital signature image — render name as a cursive-style digital signature
+        cv.setFillColorRGB(*_LOGO2)
+        cv.setFont("Helvetica-Oblique", 11)
+        cv.drawString(sig_x, y - 15*mm, emp.user.get_full_name())
 
     date_x = LM + CW * 0.80
     txt("Date",                date_x, y - 4*mm,  "Helvetica", 7, _LABEL)

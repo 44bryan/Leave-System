@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Discipline Records{% endblock %}
-{% block page_title %}Discipline Records{% endblock %}
+{% block title %}{% trans "Discipline Records" %}{% endblock %}
+{% block page_title %}{% trans "Discipline Records" %}{% endblock %}
 {% block nav_discipline %}active{% endblock %}
 
 {% block extra_css %}
@@ -25,16 +25,16 @@
 {% block topbar_actions %}
 {% if is_privileged or request.user.is_superuser %}
 <a href="{% url 'discipline:stats' %}" class="btn btn-outline-secondary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-bar-chart-line me-1"></i> Stats
+    <i class="bi bi-bar-chart-line me-1"></i> {% trans "Stats" %}
 </a>
 {% endif %}
 {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' or request.user.employee.is_ceo or request.user.employee.role in "manager unit_head finance_director" %}
 <a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm">
     <i class="bi bi-plus-circle me-1"></i>
     {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' or request.user.employee.is_ceo %}
-        Issue Notice
+        {% trans "Issue Notice" %}
     {% else %}
-        Propose Notice
+        {% trans "Propose Notice" %}
     {% endif %}
 </a>
 {% endif %}
@@ -58,17 +58,17 @@
         <div class="d-flex align-items-start gap-3">
             <i class="bi bi-exclamation-octagon-fill fs-4 mt-1 text-danger flex-shrink-0"></i>
             <div>
-                <strong>Action Required — Dismissal Notices</strong>
+                <strong>{% trans "Action Required — Dismissal Notices" %}</strong>
                 <p class="mb-2 mt-1" style="font-size:0.875rem;">
-                    The following employees have been dismissed and their accounts must be deactivated manually by HR or Admin:
+                    {% trans "The following employees have been dismissed and their accounts must be deactivated manually by HR or Admin:" %}
                 </p>
                 <ul class="mb-0" style="font-size:0.875rem;">
                     {% for d in dismissal_alert %}
                     <li>
                         <strong>{{ d.employee.get_full_name }}</strong> — {{ d.employee.employee_id }}
-                        <span class="text-muted">(dismissed {{ d.date_issued }})</span>
+                        <span class="text-muted">({% blocktrans with date=d.date_issued %}dismissed {{ date }}{% endblocktrans %})</span>
                         <a href="{% url 'accounts:employee_edit' d.employee.pk %}" class="ms-2 text-danger fw-bold" style="font-size:0.8rem;">
-                            <i class="bi bi-person-x me-1"></i>Deactivate Account
+                            <i class="bi bi-person-x me-1"></i>{% trans "Deactivate Account" %}
                         </a>
                     </li>
                     {% endfor %}
@@ -83,21 +83,21 @@
     <div class="card mb-4" style="border:2px solid #0A4D68;">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,#0A4D68,#088395);color:#fff;">
             <span>
-                <i class="bi bi-hourglass-split me-2"></i>Pending Proposals — Awaiting HR Execution
+                <i class="bi bi-hourglass-split me-2"></i>{% trans "Pending Proposals — Awaiting HR Execution" %}
                 <span class="badge ms-2" style="background:rgba(255,255,255,.25);">{{ proposals|length }}</span>
             </span>
-            <small style="opacity:.8;font-size:.75rem;">These are not yet visible to the employees</small>
+            <small style="opacity:.8;font-size:.75rem;">{% trans "These are not yet visible to the employees" %}</small>
         </div>
         <div class="table-responsive">
             <table class="table mb-0">
                 <thead>
                     <tr>
                         <th style="width:28px;"></th>
-                        <th>Employee</th>
-                        <th>Proposed Type</th>
-                        <th>Reason</th>
-                        <th>Proposed By</th>
-                        <th>Date</th>
+                        <th>{% trans "Employee" %}</th>
+                        <th>{% trans "Proposed Type" %}</th>
+                        <th>{% trans "Reason" %}</th>
+                        <th>{% trans "Proposed By" %}</th>
+                        <th>{% trans "Date" %}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -122,7 +122,7 @@
                         <td style="white-space:nowrap;font-size:.82rem;">{{ prop.date_issued|date:"d M Y" }}</td>
                         <td>
                             <a href="{% url 'discipline:detail' prop.pk %}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye me-1"></i>Review
+                                <i class="bi bi-eye me-1"></i>{% trans "Review" %}
                             </a>
                         </td>
                     </tr>
@@ -140,7 +140,7 @@
             <div class="card text-center h-100" style="border-top:3px solid #2db4c3;">
                 <div class="card-body py-3">
                     <div style="font-size:2rem;font-weight:800;color:#2db4c3;">{{ records|length }}</div>
-                    <div class="text-muted" style="font-size:.8rem;">Executed Notices</div>
+                    <div class="text-muted" style="font-size:.8rem;">{% trans "Executed Notices" %}</div>
                 </div>
             </div>
         </div>
@@ -148,7 +148,7 @@
             <div class="card text-center h-100" style="border-top:3px solid #0A4D68;">
                 <div class="card-body py-3">
                     <div style="font-size:2rem;font-weight:800;color:#0A4D68;">{{ proposals|length }}</div>
-                    <div class="text-muted" style="font-size:.8rem;">Pending Proposals</div>
+                    <div class="text-muted" style="font-size:.8rem;">{% trans "Pending Proposals" %}</div>
                 </div>
             </div>
         </div>
@@ -160,9 +160,9 @@
         <div class="card-body py-3">
             <form method="get" class="d-flex flex-wrap gap-3 align-items-end">
                 <div>
-                    <label class="form-label mb-1" style="font-size:0.78rem;">Type</label>
+                    <label class="form-label mb-1" style="font-size:0.78rem;">{% trans "Type" %}</label>
                     <select name="type" class="form-select form-select-sm" style="min-width:180px;" onchange="this.form.submit()">
-                        <option value="">All Types</option>
+                        <option value="">{% trans "All Types" %}</option>
                         {% for key, label in action_types %}
                         <option value="{{ key }}" {% if type_filter == key %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
@@ -170,23 +170,23 @@
                 </div>
                 {% if is_privileged %}
                 <div>
-                    <label class="form-label mb-1" style="font-size:0.78rem;">Employee Name</label>
+                    <label class="form-label mb-1" style="font-size:0.78rem;">{% trans "Employee Name" %}</label>
                     <input type="text" name="name" value="{{ name_filter }}" class="form-control form-control-sm"
-                           placeholder="Search by name…" style="min-width:160px;">
+                           placeholder="{% trans 'Search by name…' %}" style="min-width:160px;">
                 </div>
                 <div>
-                    <label class="form-label mb-1" style="font-size:0.78rem;">Department</label>
+                    <label class="form-label mb-1" style="font-size:0.78rem;">{% trans "Department" %}</label>
                     <select name="dept" id="discDeptSelect" class="form-select form-select-sm" style="min-width:170px;">
-                        <option value="">All Departments</option>
+                        <option value="">{% trans "All Departments" %}</option>
                         {% for d in departments %}
                         <option value="{{ d.pk }}" {% if dept_filter == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div>
-                    <label class="form-label mb-1" style="font-size:0.78rem;">Employee</label>
+                    <label class="form-label mb-1" style="font-size:0.78rem;">{% trans "Employee" %}</label>
                     <select name="employee" id="discEmpSelect" class="form-select form-select-sm" style="min-width:190px;">
-                        <option value="">All Employees</option>
+                        <option value="">{% trans "All Employees" %}</option>
                         {% for emp in all_employees %}
                         <option value="{{ emp.pk }}"
                                 data-dept="{{ emp.department.pk|default:'' }}"
@@ -196,9 +196,9 @@
                 </div>
                 {% endif %}
                 <div class="d-flex gap-2 align-items-end">
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>Filter</button>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
                     {% if type_filter or dept_filter or emp_filter or name_filter %}
-                    <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                    <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">{% trans "Clear" %}</a>
                     {% endif %}
                 </div>
             </form>
@@ -209,12 +209,12 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span>
-                <i class="bi bi-shield-exclamation me-2 text-danger"></i>Discipline Records
+                <i class="bi bi-shield-exclamation me-2 text-danger"></i>{% trans "Discipline Records" %}
                 <span class="badge bg-secondary ms-2">{{ records|length }}</span>
             </span>
             {% if is_privileged %}
-            <a href="{% url 'dashboard:export_discipline' %}?department={{ dept_filter }}&type={{ type_filter }}" class="btn btn-sm btn-primary" title="Download PDF">
-                <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+            <a href="{% url 'dashboard:export_discipline' %}?department={{ dept_filter }}&type={{ type_filter }}" class="btn btn-sm btn-primary" title="{% trans 'Download PDF' %}">
+                <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download PDF" %}
             </a>
             {% endif %}
         </div>
@@ -225,12 +225,12 @@
                 <thead>
                     <tr>
                         <th style="width:28px;"></th>
-                        <th>Employee</th>
-                        <th>Notice Type</th>
-                        <th>Reason</th>
-                        <th>Date</th>
-                        {% if is_privileged %}<th>Issued By</th><th>Department</th>{% endif %}
-                        <th>Workflow</th>
+                        <th>{% trans "Employee" %}</th>
+                        <th>{% trans "Notice Type" %}</th>
+                        <th>{% trans "Reason" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        {% if is_privileged %}<th>{% trans "Issued By" %}</th><th>{% trans "Department" %}</th>{% endif %}
+                        <th>{% trans "Workflow" %}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -263,21 +263,21 @@
                         <td>
                             {% if record.action_type == 'verbal_warning' %}
                                 <span class="disc-type-badge" style="background:#fef3c7;color:#92400e;">
-                                    <i class="bi bi-chat-left-text-fill"></i> Verbal Warning
+                                    <i class="bi bi-chat-left-text-fill"></i> {% trans "Verbal Warning" %}
                                 </span>
                             {% elif record.action_type == 'written_caution' %}
                                 <span class="disc-type-badge" style="background:#fed7aa;color:#9a3412;">
-                                    <i class="bi bi-envelope-exclamation-fill"></i> Written Caution
+                                    <i class="bi bi-envelope-exclamation-fill"></i> {% trans "Written Caution" %}
                                 </span>
                             {% elif record.action_type == 'final_warning' %}
                                 <span class="disc-type-badge" style="background:#fee2e2;color:#991b1b;">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> Final Warning
+                                    <i class="bi bi-exclamation-triangle-fill"></i> {% trans "Final Warning" %}
                                 </span>
                             {% elif record.action_type == 'suspension' %}
                                 <span class="disc-type-badge" style="background:#1f2937;color:#fff;">
-                                    <i class="bi bi-person-lock"></i> Suspension
+                                    <i class="bi bi-person-lock"></i> {% trans "Suspension" %}
                                     {% if record.is_currently_suspended %}
-                                    <span style="background:rgba(255,255,255,.2);border-radius:4px;padding:1px 5px;font-size:.65rem;">Active</span>
+                                    <span style="background:rgba(255,255,255,.2);border-radius:4px;padding:1px 5px;font-size:.65rem;">{% trans "Active" %}</span>
                                     {% endif %}
                                 </span>
                                 {% if record.suspension_start and record.suspension_end %}
@@ -287,7 +287,7 @@
                                 {% endif %}
                             {% elif record.action_type == 'dismissal' %}
                                 <span class="disc-type-badge" style="background:#dc2626;color:#fff;">
-                                    <i class="bi bi-person-x-fill"></i> Dismissal
+                                    <i class="bi bi-person-x-fill"></i> {% trans "Dismissal" %}
                                 </span>
                             {% endif %}
                         </td>
@@ -304,21 +304,21 @@
                         <td>
                             {% if record.hr_proposed_sanction and record.director_proposed_sanction %}
                                 <span class="badge" style="background:#059669;color:#fff;font-size:.68rem;">
-                                    <i class="bi bi-check2-circle me-1"></i>Complete
+                                    <i class="bi bi-check2-circle me-1"></i>{% trans "Complete" %}
                                 </span>
                             {% elif record.hr_proposed_sanction %}
                                 <span class="badge" style="background:#2db4c3;color:#fff;font-size:.68rem;">
-                                    <i class="bi bi-hourglass-split me-1"></i>Awaiting Director
+                                    <i class="bi bi-hourglass-split me-1"></i>{% trans "Awaiting Director" %}
                                 </span>
                             {% else %}
                                 <span class="badge" style="background:#f59e0b;color:#fff;font-size:.68rem;">
-                                    <i class="bi bi-hourglass me-1"></i>Awaiting HR
+                                    <i class="bi bi-hourglass me-1"></i>{% trans "Awaiting HR" %}
                                 </span>
                             {% endif %}
                         </td>
                         <td>
                             <a href="{% url 'discipline:detail' record.pk %}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye me-1"></i>View
+                                <i class="bi bi-eye me-1"></i>{% trans "View" %}
                             </a>
                         </td>
                     </tr>
@@ -329,12 +329,12 @@
         {% else %}
         <div class="text-center py-5" style="color:#9ab4c0;">
             <i class="bi bi-shield-check" style="font-size:2.5rem;display:block;margin-bottom:12px;opacity:.5;"></i>
-            <div style="font-weight:600;font-size:.95rem;color:#4a6b7c;">No discipline records found</div>
+            <div style="font-weight:600;font-size:.95rem;color:#4a6b7c;">{% trans "No discipline records found" %}</div>
             <div style="font-size:.82rem;margin-top:4px;">
                 {% if type_filter or dept_filter or emp_filter or name_filter %}
-                Try adjusting your filters, or <a href="{% url 'discipline:list' %}">clear all filters</a>.
+                {% trans "Try adjusting your filters, or" %} <a href="{% url 'discipline:list' %}">{% trans "clear all filters" %}</a>.
                 {% else %}
-                No disciplinary actions have been recorded yet.
+                {% trans "No disciplinary actions have been recorded yet." %}
                 {% endif %}
             </div>
         </div>

@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
 
 
 class Department(models.Model):
@@ -12,12 +11,6 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
-
-
-_category_validator = RegexValidator(
-    regex=r'^(?:[1-9]|1[0-2])[A-Z]{0,3}$',
-    message='Enter a valid category: a number 1–12 followed by optional letters (e.g. 5, 12, 12A, 12AB, 12AL).'
-)
 
 
 class Employee(models.Model):
@@ -44,10 +37,10 @@ class Employee(models.Model):
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='employee')
     staff_category = models.CharField(
-        max_length=6, blank=True, default='',
-        validators=[_category_validator],
-        help_text='Category 1–12 with optional letter suffix (e.g. 5, 12, 12A, 12AB, 12AL)'
+        max_length=20, blank=True, default='',
+        help_text='Staff category (any format, e.g. 5, 12B-J, A, III)'
     )
+    profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
     supervisor = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='subordinates'

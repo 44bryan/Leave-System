@@ -17,6 +17,13 @@ class LeaveRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['leave_type'].queryset = LeaveType.objects.filter(is_active=True)
+        _date_formats = [
+            '%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y',
+            '%m/%d/%Y', '%m-%d-%Y', '%Y/%m/%d',
+            '%d %m %Y', '%d.%m.%Y',
+        ]
+        self.fields['start_date'].input_formats = _date_formats
+        self.fields['end_date'].input_formats = _date_formats
 
     def clean(self):
         cleaned_data = super().clean()

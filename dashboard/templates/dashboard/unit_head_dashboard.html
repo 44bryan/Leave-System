@@ -114,7 +114,7 @@
     <!-- Non-deductible leaves -->
     <div class="col-md-4 animate-in delay-1">
         <div class="card h-100">
-            <div class="card-header" style="background:#f0fdf4;border-color:#86efac;font-size:.82rem;">
+            <div class="card-header card-header-green">
                 <i class="bi bi-shield-check me-1" style="color:#1a8fa0;"></i> {% trans "Non-Deductible Leaves" %} {{ today.year }}
             </div>
             <div class="card-body p-3">
@@ -220,27 +220,63 @@
 <!-- Unit quick stats -->
 <div class="row g-3 mb-4">
     <div class="col-sm-4 animate-in">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fff8e1;color:#f57f17;"><i class="bi bi-hourglass-split"></i></div>
-            <div class="stat-value">{{ pending_approvals|length }}</div>
-            <div class="stat-label">{% trans "Awaiting My Approval" %}</div>
-            {% if pending_approvals %}
-            <a href="{% url 'leaves:unit_head_approvals' %}" class="btn btn-sm btn-outline-warning mt-3 w-100">{% trans "Review Now" %}</a>
-            {% endif %}
-        </div>
+        <a href="{% url 'leaves:unit_head_approvals' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#d97706,#f59e0b);">
+            <span class="pbi-kpi-icon"><i class="bi bi-hourglass-split"></i></span>
+            <div class="pbi-kpi-val">{{ pending_approvals|length }}</div>
+            <div class="pbi-kpi-lbl">{% trans "Awaiting Approval" %}</div>
+        </a>
     </div>
     <div class="col-sm-4 animate-in delay-1">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
-            <div class="stat-value">{{ unit_members|length }}</div>
-            <div class="stat-label">{% trans "Unit Members" %}</div>
+        <div class="pbi-kpi" style="background:linear-gradient(135deg,#0A4D68,#1d7da0);">
+            <span class="pbi-kpi-icon"><i class="bi bi-people-fill"></i></span>
+            <div class="pbi-kpi-val">{{ unit_members|length }}</div>
+            <div class="pbi-kpi-lbl">{% trans "Unit Members" %}</div>
         </div>
     </div>
     <div class="col-sm-4 animate-in delay-2">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-person-dash"></i></div>
-            <div class="stat-value">{{ unit_on_leave_today|length }}</div>
-            <div class="stat-label">{% trans "Unit On Leave Today" %}</div>
+        <div class="pbi-kpi" style="background:linear-gradient(135deg,{% if unit_on_leave_today %}#dc2626,#ef4444{% else %}#059669,#10b981{% endif %});">
+            <span class="pbi-kpi-icon"><i class="bi bi-person-dash"></i></span>
+            <div class="pbi-kpi-val">{{ unit_on_leave_today|length }}</div>
+            <div class="pbi-kpi-lbl">{% trans "On Leave Today" %}</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Unit Charts Row ── -->
+<div class="row g-4 mb-4 animate-in">
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-header card-header-sm">
+                <i class="bi bi-pie-chart-fill me-2" style="color:#088395;"></i>{% trans "My Leave Usage" %} {{ today.year }}
+            </div>
+            <div class="card-body p-3 d-flex align-items-center justify-content-center">
+                <canvas id="myLeaveDonut" style="max-height:180px;max-width:180px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-header card-header-sm">
+                <span class="pending-pulse"></span>
+                {% trans "Unit Attendance Today" %}
+            </div>
+            <div class="card-body p-3 d-flex align-items-center justify-content-center">
+                <canvas id="unitAttendanceChart" style="max-height:180px;max-width:180px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header card-header-sm">
+                <i class="bi bi-bar-chart-fill me-2" style="color:#0A4D68;"></i>{% trans "Leave Usage Snapshot" %}
+            </div>
+            <div class="card-body p-3">
+                {% if unit_balances %}
+                <canvas id="unitOverviewChart" style="max-height:180px;"></canvas>
+                {% else %}
+                <div class="text-center text-muted py-4" style="font-size:.85rem;">{% trans "No unit members" %}</div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -298,6 +334,17 @@
 <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin:24px 0 12px;">
     <i class="bi bi-bar-chart-steps me-1"></i> {% trans "Unit Leave Balances" %} — {{ year }}
 </div>
+{% if unit_balances %}
+<div class="card mb-3 animate-in" style="border-radius:14px;">
+    <div class="card-header" style="background:#f8fbfd;border-bottom:1px solid #eef2f7;">
+        <i class="bi bi-bar-chart-fill me-2" style="color:#088395;"></i>
+        <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Leave Usage by Member" %}</span>
+    </div>
+    <div class="card-body p-3">
+        <canvas id="unitBalanceChart" style="max-height:200px;"></canvas>
+    </div>
+</div>
+{% endif %}
 <div class="card mb-4 animate-in">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-calendar2-check me-2" style="color:#0A4D68;"></i>{% trans "Deductible Leave Remaining — Your Unit" %}</span>
@@ -367,4 +414,105 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block extra_css %}
+@keyframes pulse {
+    0%, 100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.5; transform:scale(1.4); }
+}
+.pbi-kpi { border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,0.12);transition:transform .15s,box-shadow .15s;color:white;display:block; }
+.pbi-kpi:hover { transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.18); }
+.pbi-kpi-icon { font-size:1.4rem;opacity:0.85;margin-bottom:7px;display:block; }
+.pbi-kpi-val { font-size:1.8rem;font-weight:800;line-height:1; }
+.pbi-kpi-lbl { font-size:0.67rem;text-transform:uppercase;letter-spacing:.08em;opacity:0.82;margin-top:4px; }
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+const donutDefaults = {
+    responsive: true,
+    cutout: '72%',
+    plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 11 } } },
+        tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
+    }
+};
+
+// ── My Leave Balance Donut
+const leaveUsed  = {{ balance.used_days|default:0 }};
+const leaveTotal = {{ balance.total_available|default:0 }};
+const leaveRemain = Math.max(0, leaveTotal - leaveUsed);
+new Chart(document.getElementById('myLeaveDonut'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Used', 'Remaining'],
+        datasets: [{
+            data: leaveTotal > 0 ? [leaveUsed, leaveRemain] : [0, 1],
+            backgroundColor: leaveTotal > 0 ? ['#0A4D68', '#e0f7fa'] : ['#e2e8f0', '#f0f4f8'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: donutDefaults
+});
+
+// ── Unit Attendance Donut
+const unitTotal   = {{ unit_members|length }};
+const unitOnLeave = {{ unit_on_leave_today|length }};
+const unitPresent = Math.max(0, unitTotal - unitOnLeave);
+new Chart(document.getElementById('unitAttendanceChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Present', 'On Leave'],
+        datasets: [{
+            data: unitTotal > 0 ? [unitPresent, unitOnLeave] : [0, 1],
+            backgroundColor: unitTotal > 0 ? ['#059669', '#dc2626'] : ['#e2e8f0', '#f0f4f8'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: donutDefaults
+});
+
+{% if unit_balances %}
+// ── Leave Usage Snapshot (top-row bar)
+const snapNames  = [{% for ub in unit_balances %}'{{ ub.employee.user.first_name|truncatechars:12|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+const snapPct    = [{% for ub in unit_balances %}{{ ub.balance.usage_percentage }}{% if not forloop.last %},{% endif %}{% endfor %}];
+new Chart(document.getElementById('unitOverviewChart'), {
+    type: 'bar',
+    data: {
+        labels: snapNames,
+        datasets: [{ data: snapPct, backgroundColor: snapPct.map(u => u >= 90 ? '#dc2626' : u >= 70 ? '#d97706' : '#088395'), borderRadius: 5, borderSkipped: false }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.parsed.x}% used` } } },
+        scales: { x: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f0f4f8' } }, y: { grid: { display: false } } }
+    }
+});
+
+// ── Unit Balance Bar (before table)
+const memberNames  = [{% for ub in unit_balances %}'{{ ub.employee.user.first_name|truncatechars:14|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+const memberUsage  = [{% for ub in unit_balances %}{{ ub.balance.usage_percentage }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const memberRemain = [{% for ub in unit_balances %}{{ ub.balance.remaining_days }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const barColors    = memberUsage.map(u => u >= 90 ? '#dc2626' : u >= 70 ? '#d97706' : '#088395');
+new Chart(document.getElementById('unitBalanceChart'), {
+    type: 'bar',
+    data: {
+        labels: memberNames,
+        datasets: [{ label: 'Leave Used (%)', data: memberUsage, backgroundColor: barColors, borderRadius: 6, borderSkipped: false }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.parsed.x}% used · ${memberRemain[c.dataIndex]}d remaining` } }
+        },
+        scales: { x: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f0f4f8' } }, y: { grid: { display: false } } }
+    }
+});
+{% endif %}
+</script>
 {% endblock %}

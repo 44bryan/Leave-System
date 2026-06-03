@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block title %}{% trans "All Leave Requests" %} — AEF HRM{% endblock %}
 {% block page_title %}{% trans "All Leave Requests" %}{% endblock %}
-{% block page_subtitle %}Complete record — {{ year }}{% endblock %}
+{% block page_subtitle %}Complete record — {{ year_filter }}{% endblock %}
 {% block nav_all_leaves %}active{% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
                 <label class="form-label">{% trans "Year" %}</label>
                 <select name="year" class="form-select">
                     {% for y in years %}
-                    <option value="{{ y }}" {% if y|stringformat:"s" == year_filter %}selected{% endif %}>{{ y }}</option>
+                    <option value="{{ y }}" {% if y == year_filter %}selected{% endif %}>{{ y }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -66,39 +66,39 @@
         {% endif %}
     </div>
     <div class="table-responsive">
-        <table class="table mb-0">
+        <table class="table mb-0" style="min-width: 560px;">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th class="th-opt">#</th>
                     <th>{% trans "Employee" %}</th>
                     <th>{% trans "Dept" %}</th>
                     <th>{% trans "Leave Type" %}</th>
-                    <th>{% trans "Period" %}</th>
+                    <th class="text-nowrap">{% trans "Period" %}</th>
                     <th>{% trans "Days" %}</th>
                     <th>{% trans "Status" %}</th>
-                    <th>{% trans "Applied" %}</th>
+                    <th class="th-opt">{% trans "Applied" %}</th>
                     <th>{% trans "View" %}</th>
                 </tr>
             </thead>
             <tbody>
                 {% for req in leave_requests %}
                 <tr>
-                    <td style="color:#6b7a8d;font-size:.78rem;">#{{ req.pk }}</td>
+                    <td class="td-opt" style="color:#6b7a8d;font-size:.78rem;">#{{ req.pk }}</td>
                     <td>
                         <a href="{% url 'accounts:employee_history' req.employee.pk %}" class="text-decoration-none text-dark">
                             <div style="font-weight:600;font-size:.875rem;">{{ req.employee.get_full_name }}</div>
-                            <div style="font-size:.72rem;color:#6b7a8d;">{{ req.employee.employee_id }}</div>
+                            <div class="t-secondary">{{ req.employee.employee_id }}</div>
                         </a>
                     </td>
-                    <td style="font-size:.82rem;">{{ req.employee.department|default:"—" }}</td>
+                    <td class="t-sm">{{ req.employee.department|default:"—" }}</td>
                     <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
-                    <td style="font-size:.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
+                    <td class="t-sm text-nowrap">{{ req.start_date }} → {{ req.end_date }}</td>
                     <td><strong>{{ req.total_days }}d</strong></td>
-                    <td>
+                    <td class="text-nowrap">
                         <span class="badge bg-{{ req.get_status_badge }}">{{ req.get_status_display }}</span>
                     </td>
-                    <td style="font-size:.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
-                    <td>
+                    <td class="td-opt text-nowrap" style="font-size:.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
+                    <td class="text-nowrap">
                         <div class="d-flex gap-1">
                             <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-sm btn-outline-secondary" title="View">
                                 <i class="bi bi-eye"></i>
@@ -113,7 +113,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="9" class="text-center text-muted py-5">
+                    <td colspan="7" class="text-center text-muted py-5">
                         <i class="bi bi-search fs-2 d-block mb-2"></i>
                         {% trans "No records match your filters." %}
                     </td>

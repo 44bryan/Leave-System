@@ -17,7 +17,7 @@
     <!-- Deductible -->
     <div class="col-12 col-md-7 animate-in">
         <div class="card h-100" style="border-color:#cde8ef;">
-            <div class="card-header" style="background:#f0fafc;font-size:.8rem;border-color:#cde8ef;">
+            <div class="card-header card-header-blue">
                 <i class="bi bi-dash-circle me-1" style="color:#b45309;"></i>
                 <strong>{% trans "Deductible Leave Balance" %}</strong>
             </div>
@@ -63,7 +63,7 @@
     <!-- Non-deductible -->
     <div class="col-12 col-md-5 animate-in delay-1">
         <div class="card h-100" style="border-color:#86efac;">
-            <div class="card-header" style="background:#f0fdf4;font-size:.8rem;border-color:#86efac;">
+            <div class="card-header card-header-green">
                 <i class="bi bi-shield-check me-1" style="color:#1a8fa0;"></i>
                 <strong>{% trans "Non-Deductible Leaves Taken" %}</strong>
             </div>
@@ -89,41 +89,75 @@
     </div>
 </div>
 
-<div class="card animate-in delay-2">
-    <div class="card-header"><i class="bi bi-journal-text me-2"></i>{% trans "All Leave Requests" %}</div>
+<!-- Filters -->
+<div class="card mb-3 animate-in delay-2">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-6 col-sm-3 col-md-2">
+                <label class="form-label">{% trans "Year" %}</label>
+                <select name="year" class="form-select">
+                    {% for y in years %}
+                    <option value="{{ y }}" {% if y == year_filter %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-sm-4 col-md-4">
+                <label class="form-label">{% trans "Status" %}</label>
+                <select name="status" class="form-select">
+                    <option value="">{% trans "All Statuses" %}</option>
+                    {% for val, label in status_choices %}
+                    <option value="{{ val }}" {% if val == status_filter %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-sm-auto">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1"></i>{% trans "Filter" %}
+                </button>
+                <a href="{% url 'leaves:my_requests' %}" class="btn btn-outline-secondary ms-1">{% trans "Clear" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card animate-in delay-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-journal-text me-2"></i>{% trans "Leave Requests" %} — {{ year_filter }}</span>
+        <span class="badge bg-secondary">{{ leave_requests|length }} {% trans "record(s)" %}</span>
+    </div>
     <div class="table-responsive">
-        <table class="table mb-0">
+        <table class="table mb-0" style="min-width: 500px;">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th class="th-opt">#</th>
                     <th>{% trans "Leave Type" %}</th>
-                    <th>{% trans "Start Date" %}</th>
-                    <th>{% trans "End Date" %}</th>
+                    <th class="text-nowrap">{% trans "Start Date" %}</th>
+                    <th class="text-nowrap th-opt">{% trans "End Date" %}</th>
                     <th>{% trans "Days" %}</th>
-                    <th>{% trans "Reason" %}</th>
+                    <th class="th-opt">{% trans "Reason" %}</th>
                     <th>{% trans "Status" %}</th>
-                    <th>{% trans "Applied On" %}</th>
+                    <th class="th-opt text-nowrap">{% trans "Applied On" %}</th>
                     <th>{% trans "Actions" %}</th>
                 </tr>
             </thead>
             <tbody>
                 {% for req in leave_requests %}
                 <tr>
-                    <td style="color:#6b7a8d;font-size:0.78rem;">#{{ req.pk }}</td>
+                    <td class="td-opt" style="color:#6b7a8d;font-size:0.78rem;">#{{ req.pk }}</td>
                     <td><strong>{{ req.leave_type }}</strong></td>
-                    <td>{{ req.start_date }}</td>
-                    <td>{{ req.end_date }}</td>
+                    <td class="text-nowrap">{{ req.start_date }}</td>
+                    <td class="td-opt text-nowrap">{{ req.end_date }}</td>
                     <td><span class="badge bg-light text-dark border">{{ req.total_days }}d</span></td>
-                    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.82rem;">
+                    <td class="td-opt" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;font-size:0.82rem;">
                         {{ req.reason|truncatechars:40 }}
                     </td>
-                    <td>
+                    <td class="text-nowrap">
                         <span class="badge bg-{{ req.get_status_badge }}">
                             <i class="bi bi-{{ req.get_status_icon }} me-1"></i>{{ req.get_status_display }}
                         </span>
                     </td>
-                    <td style="font-size:0.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
-                    <td>
+                    <td class="td-opt text-nowrap t-secondary">{{ req.created_at|date:"M d, Y" }}</td>
+                    <td class="text-nowrap">
                         <div class="d-flex gap-1">
                             <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-sm btn-outline-secondary" title="View">
                                 <i class="bi bi-eye"></i>
@@ -153,8 +187,8 @@
                 {% empty %}
                 <tr>
                     <td colspan="9" class="text-center text-muted py-5">
-                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                        {% trans "No leave requests yet." %}
+                        <i class="bi bi-search fs-2 d-block mb-2"></i>
+                        {% trans "No requests match your filters." %}
                         <a href="{% url 'leaves:submit' %}">{% trans "Apply for leave" %}</a>
                     </td>
                 </tr>

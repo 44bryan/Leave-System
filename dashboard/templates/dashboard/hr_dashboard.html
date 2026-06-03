@@ -19,8 +19,6 @@
 
 {% block extra_css %}
 .section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
-.pending-pulse { display:inline-block;width:8px;height:8px;background:#e53e3e;border-radius:50%;animation:pulse 1.5s infinite;margin-right:6px; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.4);} }
 .hr-kpi-card {
     background:#fff;border-radius:14px;padding:18px 16px;
     box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid #eef2f7;
@@ -91,6 +89,38 @@
     background:#e8f4f8;
 }
 .dash-editing .dash-block.sortable-ghost { opacity:.35; }
+
+/* ── Pipeline step cards ── */
+.pipeline-steps-row { position: relative; }
+@media (min-width: 768px) {
+    /* Subtle connector line running through the icon row */
+    .pipeline-steps-row::before {
+        content: '';
+        position: absolute;
+        top: 37px;
+        left: 14%; right: 14%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #cde8ef 15%, #cde8ef 85%, transparent);
+        z-index: 0;
+        pointer-events: none;
+    }
+    .pipeline-steps-row > [class*="col-"] { position: relative; z-index: 1; }
+    /* Step number badge — more prominent */
+    .pipeline-steps-row .hr-kpi-card {
+        border-top: 3px solid transparent;
+        transition: border-top-color .2s, box-shadow .2s, transform .15s;
+    }
+    .pipeline-steps-row .hr-kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(10,77,104,.1);
+    }
+}
+@media (min-width: 992px) {
+    .pipeline-steps-row .hr-kpi-card { padding: 12px 14px; }
+    .pipeline-steps-row .hr-kpi-icon { width: 34px; height: 34px; font-size: 0.88rem; margin-bottom: 5px; border-radius: 9px; }
+    .pipeline-steps-row .hr-kpi-value { font-size: 1.45rem; }
+    .pipeline-steps-row .hr-kpi-label { font-size: 0.62rem; }
+}
 {% endblock %}
 
 {% block content %}
@@ -197,7 +227,19 @@
 
 <!-- Leave Approval Pipeline -->
 <div class="section-label"><i class="bi bi-arrow-right-circle me-1"></i>{% trans "Leave Approval Pipeline" %}</div>
-<div class="row g-3 mb-3 animate-in">
+
+<!-- Visual Funnel Chart -->
+<div class="card mb-3 animate-in" style="border-radius:14px;">
+    <div class="card-header card-header-chart">
+        <i class="bi bi-funnel-fill me-2" style="color:#088395;"></i>
+        <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Pipeline Stages — Requests in Flight" %}</span>
+    </div>
+    <div class="card-body p-3">
+        <canvas id="pipelineFunnelChart" style="max-height:120px;"></canvas>
+    </div>
+</div>
+
+<div class="row g-3 mb-3 animate-in pipeline-steps-row">
     <!-- Step 1 -->
     <div class="col-6 col-md-3">
         <div class="hr-kpi-card" style="{% if pending_manager > 0 %}border-left:4px solid #f59e0b;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
@@ -296,6 +338,38 @@
         </div>
     </div>
 </div>
+
+<!-- ── Rate Indicators ── -->
+<div class="row g-3 mb-3 animate-in">
+    <div class="col-6 col-sm-3">
+        <div class="hr-kpi-card" style="border-left:4px solid #059669;">
+            <div class="hr-kpi-icon" style="background:#e8f5e9;color:#059669;"><i class="bi bi-percent"></i></div>
+            <div class="hr-kpi-value" style="color:#059669;">{{ approval_rate }}%</div>
+            <div class="hr-kpi-label">{% trans "Approval Rate" %} {{ year }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="hr-kpi-card" style="border-left:4px solid #d97706;">
+            <div class="hr-kpi-icon" style="background:#fff3e0;color:#d97706;"><i class="bi bi-bar-chart-fill"></i></div>
+            <div class="hr-kpi-value" style="color:#d97706;">{{ on_leave_pct }}%</div>
+            <div class="hr-kpi-label">{% trans "% Staff on Leave Today" %}</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="hr-kpi-card" style="border-left:4px solid #2db4c3;">
+            <div class="hr-kpi-icon" style="background:#e0f7fa;color:#2db4c3;"><i class="bi bi-person-check-fill"></i></div>
+            <div class="hr-kpi-value" style="color:#2db4c3;">{{ on_leave_count }}</div>
+            <div class="hr-kpi-label">{% trans "Absent Today (count)" %}</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="hr-kpi-card" style="border-left:4px solid #0A4D68;">
+            <div class="hr-kpi-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-check2-square"></i></div>
+            <div class="hr-kpi-value" style="color:#0A4D68;">{{ approved_year|add:rejected_year }}</div>
+            <div class="hr-kpi-label">{% trans "Decisions Made" %} {{ year }}</div>
+        </div>
+    </div>
+</div>
 </div><!-- /block overview -->
 
 <!-- BLOCK: discipline -->
@@ -355,7 +429,7 @@
                 <tr class="leave-row">
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2db4c3,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                                 {{ req.employee.user.first_name|first|upper }}
                             </div>
                             <span style="font-weight:600;color:#0d1b2a;">{{ req.employee.get_full_name }}</span>
@@ -395,7 +469,7 @@
 <div class="row g-4 mb-4">
     <div class="col-lg-8 animate-in delay-2">
         <div class="card h-100" style="border-radius:14px;">
-            <div class="card-header" style="background:#f8fbfd;border-bottom:1px solid #eef2f7;">
+            <div class="card-header card-header-chart">
                 <i class="bi bi-bar-chart-fill me-2 text-primary"></i>
                 <span style="font-weight:600;color:#0d1b2a;font-size:0.875rem;">Monthly Leave Approvals — {{ year }}</span>
             </div>
@@ -406,14 +480,14 @@
     </div>
     <div class="col-lg-4 animate-in delay-3">
         <div class="card h-100" style="border-radius:14px;">
-            <div class="card-header d-flex align-items-center justify-content-between" style="background:#f8fbfd;border-bottom:1px solid #eef2f7;">
+            <div class="card-header card-header-chart d-flex align-items-center justify-content-between">
                 <span style="font-weight:600;color:#0d1b2a;font-size:0.875rem;"><span class="pending-pulse"></span>{% trans "On Leave Today" %}</span>
                 <span class="badge bg-danger" style="border-radius:8px;">{{ on_leave_now|length }}</span>
             </div>
             <div class="card-body p-0" style="max-height:320px;overflow-y:auto;">
                 {% for req in on_leave_now %}
                 <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f4f7fa;">
-                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#05BFDB,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2db4c3,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ req.employee.user.first_name|first|upper }}
                     </div>
                     <div class="flex-grow-1">
@@ -437,37 +511,83 @@
 <div class="dash-block" data-block="analytics">
 <div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 <div class="section-label"><i class="bi bi-graph-up me-1"></i> {% trans "Analytics" %}</div>
+
+<!-- Charts row: Leave Type · Leave Status · Contract Mix -->
+<div class="row g-4 mb-4">
+    <!-- Leave Type Distribution -->
+    <div class="col-lg-5 animate-in delay-2">
+        <div class="card h-100" style="border-radius:14px;">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-bar-chart-steps me-2" style="color:#2db4c3;"></i>
+                <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Leave Type Breakdown" %} — {{ year }}</span>
+            </div>
+            <div class="card-body p-3">
+                {% if type_stats %}
+                <canvas id="leaveTypeChart"></canvas>
+                {% else %}
+                <div class="text-center text-muted py-4"><small>{% trans "No approved leaves this year yet" %}</small></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Leave Status Donut -->
+    <div class="col-lg-3 animate-in delay-3">
+        <div class="card h-100" style="border-radius:14px;">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-check2-circle me-2" style="color:#059669;"></i>
+                <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Leave Outcomes" %}</span>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center p-3">
+                <canvas id="hrLeaveOutcomeChart" style="max-height:170px;max-width:170px;"></canvas>
+                <div class="d-flex gap-3 mt-3 justify-content-center flex-wrap">
+                    <div class="text-center">
+                        <div style="font-size:1.2rem;font-weight:800;color:#059669;">{{ approved_year }}</div>
+                        <div style="font-size:.65rem;color:#9ab4c0;text-transform:uppercase;">{% trans "Approved" %}</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-size:1.2rem;font-weight:800;color:#dc2626;">{{ rejected_year }}</div>
+                        <div style="font-size:.65rem;color:#9ab4c0;text-transform:uppercase;">{% trans "Rejected" %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Contract Mix Donut -->
+    <div class="col-lg-4 animate-in delay-4">
+        <div class="card h-100" style="border-radius:14px;">
+            <div class="card-header card-header-chart">
+                <i class="bi bi-file-earmark-person me-2 text-primary"></i>
+                <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Contract Mix" %}</span>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center p-3">
+                <canvas id="hrContractMixChart" style="max-height:170px;max-width:170px;"></canvas>
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3" style="font-size:.72rem;color:#6b7a8d;">
+                    <span><span style="color:#059669;font-size:1rem;">&#9679;</span> CDI <strong>{{ contract_total_cdi }}</strong></span>
+                    <span><span style="color:#d97706;font-size:1rem;">&#9679;</span> CDD <strong>{{ contract_total_cdd }}</strong></span>
+                    <span><span style="color:#2db4c3;font-size:1rem;">&#9679;</span> Intern <strong>{{ contract_total_intern }}</strong></span>
+                    <span><span style="color:#7c3aed;font-size:1rem;">&#9679;</span> WACS <strong>{{ contract_total_wacs }}</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department chart + Low Balance -->
 <div class="row g-4 mb-4">
     <div class="col-lg-6 animate-in delay-3">
         <div class="card h-100" style="border-radius:14px;">
-            <div class="card-header" style="background:#f8fbfd;border-bottom:1px solid #eef2f7;">
-                <span style="font-weight:600;color:#0d1b2a;font-size:0.875rem;"><i class="bi bi-building me-2" style="color:#2db4c3;"></i>Department Leave Activity</span>
+            <div class="card-header card-header-chart">
+                <span style="font-weight:600;color:#0d1b2a;font-size:0.875rem;"><i class="bi bi-building me-2" style="color:#2db4c3;"></i>{% trans "Department Leave Activity" %}</span>
             </div>
             <div class="card-body p-3">
-                {% for dept in dept_stats %}
-                {% if dept.total_requests > 0 %}
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span style="font-size:0.85rem;font-weight:600;color:#0d1b2a;">{{ dept.name }}</span>
-                        <span style="font-size:0.78rem;color:#9ab4c0;">{{ dept.approved_requests }}/{{ dept.total_requests }} approved</span>
-                    </div>
-                    <div class="progress" style="height:6px;background:#eef2f7;border-radius:10px;">
-                        {% if dept.total_requests > 0 %}
-                        <div class="progress-bar" style="width:{% widthratio dept.approved_requests dept.total_requests 100 %}%;background:linear-gradient(90deg,#05BFDB,#0A4D68);border-radius:10px;"></div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-                {% empty %}
-                <div class="text-center text-muted py-4"><small>{% trans "No department data yet" %}</small></div>
-                {% endfor %}
+                <canvas id="deptActivityChart"></canvas>
             </div>
         </div>
     </div>
     <div class="col-lg-6 animate-in delay-4">
         <div class="card h-100" style="border-radius:14px;">
             <div class="card-header" style="background:#fff8f8;border-bottom:1px solid #fca5a5;">
-                <span style="font-weight:600;font-size:0.875rem;color:#b91c1c;"><i class="bi bi-exclamation-triangle-fill me-2"></i>Low Leave Balance (≤ 3 days)</span>
+                <span style="font-weight:600;font-size:0.875rem;color:#b91c1c;"><i class="bi bi-exclamation-triangle-fill me-2"></i>{% trans "Low Leave Balance (≤ 3 days)" %}</span>
             </div>
             <div class="card-body p-0" style="max-height:320px;overflow-y:auto;">
                 {% if low_balance %}
@@ -507,31 +627,160 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
-// ── Monthly chart ──────────────────────────────────────────────────────────
-const ctx = document.getElementById('monthlyChart').getContext('2d');
-new Chart(ctx, {
+
+// ── Pipeline Funnel Chart ─────────────────────────────────────────────────────
+new Chart(document.getElementById('pipelineFunnelChart'), {
     type: 'bar',
+    data: {
+        labels: ['Step 1 — Unit / Manager', 'Step 2 — Unit Head Done', 'Step 3 — HR Review', 'Step 4 — Director'],
+        datasets: [{
+            data: [{{ pending_manager }}, {{ pending_unit_approved }}, {{ pending_hr }}, {{ pending_director }}],
+            backgroundColor: ['#f59e0b','#2db4c3','#088395','#0A4D68'],
+            borderRadius: 8, borderSkipped: false
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.parsed.x} request${c.parsed.x !== 1 ? 's' : ''} waiting` } }
+        },
+        scales: {
+            x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+    }
+});
+
+// ── Monthly line chart with gradient ──────────────────────────────────────────
+const ctx = document.getElementById('monthlyChart').getContext('2d');
+const lineGrad = ctx.createLinearGradient(0, 0, 0, 260);
+lineGrad.addColorStop(0, 'rgba(8,131,149,0.28)');
+lineGrad.addColorStop(1, 'rgba(8,131,149,0)');
+new Chart(ctx, {
+    type: 'line',
     data: {
         labels: {{ month_labels|safe }},
         datasets: [{
             label: 'Approved Leaves',
             data: {{ monthly_data|safe }},
-            backgroundColor: 'rgba(8,131,149,0.10)',
+            fill: true,
+            backgroundColor: lineGrad,
             borderColor: '#088395',
-            borderWidth: 2,
-            borderRadius: 8,
-            borderSkipped: false,
+            borderWidth: 2.5,
+            pointBackgroundColor: '#088395',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.4
         }]
     },
     options: {
         responsive: true,
-        plugins: { legend: { display: false } },
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.parsed.y} approved` } }
+        },
         scales: {
-            y: { beginAtZero: true, ticks: { stepSize:1, font:{family:'Plus Jakarta Sans'} }, grid:{color:'#f0f4f8'} },
-            x: { ticks: { font:{family:'Plus Jakarta Sans'} }, grid:{display:false} }
+            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+const donutDefaults = {
+    responsive: true, cutout: '70%',
+    plugins: {
+        legend: { position: 'bottom', labels: { padding: 12, boxWidth: 10, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } },
+        tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
+    }
+};
+
+// ── Leave Type horizontal bar chart ───────────────────────────────────────────
+{% if type_stats %}
+const ltColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#dc2626','#7c3aed','#db2777'];
+new Chart(document.getElementById('leaveTypeChart'), {
+    type: 'bar',
+    data: {
+        labels: [{% for lt in type_stats %}'{{ lt.name|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Approved',
+            data: [{% for lt in type_stats %}{{ lt.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: [{% for lt in type_stats %}ltColors[{{ forloop.counter0 }} % ltColors.length]{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderRadius: 6, borderSkipped: false
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.parsed.x} requests` } }
+        },
+        scales: {
+            x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+    }
+});
+{% endif %}
+
+// ── Leave Status Donut ────────────────────────────────────────────────────────
+(function(){
+    const aY = {{ approved_year }}, rY = {{ rejected_year }}, pH = {{ pending_hr }}, pD = {{ pending_director }};
+    const hasData = aY + rY + pH + pD > 0;
+    new Chart(document.getElementById('hrLeaveOutcomeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: hasData ? ['Approved','Rejected','Pending HR','Pending Dir.'] : ['No data yet'],
+            datasets: [{ data: hasData ? [aY,rY,pH,pD] : [1], backgroundColor: hasData ? ['#059669','#dc2626','#d97706','#0A4D68'] : ['#e2e8f0'], borderWidth: hasData ? 2 : 0, borderColor: '#fff', hoverOffset: 8 }]
+        },
+        options: donutDefaults
+    });
+})();
+
+// ── Contract Mix Donut ────────────────────────────────────────────────────────
+(function(){
+    const cCDI = {{ contract_total_cdi }}, cCDD = {{ contract_total_cdd }}, cINT = {{ contract_total_intern }}, cWACS = {{ contract_total_wacs }};
+    const hasCtr = cCDI + cCDD + cINT + cWACS > 0;
+    new Chart(document.getElementById('hrContractMixChart'), {
+        type: 'doughnut',
+        data: {
+            labels: hasCtr ? ['CDI','CDD','Intern','WACS'] : ['No data yet'],
+            datasets: [{ data: hasCtr ? [cCDI,cCDD,cINT,cWACS] : [1], backgroundColor: hasCtr ? ['#059669','#d97706','#2db4c3','#7c3aed'] : ['#e2e8f0'], borderWidth: hasCtr ? 2 : 0, borderColor: '#fff', hoverOffset: 8 }]
+        },
+        options: donutDefaults
+    });
+})();
+
+// ── Department Activity horizontal bar ────────────────────────────────────────
+const deptLabels = [{% for d in dept_stats %}'{{ d.name|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+const deptApproved = [{% for d in dept_stats %}{{ d.approved_requests }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const deptTotal = [{% for d in dept_stats %}{{ d.total_requests }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const deptPending = deptTotal.map((t, i) => Math.max(0, t - deptApproved[i]));
+new Chart(document.getElementById('deptActivityChart'), {
+    type: 'bar',
+    data: {
+        labels: deptLabels,
+        datasets: [
+            { label: 'Approved', data: deptApproved, backgroundColor: '#088395', borderRadius: 4, borderSkipped: false },
+            { label: 'Other', data: deptPending, backgroundColor: '#e2e8f0', borderRadius: 4, borderSkipped: false }
+        ]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom', labels: { padding: 12, boxWidth: 10, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } },
+            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
+        },
+        scales: {
+            x: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+            y: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } }
         }
     }
 });

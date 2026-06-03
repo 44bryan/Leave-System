@@ -5,6 +5,16 @@
 {% block page_subtitle %}{% blocktrans with name=employee.user.first_name %}Welcome back, {{ name }}{% endblocktrans %}{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
 
+{% block extra_css %}
+<style>
+.pbi-kpi{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:20px 22px;border-radius:16px;color:#fff;border:none;box-shadow:0 4px 18px rgba(0,0,0,0.12);transition:transform .18s,box-shadow .18s;min-height:120px;}
+.pbi-kpi:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.18);}
+.pbi-kpi-icon{font-size:1.6rem;opacity:0.85;margin-bottom:6px;}
+.pbi-kpi-val{font-size:2.2rem;font-weight:800;line-height:1;}
+.pbi-kpi-lbl{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;opacity:0.82;margin-top:3px;}
+</style>
+{% endblock %}
+
 {% block content %}
 
 {% if is_own_birthday %}
@@ -87,7 +97,7 @@
     <!-- Non-deductible leaves taken -->
     <div class="col-md-4 animate-in delay-1">
         <div class="card h-100">
-            <div class="card-header" style="background:#f0fdf4;border-color:#86efac;font-size:.82rem;">
+            <div class="card-header card-header-green">
                 <i class="bi bi-shield-check me-1" style="color:#1a8fa0;"></i> {% trans "Non-Deductible Leaves" %} {{ today.year }}
             </div>
             <div class="card-body p-3">
@@ -125,13 +135,53 @@
             <a href="{% url 'leaves:my_requests' %}" class="btn btn-sm btn-outline-warning mt-3 w-100">{% trans "View Pending" %}</a>
             {% endif %}
         </div>
-        <div class="card" style="background: #f0fdf4; border: 1.5px dashed #4ade80;">
+        <div class="card" style="background:#f0fdf4;border:1.5px dashed #4ade80;">
             <div class="card-body p-3 d-flex flex-column justify-content-center align-items-center text-center">
-                <i class="bi bi-plus-circle-fill fs-2 mb-2" style="color: #0A4D68;"></i>
+                <i class="bi bi-plus-circle-fill fs-2 mb-2" style="color:#0A4D68;"></i>
                 <h6 class="fw-bold mb-1" style="font-size:.85rem;">{% trans "Apply for Leave" %}</h6>
                 <a href="{% url 'leaves:submit' %}" class="btn btn-primary btn-sm w-100">
                     <i class="bi bi-send me-1"></i>{% trans "New Request" %}
                 </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leave Analytics Charts -->
+<div class="row g-4 mb-4 animate-in">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header card-header-sm">
+                <i class="bi bi-pie-chart-fill me-2" style="color:#088395;"></i>{% trans "Leave Usage" %} {{ today.year }}
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
+                <div style="position:relative;width:160px;">
+                    <canvas id="myLeaveRingChart"></canvas>
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+                        <div style="font-size:1.6rem;font-weight:800;color:#0A4D68;">{{ balance.remaining_days }}</div>
+                        <div style="font-size:0.62rem;color:#6b7a8d;font-weight:600;">{% trans "days left" %}</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mt-3" style="font-size:.75rem;color:#6b7a8d;">
+                    <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0A4D68;margin-right:4px;"></span>{% trans "Used" %} {{ balance.used_days }}d</span>
+                    <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e0f7fa;border:1px solid #aaa;margin-right:4px;"></span>{% trans "Left" %} {{ balance.remaining_days }}d</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header card-header-sm">
+                <i class="bi bi-bar-chart-fill me-2" style="color:#088395;"></i>{% trans "Days Taken by Leave Type" %}
+            </div>
+            <div class="card-body p-3">
+                {% if recent_requests %}
+                <canvas id="myLeaveTypesChart" style="max-height:160px;"></canvas>
+                {% else %}
+                <div class="d-flex align-items-center justify-content-center text-muted" style="height:120px;font-size:.82rem;">
+                    <i class="bi bi-inbox me-2"></i>{% trans "No leave history yet." %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -230,4 +280,70 @@
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+// Leave Usage Ring
+const empUsed   = {{ balance.used_days|default:0 }};
+const empRemain = {{ balance.remaining_days|default:0 }};
+const empTotal  = {{ balance.total_available|default:0 }};
+new Chart(document.getElementById('myLeaveRingChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Used', 'Remaining'],
+        datasets: [{
+            data: empTotal > 0 ? [empUsed, empRemain] : [0, 1],
+            backgroundColor: empTotal > 0 ? ['#0A4D68', '#e0f7fa'] : ['#e2e8f0', '#f0f4f8'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        cutout: '72%',
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8 }
+        }
+    }
+});
+
+// Leave by Type chart — aggregate days from recent_requests
+{% if recent_requests %}
+const empTypeMap = {};
+{% for r in recent_requests %}
+(function(){ const k = '{{ r.leave_type|escapejs }}'; empTypeMap[k] = (empTypeMap[k] || 0) + {{ r.total_days }}; })();
+{% endfor %}
+const empTypeLabels = Object.keys(empTypeMap);
+const empTypeData   = empTypeLabels.map(k => empTypeMap[k]);
+const empTypeColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#dc2626','#7c3aed'];
+if (empTypeLabels.length && document.getElementById('myLeaveTypesChart')) {
+    new Chart(document.getElementById('myLeaveTypesChart'), {
+        type: 'bar',
+        data: {
+            labels: empTypeLabels,
+            datasets: [{
+                data: empTypeData,
+                backgroundColor: empTypeLabels.map((_, i) => empTypeColors[i % empTypeColors.length]),
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.parsed.x} days` } }
+            },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: '#f0f4f8' } },
+                y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+            }
+        }
+    });
+}
+{% endif %}
+</script>
 {% endblock %}

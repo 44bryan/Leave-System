@@ -119,11 +119,18 @@
             <div class="row g-3 mb-3">
                 <div class="col-sm-6">
                     <label class="form-label fw-600">Start Date <span class="text-danger">*</span></label>
-                    <input type="date" name="start_date" class="form-control" required>
+                    <input type="text" name="start_date" class="form-control" required
+                           placeholder="DD/MM/YYYY or YYYY-MM-DD"
+                           autocomplete="off">
+                    <div class="form-text text-muted" style="font-size:0.75rem;">
+                        <i class="bi bi-info-circle me-1"></i>Enter the actual employment start date (may be in the past).
+                    </div>
                 </div>
                 <div class="col-sm-6" id="end-date-wrap">
                     <label class="form-label fw-600">End Date <span class="text-danger">*</span> <small class="text-muted fw-normal" id="end-date-label">(CDD / INTERN / WACS)</small></label>
-                    <input type="date" name="end_date" id="end-date-input" class="form-control" required>
+                    <input type="text" name="end_date" id="end-date-input" class="form-control"
+                           placeholder="DD/MM/YYYY or YYYY-MM-DD"
+                           autocomplete="off">
                 </div>
             </div>
 
@@ -162,6 +169,7 @@ function updateContractForm() {
     wrap.style.opacity = isCDI ? '0.4' : '1';
     input.required  = !isCDI;
     input.disabled  = isCDI;
+    input.placeholder = isCDI ? 'Not applicable for CDI' : 'DD/MM/YYYY or YYYY-MM-DD';
     if (isCDI) input.value = '';
 
     // Internship type dropdown — only for INTERN

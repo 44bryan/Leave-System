@@ -81,12 +81,20 @@ def _contract_issue_message(contract):
 
 
 def _parse_date(d):
-    """Accept a date object or an ISO string and return a date object."""
+    """Accept a date object or a string in various formats and return a date object."""
     if d is None:
+        return None
+    if not d:
         return None
     if isinstance(d, str):
         from datetime import datetime as _dt
-        return _dt.strptime(d[:10], '%Y-%m-%d').date()
+        for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y', '%m/%d/%Y',
+                    '%m-%d-%Y', '%Y/%m/%d', '%d.%m.%Y', '%d %m %Y'):
+            try:
+                return _dt.strptime(d.strip()[:10], fmt).date()
+            except ValueError:
+                continue
+        return None
     return d
 
 
@@ -298,13 +306,33 @@ def issue_contract(request):
             messages.error(request, "Employee, contract type, and start date are required.")
             return render(request, 'contracts/issue_contract.html', {
                 'employees': employees, 'today': today,
+                'all_departments': __import__('accounts.models', fromlist=['Department']).Department.objects.order_by('name'),
             })
 
-        if contract_type in ('CDD', 'INTERN', 'WACS') and not end_date:
+        parsed_start = _parse_date(start_date)
+        if not parsed_start:
+            messages.error(request, "Invalid start date. Use DD/MM/YYYY or YYYY-MM-DD.")
+            return render(request, 'contracts/issue_contract.html', {
+                'employees': employees, 'today': today,
+                'all_departments': __import__('accounts.models', fromlist=['Department']).Department.objects.order_by('name'),
+            })
+
+        parsed_end = None
+        if end_date:
+            parsed_end = _parse_date(end_date)
+            if not parsed_end:
+                messages.error(request, "Invalid end date. Use DD/MM/YYYY or YYYY-MM-DD.")
+                return render(request, 'contracts/issue_contract.html', {
+                    'employees': employees, 'today': today,
+                    'all_departments': __import__('accounts.models', fromlist=['Department']).Department.objects.order_by('name'),
+                })
+
+        if contract_type in ('CDD', 'INTERN', 'WACS') and not parsed_end:
             label = {'CDD': 'Fixed-Term (CDD)', 'INTERN': 'Internship', 'WACS': 'WACS Residency'}[contract_type]
             messages.error(request, f"End date is required for {label} contracts.")
             return render(request, 'contracts/issue_contract.html', {
                 'employees': employees, 'today': today,
+                'all_departments': __import__('accounts.models', fromlist=['Department']).Department.objects.order_by('name'),
             })
 
         emp = get_object_or_404(Employee, pk=emp_id)
@@ -317,8 +345,8 @@ def issue_contract(request):
             contract_type=contract_type,
             internship_type=internship_type,
             working_department_id=working_dept_id or None,
-            start_date=start_date,
-            end_date=end_date,
+            start_date=parsed_start,
+            end_date=parsed_end,
             notes=notes,
             status='active',
             created_by=request.user,

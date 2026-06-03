@@ -151,9 +151,25 @@ class AppraisalRecord(models.Model):
     override_aa_judgment_team        = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
     override_aa_punctuality          = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
     override_aa_presentation         = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    # Legacy "last modifier" — kept for the total table footnote
     score_override_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
                                           related_name='score_overrides')
     score_override_at = models.DateTimeField(null=True, blank=True)
+    # Per-role audit trail — tracks which role actually changed the scores
+    score_modified_by_hr       = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+                                                    related_name='hr_score_mods')
+    score_modified_at_hr       = models.DateTimeField(null=True, blank=True)
+    score_modified_by_director = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+                                                    related_name='director_score_mods')
+    score_modified_at_director = models.DateTimeField(null=True, blank=True)
+    score_modified_by_ceo      = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+                                                    related_name='ceo_score_mods')
+    score_modified_at_ceo      = models.DateTimeField(null=True, blank=True)
+    # Per-role score snapshots — stores {fname: value} for each field that role actually changed.
+    # Keys are the bare field names (e.g. 'pf_quality_of_work'). Null = role made no changes.
+    hr_score_changes       = models.JSONField(null=True, blank=True, default=None)
+    director_score_changes = models.JSONField(null=True, blank=True, default=None)
+    ceo_score_changes      = models.JSONField(null=True, blank=True, default=None)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -169,6 +185,42 @@ class AppraisalRecord(models.Model):
         """Return override value if set, else the supervisor's (mgr_*) value."""
         v = getattr(self, f'override_{fname}', None)
         return v if v is not None else getattr(self, f'mgr_{fname}', None)
+
+    _SCORE_FIELD_LABELS = [
+        ('pf_quality_of_work',      'Quality of Work'),
+        ('pf_quantity_of_work',     'Quantity of Work'),
+        ('pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('pf_ability_to_learn',     'Ability / Interest to Learn'),
+        ('aa_motivation',           'Motivation and Initiative'),
+        ('aa_attitude_colleagues',  'Attitude towards Colleagues'),
+        ('aa_relations_patients',   'Relations with Patients'),
+        ('aa_judgment_team',        'Judgment, Team Spirit & Discretion'),
+        ('aa_punctuality',          'Punctuality, Attendance & Honesty'),
+        ('aa_presentation',         'Personal Presentation'),
+    ]
+
+    def score_changes_display(self):
+        """Return list of dicts for every field where any role modified the supervisor's score.
+        Each dict: label, supervisor, hr, director, ceo, final — None means that role did not touch it."""
+        hr_ch  = self.hr_score_changes or {}
+        dir_ch = self.director_score_changes or {}
+        ceo_ch = self.ceo_score_changes or {}
+        rows = []
+        for fname, label in self._SCORE_FIELD_LABELS:
+            hr_v  = hr_ch.get(fname)
+            dir_v = dir_ch.get(fname)
+            ceo_v = ceo_ch.get(fname)
+            if hr_v is None and dir_v is None and ceo_v is None:
+                continue
+            rows.append({
+                'label':      label,
+                'supervisor': getattr(self, f'mgr_{fname}'),
+                'hr':         hr_v,
+                'director':   dir_v,
+                'ceo':        ceo_v,
+                'final':      self._final_score(fname),
+            })
+        return rows
 
     @property
     def has_score_override(self):
