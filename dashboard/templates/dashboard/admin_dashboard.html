@@ -16,14 +16,16 @@
 {% block extra_css %}
 .section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.4);} }
-.pbi-kpi { border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,0.12);transition:transform .15s,box-shadow .15s;color:white;display:block; }
-.pbi-kpi:hover { transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.18); }
-.pbi-kpi-icon { font-size:1.4rem;opacity:0.85;margin-bottom:7px;display:block; }
-.pbi-kpi-val { font-size:1.8rem;font-weight:800;line-height:1; }
-.pbi-kpi-lbl { font-size:0.67rem;text-transform:uppercase;letter-spacing:.08em;opacity:0.82;margin-top:4px; }
+.pbi-kpi { border-radius:14px;padding:18px 12px;text-align:center;background:white;box-shadow:0 2px 10px rgba(10,77,104,0.07);transition:transform .15s,box-shadow .15s;display:block;border-top:3px solid var(--kpi-color,#2db4c3); }
+.pbi-kpi:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,77,104,0.13); }
+.pbi-kpi-icon { width:48px;height:48px;border-radius:12px;background:color-mix(in srgb,var(--kpi-color,#2db4c3) 12%,white);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--kpi-color,#2db4c3);margin:0 auto 10px; }
+.pbi-kpi-val { font-size:2rem;font-weight:800;line-height:1;color:var(--kpi-color,#0A4D68); }
+.pbi-kpi-lbl { font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px; }
 {% endblock %}
 
 {% block content %}
+
+\{% include 'dashboard/includes/hero_banner.html' %\}
 
 <!-- ── Dismissal Alert (urgent — always first) ── -->
 {% if dismissal_alert %}
@@ -58,42 +60,42 @@
 <div class="section-label"><i class="bi bi-speedometer2 me-1"></i> {% trans "System Overview" %}</div>
 <div class="row g-3 mb-3 animate-in">
     <div class="col-6 col-sm-4 col-lg-2">
-        <a href="{% url 'accounts:employee_list' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#0A4D68,#1d7da0);">
+        <a href="{% url 'accounts:employee_list' %}" class="pbi-kpi text-decoration-none" style="--kpi-color:#0A4D68">
             <span class="pbi-kpi-icon"><i class="bi bi-people-fill"></i></span>
             <div class="pbi-kpi-val">{{ total_employees }}</div>
             <div class="pbi-kpi-lbl">{% trans "Active Staff" %}</div>
         </a>
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
-        <a href="{% url 'accounts:department_list' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#088395,#2db4c3);">
+        <a href="{% url 'accounts:department_list' %}" class="pbi-kpi text-decoration-none" style="--kpi-color:#088395">
             <span class="pbi-kpi-icon"><i class="bi bi-building"></i></span>
             <div class="pbi-kpi-val">{{ total_departments }}</div>
             <div class="pbi-kpi-lbl">{% trans "Departments" %}</div>
         </a>
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
-        <div class="pbi-kpi" style="background:linear-gradient(135deg,#d97706,#f59e0b);">
+        <div class="pbi-kpi" style="--kpi-color:#d97706">
             <span class="pbi-kpi-icon"><i class="bi bi-hourglass-split"></i></span>
             <div class="pbi-kpi-val">{{ pending_manager }}</div>
             <div class="pbi-kpi-lbl">{% trans "Awaiting Manager" %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
-        <div class="pbi-kpi" style="background:linear-gradient(135deg,#2db4c3,#2db4c3);">
+        <div class="pbi-kpi" style="--kpi-color:#2db4c3">
             <span class="pbi-kpi-icon"><i class="bi bi-clipboard2-check-fill"></i></span>
             <div class="pbi-kpi-val">{{ pending_hr }}</div>
             <div class="pbi-kpi-lbl">{% trans "Awaiting HR" %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
-        <div class="pbi-kpi" style="background:linear-gradient(135deg,#7c3aed,#9f6ef5);">
+        <div class="pbi-kpi" style="--kpi-color:#475569">
             <span class="pbi-kpi-icon"><i class="bi bi-shield-check"></i></span>
             <div class="pbi-kpi-val">{{ pending_director }}</div>
             <div class="pbi-kpi-lbl">{% trans "Awaiting Director" %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg-2">
-        <div class="pbi-kpi" style="background:linear-gradient(135deg,#059669,#10b981);">
+        <div class="pbi-kpi" style="--kpi-color:#059669">
             <span class="pbi-kpi-icon"><i class="bi bi-check2-all"></i></span>
             <div class="pbi-kpi-val">{{ approved_year }}</div>
             <div class="pbi-kpi-lbl">{% trans "Approved" %} {{ year }}</div>
@@ -105,7 +107,7 @@
 <div class="row g-3 mb-4 animate-in delay-1">
     <div class="col-sm-4">
         <a href="{% url 'discipline:stats' %}" class="text-decoration-none">
-            <div class="card p-3 d-flex flex-row align-items-center gap-3" style="border-left:3px solid #f59e0b;">
+            <div class="card p-3 d-flex flex-row align-items-center gap-3" style="border-left:3px solid #d97706;">
                 <div style="width:36px;height:36px;border-radius:10px;background:#fff8e1;color:#d97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                     <i class="bi bi-exclamation-triangle-fill"></i>
                 </div>
@@ -161,7 +163,7 @@
     <div class="col-6 col-sm-4 col-lg-2">
         <a href="{% url 'contracts:list' %}?type=CDI" class="text-decoration-none">
             <div class="stat-card text-center" style="border-top:3px solid #2db4c3;">
-                <div class="stat-icon mx-auto" style="background:#dcfce7;color:#2db4c3;"><i class="bi bi-infinity"></i></div>
+                <div class="stat-icon mx-auto" style="background:#d1fae5;color:#2db4c3;"><i class="bi bi-infinity"></i></div>
                 <div class="stat-value">{{ contract_total_cdi }}</div>
                 <div class="stat-label">{% trans "CDI (Permanent)" %}</div>
             </div>
@@ -280,7 +282,7 @@
                 {% endif %}
                 {% if not contracts_expired_active and not contracts_expiring_30 and not contracts_expiring_60 and not contracts_expiring_90 %}
                 <div class="text-center py-5">
-                    <i class="bi bi-check-circle-fill fs-2 d-block mb-2" style="color:#22c55e;"></i>
+                    <i class="bi bi-check-circle-fill fs-2 d-block mb-2" style="color:#059669;"></i>
                     <div class="text-muted" style="font-size:.85rem;">No contracts expiring in the next 90 days.</div>
                 </div>
                 {% endif %}
@@ -320,7 +322,7 @@
                 {% endfor %}
                 {% else %}
                 <div class="text-center py-5">
-                    <i class="bi bi-shield-check fs-2 d-block mb-2" style="color:#22c55e;"></i>
+                    <i class="bi bi-shield-check fs-2 d-block mb-2" style="color:#059669;"></i>
                     <div class="text-muted" style="font-size:.85rem;">No employees within 5 years of retirement.</div>
                 </div>
                 {% endif %}
@@ -344,7 +346,7 @@
                         {% for row in contract_dept_breakdown %}
                         <tr>
                             <td style="font-size:.85rem;font-weight:600;">{{ row.dept }}</td>
-                            <td class="text-center"><span class="badge" style="background:#dcfce7;color:#1a8fa0;">{{ row.CDI }}</span></td>
+                            <td class="text-center"><span class="badge" style="background:#d1fae5;color:#1a8fa0;">{{ row.CDI }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#fef9c3;color:#a16207;">{{ row.CDD }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#e0f2fe;color:#2db4c3;">{{ row.INTERN }}</span></td>
                             <td class="text-center"><span class="badge" style="background:#fdf4ff;color:#2db4c3;">{{ row.WACS }}</span></td>
@@ -398,7 +400,7 @@
                         {% if c.status == 'terminated' %}
                         <div style="width:30px;height:30px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-x-circle text-danger" style="font-size:.82rem;"></i></div>
                         {% elif c.renewed_from %}
-                        <div style="width:30px;height:30px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-arrow-repeat text-success" style="font-size:.82rem;"></i></div>
+                        <div style="width:30px;height:30px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-arrow-repeat text-success" style="font-size:.82rem;"></i></div>
                         {% else %}
                         <div style="width:30px;height:30px;border-radius:50%;background:#e0f2fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-file-earmark-plus" style="color:#2db4c3;font-size:.82rem;"></i></div>
                         {% endif %}
@@ -598,7 +600,7 @@
                     <span><span style="color:#059669;font-size:1rem;">&#9679;</span> CDI <strong>{{ contract_total_cdi }}</strong></span>
                     <span><span style="color:#d97706;font-size:1rem;">&#9679;</span> CDD <strong>{{ contract_total_cdd }}</strong></span>
                     <span><span style="color:#2db4c3;font-size:1rem;">&#9679;</span> Intern <strong>{{ contract_total_intern }}</strong></span>
-                    <span><span style="color:#7c3aed;font-size:1rem;">&#9679;</span> WACS <strong>{{ contract_total_wacs }}</strong></span>
+                    <span><span style="color:#475569;font-size:1rem;">&#9679;</span> WACS <strong>{{ contract_total_wacs }}</strong></span>
                 </div>
             </div>
         </div>
@@ -618,7 +620,7 @@
                 {% for b in low_balance %}
                 <div class="col-sm-6 col-lg-4">
                     <div class="d-flex align-items-center gap-2 p-2 rounded" style="background:#fff5f5;border:1px solid #fca5a5;">
-                        <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e53e3e,#c62828);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.72rem;flex-shrink:0;">
+                        <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e53e3e,#dc2626);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.72rem;flex-shrink:0;">
                             {{ b.employee.user.first_name|first|upper }}
                         </div>
                         <div class="flex-grow-1" style="min-width:0;">
@@ -742,7 +744,7 @@
                 {% if recent_logs %}
                 {% for log in recent_logs %}
                 <div class="d-flex align-items-start gap-2 py-2 border-bottom" style="font-size:0.82rem;">
-                    <div style="width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;{% if log.action_flag == 1 %}background:#e8f5e9;color:#1a8fa0;{% elif log.action_flag == 3 %}background:#fce4ec;color:#c62828;{% else %}background:#fff8e1;color:#f57f17;{% endif %}">
+                    <div style="width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;{% if log.action_flag == 1 %}background:#e8f5e9;color:#1a8fa0;{% elif log.action_flag == 3 %}background:#fce4ec;color:#dc2626;{% else %}background:#fff8e1;color:#f57f17;{% endif %}">
                         <i class="bi bi-{% if log.action_flag == 1 %}plus{% elif log.action_flag == 3 %}trash{% else %}pencil{% endif %}"></i>
                     </div>
                     <div class="flex-grow-1" style="min-width:0;">
@@ -771,7 +773,7 @@
 // ── Department Headcount Chart ────────────────────────────────────────────────
 const deptHCLabels = [{% for d in departments %}'{{ d.name|truncatechars:14|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
 const deptHCData   = [{% for d in departments %}{{ d.emp_count }}{% if not forloop.last %},{% endif %}{% endfor %}];
-const deptHCColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#dc2626','#7c3aed','#db2777','#0A4D68'];
+const deptHCColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#dc2626','#475569','#db2777','#0A4D68'];
 new Chart(document.getElementById('deptHeadcountChart'), {
     type: 'bar',
     data: {
@@ -879,7 +881,7 @@ const donutDefaults = {
         type: 'doughnut',
         data: {
             labels: hasCtr ? ['CDI','CDD','Intern','WACS'] : ['No data yet'],
-            datasets: [{ data: hasCtr ? [cCDI,cCDD,cINT,cWACS] : [1], backgroundColor: hasCtr ? ['#059669','#d97706','#2db4c3','#7c3aed'] : ['#e2e8f0'], borderWidth: hasCtr ? 2 : 0, borderColor: '#fff', hoverOffset: 8 }]
+            datasets: [{ data: hasCtr ? [cCDI,cCDD,cINT,cWACS] : [1], backgroundColor: hasCtr ? ['#059669','#d97706','#2db4c3','#475569'] : ['#e2e8f0'], borderWidth: hasCtr ? 2 : 0, borderColor: '#fff', hoverOffset: 8 }]
         },
         options: donutDefaults
     });

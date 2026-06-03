@@ -12,6 +12,8 @@
 
 {% block content %}
 
+\{% include 'dashboard/includes/hero_banner.html' %\}
+
 <!-- ── My Personal Leave Section ── -->
 {% include 'dashboard/includes/my_leave_section.html' %}
 
@@ -21,35 +23,35 @@
 <div class="section-label"><i class="bi bi-grid-1x2 me-1"></i> {% trans "Organisation at a Glance" %}</div>
 <div class="row g-3 mb-4 animate-in">
     <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'accounts:employee_list' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#0A4D68,#1d7da0);">
+        <a href="{% url 'accounts:employee_list' %}" class="pbi-kpi text-decoration-none" style="--kpi-color:#0A4D68">
             <span class="pbi-kpi-icon"><i class="bi bi-people-fill"></i></span>
             <div class="pbi-kpi-val">{{ total_employees }}</div>
             <div class="pbi-kpi-lbl">{% trans "Active Staff" %}</div>
         </a>
     </div>
     <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'leaves:all_leaves' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#059669,#10b981);">
+        <a href="{% url 'leaves:all_leaves' %}" class="pbi-kpi text-decoration-none" style="--kpi-color:#059669">
             <span class="pbi-kpi-icon"><i class="bi bi-check2-all"></i></span>
             <div class="pbi-kpi-val">{{ approved_year }}</div>
             <div class="pbi-kpi-lbl">{% blocktrans with y=year %}Approved {{ y }}{% endblocktrans %}</div>
         </a>
     </div>
     <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'leaves:all_leaves' %}?status=pending" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#d97706,#f59e0b);">
+        <a href="{% url 'leaves:all_leaves' %}?status=pending" class="pbi-kpi text-decoration-none" style="--kpi-color:#d97706">
             <span class="pbi-kpi-icon"><i class="bi bi-hourglass-split"></i></span>
             <div class="pbi-kpi-val">{{ pending_all }}</div>
             <div class="pbi-kpi-lbl">{% trans "Pending" %}</div>
         </a>
     </div>
     <div class="col-6 col-sm-4 col-lg">
-        <div class="pbi-kpi" style="background:linear-gradient(135deg,#dc2626,#ef4444);">
+        <div class="pbi-kpi" style="--kpi-color:#dc2626">
             <span class="pbi-kpi-icon"><i class="bi bi-x-circle-fill"></i></span>
             <div class="pbi-kpi-val">{{ rejected_year }}</div>
             <div class="pbi-kpi-lbl">{% blocktrans with y=year %}Rejected {{ y }}{% endblocktrans %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-4 col-lg">
-        <a href="{% url 'discipline:stats' %}" class="pbi-kpi text-decoration-none" style="background:linear-gradient(135deg,#7c3aed,#9f6ef5);">
+        <a href="{% url 'discipline:stats' %}" class="pbi-kpi text-decoration-none" style="--kpi-color:#475569">
             <span class="pbi-kpi-icon"><i class="bi bi-shield-exclamation"></i></span>
             <div class="pbi-kpi-val">{{ discipline_warned|add:discipline_suspended|add:discipline_dismissed }}</div>
             <div class="pbi-kpi-lbl">{% trans "Discipline Cases" %}</div>
@@ -78,8 +80,8 @@
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #7c3aed;">
-            <div style="font-size:2.2rem;font-weight:800;color:#7c3aed;line-height:1;">{{ approved_year|add:rejected_year }}</div>
+        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #475569;">
+            <div style="font-size:2.2rem;font-weight:800;color:#475569;line-height:1;">{{ approved_year|add:rejected_year }}</div>
             <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Decisions Made" %} {{ year }}</div>
         </div>
     </div>
@@ -222,7 +224,7 @@
                     <span><span style="color:#059669;font-size:1rem;">&#9679;</span> CDI <strong>{{ contract_total_cdi }}</strong></span>
                     <span><span style="color:#d97706;font-size:1rem;">&#9679;</span> CDD <strong>{{ contract_total_cdd }}</strong></span>
                     <span><span style="color:#2db4c3;font-size:1rem;">&#9679;</span> Intern <strong>{{ contract_total_intern }}</strong></span>
-                    <span><span style="color:#7c3aed;font-size:1rem;">&#9679;</span> WACS <strong>{{ contract_total_wacs }}</strong></span>
+                    <span><span style="color:#475569;font-size:1rem;">&#9679;</span> WACS <strong>{{ contract_total_wacs }}</strong></span>
                 </div>
             </div>
         </div>
@@ -251,7 +253,7 @@
     <div class="col-lg-6">
         <div class="card h-100" style="border-radius:14px;">
             <div class="card-header card-header-chart">
-                <i class="bi bi-bar-chart-steps me-2" style="color:#7c3aed;"></i>
+                <i class="bi bi-bar-chart-steps me-2" style="color:#475569;"></i>
                 <span style="font-weight:600;color:#0d1b2a;font-size:.875rem;">{% trans "Approved Leave by Type" %} — {{ year }}</span>
             </div>
             <div class="card-body p-3">
@@ -269,11 +271,11 @@
 
 {% block extra_css %}
 .section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
-.pbi-kpi { border-radius:14px;padding:18px 12px;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,0.12);transition:transform .15s,box-shadow .15s;color:white;display:block; }
-.pbi-kpi:hover { transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.18); }
-.pbi-kpi-icon { font-size:1.5rem;opacity:0.85;margin-bottom:8px;display:block; }
-.pbi-kpi-val { font-size:2rem;font-weight:800;line-height:1; }
-.pbi-kpi-lbl { font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:0.82;margin-top:5px; }
+.pbi-kpi { border-radius:14px;padding:18px 12px;text-align:center;background:white;box-shadow:0 2px 10px rgba(10,77,104,0.07);transition:transform .15s,box-shadow .15s;display:block;border-top:3px solid var(--kpi-color,#2db4c3); }
+.pbi-kpi:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,77,104,0.13); }
+.pbi-kpi-icon { width:48px;height:48px;border-radius:12px;background:color-mix(in srgb,var(--kpi-color,#2db4c3) 12%,white);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--kpi-color,#2db4c3);margin:0 auto 10px; }
+.pbi-kpi-val { font-size:2rem;font-weight:800;line-height:1;color:var(--kpi-color,#0A4D68); }
+.pbi-kpi-lbl { font-size:0.68rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px; }
 {% endblock %}
 
 {% block extra_js %}
@@ -363,7 +365,7 @@ const donutDefaults = {
         type: hasCtr ? 'polarArea' : 'doughnut',
         data: {
             labels: hasCtr ? ['CDI','CDD','Internship','Residents'] : ['No data yet'],
-            datasets: [{ data: hasCtr ? [cCDI,cCDD,cINT,cWACS] : [1], backgroundColor: hasCtr ? ['rgba(5,150,105,.72)','rgba(217,119,6,.72)','rgba(45,180,195,.72)','rgba(124,58,237,.72)'] : ['#e2e8f0'], borderColor: hasCtr ? ['#059669','#d97706','#2db4c3','#7c3aed'] : ['#e2e8f0'], borderWidth: hasCtr ? 2 : 0 }]
+            datasets: [{ data: hasCtr ? [cCDI,cCDD,cINT,cWACS] : [1], backgroundColor: hasCtr ? ['rgba(5,150,105,.72)','rgba(217,119,6,.72)','rgba(45,180,195,.72)','rgba(124,58,237,.72)'] : ['#e2e8f0'], borderColor: hasCtr ? ['#059669','#d97706','#2db4c3','#475569'] : ['#e2e8f0'], borderWidth: hasCtr ? 2 : 0 }]
         },
         options: {
             responsive: true,
@@ -379,7 +381,7 @@ const donutDefaults = {
 // ── Dept horizontal bar ──────────────────────────────────────────────────────
 {% if dept_stats %}
 (function(){
-    const dColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#7c3aed','#db2777','#dc2626'];
+    const dColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#475569','#db2777','#dc2626'];
     new Chart(document.getElementById('ceoDeptChart'), {
         type: 'bar',
         data: {
@@ -409,7 +411,7 @@ const donutDefaults = {
 // ── Leave type horizontal bar ─────────────────────────────────────────────────
 {% if type_stats %}
 (function(){
-    const tColors = ['#0A4D68','#088395','#2db4c3','#059669','#d97706','#7c3aed','#dc2626','#db2777','#2db4c3'];
+    const tColors = ['#0A4D68','#088395','#2db4c3','#059669','#d97706','#475569','#dc2626','#db2777','#2db4c3'];
     new Chart(document.getElementById('ceoTypeChart'), {
         type: 'bar',
         data: {

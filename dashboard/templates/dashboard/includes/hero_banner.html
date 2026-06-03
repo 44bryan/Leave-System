@@ -1,0 +1,184 @@
+{% load i18n %}
+{# ── Hero Welcome Banner — inserted at top of HR / CEO / Director / Admin dashboards ── #}
+<div class="hero-banner animate-in mb-4">
+    <div class="hero-bg"></div>
+    <div class="hero-body">
+
+        {# Avatar + greeting #}
+        <div class="hero-left">
+            {% if employee.profile_photo %}
+            <img src="{{ employee.profile_photo.url }}" alt="Photo" class="hero-avatar">
+            {% else %}
+            <div class="hero-avatar hero-avatar-init">{{ employee.user.first_name|first|upper }}</div>
+            {% endif %}
+            <div class="hero-greeting">
+                <div class="hero-time-greet" id="heroGreeting">{% trans "Welcome" %}</div>
+                <div class="hero-name">{{ employee.user.get_full_name }}</div>
+                <div class="hero-role-row">
+                    <span class="hero-role-badge">{{ employee.get_role_display }}</span>
+                    {% if employee.department %}
+                    <span class="hero-dept">{{ employee.department }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Quick stats strip #}
+        <div class="hero-stats">
+            {% if total_employees %}
+            <div class="hero-stat">
+                <div class="hero-stat-val">{{ total_employees }}</div>
+                <div class="hero-stat-lbl">{% trans "Active Staff" %}</div>
+            </div>
+            <div class="hero-stat-divider"></div>
+            {% endif %}
+            {% if pending_all is not None %}
+            <div class="hero-stat">
+                <div class="hero-stat-val {% if pending_all > 0 %}hero-stat-alert{% endif %}">{{ pending_all }}</div>
+                <div class="hero-stat-lbl">{% trans "Pending Leaves" %}</div>
+            </div>
+            <div class="hero-stat-divider"></div>
+            {% endif %}
+            {% if on_leave_count is not None %}
+            <div class="hero-stat">
+                <div class="hero-stat-val">{{ on_leave_count }}</div>
+                <div class="hero-stat-lbl">{% trans "On Leave Today" %}</div>
+            </div>
+            <div class="hero-stat-divider"></div>
+            {% endif %}
+            <div class="hero-stat">
+                <div class="hero-stat-val" id="heroClock" style="font-size:1.1rem;letter-spacing:.04em;">—</div>
+                <div class="hero-stat-lbl" id="heroDate">—</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.hero-banner {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(10,77,104,0.18);
+}
+.hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(130deg, #0A4D68 0%, #0e7490 45%, #2db4c3 100%);
+    z-index: 0;
+}
+.hero-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+        radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 10% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+}
+.hero-body {
+    position: relative; z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px 28px;
+    flex-wrap: wrap;
+}
+.hero-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: 1;
+    min-width: 0;
+}
+.hero-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255,255,255,0.5);
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.hero-avatar-init {
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 1.6rem;
+    backdrop-filter: blur(4px);
+}
+.hero-greeting { min-width: 0; }
+.hero-time-greet {
+    font-size: 0.78rem; font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase; letter-spacing: .1em;
+    margin-bottom: 2px;
+}
+.hero-name {
+    font-size: 1.35rem; font-weight: 800;
+    color: white; line-height: 1.1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hero-role-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.hero-role-badge {
+    background: rgba(255,255,255,0.18);
+    color: white; font-size: 0.72rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+}
+.hero-dept {
+    font-size: 0.72rem; color: rgba(255,255,255,0.65);
+    white-space: nowrap;
+}
+.hero-stats {
+    display: flex; align-items: center; gap: 0;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    padding: 14px 20px;
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+}
+.hero-stat { text-align: center; padding: 0 16px; }
+.hero-stat-val {
+    font-size: 1.55rem; font-weight: 800;
+    color: white; line-height: 1;
+}
+.hero-stat-val.hero-stat-alert { color: #fde68a; }
+.hero-stat-lbl {
+    font-size: 0.62rem; font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase; letter-spacing: .08em;
+    margin-top: 3px; white-space: nowrap;
+}
+.hero-stat-divider {
+    width: 1px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    flex-shrink: 0;
+}
+@media (max-width: 640px) {
+    .hero-body { padding: 18px 16px; }
+    .hero-name { font-size: 1.1rem; }
+    .hero-stats { width: 100%; justify-content: space-around; padding: 10px 12px; }
+    .hero-stat { padding: 0 8px; }
+    .hero-stat-val { font-size: 1.2rem; }
+    .hero-avatar { width: 52px; height: 52px; }
+}
+</style>
+
+<script>
+(function(){
+    const greetEl = document.getElementById('heroGreeting');
+    const clockEl = document.getElementById('heroClock');
+    const dateEl  = document.getElementById('heroDate');
+    function update() {
+        const now = new Date();
+        const h = now.getHours();
+        const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+        if (greetEl) greetEl.textContent = greet;
+        if (clockEl) clockEl.textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+        if (dateEl) dateEl.textContent = now.toLocaleDateString([], {weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    }
+    update();
+    setInterval(update, 30000);
+})();
+</script>

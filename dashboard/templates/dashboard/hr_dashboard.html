@@ -125,11 +125,13 @@
 
 {% block content %}
 
+\{% include 'dashboard/includes/hero_banner.html' %\}
+
 {% include 'dashboard/includes/pending_appraisals.html' %}
 
 <!-- ── Birthday Banners ── -->
 {% if today_birthdays %}
-<div class="p-3 rounded-3 text-white mb-4 animate-in" style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+<div class="p-3 rounded-3 text-white mb-4 animate-in" style="background:#fffbeb;border:1.5px solid #fde68a;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
     <span style="font-size:2rem;">🎂</span>
     <div style="flex:1;">
         <div style="font-size:0.9rem;font-weight:800;">{% trans "Birthday" %}{% if today_birthdays|length > 1 %}{% trans "s" %}{% endif %} {% trans "Today!" %}</div>
@@ -149,7 +151,7 @@
             {% if this_month_birthdays|length > 5 %} +{{ this_month_birthdays|length|add:"-5" }} more{% endif %}
         </div>
     </div>
-    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none;font-size:0.78rem;font-weight:600;"><i class="bi bi-cake2 me-1"></i>{% trans "View All" %}</a>
+    <a href="{% url 'dashboard:birthdays' %}" class="btn btn-sm" style="background:#d97706;color:#fff;border:none;font-size:0.78rem;font-weight:600;"><i class="bi bi-cake2 me-1"></i>{% trans "View All" %}</a>
 </div>
 {% endif %}
 
@@ -159,7 +161,7 @@
 <!-- ── Attention Banner ── -->
 {% if pending_hr > 0 %}
 <div class="rounded-3 mb-4 animate-in p-4 d-flex align-items-center gap-4 flex-wrap"
-     style="background:linear-gradient(135deg,#0A4D68,#088395);color:#fff;">
+     style="background:#e0f7fa;border:1.5px solid #a5f3fc;color:#0A4D68;">
     <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-clipboard2-check-fill" style="font-size:1.6rem;"></i>
     </div>
@@ -177,7 +179,7 @@
 <!-- ── Contract Expiry Alert Banner ── -->
 {% if contracts_expiring_30 %}
 <div class="rounded-3 mb-4 animate-in p-4 d-flex align-items-center gap-4 flex-wrap"
-     style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;">
+     style="background:#fee2e2;border:1.5px solid #fca5a5;color:#991b1b;">
     <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-exclamation-triangle-fill" style="font-size:1.6rem;"></i>
     </div>
@@ -197,7 +199,7 @@
      style="background:#fef2f2;border:1.5px solid #fca5a5;">
     <i class="bi bi-calendar-x-fill" style="font-size:1.4rem;color:#dc2626;"></i>
     <div style="flex:1;">
-        <div style="font-size:0.85rem;font-weight:700;color:#991b1b;">{{ contracts_expired_active|length }} contract{{ contracts_expired_active|length|pluralize }} already expired — status not updated</div>
+        <div style="font-size:0.85rem;font-weight:700;color:#dc2626;">{{ contracts_expired_active|length }} contract{{ contracts_expired_active|length|pluralize }} already expired — status not updated</div>
     </div>
     <a href="{% url 'contracts:list' %}" class="btn btn-sm btn-danger">View</a>
 </div>
@@ -242,7 +244,7 @@
 <div class="row g-3 mb-3 animate-in pipeline-steps-row">
     <!-- Step 1 -->
     <div class="col-6 col-md-3">
-        <div class="hr-kpi-card" style="{% if pending_manager > 0 %}border-left:4px solid #f59e0b;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+        <div class="hr-kpi-card" style="{% if pending_manager > 0 %}border-left:4px solid #d97706;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="hr-kpi-icon" style="background:{% if pending_manager > 0 %}#fffbeb{% else %}#f8fafc{% endif %};color:{% if pending_manager > 0 %}#d97706{% else %}#cbd5e1{% endif %};">
                     <i class="bi bi-person-clock"></i>
@@ -255,7 +257,7 @@
     </div>
     <!-- Step 2 -->
     <div class="col-6 col-md-3">
-        <div class="hr-kpi-card" style="{% if pending_unit_approved > 0 %}border-left:4px solid #f59e0b;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+        <div class="hr-kpi-card" style="{% if pending_unit_approved > 0 %}border-left:4px solid #d97706;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="hr-kpi-icon" style="background:{% if pending_unit_approved > 0 %}#fffbeb{% else %}#f8fafc{% endif %};color:{% if pending_unit_approved > 0 %}#d97706{% else %}#cbd5e1{% endif %};">
                     <i class="bi bi-person-check"></i>
@@ -318,7 +320,7 @@
     </div>
     <div class="col-6 col-md-4 col-lg-2">
         <div class="hr-kpi-card">
-            <div class="hr-kpi-icon" style="background:#fce4ec;color:#c62828;"><i class="bi bi-x-circle-fill"></i></div>
+            <div class="hr-kpi-icon" style="background:#fce4ec;color:#dc2626;"><i class="bi bi-x-circle-fill"></i></div>
             <div class="hr-kpi-value">{{ rejected_year }}</div>
             <div class="hr-kpi-label">{% blocktrans with y=year %}Leaves Rejected in {{ y }}{% endblocktrans %}</div>
         </div>
@@ -377,7 +379,7 @@
 <div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 <div class="d-flex flex-wrap gap-2 mb-4 animate-in delay-1">
     <a href="{% url 'discipline:stats' %}" class="text-decoration-none flex-fill" style="min-width:140px;">
-        <div class="disc-pill" style="border-left:3px solid #f59e0b;">
+        <div class="disc-pill" style="border-left:3px solid #d97706;">
             <div style="width:32px;height:32px;border-radius:8px;background:#fff8e1;color:#d97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-exclamation-triangle-fill"></i></div>
             <div>
                 <div style="font-size:1.15rem;font-weight:800;color:#d97706;line-height:1;">{{ discipline_warned }}</div>
@@ -451,7 +453,7 @@
                 {% empty %}
                 <tr>
                     <td colspan="7" class="text-center py-4 text-muted">
-                        <i class="bi bi-check2-all d-block mb-1" style="font-size:1.5rem;color:#22c55e;"></i>
+                        <i class="bi bi-check2-all d-block mb-1" style="font-size:1.5rem;color:#059669;"></i>
                         <small>{% trans "No pending HR approvals" %}</small>
                     </td>
                 </tr>
@@ -497,7 +499,7 @@
                 </div>
                 {% empty %}
                 <div class="text-center py-5 text-muted">
-                    <i class="bi bi-check-circle fs-2 d-block mb-2" style="color:#22c55e;"></i>
+                    <i class="bi bi-check-circle fs-2 d-block mb-2" style="color:#059669;"></i>
                     <small>{% trans "All staff are in today" %}</small>
                 </div>
                 {% endfor %}
@@ -565,7 +567,7 @@
                     <span><span style="color:#059669;font-size:1rem;">&#9679;</span> CDI <strong>{{ contract_total_cdi }}</strong></span>
                     <span><span style="color:#d97706;font-size:1rem;">&#9679;</span> CDD <strong>{{ contract_total_cdd }}</strong></span>
                     <span><span style="color:#2db4c3;font-size:1rem;">&#9679;</span> Intern <strong>{{ contract_total_intern }}</strong></span>
-                    <span><span style="color:#7c3aed;font-size:1rem;">&#9679;</span> WACS <strong>{{ contract_total_wacs }}</strong></span>
+                    <span><span style="color:#475569;font-size:1rem;">&#9679;</span> WACS <strong>{{ contract_total_wacs }}</strong></span>
                 </div>
             </div>
         </div>
@@ -593,7 +595,7 @@
                 {% if low_balance %}
                 {% for b in low_balance %}
                 <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #fef2f2;">
-                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#e53e3e,#c62828);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#e53e3e,#dc2626);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
                         {{ b.employee.user.first_name|first|upper }}
                     </div>
                     <div class="flex-grow-1">
@@ -605,7 +607,7 @@
                 {% endfor %}
                 {% else %}
                 <div class="text-center py-5 text-muted">
-                    <i class="bi bi-emoji-smile fs-2 d-block mb-2" style="color:#22c55e;"></i>
+                    <i class="bi bi-emoji-smile fs-2 d-block mb-2" style="color:#059669;"></i>
                     <small>{% trans "All employees have healthy leave balances" %}</small>
                 </div>
                 {% endif %}
@@ -637,7 +639,7 @@ new Chart(document.getElementById('pipelineFunnelChart'), {
         labels: ['Step 1 — Unit / Manager', 'Step 2 — Unit Head Done', 'Step 3 — HR Review', 'Step 4 — Director'],
         datasets: [{
             data: [{{ pending_manager }}, {{ pending_unit_approved }}, {{ pending_hr }}, {{ pending_director }}],
-            backgroundColor: ['#f59e0b','#2db4c3','#088395','#0A4D68'],
+            backgroundColor: ['#d97706','#2db4c3','#088395','#0A4D68'],
             borderRadius: 8, borderSkipped: false
         }]
     },
@@ -702,7 +704,7 @@ const donutDefaults = {
 
 // ── Leave Type horizontal bar chart ───────────────────────────────────────────
 {% if type_stats %}
-const ltColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#dc2626','#7c3aed','#db2777'];
+const ltColors = ['#0A4D68','#088395','#2db4c3','#2db4c3','#059669','#d97706','#dc2626','#475569','#db2777'];
 new Chart(document.getElementById('leaveTypeChart'), {
     type: 'bar',
     data: {
@@ -751,7 +753,7 @@ new Chart(document.getElementById('leaveTypeChart'), {
         type: 'doughnut',
         data: {
             labels: hasCtr ? ['CDI','CDD','Intern','WACS'] : ['No data yet'],
-            datasets: [{ data: hasCtr ? [cCDI,cCDD,cINT,cWACS] : [1], backgroundColor: hasCtr ? ['#059669','#d97706','#2db4c3','#7c3aed'] : ['#e2e8f0'], borderWidth: hasCtr ? 2 : 0, borderColor: '#fff', hoverOffset: 8 }]
+            datasets: [{ data: hasCtr ? [cCDI,cCDD,cINT,cWACS] : [1], backgroundColor: hasCtr ? ['#059669','#d97706','#2db4c3','#475569'] : ['#e2e8f0'], borderWidth: hasCtr ? 2 : 0, borderColor: '#fff', hoverOffset: 8 }]
         },
         options: donutDefaults
     });
