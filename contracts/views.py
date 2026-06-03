@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
+from django.http import HttpResponse
 from datetime import date
 from collections import defaultdict
 
@@ -625,3 +626,34 @@ def contract_stats(request):
         'renewed_year': renewed_year,
         'issued_year': issued_year,
     })
+
+
+@login_required
+def contract_pdf(request, pk):
+    """Download a contract as a PDF letter."""
+    contract = get_object_or_404(Contract, pk=pk)
+    emp = contract.employee
+
+    # Only the employee themselves, HR, directors, CEO, or superuser can download
+    try:
+        requester = request.user.employee
+        allowed = (
+            requester == emp or
+            requester.is_hr() or
+            requester.is_director() or
+            requester.is_ceo() or
+            request.user.is_superuser
+        )
+    except Exception:
+        allowed = request.user.is_superuser
+
+    if not allowed:
+        messages.error(request, "You do not have permission to download this contract.")
+        return redirect('contracts:list')
+
+    from .pdf_utils import generate_contract_pdf
+    buf = generate_contract_pdf(contract)
+    safe_name = emp.employee_id + "_contract.pdf"
+    response = HttpResponse(buf.read(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{safe_name}"'
+    return response
