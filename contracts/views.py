@@ -629,6 +629,101 @@ def contract_stats(request):
 
 
 @login_required
+def bulk_issue_contract(request):
+    if not _can_manage_contracts(request.user):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    from accounts.models import Department as _Dept
+    employees = Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
+    departments = _Dept.objects.order_by('name')
+    today = date.today()
+
+    if request.method == 'POST':
+        emp_ids = request.POST.getlist('employees')
+        contract_type = request.POST.get('contract_type')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date') or None
+        notes = request.POST.get('notes', '')
+        internship_type = request.POST.get('internship_type', '') if contract_type == 'INTERN' else ''
+        working_dept_id = request.POST.get('working_department', '') if contract_type in ('INTERN', 'WACS') else ''
+
+        if not emp_ids:
+            messages.error(request, "Please select at least one employee.")
+            return render(request, 'contracts/bulk_issue_contract.html', {
+                'employees': employees, 'departments': departments, 'today': today,
+            })
+
+        if not contract_type or not start_date:
+            messages.error(request, "Contract type and start date are required.")
+            return render(request, 'contracts/bulk_issue_contract.html', {
+                'employees': employees, 'departments': departments, 'today': today,
+            })
+
+        parsed_start = _parse_date(start_date)
+        if not parsed_start:
+            messages.error(request, "Invalid start date.")
+            return render(request, 'contracts/bulk_issue_contract.html', {
+                'employees': employees, 'departments': departments, 'today': today,
+            })
+
+        parsed_end = None
+        if end_date:
+            parsed_end = _parse_date(end_date)
+
+        if contract_type in ('CDD', 'INTERN', 'WACS') and not parsed_end:
+            label = {'CDD': 'Fixed-Term (CDD)', 'INTERN': 'Internship', 'WACS': 'WACS Residency'}[contract_type]
+            messages.error(request, f"End date is required for {label} contracts.")
+            return render(request, 'contracts/bulk_issue_contract.html', {
+                'employees': employees, 'departments': departments, 'today': today,
+            })
+
+        from notifications.utils import notify
+        created_count = 0
+        for emp_id in emp_ids:
+            try:
+                emp = Employee.objects.get(pk=emp_id)
+            except Employee.DoesNotExist:
+                continue
+
+            existing = emp.contracts.filter(status='active').first()
+            contract = Contract.objects.create(
+                employee=emp,
+                contract_type=contract_type,
+                internship_type=internship_type,
+                working_department_id=working_dept_id or None,
+                start_date=parsed_start,
+                end_date=parsed_end,
+                notes=notes,
+                status='active',
+                created_by=request.user,
+                renewed_from=existing,
+            )
+            if existing:
+                existing.status = 'renewed'
+                existing.save()
+
+            _title, _msg = _contract_issue_message(contract)
+            notify(
+                emp.user,
+                title=_title,
+                message=_msg,
+                notification_type='contract_issued',
+                url=reverse('contracts:my_contract'),
+            )
+            created_count += 1
+
+        messages.success(request, f"{created_count} contract{'s' if created_count != 1 else ''} issued successfully. All employees have been notified.")
+        return redirect('contracts:list')
+
+    return render(request, 'contracts/bulk_issue_contract.html', {
+        'employees': employees,
+        'departments': departments,
+        'today': today,
+    })
+
+
+@login_required
 def contract_pdf(request, pk):
     """Download a contract as a PDF letter."""
     contract = get_object_or_404(Contract, pk=pk)
