@@ -63,6 +63,11 @@ class Employee(models.Model):
     qualifications = models.TextField(blank=True, default='', help_text='Academic and professional qualifications')
     signature = models.FileField(upload_to='signatures/', null=True, blank=True, help_text='Scanned signature image used on official PDF forms')
     signature_b64 = models.TextField(blank=True, default='', help_text='Base64 PNG of signature — persists across Railway redeploys')
+    reports_to_director = models.BooleanField(
+        default=False,
+        help_text='Skip Unit Head and Line Manager approval steps. Leave goes directly to HR then Director. '
+                  'Use for Admin staff, HR, and others who report directly to the Administration Director.'
+    )
     is_active = models.BooleanField(default=True)
     dismissal_date = models.DateField(null=True, blank=True, help_text='Date dismissal was issued — account deactivated after 14 days')
     # Intern-specific fields

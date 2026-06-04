@@ -130,6 +130,19 @@
                             {{ form.unit_head }}
                             <div class="form-text text-muted">Optional — leave blank if this employee has no unit head above their manager.</div>
                         </div>
+                        <div class="col-md-12 optional-field">
+                            <div class="form-check p-3 rounded border" style="background:#fff8f0;">
+                                {{ form.reports_to_director }}
+                                <label class="form-check-label ms-2" for="{{ form.reports_to_director.id_for_label }}">
+                                    <strong>{% trans "Reports directly to Administration Director" %}</strong>
+                                    <div class="form-text text-muted mt-1">
+                                        Check this for Admin staff, HR, and anyone with no Unit Head or Line Manager.
+                                        Their leave will skip Unit Head &amp; Manager steps — going directly to HR then Director.
+                                        <strong>For HR staff</strong>, leave goes straight to the Director only.
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                         <div class="col-md-6 optional-field">
                             <label class="form-label">{% trans "Phone" %}</label>
                             {{ form.phone }}

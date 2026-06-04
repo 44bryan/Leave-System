@@ -1343,6 +1343,11 @@
         <div class="sidebar-section-label">{% trans "CEO — Overview" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:ceo_approvals' %}" class="nav-link-sidebar {% block nav_ceo %}{% endblock %}">
+                    <i class="bi bi-person-badge"></i> {% trans "Director Leave Queue" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar">
                     <i class="bi bi-list-ul"></i> {% trans "All Leave Requests" %}
                 </a>

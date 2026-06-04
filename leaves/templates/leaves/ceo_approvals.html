@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}CEO — Director Leave Approvals — AEF HRM{% endblock %}
+{% block page_title %}CEO — Administration Director Leave Approvals{% endblock %}
+{% block nav_ceo %}active{% endblock %}
+
+{% block content %}
+<div class="alert alert-info d-flex align-items-center gap-2 mb-4" style="border-left:4px solid #0A4D68;">
+    <i class="bi bi-info-circle-fill fs-5"></i>
+    <span>
+        As CEO, you are the sole approver for the Administration Director's leave requests.
+        <strong>Note:</strong> The Finance Director will cover the Administration Director's responsibilities during approved absences.
+    </span>
+</div>
+
+{% if pending_requests %}
+<div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-hourglass-split fs-5"></i>
+    <span><strong>{{ pending_requests|length }}</strong> Administration Director leave request(s) awaiting your approval.</span>
+</div>
+{% endif %}
+
+<div class="card animate-in">
+    <div class="card-header">
+        <i class="bi bi-person-badge me-2" style="color:#0A4D68;"></i>{% trans "Administration Director Leave — Awaiting CEO Approval" %}
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0" style="min-width: 500px;">
+            <thead>
+                <tr>
+                    <th>{% trans "Director" %}</th>
+                    <th>{% trans "Leave Type" %}</th>
+                    <th class="text-nowrap">{% trans "Period" %}</th>
+                    <th>{% trans "Days" %}</th>
+                    <th>{% trans "Submitted" %}</th>
+                    <th>{% trans "Document" %}</th>
+                    <th>{% trans "Action" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in pending_requests %}
+                <tr>
+                    <td>
+                        <div style="font-weight:600;">{{ req.employee.get_full_name }}</div>
+                        <div class="t-secondary">{{ req.employee.employee_id }} · Administration Director</div>
+                    </td>
+                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                    <td class="t-sm text-nowrap">{{ req.start_date }} → {{ req.end_date }}</td>
+                    <td><strong>{{ req.total_days }}d</strong></td>
+                    <td style="font-size:0.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        {% if req.supporting_document %}
+                        <a href="{{ req.supporting_document.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-paperclip"></i>
+                        </a>
+                        {% else %}
+                        <span class="text-muted small">{% trans "None" %}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'leaves:ceo_action' req.pk %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-shield-check me-1"></i>{% trans "Review & Decide" %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-shield-check fs-2 d-block mb-2 text-success"></i>
+                        {% trans "No Administration Director leave requests awaiting your approval." %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

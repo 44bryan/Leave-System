@@ -65,7 +65,7 @@ class EmployeeCreateForm(forms.ModelForm):
     )
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'reports_to_director', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -119,7 +119,7 @@ class EmployeeEditForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality', 'is_active']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'reports_to_director', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality', 'is_active']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
