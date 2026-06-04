@@ -20,6 +20,7 @@ class Employee(models.Model):
         ('manager', 'Line Manager'),
         ('hr', 'HR Admin'),
         ('admin_director', 'Administration Director'),
+        ('medical_director', 'Medical Director'),
         ('finance_director', 'Finance Director'),
         ('ceo', 'CEO'),
         ('intern', 'Intern'),
@@ -65,8 +66,15 @@ class Employee(models.Model):
     signature_b64 = models.TextField(blank=True, default='', help_text='Base64 PNG of signature — persists across Railway redeploys')
     reports_to_director = models.BooleanField(
         default=False,
-        help_text='Skip Unit Head and Line Manager approval steps. Leave goes directly to HR then Director. '
-                  'Use for Admin staff, HR, and others who report directly to the Administration Director.'
+        help_text='Skip Unit Head and Line Manager steps. Leave goes directly to HR then Admin Director.'
+    )
+    reports_to_ceo = models.BooleanField(
+        default=False,
+        help_text='Skip all intermediate steps. Leave goes directly to CEO for sole approval.'
+    )
+    reports_to_hr = models.BooleanField(
+        default=False,
+        help_text='Skip Unit Head and Line Manager steps. HR is the FINAL approver — no Director step needed.'
     )
     is_active = models.BooleanField(default=True)
     dismissal_date = models.DateField(null=True, blank=True, help_text='Date dismissal was issued — account deactivated after 14 days')
@@ -98,6 +106,9 @@ class Employee(models.Model):
 
     def is_finance_director(self):
         return self.role == 'finance_director'
+
+    def is_medical_director(self):
+        return self.role == 'medical_director'
 
     def is_ceo(self):
         return self.role == 'ceo'

@@ -131,14 +131,32 @@
                             <div class="form-text text-muted">Optional — leave blank if this employee has no unit head above their manager.</div>
                         </div>
                         <div class="col-md-12 optional-field">
-                            <div class="form-check p-3 rounded border" style="background:#fff8f0;">
+                            <div class="form-check p-3 rounded border mb-2" style="background:#fff8f0;">
                                 {{ form.reports_to_director }}
                                 <label class="form-check-label ms-2" for="{{ form.reports_to_director.id_for_label }}">
                                     <strong>{% trans "Reports directly to Administration Director" %}</strong>
                                     <div class="form-text text-muted mt-1">
-                                        Check this for Admin staff, HR, and anyone with no Unit Head or Line Manager.
-                                        Their leave will skip Unit Head &amp; Manager steps — going directly to HR then Director.
-                                        <strong>For HR staff</strong>, leave goes straight to the Director only.
+                                        Leave skips Unit Head &amp; Manager — goes to HR then Admin Director.
+                                        <strong>HR staff</strong> leaves go straight to Admin Director only.
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check p-3 rounded border mb-2" style="background:#f0f9ff;">
+                                {{ form.reports_to_ceo }}
+                                <label class="form-check-label ms-2" for="{{ form.reports_to_ceo.id_for_label }}">
+                                    <strong>{% trans "Reports directly to CEO" %}</strong>
+                                    <div class="form-text text-muted mt-1">
+                                        Leave skips ALL steps — CEO is the sole approver.
+                                        Automatically applies to <strong>Admin Director</strong> and <strong>Medical Director</strong> roles.
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check p-3 rounded border" style="background:#f0fdf4;">
+                                {{ form.reports_to_hr }}
+                                <label class="form-check-label ms-2" for="{{ form.reports_to_hr.id_for_label }}">
+                                    <strong>{% trans "Reports directly to HR (HR is final approver)" %}</strong>
+                                    <div class="form-text text-muted mt-1">
+                                        Leave skips Unit Head &amp; Manager — HR approves as final authority. No Director step.
                                     </div>
                                 </label>
                             </div>

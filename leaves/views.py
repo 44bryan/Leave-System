@@ -139,22 +139,24 @@ def submit_leave(request):
                             notification_type='leave_submitted',
                             url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                         )
-                elif employee.role == 'admin_director':
-                    # Admin Director — CEO is the sole approver
+                elif employee.role in ('admin_director', 'medical_director') or employee.reports_to_ceo:
+                    # Admin Director, Medical Director, or any staff flagged reports_to_ceo — CEO sole approver
+                    role_labels = {'admin_director': 'Administration Director', 'medical_director': 'Medical Director'}
+                    role_label = role_labels.get(employee.role, 'Staff')
                     leave.status = LeaveRequest.STATUS_HR_APPROVED
                     leave.save(update_fields=['status'])
                     messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Sent directly to the CEO for approval.")
                     for ceo_emp in Employee.objects.filter(role='ceo', is_active=True).select_related('user'):
                         notify(
                             ceo_emp.user,
-                            f'Admin Director Leave — Awaiting Your Approval',
-                            f'{employee.get_full_name()} (Administration Director) has submitted a {leave.leave_type} request '
+                            f'{role_label} Leave — Awaiting Your Approval',
+                            f'{employee.get_full_name()} ({role_label}) has submitted a {leave.leave_type} request '
                             f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
                             notification_type='leave_submitted',
                             url=reverse('leaves:ceo_action', kwargs={'pk': leave.pk}),
                         )
                 elif employee.is_hr():
-                    # HR staff — skip unit head, manager and HR steps; Director approves directly
+                    # HR staff — skip all intermediate steps; Admin Director approves directly
                     leave.status = LeaveRequest.STATUS_HR_APPROVED
                     leave.save(update_fields=['status'])
                     messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Sent directly to Administration Director for approval.")
@@ -167,6 +169,21 @@ def submit_leave(request):
                             f'No intermediate approvals required — awaiting your decision.',
                             notification_type='leave_submitted',
                             url=reverse('leaves:director_action', kwargs={'pk': leave.pk}),
+                        )
+                elif employee.reports_to_hr:
+                    # Reports directly to HR — HR is the FINAL approver, no Director step
+                    leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
+                    leave.save(update_fields=['status'])
+                    messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Sent to HR for final approval.")
+                    for hr_emp in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
+                        notify(
+                            hr_emp.user,
+                            f'Leave Request (HR Final) — {employee.get_full_name()}',
+                            f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
+                            f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). '
+                            f'You are the final approver — no Director step required.',
+                            notification_type='leave_submitted',
+                            url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
                         )
                 elif employee.reports_to_director:
                     # Reports directly to Director — skip unit head and manager; goes to HR then Director
@@ -531,29 +548,59 @@ def hr_action(request, pk):
             if action == 'approve':
                 sig_b64 = request.POST.get('signature_data', '')
                 _save_drawn_signature(employee, sig_b64)
-                leave.hr_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
-                leave.status = LeaveRequest.STATUS_HR_APPROVED
-                messages.success(request, "Leave request approved by HR. Forwarded to Administration Director.")
-                notify(
-                    leave.employee.user,
-                    'Leave Request — HR Approved',
-                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
-                    f'has been approved by HR and is now awaiting the Administration Director\'s final decision.',
-                    notification_type='leave_hr_approved',
-                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
-                )
-                # Notify Admin Director and Finance Director
-                from accounts.models import Employee as _Emp
-                for dir_emp in _Emp.objects.filter(role__in=('admin_director', 'finance_director'), is_active=True).select_related('user'):
+                hr_sig = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
+                leave.hr_sig_b64 = hr_sig
+                if leave.employee.reports_to_hr:
+                    # HR is the FINAL approver — approve directly, no Director step
+                    now = timezone.now()
+                    if not leave.unit_head_action_by:
+                        leave.unit_head_action_by = employee
+                        leave.unit_head_action_date = now
+                        leave.unit_head_remarks = 'Direct report to HR — approved by HR'
+                        leave.unit_head_sig_b64 = hr_sig
+                    if not leave.manager_action_by:
+                        leave.manager_action_by = employee
+                        leave.manager_action_date = now
+                        leave.manager_remarks = 'Direct report to HR — approved by HR'
+                        leave.manager_sig_b64 = hr_sig
+                    # Also fill director slot so PDF is complete
+                    leave.director_action_by = employee
+                    leave.director_action_date = now
+                    leave.director_remarks = 'Final approval by HR (reports directly to HR)'
+                    leave.director_sig_b64 = hr_sig
+                    leave.status = LeaveRequest.STATUS_APPROVED
+                    messages.success(request, "Leave request FULLY APPROVED by HR (final approver).")
                     notify(
-                        dir_emp.user,
-                        f'Leave Awaiting Your Approval — {leave.employee.get_full_name()}',
-                        f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
-                        f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
-                        f'{leave.total_days} day(s)) awaiting your final decision.',
-                        notification_type='leave_hr_approved',
-                        url=reverse('leaves:director_action', kwargs={'pk': leave.pk}),
+                        leave.employee.user,
+                        'Leave Request — Fully Approved by HR',
+                        f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
+                        f'{leave.total_days} day(s)) has been fully approved by HR.',
+                        notification_type='leave_approved',
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                     )
+                else:
+                    leave.status = LeaveRequest.STATUS_HR_APPROVED
+                    messages.success(request, "Leave request approved by HR. Forwarded to Administration Director.")
+                    notify(
+                        leave.employee.user,
+                        'Leave Request — HR Approved',
+                        f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                        f'has been approved by HR and is now awaiting the Administration Director\'s final decision.',
+                        notification_type='leave_hr_approved',
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                    )
+                    # Notify Admin Director and Finance Director
+                    from accounts.models import Employee as _Emp
+                    for dir_emp in _Emp.objects.filter(role__in=('admin_director', 'finance_director'), is_active=True).select_related('user'):
+                        notify(
+                            dir_emp.user,
+                            f'Leave Awaiting Your Approval — {leave.employee.get_full_name()}',
+                            f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
+                            f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
+                            f'{leave.total_days} day(s)) awaiting your final decision.',
+                            notification_type='leave_hr_approved',
+                            url=reverse('leaves:director_action', kwargs={'pk': leave.pk}),
+                        )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_HR
                 messages.warning(request, f"Leave request #{pk} has been rejected by HR.")
@@ -590,7 +637,8 @@ def director_approvals(request):
     pending = LeaveRequest.objects.filter(
         status=LeaveRequest.STATUS_HR_APPROVED
     ).exclude(
-        employee__role='admin_director'  # Admin Director leaves go to CEO, not Director
+        # Admin Director, Medical Director, and reports_to_ceo go to CEO instead
+        Q(employee__role__in=('admin_director', 'medical_director')) | Q(employee__reports_to_ceo=True)
     ).select_related('employee__user', 'employee__department', 'leave_type', 'manager_action_by__user', 'hr_action_by__user')
 
     # Check if admin director is on leave (finance director may be covering)
@@ -704,7 +752,8 @@ def ceo_approvals(request):
 
     pending = LeaveRequest.objects.filter(
         status=LeaveRequest.STATUS_HR_APPROVED,
-        employee__role='admin_director',
+    ).filter(
+        Q(employee__role__in=('admin_director', 'medical_director')) | Q(employee__reports_to_ceo=True)
     ).select_related('employee__user', 'employee__department', 'leave_type')
 
     return render(request, 'leaves/ceo_approvals.html', {
@@ -723,7 +772,9 @@ def ceo_action(request, pk):
 
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
-    if leave.status != LeaveRequest.STATUS_HR_APPROVED or leave.employee.role != 'admin_director':
+    applicant = leave.employee
+    is_ceo_case = applicant.role in ('admin_director', 'medical_director') or applicant.reports_to_ceo
+    if leave.status != LeaveRequest.STATUS_HR_APPROVED or not is_ceo_case:
         messages.warning(request, f"Leave request #{pk} is not awaiting CEO approval.")
         return redirect('leaves:ceo_approvals')
 
@@ -753,17 +804,21 @@ def ceo_action(request, pk):
                 leave.manager_sig_b64 = ceo_sig
                 leave.hr_action_by = employee
                 leave.hr_action_date = now
-                leave.hr_remarks = 'Approved by CEO (Administration Director leave)'
+                leave.hr_remarks = 'Approved by CEO'
                 leave.hr_sig_b64 = ceo_sig
                 leave.status = LeaveRequest.STATUS_APPROVED
                 leave.save()
                 messages.success(request, "Leave request FULLY APPROVED by CEO.")
+                cover_note = ''
+                if leave.employee.role == 'admin_director':
+                    cover_note = ' Note: The Finance Director will cover your responsibilities during your absence.'
+                elif leave.employee.role == 'medical_director':
+                    cover_note = ' Please ensure your medical duties are covered during your absence.'
                 notify(
                     leave.employee.user,
                     'Leave Request — Approved by CEO',
                     f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
-                    f'{leave.total_days} day(s)) has been approved by the CEO. '
-                    f'Note: The Finance Director will cover your responsibilities during your absence.',
+                    f'{leave.total_days} day(s)) has been approved by the CEO.' + cover_note,
                     notification_type='leave_approved',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
