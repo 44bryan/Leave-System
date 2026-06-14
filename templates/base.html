@@ -1476,7 +1476,7 @@
                     <div class="notif-body">
                         {% if notif_recent %}
                         {% for n in notif_recent %}
-                        <a href="{% url 'notifications:detail' n.pk %}" class="notif-item{% if not n.is_read %} notif-unread{% endif %}" data-no-suspend>
+                        <a href="{% url 'notifications:mark_read' n.pk %}" class="notif-item{% if not n.is_read %} notif-unread{% endif %}" data-no-suspend>
                             <div class="notif-icon" style="background:{{ n.badge_color }}20;color:{{ n.badge_color }};">
                                 <i class="bi {{ n.icon }}"></i>
                             </div>
