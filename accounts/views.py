@@ -122,7 +122,8 @@ def _generate_username(first_name, last_name=''):
 
 @hr_or_superuser_required
 def employee_list(request):
-    from django.db.models import Q
+    from django.db.models import Q, Value
+    from django.db.models.functions import Concat
     show_former = request.GET.get('show_former', '0') == '1'
     name_q = request.GET.get('q', '').strip()
     dept_q = request.GET.get('dept', '').strip()
@@ -130,18 +131,27 @@ def employee_list(request):
 
     employees = Employee.objects.filter(
         is_active=not show_former
-    ).select_related('user', 'department', 'supervisor__user')
+    ).select_related('user', 'department', 'supervisor__user').annotate(
+        full_name=Concat('user__first_name', Value(' '), 'user__last_name')
+    )
 
     if name_q:
         employees = employees.filter(
+            Q(full_name__icontains=name_q) |
             Q(user__first_name__icontains=name_q) |
             Q(user__last_name__icontains=name_q) |
-            Q(employee_id__icontains=name_q)
+            Q(employee_id__icontains=name_q) |
+            Q(position__icontains=name_q)
         )
     if dept_q:
         employees = employees.filter(department_id=dept_q)
     if role_q:
         employees = employees.filter(role=role_q)
+
+    # Chronological order — most recently joined first; fall back to account creation date
+    employees = employees.order_by(
+        '-date_joined_company', '-user__date_joined'
+    )
 
     from accounts.models import Department
     departments = Department.objects.all().order_by('name')

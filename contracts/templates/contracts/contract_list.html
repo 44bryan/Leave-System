@@ -71,6 +71,10 @@
     <div class="card-body p-3">
         <form method="get" class="d-flex gap-2 flex-wrap align-items-end">
             <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Search Employee</label>
+                <input type="text" name="q" value="{{ filter_q }}" placeholder="Name or ID…" class="form-control form-control-sm" style="min-width:160px;">
+            </div>
+            <div>
                 <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Type</label>
                 <select name="type" class="form-select form-select-sm" style="min-width:150px;">
                     <option value="">All Types</option>

@@ -207,14 +207,26 @@ def contract_list(request):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
 
+    from django.db.models import Q, Value
+    from django.db.models.functions import Concat
     filter_type = request.GET.get('type', '')
     filter_status = request.GET.get('status', '')
     filter_expiring = request.GET.get('expiring', '')
     filter_dept = request.GET.get('dept', '')
     filter_emp  = request.GET.get('employee', '')
+    filter_q    = request.GET.get('q', '').strip()
 
-    contracts = Contract.objects.select_related('employee', 'employee__user', 'employee__department').all()
+    contracts = Contract.objects.select_related('employee', 'employee__user', 'employee__department').annotate(
+        emp_full_name=Concat('employee__user__first_name', Value(' '), 'employee__user__last_name')
+    )
 
+    if filter_q:
+        contracts = contracts.filter(
+            Q(emp_full_name__icontains=filter_q) |
+            Q(employee__user__first_name__icontains=filter_q) |
+            Q(employee__user__last_name__icontains=filter_q) |
+            Q(employee__employee_id__icontains=filter_q)
+        )
     if filter_type:
         contracts = contracts.filter(contract_type=filter_type)
     if filter_status:
@@ -223,6 +235,9 @@ def contract_list(request):
         contracts = contracts.filter(employee__department_id=filter_dept)
     if filter_emp:
         contracts = contracts.filter(employee_id=filter_emp)
+
+    # Chronological order — most recent contracts first
+    contracts = contracts.order_by('-start_date', '-created_at')
 
     # Convert to list so we can apply computed-property filters
     contracts = list(contracts)
@@ -257,6 +272,7 @@ def contract_list(request):
         'filter_expiring': filter_expiring,
         'filter_dept': filter_dept,
         'filter_emp': filter_emp,
+        'filter_q': filter_q,
         'all_departments': all_departments,
         'all_employees': all_employees,
     })
