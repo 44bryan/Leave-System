@@ -469,7 +469,7 @@ def coworker_fill(request, record_pk):
         record.save()
 
         if is_initial_coworker_submit:
-            target = record.employee.unit_head or record.employee.supervisor
+            target = record.employee.supervisor
             if target:
                 notify(
                     target.user,
@@ -496,9 +496,8 @@ def unit_head_fill(request, record_pk):
     emp    = get_employee(request)
     record = get_object_or_404(AppraisalRecord, pk=record_pk)
 
-    is_unit_head   = emp and (emp == record.employee.unit_head or emp.is_unit_head())
     is_supervisor  = emp and emp == record.employee.supervisor
-    if not (is_unit_head or is_supervisor):
+    if not is_supervisor:
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
     if record.status != AppraisalRecord.STATUS_UNIT_HEAD:
@@ -817,18 +816,13 @@ def pending_unit_head(request):
     emp = get_employee(request)
     if not emp:
         return redirect('dashboard:home')
+    # Only the direct line manager (supervisor field) fills this step
     records = AppraisalRecord.objects.filter(
-        status=AppraisalRecord.STATUS_UNIT_HEAD,
-        employee__unit_head=emp,
-    ).select_related('employee__user', 'cycle')
-    supervisor_records = AppraisalRecord.objects.filter(
         status=AppraisalRecord.STATUS_UNIT_HEAD,
         employee__supervisor=emp,
     ).select_related('employee__user', 'cycle')
-    from itertools import chain as _chain
-    combined = list({r.pk: r for r in _chain(records, supervisor_records)}.values())
     return render(request, 'appraisals/pending_list.html', {
-        'records': combined, 'role': 'unit_head',
+        'records': records, 'role': 'unit_head',
         'action_url_name': 'appraisals:unit_head_fill',
         'title': 'Appraisals Awaiting Your Supervisor Comment',
     })

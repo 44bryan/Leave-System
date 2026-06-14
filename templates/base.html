@@ -12,7 +12,7 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- SignaturePad — loaded globally so signature canvases work on every form -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     
@@ -38,7 +38,8 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
             background: var(--bg);
             color: var(--text-primary);
             min-height: 100vh;
@@ -505,6 +506,12 @@
         }
         @media (max-width: 480px) {
             .notif-panel { width: calc(100vw - 24px); }
+            .logo-bar { padding: 0 12px; }
+            .logo-bar img { height: 44px; }
+            .logo-bar-name { display: none; }
+        }
+        @media (max-width: 360px) {
+            .logo-bar img { height: 36px; }
         }
 
         /* ─── PAGE CONTENT ─── */
@@ -882,74 +889,6 @@
             .mobile-search-btn { display: none !important; }
             .mobile-search-overlay { display: none !important; }
             .sidebar-mobile-footer { display: none !important; }
-
-            /* ─── Desktop density — enterprise standard (Workday / BambooHR level) ─── */
-            /*
-             * 14px body (industry standard for HR/SaaS apps vs Bootstrap's 16px default).
-             * Using px throughout so values are explicit and not affected by rem cascade.
-             * Mobile breakpoint (≤992px) is untouched.
-             */
-            body { font-size: 14px; }
-
-            /* Logo bar: 76px → 60px  (enterprise range: 56–64px) */
-            .logo-bar { height: 60px; padding: 0 22px; }
-            .logo-bar img { height: 46px; width: auto; }
-            .logo-bar-name { font-size: 0.85rem; }
-            .logo-bar-name span { font-size: 0.68rem; }
-
-            /* Sidebar: 260px → 240px  (enterprise norm: 220–240px) */
-            .sidebar { top: 60px; width: 240px; }
-            .sidebar-section { padding: 14px 12px 6px; }
-            .sidebar-section-label { font-size: 11px; }
-            /* Nav items: 40px natural height — enterprise uses 40–44px */
-            .nav-link-sidebar { padding: 8px 12px; font-size: 13px; }
-            .nav-link-sidebar .bi { font-size: 15px; width: 20px; }
-            .sidebar-footer { padding: 12px; }
-            .user-card { padding: 8px 10px; }
-            .user-avatar { width: 30px; height: 30px; font-size: 11px; }
-            .user-name { font-size: 13px; }
-            .user-role { font-size: 11px; }
-
-            .main-content { margin-left: 240px; margin-top: 60px; min-height: calc(100vh - 60px); }
-            /* Topbar: keep teal bar comfortable but not as tall */
-            .topbar { top: 60px; padding: 9px 22px; }
-            .topbar-title { font-size: 14px; }
-            .notif-btn { width: 34px; height: 34px; font-size: 15px; }
-            .topbar-search-input { height: 34px; font-size: 13px; width: 220px; }
-            .topbar-search-input:focus { width: 280px; }
-            .lang-dropdown-btn { height: 34px; padding: 0 12px; font-size: 13px; }
-            .user-chip { height: 34px; }
-            .user-chip-name { font-size: 13px; }
-            .settings-btn { width: 34px; height: 34px; }
-
-            /* Page content: 28px → 22px/26px  (enterprise: 24–32px) */
-            .page-content { padding: 22px 26px; }
-
-            .card { border-radius: 12px; }
-            /* Card header: 16px/20px → 12px/16px */
-            .card-header { padding: 12px 16px; font-size: 13px; }
-
-            /* Tables: enterprise standard is 12px/16px; we use 10px/14px — slightly
-               tighter for dashboard widget tables without going to "dense mode" */
-            .table th { padding: 10px 14px; }
-            .table td { padding: 10px 14px; font-size: 13px; }
-
-            /* Buttons: enterprise medium = 8px/16px; small = 6px/12px */
-            .btn { padding: 7px 15px; font-size: 13px; }
-            .btn-sm { padding: 4px 11px; font-size: 12px; }
-
-            /* Stat cards */
-            .stat-card { padding: 16px 18px; border-radius: 12px; }
-            .stat-icon { width: 40px; height: 40px; font-size: 18px; margin-bottom: 10px; }
-            .stat-value { font-size: 26px; }
-            .stat-label { font-size: 12px; }
-
-            /* Badges */
-            .badge { padding: 3px 8px; font-size: 11px; }
-
-            /* Forms */
-            .form-control, .form-select { font-size: 13px; padding: 8px 12px; }
-            .form-label { font-size: 13px; }
         }
 
         /* ─── SEARCH DROPDOWN ─── */

@@ -175,11 +175,11 @@
                 <i class="bi bi-bar-chart-fill me-2" style="color:#088395;"></i>{% trans "Days Taken by Leave Type" %}
             </div>
             <div class="card-body p-3">
-                {% if recent_requests %}
+                {% if approved_requests %}
                 <canvas id="myLeaveTypesChart" style="max-height:160px;"></canvas>
                 {% else %}
                 <div class="d-flex align-items-center justify-content-center text-muted" style="height:120px;font-size:.82rem;">
-                    <i class="bi bi-inbox me-2"></i>{% trans "No leave history yet." %}
+                    <i class="bi bi-inbox me-2"></i>{% trans "No approved leave history yet." %}
                 </div>
                 {% endif %}
             </div>
@@ -309,10 +309,10 @@ new Chart(document.getElementById('myLeaveRingChart'), {
     }
 });
 
-// Leave by Type chart — aggregate days from recent_requests
-{% if recent_requests %}
+// Leave by Type chart — approved leaves this year only
+{% if approved_requests %}
 const empTypeMap = {};
-{% for r in recent_requests %}
+{% for r in approved_requests %}
 (function(){ const k = '{{ r.leave_type|escapejs }}'; empTypeMap[k] = (empTypeMap[k] || 0) + {{ r.total_days }}; })();
 {% endfor %}
 const empTypeLabels = Object.keys(empTypeMap);
@@ -346,4 +346,5 @@ if (empTypeLabels.length && document.getElementById('myLeaveTypesChart')) {
 }
 {% endif %}
 </script>
+
 {% endblock %}

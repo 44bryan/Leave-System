@@ -16,9 +16,7 @@ def _pending_appraisals_for(emp):
         own = _AR.objects.filter(status=_AR.STATUS_EMPLOYEE, employee=emp).select_related('cycle')
         # Co-worker selected for this employee
         coworker = _AR.objects.filter(status=_AR.STATUS_COWORKER, coworker_signed_by=emp).select_related('cycle', 'employee__user')
-        # Unit head
-        uh = _AR.objects.filter(status=_AR.STATUS_UNIT_HEAD, employee__unit_head=emp).select_related('cycle', 'employee__user')
-        # Supervisor / line manager (unit_head step)
+        # Supervisor / line manager (unit_head step) — only the direct line manager fills this
         uh2 = _AR.objects.filter(status=_AR.STATUS_UNIT_HEAD, employee__supervisor=emp).select_related('cycle', 'employee__user')
         # Manager rating step
         mgr = _AR.objects.filter(status=_AR.STATUS_MANAGER, employee__supervisor=emp).select_related('cycle', 'employee__user')
@@ -29,7 +27,7 @@ def _pending_appraisals_for(emp):
         # CEO
         ceo_q = _AR.objects.filter(status=_AR.STATUS_CEO).select_related('cycle', 'employee__user') if emp.is_ceo() else _AR.objects.none()
 
-        combined = {r.pk: r for r in list(own) + list(coworker) + list(uh) + list(uh2) + list(mgr) + list(hr_q) + list(dir_q) + list(ceo_q)}
+        combined = {r.pk: r for r in list(own) + list(coworker) + list(uh2) + list(mgr) + list(hr_q) + list(dir_q) + list(ceo_q)}
         return list(combined.values())
     except Exception:
         return []
@@ -431,6 +429,9 @@ def employee_dashboard(request, employee):
         defaults={'total_entitlement': 18}
     )
     recent_requests = employee.leave_requests.all()[:5]
+    approved_requests = employee.leave_requests.filter(
+        status='approved', start_date__year=today.year
+    ).select_related('leave_type')
     pending_count = employee.leave_requests.filter(
         status__in=['pending', 'manager_approved', 'hr_approved']
     ).count()
@@ -465,6 +466,7 @@ def employee_dashboard(request, employee):
         'employee': employee,
         'balance': balance,
         'recent_requests': recent_requests,
+        'approved_requests': approved_requests,
         'pending_count': pending_count,
         'on_leave': on_leave,
         'today': today,
