@@ -444,7 +444,7 @@
                                 <div style="font-weight:600;font-size:0.85rem;">{{ req.employee.get_full_name }}</div>
                                 <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.department|default:"—" }}</div>
                             </td>
-                            <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                            <td><span class="badge" style="background:#e0f7fa;color:#2db4c3;font-weight:600;">{{ req.leave_type }}</span></td>
                             <td><strong>{{ req.total_days }}d</strong></td>
                             <td><a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-primary">{% trans "Review" %}</a></td>
                         </tr>
@@ -477,7 +477,7 @@
                                 <div style="font-weight:600;font-size:0.85rem;">{{ req.employee.get_full_name }}</div>
                                 <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.department|default:"—" }}</div>
                             </td>
-                            <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                            <td><span class="badge" style="background:#e0f7fa;color:#2db4c3;font-weight:600;">{{ req.leave_type }}</span></td>
                             <td><strong>{{ req.total_days }}d</strong></td>
                             <td><a href="{% url 'leaves:director_action' req.pk %}" class="btn btn-sm btn-primary">{% trans "Decide" %}</a></td>
                         </tr>

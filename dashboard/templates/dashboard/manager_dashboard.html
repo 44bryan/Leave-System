@@ -80,7 +80,7 @@
                         <div style="font-weight:600;">{{ req.employee.get_full_name }}</div>
                         <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.position|default:"Staff" }}</div>
                     </td>
-                    <td><span class="badge bg-warning text-dark">{{ req.leave_type }}</span></td>
+                    <td><span class="badge" style="background:#e0f7fa;color:#2db4c3;font-weight:600;">{{ req.leave_type }}</span></td>
                     <td style="font-size:0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
                     <td><strong>{{ req.total_days }}d</strong></td>
                     <td>
