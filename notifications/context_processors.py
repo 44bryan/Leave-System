@@ -14,6 +14,7 @@ def notifications_ctx(request):
         pending_coworker_count = 0
         pending_leave_count = 0
         pending_discipline_proposals = 0
+        pending_appraisals_count = 0
 
         try:
             emp = request.user.employee
@@ -32,12 +33,26 @@ def notifications_ctx(request):
                 is_suspended = True
                 suspension_end = active_suspension.suspension_end
 
-            # Appraisal co-worker count
+            # Appraisal pending counts (all roles)
             from appraisals.models import AppraisalRecord
+            from django.db.models import Q
             pending_coworker_count = AppraisalRecord.objects.filter(
                 coworker_signed_by=emp,
                 status=AppraisalRecord.STATUS_COWORKER,
             ).count()
+            _aq = (
+                Q(status=AppraisalRecord.STATUS_EMPLOYEE, employee=emp) |
+                Q(status=AppraisalRecord.STATUS_COWORKER, coworker_signed_by=emp) |
+                Q(status=AppraisalRecord.STATUS_UNIT_HEAD, employee__supervisor=emp) |
+                Q(status=AppraisalRecord.STATUS_MANAGER, employee__supervisor=emp)
+            )
+            if emp.is_hr():
+                _aq |= Q(status=AppraisalRecord.STATUS_HR)
+            if emp.is_director():
+                _aq |= Q(status=AppraisalRecord.STATUS_DIRECTOR)
+            if emp.is_ceo():
+                _aq |= Q(status=AppraisalRecord.STATUS_CEO)
+            pending_appraisals_count = AppraisalRecord.objects.filter(_aq).count()
 
             # Sidebar badge counts — role-specific pending approval queues
             from leaves.models import LeaveRequest
@@ -87,6 +102,7 @@ def notifications_ctx(request):
             'pending_coworker_count': pending_coworker_count,
             'pending_leave_count': pending_leave_count,
             'pending_discipline_proposals': pending_discipline_proposals,
+            'pending_appraisals_count': pending_appraisals_count,
         }
     except Exception:
         return {
@@ -97,4 +113,5 @@ def notifications_ctx(request):
             'pending_coworker_count': 0,
             'pending_leave_count': 0,
             'pending_discipline_proposals': 0,
+            'pending_appraisals_count': 0,
         }

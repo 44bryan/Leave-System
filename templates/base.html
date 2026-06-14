@@ -1148,8 +1148,8 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:my_appraisals' %}" class="nav-link-sidebar {% block nav_my_appraisals %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "My Appraisals" %}
-                    {% if pending_coworker_count > 0 %}
-                    <span class="badge bg-danger ms-auto" style="font-size:0.65rem;padding:2px 6px;">{{ pending_coworker_count }}</span>
+                    {% if pending_appraisals_count > 0 %}
+                    <span class="nav-badge">{{ pending_appraisals_count }}</span>
                     {% endif %}
                 </a>
             </li>
@@ -1170,6 +1170,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_unit_head' %}" class="nav-link-sidebar {% block nav_appraisals_unit_head %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                    {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1193,6 +1194,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_manager' %}" class="nav-link-sidebar {% block nav_appraisals_manager %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                    {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1237,6 +1239,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:hr_dashboard' %}" class="nav-link-sidebar {% block nav_hr_appraisals %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisals" %}
+                    {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1271,6 +1274,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_director' %}" class="nav-link-sidebar {% block nav_appraisals_director %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                    {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
         </ul>
@@ -1324,6 +1328,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_ceo' %}" class="nav-link-sidebar {% block nav_appraisals_ceo %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                    {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
         </ul>
