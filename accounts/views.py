@@ -148,10 +148,8 @@ def employee_list(request):
     if role_q:
         employees = employees.filter(role=role_q)
 
-    # Chronological order — most recently joined first; fall back to account creation date
-    employees = employees.order_by(
-        '-date_joined_company', '-user__date_joined'
-    )
+    # Alphabetical order by last name, then first name
+    employees = employees.order_by('user__last_name', 'user__first_name')
 
     from accounts.models import Department
     departments = Department.objects.all().order_by('name')
