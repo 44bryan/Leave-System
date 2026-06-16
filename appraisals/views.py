@@ -267,13 +267,13 @@ def employee_fill(request, record_pk):
 
         if is_initial_submit:
             record.employee_signed_at = timezone.now()
-            # Skip co-worker step — go directly to unit head (supervisor)
             record.status = AppraisalRecord.STATUS_UNIT_HEAD
             record.save()
-            supervisor = emp.supervisor or emp.unit_head
-            if supervisor:
+            # Notify unit head first if set, otherwise notify supervisor directly
+            first_reviewer = emp.unit_head or emp.supervisor
+            if first_reviewer:
                 notify(
-                    supervisor.user,
+                    first_reviewer.user,
                     f'Appraisal Review Needed — {emp.get_full_name()}',
                     f'{emp.get_full_name()} has submitted their appraisal for {record.cycle}. '
                     f'Please log in to grade and comment.',
@@ -309,13 +309,7 @@ def employee_fill(request, record_pk):
         ('dismissal',       'Dismissal'),
     ]
     current_values = {f: getattr(record, f) for f, _ in pf_fields + aa_fields}
-    chain_steps = [
-        ('employee',  'You (Employee)',          True),
-        ('unit_head', 'Supervisor (Grades You)', False),
-        ('hr',        'HR Manager',              False),
-        ('director',  'Admin Director',          False),
-        ('ceo',       'CEO',                     False),
-    ]
+    chain_steps = _build_chain_steps(record)
     return render(request, 'appraisals/employee_fill.html', {
         'record': record,
         'discipline_data': discipline_data,
@@ -334,6 +328,48 @@ def _int_or_none(val):
         return v if 1 <= v <= 5 else None
     except (TypeError, ValueError):
         return None
+
+
+def _build_chain_steps(record):
+    """Build the signing-chain sidebar dynamically based on the employee's setup."""
+    emp = record.employee
+    has_unit_head  = bool(emp.unit_head_id)
+    has_supervisor = bool(emp.supervisor_id)
+    status = record.status
+
+    done_employee  = status not in (AppraisalRecord.STATUS_EMPLOYEE,)
+    done_unit_head = status in (
+        AppraisalRecord.STATUS_MANAGER, AppraisalRecord.STATUS_HR,
+        AppraisalRecord.STATUS_DIRECTOR, AppraisalRecord.STATUS_CEO, AppraisalRecord.STATUS_DONE,
+    )
+    done_manager   = status in (
+        AppraisalRecord.STATUS_HR, AppraisalRecord.STATUS_DIRECTOR,
+        AppraisalRecord.STATUS_CEO, AppraisalRecord.STATUS_DONE,
+    )
+    done_hr        = status in (
+        AppraisalRecord.STATUS_DIRECTOR, AppraisalRecord.STATUS_CEO, AppraisalRecord.STATUS_DONE,
+    )
+    done_director  = status in (AppraisalRecord.STATUS_CEO, AppraisalRecord.STATUS_DONE)
+    done_ceo       = status == AppraisalRecord.STATUS_DONE
+
+    steps = [('employee', 'You (Employee)', done_employee)]
+
+    if has_unit_head and has_supervisor:
+        uh_name = emp.unit_head.get_full_name()
+        sv_name = emp.supervisor.get_full_name()
+        steps.append(('unit_head', f'Unit Head — {uh_name}', done_unit_head))
+        steps.append(('manager',   f'Line Manager — {sv_name}', done_manager))
+    else:
+        reviewer = emp.supervisor or emp.unit_head
+        label = f'Supervisor — {reviewer.get_full_name()}' if reviewer else 'Supervisor (Grades You)'
+        steps.append(('unit_head', label, done_unit_head))
+
+    steps += [
+        ('hr',       'HR Manager',    done_hr),
+        ('director', 'Admin Director', done_director),
+        ('ceo',      'CEO',           done_ceo),
+    ]
+    return steps
 
 
 _RATING_FNAMES = [
@@ -458,8 +494,12 @@ def unit_head_fill(request, record_pk):
     emp    = get_employee(request)
     record = get_object_or_404(AppraisalRecord, pk=record_pk)
 
-    is_supervisor  = emp and emp == record.employee.supervisor
-    if not is_supervisor:
+    subj = record.employee
+    has_unit_head = bool(subj.unit_head_id)
+    # If employee has a unit_head, that person fills this step.
+    # If not, the supervisor fills this step directly.
+    expected_reviewer = subj.unit_head if has_unit_head else subj.supervisor
+    if not emp or emp != expected_reviewer:
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
     if record.status != AppraisalRecord.STATUS_UNIT_HEAD:
@@ -489,20 +529,35 @@ def unit_head_fill(request, record_pk):
         record.unit_head_signed_by = emp
         record.unit_head_signed_at = timezone.now()
         _save_sig(record, 'unit_head_sig_b64', p.get('signature_data', ''))
-        # After supervisor grades → go straight to HR (skip separate manager step)
-        record.status = AppraisalRecord.STATUS_HR
-        record.save()
 
-        for hr_emp in Employee.objects.filter(role='hr', is_active=True):
+        subj = record.employee
+        if subj.unit_head_id and subj.supervisor_id:
+            # Employee has both — now route to line manager (supervisor)
+            record.status = AppraisalRecord.STATUS_MANAGER
+            record.save()
             notify(
-                hr_emp.user,
-                f'Appraisal HR Review Needed — {record.employee.get_full_name()}',
-                f'Supervisor has graded and commented on {record.employee.get_full_name()}\'s '
-                f'appraisal for {record.cycle}. Your review is next.',
+                subj.supervisor.user,
+                f'Appraisal Review Needed — {subj.get_full_name()}',
+                f'Unit Head has reviewed {subj.get_full_name()}\'s appraisal for {record.cycle}. '
+                f'Your line-manager comment is next.',
                 notification_type='general',
-                url=f'/appraisals/hr-review/{record.pk}/',
+                url=f'/appraisals/manager/{record.pk}/',
             )
-        messages.success(request, "Supervisor grades and comment submitted.")
+            messages.success(request, "Unit head review submitted. Line manager notified.")
+        else:
+            # No unit_head — supervisor filled this step, go straight to HR
+            record.status = AppraisalRecord.STATUS_HR
+            record.save()
+            for hr_emp in Employee.objects.filter(role='hr', is_active=True):
+                notify(
+                    hr_emp.user,
+                    f'Appraisal HR Review Needed — {subj.get_full_name()}',
+                    f'Supervisor has graded and commented on {subj.get_full_name()}\'s '
+                    f'appraisal for {record.cycle}. Your review is next.',
+                    notification_type='general',
+                    url=f'/appraisals/hr-review/{record.pk}/',
+                )
+            messages.success(request, "Supervisor grades and comment submitted.")
         return redirect('dashboard:home')
 
     pf_fields = [
@@ -780,15 +835,20 @@ def pending_unit_head(request):
     emp = get_employee(request)
     if not emp:
         return redirect('dashboard:home')
-    # Only the direct line manager (supervisor field) fills this step
+    from django.db.models import Q
+    # Show records where:
+    # - emp is the unit_head of the employee (unit_head step for employees who have a unit_head)
+    # - OR emp is the supervisor and the employee has NO unit_head (supervisor fills directly)
     records = AppraisalRecord.objects.filter(
         status=AppraisalRecord.STATUS_UNIT_HEAD,
-        employee__supervisor=emp,
+    ).filter(
+        Q(employee__unit_head=emp) |
+        Q(employee__supervisor=emp, employee__unit_head__isnull=True)
     ).select_related('employee__user', 'cycle')
     return render(request, 'appraisals/pending_list.html', {
         'records': records, 'role': 'unit_head',
         'action_url_name': 'appraisals:unit_head_fill',
-        'title': 'Appraisals Awaiting Your Supervisor Comment',
+        'title': 'Appraisals Awaiting Your Review',
     })
 
 
