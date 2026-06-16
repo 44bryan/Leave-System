@@ -68,27 +68,24 @@ def submit_leave(request):
         defaults={'total_entitlement': seniority_entitlement(employee)}
     )
 
-    # Build backup employee list: same dept, active, not self
+    # Build backup employee list: ALL active staff (not just same dept), excluding self
     today_date = date.today()
-    dept_employees = Employee.objects.filter(
-        department=employee.department,
+    all_employees = Employee.objects.filter(
         is_active=True,
-    ).exclude(pk=employee.pk).select_related('user')
+    ).exclude(pk=employee.pk).select_related('user', 'department')
 
-    # Mark who has approved leave overlapping today's date range (we mark them unavailable by default;
-    # JS will update based on selected dates)
     on_leave_pks = set(
         LeaveRequest.objects.filter(
             status='approved',
-            employee__in=dept_employees,
+            employee__in=all_employees,
             start_date__lte=today_date,
             end_date__gte=today_date,
         ).values_list('employee_id', flat=True)
     )
 
     backup_choices = [
-        {'id': e.pk, 'name': e.get_full_name(), 'unavailable': e.pk in on_leave_pks}
-        for e in dept_employees
+        {'id': e.pk, 'name': e.get_full_name(), 'dept': str(e.department or ''), 'unavailable': e.pk in on_leave_pks}
+        for e in all_employees.order_by('user__last_name', 'user__first_name')
     ]
 
     form = LeaveRequestForm(request.POST or None, request.FILES or None)
@@ -96,13 +93,22 @@ def submit_leave(request):
         leave = form.save(commit=False)
         leave.employee = employee
 
-        # Backup employee
+        # Backup employee — required
         backup_id = request.POST.get('backup_employee')
-        if backup_id:
-            try:
-                leave.backup_employee = Employee.objects.get(pk=backup_id)
-            except Employee.DoesNotExist:
-                pass
+        if not backup_id:
+            messages.error(request, "Please select a back-up employee to cover you during your leave.")
+            return render(request, 'leaves/request_form.html', {
+                'form': form, 'balance': balance, 'backup_choices': backup_choices,
+                'leave_types': LeaveType.objects.filter(is_active=True),
+            })
+        try:
+            leave.backup_employee = Employee.objects.get(pk=backup_id)
+        except Employee.DoesNotExist:
+            messages.error(request, "Selected back-up employee not found.")
+            return render(request, 'leaves/request_form.html', {
+                'form': form, 'balance': balance, 'backup_choices': backup_choices,
+                'leave_types': LeaveType.objects.filter(is_active=True),
+            })
 
         # Validate balance (only for deductible leave types)
         if leave.leave_type.is_deductible and leave.total_days > balance.remaining_days:

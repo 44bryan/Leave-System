@@ -115,12 +115,12 @@ class LeaveRequest(models.Model):
 
     @staticmethod
     def _count_working_days(start, end):
-        """Count Mon–Sat (exclude Sunday) between start and end inclusive."""
+        """Count Mon–Fri (exclude Saturday and Sunday) between start and end inclusive."""
         from datetime import timedelta
         count = 0
         current = start
         while current <= end:
-            if current.weekday() != 6:  # 6 = Sunday
+            if current.weekday() < 5:  # 0=Mon … 4=Fri
                 count += 1
             current += timedelta(days=1)
         return count
