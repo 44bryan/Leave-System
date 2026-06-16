@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Contract — {{ contract.employee.get_full_name }}{% endblock %}
-{% block page_title %}Contract Detail{% endblock %}
+{% block title %}{% trans "Contract" %} — {{ contract.employee.get_full_name }}{% endblock %}
+{% block page_title %}{% trans "Contract Detail" %}{% endblock %}
 {% block nav_contracts %}active{% endblock %}
 
 {% block topbar_actions %}
 {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
 <a href="{% url 'contracts:list' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> All Contracts
+    <i class="bi bi-arrow-left me-1"></i> {% trans "All Contracts" %}
 </a>
 {% else %}
 <a href="{% url 'contracts:my_contract' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> My Contract
+    <i class="bi bi-arrow-left me-1"></i> {% trans "My Contract" %}
 </a>
 {% endif %}
 {% endblock %}
@@ -44,7 +44,7 @@
             {% if contract.contract_type == 'CDD' and contract.days_remaining is not None and not contract.is_expired and contract.status == 'active' %}
             <div class="text-center">
                 <div style="font-size:2rem;font-weight:900;line-height:1;">{{ contract.days_remaining }}</div>
-                <div style="font-size:.7rem;opacity:.75;text-transform:uppercase;">days left</div>
+                <div style="font-size:.7rem;opacity:.75;text-transform:uppercase;">{% trans "days left" %}</div>
             </div>
             {% endif %}
         </div>
@@ -52,34 +52,34 @@
 
     <!-- Employee Details -->
     <div class="card mb-4">
-        <div class="card-header"><i class="bi bi-person me-2"></i>Employee Details</div>
+        <div class="card-header"><i class="bi bi-person me-2"></i>{% trans "Employee Details" %}</div>
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Name</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Name" %}</div>
                     <div class="fw-600 mt-1">{{ contract.employee.get_full_name }}</div>
                 </div>
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Employee ID</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Employee ID" %}</div>
                     <div class="mt-1">{{ contract.employee.employee_id }}</div>
                 </div>
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Department</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Department" %}</div>
                     <div class="mt-1">{{ contract.employee.department|default:"—" }}</div>
                 </div>
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Position</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Position" %}</div>
                     <div class="mt-1">{{ contract.employee.position|default:"—" }}</div>
                 </div>
                 {% with age=contract.employee.age %}
                 {% if age %}
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Age</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Age" %}</div>
                     <div class="mt-1">
-                        {{ age }} years
+                        {% blocktrans with a=age %}{{ a }} years{% endblocktrans %}
                         {% if contract.employee.is_near_retirement %}
                         <span class="badge bg-warning text-dark ms-1" style="font-size:.65rem;">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Near Retirement
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>{% trans "Near Retirement" %}
                         </span>
                         {% endif %}
                     </div>
@@ -87,9 +87,11 @@
                 {% endif %}
                 {% endwith %}
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Years of Service</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Years of Service" %}</div>
                     <div class="mt-1">
-                        {{ contract.years_of_service }} yr{{ contract.years_of_service|pluralize }}
+                        {% with yrs=contract.employee.years_of_service %}
+                        {% if yrs %}{% blocktrans with n=yrs %}{{ n }} yr{{ n|pluralize }}{% endblocktrans %}{% else %}&lt; 1 yr{% endif %}
+                        {% endwith %}
                     </div>
                 </div>
             </div>
@@ -98,53 +100,53 @@
 
     <!-- Contract Details -->
     <div class="card mb-4">
-        <div class="card-header"><i class="bi bi-file-text me-2"></i>Contract Details</div>
+        <div class="card-header"><i class="bi bi-file-text me-2"></i>{% trans "Contract Details" %}</div>
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Contract Type</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Contract Type" %}</div>
                     <div class="mt-1">
                         {% if contract.contract_type == 'CDI' %}
-                        <span class="badge" style="background:#dcfce7;color:#15803d;"><i class="bi bi-infinity me-1"></i>CDI — Permanent</span>
+                        <span class="badge" style="background:#dcfce7;color:#15803d;"><i class="bi bi-infinity me-1"></i>{% trans "CDI — Permanent" %}</span>
                         {% elif contract.contract_type == 'INTERN' %}
-                        <span class="badge" style="background:#e0f2fe;color:#2db4c3;"><i class="bi bi-mortarboard me-1"></i>Internship</span>
+                        <span class="badge" style="background:#e0f2fe;color:#2db4c3;"><i class="bi bi-mortarboard me-1"></i>{% trans "Internship" %}</span>
                         {% elif contract.contract_type == 'WACS' %}
-                        <span class="badge" style="background:#fdf4ff;color:#2db4c3;"><i class="bi bi-award me-1"></i>WACS Residency</span>
+                        <span class="badge" style="background:#fdf4ff;color:#2db4c3;"><i class="bi bi-award me-1"></i>{% trans "WACS Residency" %}</span>
                         {% else %}
-                        <span class="badge" style="background:#fef9c3;color:#a16207;"><i class="bi bi-calendar-range me-1"></i>CDD — Fixed Term</span>
+                        <span class="badge" style="background:#fef9c3;color:#a16207;"><i class="bi bi-calendar-range me-1"></i>{% trans "CDD — Fixed Term" %}</span>
                         {% endif %}
                     </div>
                 </div>
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Status</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Status" %}</div>
                     <div class="mt-1">
                         {% if contract.status == 'active' and contract.contract_type == 'CDI' %}
-                        <span class="badge bg-success">Permanent / Active</span>
+                        <span class="badge bg-success">{% trans "Permanent / Active" %}</span>
                         {% elif contract.status == 'active' and not contract.is_expired %}
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge bg-success">{% trans "Active" %}</span>
                         {% elif contract.status == 'active' and contract.is_expired %}
-                        <span class="badge bg-danger">Expired</span>
+                        <span class="badge bg-danger">{% trans "Expired" %}</span>
                         {% elif contract.status == 'terminated' %}
-                        <span class="badge bg-dark">Terminated</span>
+                        <span class="badge bg-dark">{% trans "Terminated" %}</span>
                         {% elif contract.status == 'renewed' %}
-                        <span class="badge bg-secondary">Superseded — Renewed</span>
+                        <span class="badge bg-secondary">{% trans "Superseded — Renewed" %}</span>
                         {% endif %}
                     </div>
                 </div>
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Start Date</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Start Date" %}</div>
                     <div class="mt-1">{{ contract.start_date|date:"d F Y" }}</div>
                 </div>
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">End Date</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "End Date" %}</div>
                     <div class="mt-1">
                         {% if contract.end_date %}{{ contract.end_date|date:"d F Y" }}
-                        {% else %}<span class="text-muted">No end date</span>{% endif %}
+                        {% else %}<span class="text-muted">{% trans "No end date" %}</span>{% endif %}
                     </div>
                 </div>
                 {% if contract.contract_type == 'CDD' and contract.days_remaining is not None %}
                 <div class="col-12">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Time Remaining</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Time Remaining" %}</div>
                     <div class="mt-1">
                         <span class="badge bg-{{ contract.urgency_class }}" style="font-size:.82rem;">
                             {{ contract.duration_display }}
@@ -154,18 +156,18 @@
                 {% endif %}
                 {% if contract.notes %}
                 <div class="col-12">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Notes</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Notes" %}</div>
                     <div class="mt-2 p-3 rounded-2" style="background:#f8fafc;border:1px solid #e8f0f5;font-size:.875rem;">
                         {{ contract.notes|linebreaks }}
                     </div>
                 </div>
                 {% endif %}
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Issued By</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Issued By" %}</div>
                     <div class="mt-1">{{ contract.created_by.get_full_name|default:contract.created_by.username|default:"System" }}</div>
                 </div>
                 <div class="col-sm-6">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Created On</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Created On" %}</div>
                     <div class="mt-1">{{ contract.created_at|date:"d F Y" }}</div>
                 </div>
             </div>
@@ -177,55 +179,55 @@
     {% if contract.status == 'active' %}
     <div class="card mb-4" style="border:1px solid #86efac;">
         <div class="card-header" style="background:#f0fdf4;border-color:#86efac;">
-            <i class="bi bi-tools me-2" style="color:#16a34a;"></i>HR Actions
+            <i class="bi bi-tools me-2" style="color:#16a34a;"></i>{% trans "HR Actions" %}
         </div>
         <div class="card-body">
             <!-- Renew / Extend -->
             <div class="mb-4">
                 <h6 class="fw-bold mb-3" id="renew-heading">
                     <i class="bi bi-calendar-plus me-2 text-info" id="renew-icon"></i>
-                    <span id="renew-heading-text">Extend Contract</span>
+                    <span id="renew-heading-text">{% trans "Extend Contract" %}</span>
                 </h6>
                 <form method="post" action="{% url 'contracts:renew' contract.pk %}">
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-12 col-sm-4">
-                            <label class="form-label" style="font-size:.8rem;font-weight:600;">New Contract Type</label>
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">{% trans "New Contract Type" %}</label>
                             <select name="contract_type" id="renew-type-select" class="form-select form-select-sm">
-                                <option value="CDD" {% if contract.contract_type == 'CDD' %}selected{% endif %}>CDD — Fixed Term</option>
-                                <option value="CDI" {% if contract.contract_type == 'CDI' %}selected{% endif %}>CDI — Permanent</option>
-                                <option value="INTERN" {% if contract.contract_type == 'INTERN' %}selected{% endif %}>Internship</option>
-                                <option value="WACS" {% if contract.contract_type == 'WACS' %}selected{% endif %}>WACS Residency</option>
+                                <option value="CDD" {% if contract.contract_type == 'CDD' %}selected{% endif %}>{% trans "CDD — Fixed Term" %}</option>
+                                <option value="CDI" {% if contract.contract_type == 'CDI' %}selected{% endif %}>{% trans "CDI — Permanent" %}</option>
+                                <option value="INTERN" {% if contract.contract_type == 'INTERN' %}selected{% endif %}>{% trans "Internship" %}</option>
+                                <option value="WACS" {% if contract.contract_type == 'WACS' %}selected{% endif %}>{% trans "WACS Residency" %}</option>
                             </select>
                         </div>
                         <div class="col-6 col-sm-4">
-                            <label class="form-label" style="font-size:.8rem;font-weight:600;">New Start Date</label>
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">{% trans "New Start Date" %}</label>
                             <input type="date" name="start_date" class="form-control form-control-sm" required>
                         </div>
                         <div class="col-6 col-sm-4" id="renewal-end-date-wrap">
-                            <label class="form-label" style="font-size:.8rem;font-weight:600;">New End Date <small class="text-muted d-none d-sm-inline">(CDD/INTERN/WACS)</small></label>
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">{% trans "New End Date" %} <small class="text-muted d-none d-sm-inline">({% trans "CDD/INTERN/WACS" %})</small></label>
                             <input type="date" name="end_date" class="form-control form-control-sm" id="renewal-end-date">
                         </div>
                         <!-- Internship type — shown dynamically when new type is INTERN -->
                         <div class="col-sm-6" id="renew-internship-type-wrap" style="display:none;">
-                            <label class="form-label" style="font-size:.8rem;font-weight:600;">Internship Type</label>
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">{% trans "Internship Type" %}</label>
                             <select name="internship_type" id="renew-internship-type-select" class="form-select form-select-sm">
-                                <option value="">— Select Type —</option>
-                                <option value="academic" {% if contract.internship_type == 'academic' %}selected{% endif %}>Academic Internship</option>
-                                <option value="professional" {% if contract.internship_type == 'professional' %}selected{% endif %}>Professional Internship</option>
-                                <option value="vocational">Vocational / Technical Internship</option>
-                                <option value="observation" {% if contract.internship_type == 'observation' %}selected{% endif %}>Observation / Shadowing</option>
-                                <option value="other" {% if contract.internship_type == 'other' %}selected{% endif %}>Other</option>
+                                <option value="">{% trans "— Select Type —" %}</option>
+                                <option value="academic" {% if contract.internship_type == 'academic' %}selected{% endif %}>{% trans "Academic Internship" %}</option>
+                                <option value="professional" {% if contract.internship_type == 'professional' %}selected{% endif %}>{% trans "Professional Internship" %}</option>
+                                <option value="vocational">{% trans "Vocational / Technical Internship" %}</option>
+                                <option value="observation" {% if contract.internship_type == 'observation' %}selected{% endif %}>{% trans "Observation / Shadowing" %}</option>
+                                <option value="other" {% if contract.internship_type == 'other' %}selected{% endif %}>{% trans "Other" %}</option>
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label" style="font-size:.8rem;font-weight:600;">Notes (optional)</label>
-                            <textarea name="notes" id="renew-notes" class="form-control form-control-sm" rows="2" placeholder="Extension notes…"></textarea>
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">{% trans "Notes (optional)" %}</label>
+                            <textarea name="notes" id="renew-notes" class="form-control form-control-sm" rows="2" placeholder="{% trans "Extension notes…" %}"></textarea>
                         </div>
                         <div class="col-12">
                             <button type="submit" id="renew-btn" class="btn btn-info btn-sm text-white">
                                 <i class="bi bi-calendar-plus me-1" id="renew-btn-icon"></i>
-                                <span id="renew-btn-text">Extend &amp; Notify Employee</span>
+                                <span id="renew-btn-text">{% trans "Extend & Notify Employee" %}</span>
                             </button>
                         </div>
                     </div>
@@ -236,18 +238,18 @@
 
             <!-- Terminate -->
             <div>
-                <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-x-circle me-2"></i>Terminate Contract</h6>
+                <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-x-circle me-2"></i>{% trans "Terminate Contract" %}</h6>
                 <form method="post" action="{% url 'contracts:terminate' contract.pk %}"
-                      onsubmit="return confirm('Terminate this contract? The employee will be notified.');">
+                      onsubmit="return confirm('{% trans "Terminate this contract? The employee will be notified." %}');">
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label" style="font-size:.8rem;font-weight:600;">Reason (optional)</label>
-                            <textarea name="reason" class="form-control form-control-sm" rows="2" placeholder="Reason for termination…"></textarea>
+                            <label class="form-label" style="font-size:.8rem;font-weight:600;">{% trans "Reason (optional)" %}</label>
+                            <textarea name="reason" class="form-control form-control-sm" rows="2" placeholder="{% trans "Reason for termination…" %}"></textarea>
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="bi bi-x-circle me-1"></i>Terminate & Notify Employee
+                                <i class="bi bi-x-circle me-1"></i>{% trans "Terminate & Notify Employee" %}
                             </button>
                         </div>
                     </div>
@@ -263,7 +265,7 @@
     <div class="card mb-4">
         <div class="card-header">
             <i class="bi bi-clock-history me-2"></i>
-            {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}Extension History{% else %}Renewal History{% endif %}
+            {% if contract.contract_type == 'INTERN' or contract.contract_type == 'WACS' %}{% trans "Extension History" %}{% else %}{% trans "Renewal History" %}{% endif %}
         </div>
         <div class="list-group list-group-flush">
             {% for old in renewal_history %}
@@ -274,7 +276,7 @@
                             {{ old.contract_type }}
                         </span>
                         {{ old.start_date|date:"d M Y" }}
-                        {% if old.end_date %} → {{ old.end_date|date:"d M Y" }}{% else %} → Permanent{% endif %}
+                        {% if old.end_date %} → {{ old.end_date|date:"d M Y" }}{% else %} → {% trans "Permanent" %}{% endif %}
                     </div>
                     <span class="badge
                         {% if old.status == 'active' %}bg-success
@@ -328,10 +330,10 @@
 
         // Heading
         if (isExtend) {
-            headingText.textContent = 'Extend Contract';
+            headingText.textContent = '{% trans "Extend Contract" %}';
             headingIcon.className   = 'bi bi-calendar-plus me-2 text-info';
         } else {
-            headingText.textContent = 'Renew Contract';
+            headingText.textContent = '{% trans "Renew Contract" %}';
             headingIcon.className   = 'bi bi-arrow-repeat me-2 text-success';
         }
 
@@ -339,15 +341,15 @@
         if (isExtend) {
             btn.className     = 'btn btn-info btn-sm text-white';
             btnIcon.className = 'bi bi-calendar-plus me-1';
-            btnText.textContent = 'Extend & Notify Employee';
+            btnText.textContent = '{% trans "Extend & Notify Employee" %}';
         } else {
             btn.className     = 'btn btn-success btn-sm';
             btnIcon.className = 'bi bi-arrow-repeat me-1';
-            btnText.textContent = 'Renew & Notify Employee';
+            btnText.textContent = '{% trans "Renew & Notify Employee" %}';
         }
 
         // Notes placeholder
-        notes.placeholder = isExtend ? 'Extension notes…' : 'Renewal notes…';
+        notes.placeholder = isExtend ? '{% trans "Extension notes…" %}' : '{% trans "Renewal notes…" %}';
     }
 
     typeSelect.addEventListener('change', update);

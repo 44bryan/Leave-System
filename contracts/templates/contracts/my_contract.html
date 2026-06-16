@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}My Contract — AEF HRM{% endblock %}
-{% block page_title %}My Contract{% endblock %}
+{% block title %}{% trans "My Contract" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "My Contract" %}{% endblock %}
 {% block nav_my_contract %}active{% endblock %}
 
 {% block topbar_actions %}
 {% if contract %}
 <a href="{% url 'contracts:pdf' contract.pk %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-file-earmark-pdf me-1"></i>Download Contract PDF
+    <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download Contract PDF" %}
 </a>
 {% endif %}
 {% if unread_count > 0 %}
 <a href="{% url 'contracts:notifications' %}" class="btn btn-outline-primary btn-sm position-relative">
-    <i class="bi bi-bell me-1"></i>Notifications
+    <i class="bi bi-bell me-1"></i>{% trans "Notifications" %}
     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.6rem;">
         {{ unread_count }}
     </span>
@@ -27,8 +27,8 @@
 <div class="card animate-in">
     <div class="card-body text-center py-5">
         <i class="bi bi-file-earmark-x fs-1 d-block mb-3" style="color:#9ab4c0;"></i>
-        <h5 class="fw-bold mb-1">No Contract on Record</h5>
-        <p class="text-muted mb-0" style="font-size:.875rem;">You do not have a contract registered in the system yet. Please contact HR.</p>
+        <h5 class="fw-bold mb-1">{% trans "No Contract on Record" %}</h5>
+        <p class="text-muted mb-0" style="font-size:.875rem;">{% trans "You do not have a contract registered in the system yet. Please contact HR." %}</p>
     </div>
 </div>
 {% else %}
@@ -70,45 +70,45 @@
         <div style="flex:1;">
             <div style="font-size:1.1rem;font-weight:800;">
                 {% if contract.contract_type == 'CDI' %}
-                    Permanent Contract (CDI)
+                    {% trans "Permanent Contract (CDI)" %}
                 {% elif contract.contract_type == 'INTERN' %}
-                    Internship Contract
+                    {% trans "Internship Contract" %}
                 {% elif contract.contract_type == 'WACS' %}
-                    WACS Residency / Trainee Programme
+                    {% trans "WACS Residency / Trainee Programme" %}
                 {% else %}
-                    Fixed-Term Contract (CDD)
+                    {% trans "Fixed-Term Contract (CDD)" %}
                 {% endif %}
             </div>
             <div style="font-size:.9rem;opacity:.85;margin-top:4px;">
                 {% if contract.contract_type == 'CDI' %}
-                    No fixed end date — your contract does not expire.
+                    {% trans "No fixed end date — your contract does not expire." %}
                 {% elif contract.contract_type == 'INTERN' %}
-                    Internship period: {{ contract.start_date|date:"d F Y" }}
+                    {% trans "Internship period:" %} {{ contract.start_date|date:"d F Y" }}
                     {% if contract.end_date %} — {{ contract.end_date|date:"d F Y" }}{% endif %}
                 {% elif contract.contract_type == 'WACS' %}
-                    WACS Programme: {{ contract.start_date|date:"d F Y" }}
+                    {% trans "WACS Programme:" %} {{ contract.start_date|date:"d F Y" }}
                     {% if contract.end_date %} — {{ contract.end_date|date:"d F Y" }}{% endif %}
                 {% elif contract.is_expired %}
-                    Your contract expired on {{ contract.end_date|date:"d F Y" }}.
+                    {% blocktrans with end=contract.end_date|date:"d F Y" %}Your contract expired on {{ end }}.{% endblocktrans %}
                 {% else %}
-                    {{ contract.duration_display }} &nbsp;·&nbsp; Ends {{ contract.end_date|date:"d F Y" }}
+                    {{ contract.duration_display }} &nbsp;·&nbsp; {% trans "Ends" %} {{ contract.end_date|date:"d F Y" }}
                 {% endif %}
             </div>
         </div>
         {% if contract.contract_type in 'CDD' and not contract.is_expired and contract.days_remaining is not None %}
         <div class="text-center">
             <div style="font-size:2.5rem;font-weight:900;line-height:1;">{{ contract.days_remaining }}</div>
-            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">days left</div>
+            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">{% trans "days left" %}</div>
         </div>
         {% elif contract.contract_type == 'INTERN' and contract.days_remaining is not None and contract.days_remaining > 0 %}
         <div class="text-center">
             <div style="font-size:2.5rem;font-weight:900;line-height:1;">{{ contract.days_remaining }}</div>
-            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">days remaining</div>
+            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">{% trans "days remaining" %}</div>
         </div>
         {% elif contract.contract_type == 'WACS' and contract.days_remaining is not None and contract.days_remaining > 0 %}
         <div class="text-center">
             <div style="font-size:2.5rem;font-weight:900;line-height:1;">{{ contract.days_remaining }}</div>
-            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">days remaining</div>
+            <div style="font-size:.72rem;opacity:.8;text-transform:uppercase;letter-spacing:.05em;">{% trans "days remaining" %}</div>
         </div>
         {% endif %}
     </div>
@@ -121,75 +121,75 @@
         <div class="card animate-in mb-4">
             <div class="card-header">
                 <i class="bi bi-file-text me-2"></i>
-                {% if contract.contract_type == 'INTERN' %}Internship Details
-                {% elif contract.contract_type == 'WACS' %}WACS Programme Details
-                {% else %}Contract Details{% endif %}
+                {% if contract.contract_type == 'INTERN' %}{% trans "Internship Details" %}
+                {% elif contract.contract_type == 'WACS' %}{% trans "WACS Programme Details" %}
+                {% else %}{% trans "Contract Details" %}{% endif %}
             </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Contract Type</div>
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Contract Type" %}</div>
                         <div class="mt-1 fw-600">
                             {% if contract.contract_type == 'CDI' %}
-                            <span class="badge" style="background:#dcfce7;color:#1a8fa0;font-size:.82rem;"><i class="bi bi-infinity me-1"></i>CDI — Permanent</span>
+                            <span class="badge" style="background:#dcfce7;color:#1a8fa0;font-size:.82rem;"><i class="bi bi-infinity me-1"></i>{% trans "CDI — Permanent" %}</span>
                             {% elif contract.contract_type == 'INTERN' %}
-                            <span class="badge" style="background:#e0f2fe;color:#2db4c3;font-size:.82rem;"><i class="bi bi-mortarboard me-1"></i>Internship Contract</span>
+                            <span class="badge" style="background:#e0f2fe;color:#2db4c3;font-size:.82rem;"><i class="bi bi-mortarboard me-1"></i>{% trans "Internship Contract" %}</span>
                             {% elif contract.contract_type == 'WACS' %}
-                            <span class="badge" style="background:#fdf4ff;color:#2db4c3;font-size:.82rem;"><i class="bi bi-award me-1"></i>WACS Residency</span>
+                            <span class="badge" style="background:#fdf4ff;color:#2db4c3;font-size:.82rem;"><i class="bi bi-award me-1"></i>{% trans "WACS Residency" %}</span>
                             {% else %}
-                            <span class="badge" style="background:#fef9c3;color:#a16207;font-size:.82rem;"><i class="bi bi-calendar-range me-1"></i>CDD — Fixed Term</span>
+                            <span class="badge" style="background:#fef9c3;color:#a16207;font-size:.82rem;"><i class="bi bi-calendar-range me-1"></i>{% trans "CDD — Fixed Term" %}</span>
                             {% endif %}
                         </div>
                     </div>
                     {% if contract.contract_type == 'INTERN' and contract.internship_type %}
                     <div class="col-sm-6">
-                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Internship Type</div>
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Internship Type" %}</div>
                         <div class="mt-1 fw-600">{{ contract.get_internship_type_display }}</div>
                     </div>
                     {% endif %}
                     <div class="col-sm-6">
-                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Status</div>
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Status" %}</div>
                         <div class="mt-1">
                             {% if contract.status == 'active' %}
-                            <span class="badge bg-success">Active</span>
+                            <span class="badge bg-success">{% trans "Active" %}</span>
                             {% elif contract.status == 'terminated' %}
-                            <span class="badge bg-dark">Terminated</span>
+                            <span class="badge bg-dark">{% trans "Terminated" %}</span>
                             {% elif contract.status == 'renewed' %}
-                            <span class="badge bg-secondary">Superseded by renewal</span>
+                            <span class="badge bg-secondary">{% trans "Superseded by renewal" %}</span>
                             {% elif contract.status == 'expired' %}
-                            <span class="badge bg-danger">Expired</span>
+                            <span class="badge bg-danger">{% trans "Expired" %}</span>
                             {% endif %}
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">
-                            {% if contract.contract_type == 'INTERN' %}Internship Start{% elif contract.contract_type == 'WACS' %}Programme Start{% else %}Start Date{% endif %}
+                            {% if contract.contract_type == 'INTERN' %}{% trans "Internship Start" %}{% elif contract.contract_type == 'WACS' %}{% trans "Programme Start" %}{% else %}{% trans "Start Date" %}{% endif %}
                         </div>
                         <div class="mt-1">{{ contract.start_date|date:"d F Y" }}</div>
                     </div>
                     <div class="col-sm-6">
                         <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">
-                            {% if contract.contract_type == 'INTERN' %}Internship End{% elif contract.contract_type == 'WACS' %}Programme End{% else %}End Date{% endif %}
+                            {% if contract.contract_type == 'INTERN' %}{% trans "Internship End" %}{% elif contract.contract_type == 'WACS' %}{% trans "Programme End" %}{% else %}{% trans "End Date" %}{% endif %}
                         </div>
                         <div class="mt-1">
-                            {% if contract.end_date %}{{ contract.end_date|date:"d F Y" }}{% else %}<span class="text-muted">No end date (permanent)</span>{% endif %}
+                            {% if contract.end_date %}{{ contract.end_date|date:"d F Y" }}{% else %}<span class="text-muted">{% trans "No end date (permanent)" %}</span>{% endif %}
                         </div>
                     </div>
                     {% if contract.notes %}
                     <div class="col-12">
-                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Notes</div>
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Notes" %}</div>
                         <div class="mt-1 p-3 rounded-2" style="background:#f8fafc;border:1px solid #e8f0f5;font-size:.875rem;">
                             {{ contract.notes|linebreaks }}
                         </div>
                     </div>
                     {% endif %}
                     <div class="col-sm-6">
-                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Date Issued</div>
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Date Issued" %}</div>
                         <div class="mt-1" style="font-size:.875rem;">{{ contract.created_at|date:"d F Y" }}</div>
                         <div style="font-size:.72rem;color:#9ab4c0;">{{ contract.created_at|time:"H:i" }}</div>
                     </div>
                     <div class="col-sm-6">
-                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Issued By</div>
+                        <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Issued By" %}</div>
                         <div class="mt-1" style="font-size:.875rem;">{{ contract.created_by.get_full_name|default:contract.created_by.username|default:"HR Department" }}</div>
                     </div>
                 </div>
@@ -200,9 +200,9 @@
         {% if notifications %}
         <div class="card animate-in">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-bell me-2"></i>Contract Notifications</span>
+                <span><i class="bi bi-bell me-2"></i>{% trans "Contract Notifications" %}</span>
                 {% if unread_count > 0 %}
-                <span class="badge bg-danger">{{ unread_count }} unread</span>
+                <span class="badge bg-danger">{{ unread_count }} {% trans "unread" %}</span>
                 {% endif %}
             </div>
             <div class="list-group list-group-flush">
@@ -221,7 +221,7 @@
                             <div style="font-size:.72rem;color:#9ab4c0;margin-top:3px;">{{ n.created_at|date:"d M Y, H:i" }}</div>
                         </div>
                         {% if not n.is_read %}
-                        <span class="badge bg-primary" style="font-size:.6rem;">New</span>
+                        <span class="badge bg-primary" style="font-size:.6rem;">{% trans "New" %}</span>
                         {% endif %}
                     </div>
                 </div>
@@ -229,7 +229,7 @@
             </div>
             {% if unread_count > 0 %}
             <div class="card-footer text-center py-2">
-                <a href="{% url 'contracts:notifications' %}" class="btn btn-sm btn-outline-primary">Mark all as read</a>
+                <a href="{% url 'contracts:notifications' %}" class="btn btn-sm btn-outline-primary">{% trans "Mark all as read" %}</a>
             </div>
             {% endif %}
         </div>
@@ -243,20 +243,20 @@
         <!-- Internship Duration Card -->
         <div class="card animate-in mb-4" style="border:1.5px solid #bae6fd;">
             <div class="card-header" style="background:#e0f2fe;border-color:#bae6fd;">
-                <i class="bi bi-mortarboard me-2" style="color:#2db4c3;"></i>Internship Programme
+                <i class="bi bi-mortarboard me-2" style="color:#2db4c3;"></i>{% trans "Internship Programme" %}
             </div>
             <div class="card-body text-center">
                 {% if contract.days_remaining is not None and contract.days_remaining > 0 %}
                 <div style="font-size:2.5rem;font-weight:900;color:#2db4c3;">{{ contract.days_remaining }}</div>
-                <div style="font-size:.78rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.06em;">Days Remaining</div>
+                <div style="font-size:.78rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.06em;">{% trans "Days Remaining" %}</div>
                 {% elif contract.is_expired %}
-                <div style="font-size:1.1rem;font-weight:700;color:#dc2626;">Internship Completed</div>
+                <div style="font-size:1.1rem;font-weight:700;color:#dc2626;">{% trans "Internship Completed" %}</div>
                 {% else %}
-                <div style="font-size:1.1rem;font-weight:700;color:#2db4c3;">Active</div>
+                <div style="font-size:1.1rem;font-weight:700;color:#2db4c3;">{% trans "Active" %}</div>
                 {% endif %}
                 {% if contract.end_date %}
                 <div class="mt-3 pt-3" style="border-top:1px solid #bae6fd;">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Programme Ends</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Programme Ends" %}</div>
                     <div style="font-weight:700;color:#2db4c3;">{{ contract.end_date|date:"d F Y" }}</div>
                 </div>
                 {% endif %}
@@ -267,31 +267,31 @@
         <div class="card animate-in" style="border:1.5px solid #bae6fd;background:#f0f9ff;">
             <div class="card-body py-3 px-4">
                 <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2db4c3;margin-bottom:10px;">
-                    <i class="bi bi-info-circle me-1"></i>Intern Information
+                    <i class="bi bi-info-circle me-1"></i>{% trans "Intern Information" %}
                 </div>
                 <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #bae6fd;font-size:.85rem;">
-                    <span style="color:#6b7a8d;">Programme Type</span>
-                    <span class="fw-600">{% if contract.internship_type %}{{ contract.get_internship_type_display }}{% else %}Internship{% endif %}</span>
+                    <span style="color:#6b7a8d;">{% trans "Programme Type" %}</span>
+                    <span class="fw-600">{% if contract.internship_type %}{{ contract.get_internship_type_display }}{% else %}{% trans "Internship" %}{% endif %}</span>
                 </div>
                 <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #bae6fd;font-size:.85rem;">
-                    <span style="color:#6b7a8d;">Leave Approvals</span>
-                    <span class="fw-600">Direct to HR</span>
+                    <span style="color:#6b7a8d;">{% trans "Leave Approvals" %}</span>
+                    <span class="fw-600">{% trans "Direct to HR" %}</span>
                 </div>
                 {% if employee.school_name %}
                 <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #bae6fd;font-size:.85rem;">
-                    <span style="color:#6b7a8d;">Institution</span>
+                    <span style="color:#6b7a8d;">{% trans "Institution" %}</span>
                     <span class="fw-600">{{ employee.school_name }}</span>
                 </div>
                 {% endif %}
                 {% if employee.speciality %}
                 <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #bae6fd;font-size:.85rem;">
-                    <span style="color:#6b7a8d;">Field of Study</span>
+                    <span style="color:#6b7a8d;">{% trans "Field of Study" %}</span>
                     <span class="fw-600">{{ employee.speciality }}</span>
                 </div>
                 {% endif %}
                 {% if employee.department %}
                 <div class="d-flex justify-content-between py-2" style="font-size:.85rem;">
-                    <span style="color:#6b7a8d;">Department</span>
+                    <span style="color:#6b7a8d;">{% trans "Department" %}</span>
                     <span class="fw-600">{{ employee.department }}</span>
                 </div>
                 {% endif %}
@@ -302,20 +302,20 @@
         <!-- WACS Duration Card -->
         <div class="card animate-in mb-4" style="border:1.5px solid #ddd6fe;">
             <div class="card-header" style="background:#fdf4ff;border-color:#ddd6fe;">
-                <i class="bi bi-award me-2" style="color:#2db4c3;"></i>WACS Residency Programme
+                <i class="bi bi-award me-2" style="color:#2db4c3;"></i>{% trans "WACS Residency Programme" %}
             </div>
             <div class="card-body text-center">
                 {% if contract.days_remaining is not None and contract.days_remaining > 0 %}
                 <div style="font-size:2.5rem;font-weight:900;color:#2db4c3;">{{ contract.days_remaining }}</div>
-                <div style="font-size:.78rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.06em;">Days Remaining</div>
+                <div style="font-size:.78rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.06em;">{% trans "Days Remaining" %}</div>
                 {% elif contract.is_expired %}
-                <div style="font-size:1.1rem;font-weight:700;color:#dc2626;">Programme Completed</div>
+                <div style="font-size:1.1rem;font-weight:700;color:#dc2626;">{% trans "Programme Completed" %}</div>
                 {% else %}
-                <div style="font-size:1.1rem;font-weight:700;color:#2db4c3;">Active</div>
+                <div style="font-size:1.1rem;font-weight:700;color:#2db4c3;">{% trans "Active" %}</div>
                 {% endif %}
                 {% if contract.end_date %}
                 <div class="mt-3 pt-3" style="border-top:1px solid #ddd6fe;">
-                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">Programme Ends</div>
+                    <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Programme Ends" %}</div>
                     <div style="font-weight:700;color:#2db4c3;">{{ contract.end_date|date:"d F Y" }}</div>
                 </div>
                 {% endif %}
@@ -326,15 +326,15 @@
         <div class="card animate-in" style="border:1.5px solid #ddd6fe;background:#fdf4ff;">
             <div class="card-body py-3 px-4">
                 <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2db4c3;margin-bottom:10px;">
-                    <i class="bi bi-info-circle me-1"></i>Trainee Information
+                    <i class="bi bi-info-circle me-1"></i>{% trans "Trainee Information" %}
                 </div>
                 <div class="d-flex justify-content-between py-2" style="border-bottom:1px solid #ddd6fe;font-size:.85rem;">
-                    <span style="color:#6b7a8d;">Programme Type</span>
-                    <span class="fw-600">WACS Residency</span>
+                    <span style="color:#6b7a8d;">{% trans "Programme Type" %}</span>
+                    <span class="fw-600">{% trans "WACS Residency" %}</span>
                 </div>
                 {% if employee.department %}
                 <div class="d-flex justify-content-between py-2" style="font-size:.85rem;">
-                    <span style="color:#6b7a8d;">Department</span>
+                    <span style="color:#6b7a8d;">{% trans "Department" %}</span>
                     <span class="fw-600">{{ employee.department }}</span>
                 </div>
                 {% endif %}
@@ -344,31 +344,33 @@
         {% else %}
         <!-- Years of Service + quick-stats row -->
         <div class="card animate-in mb-4">
-            <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#2db4c3;"></i>Service & Contract</div>
+            <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#2db4c3;"></i>{% trans "Service & Contract" %}</div>
             <div class="card-body">
                 <div class="row text-center g-0 mb-3">
                     <div class="col" style="border-right:1px solid #f0f4f8;">
-                        <div style="font-size:2rem;font-weight:900;color:#2db4c3;">{{ contract.years_of_service }}</div>
-                        <div style="font-size:.7rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.05em;">yr{{ contract.years_of_service|pluralize }} service</div>
+                        {% with yrs=contract.employee.years_of_service %}
+                        <div style="font-size:2rem;font-weight:900;color:#2db4c3;">{% if yrs %}{{ yrs }}{% else %}&lt;1{% endif %}</div>
+                        <div style="font-size:.7rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.05em;">{% if yrs %}{% blocktrans with n=yrs %}yr{{ n|pluralize }} service{% endblocktrans %}{% else %}yr service{% endif %}</div>
+                        {% endwith %}
                     </div>
                     {% if contract.days_remaining is not None %}
                     <div class="col">
                         <div style="font-size:2rem;font-weight:900;color:{% if contract.days_remaining <= 30 %}#dc2626{% elif contract.days_remaining <= 60 %}#d97706{% else %}#059669{% endif %};">
                             {{ contract.days_remaining }}
                         </div>
-                        <div style="font-size:.7rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.05em;">days left</div>
+                        <div style="font-size:.7rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.05em;">{% trans "days left" %}</div>
                     </div>
                     {% else %}
                     <div class="col">
                         <div style="font-size:1.2rem;font-weight:800;color:#059669;padding-top:.6rem;">∞</div>
-                        <div style="font-size:.7rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.05em;">permanent</div>
+                        <div style="font-size:.7rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:.05em;">{% trans "permanent" %}</div>
                     </div>
                     {% endif %}
                 </div>
                 {% if contract.days_remaining is not None and contract.days_remaining <= 60 %}
                 <div class="alert py-2 px-3 mb-0 {% if contract.days_remaining <= 30 %}alert-danger{% else %}alert-warning{% endif %}" style="font-size:.8rem;">
                     <i class="bi bi-alarm me-1"></i>
-                    Contract {% if contract.days_remaining <= 30 %}expiring very soon{% else %}expiring in {{ contract.days_remaining }} days{% endif %}. Contact HR.
+                    {% if contract.days_remaining <= 30 %}{% trans "Contract expiring very soon. Contact HR." %}{% else %}{% blocktrans with days=contract.days_remaining %}Contract expiring in {{ days }} days. Contact HR.{% endblocktrans %}{% endif %}
                 </div>
                 {% endif %}
             </div>
@@ -376,43 +378,43 @@
 
         <!-- Employee profile card -->
         <div class="card animate-in mb-4">
-            <div class="card-header"><i class="bi bi-person-badge me-2"></i>My Profile</div>
+            <div class="card-header"><i class="bi bi-person-badge me-2"></i>{% trans "My Profile" %}</div>
             <div class="card-body p-0">
                 {% if employee.position %}
                 <div class="d-flex justify-content-between align-items-center px-4 py-2" style="border-bottom:1px solid #f0f4f8;">
-                    <span style="font-size:.82rem;color:#6b7a8d;">Position</span>
+                    <span style="font-size:.82rem;color:#6b7a8d;">{% trans "Position" %}</span>
                     <span style="font-weight:600;font-size:.85rem;">{{ employee.position }}</span>
                 </div>
                 {% endif %}
                 {% if employee.department %}
                 <div class="d-flex justify-content-between align-items-center px-4 py-2" style="border-bottom:1px solid #f0f4f8;">
-                    <span style="font-size:.82rem;color:#6b7a8d;">Department</span>
+                    <span style="font-size:.82rem;color:#6b7a8d;">{% trans "Department" %}</span>
                     <span style="font-weight:600;font-size:.85rem;">{{ employee.department }}</span>
                 </div>
                 {% endif %}
                 {% if employee.supervisor %}
                 <div class="d-flex justify-content-between align-items-center px-4 py-2" style="border-bottom:1px solid #f0f4f8;">
-                    <span style="font-size:.82rem;color:#6b7a8d;">Line Manager</span>
+                    <span style="font-size:.82rem;color:#6b7a8d;">{% trans "Line Manager" %}</span>
                     <span style="font-weight:600;font-size:.85rem;">{{ employee.supervisor.get_full_name }}</span>
                 </div>
                 {% endif %}
                 {% if employee.staff_category %}
                 <div class="d-flex justify-content-between align-items-center px-4 py-2" style="border-bottom:1px solid #f0f4f8;">
-                    <span style="font-size:.82rem;color:#6b7a8d;">Staff Category</span>
-                    <span style="font-weight:600;font-size:.85rem;">Category {{ employee.staff_category }}</span>
+                    <span style="font-size:.82rem;color:#6b7a8d;">{% trans "Staff Category" %}</span>
+                    <span style="font-weight:600;font-size:.85rem;">{% blocktrans with cat=employee.staff_category %}Category {{ cat }}{% endblocktrans %}</span>
                 </div>
                 {% endif %}
                 {% with age=employee.age %}
                 {% if age %}
                 <div class="d-flex justify-content-between align-items-center px-4 py-2" style="border-bottom:1px solid #f0f4f8;">
-                    <span style="font-size:.82rem;color:#6b7a8d;">Age</span>
-                    <span style="font-weight:600;font-size:.85rem;">{{ age }} yrs</span>
+                    <span style="font-size:.82rem;color:#6b7a8d;">{% trans "Age" %}</span>
+                    <span style="font-weight:600;font-size:.85rem;">{% blocktrans with a=age %}{{ a }} yrs{% endblocktrans %}</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center px-4 py-2">
-                    <span style="font-size:.82rem;color:#6b7a8d;">To Retirement (60)</span>
+                    <span style="font-size:.82rem;color:#6b7a8d;">{% trans "To Retirement (60)" %}</span>
                     <span style="font-weight:600;font-size:.85rem;{% if employee.is_near_retirement %}color:#dc2626;{% endif %}">
                         {% with ytr=employee.years_to_retirement %}
-                        {% if ytr > 0 %}{{ ytr }} yr{{ ytr|pluralize }}{% else %}Reached{% endif %}
+                        {% if ytr > 0 %}{% blocktrans with y=ytr %}{{ y }} yr{{ y|pluralize }}{% endblocktrans %}{% else %}{% trans "Reached" %}{% endif %}
                         {% endwith %}
                         {% if employee.is_near_retirement %}<i class="bi bi-exclamation-triangle-fill ms-1"></i>{% endif %}
                     </span>
@@ -424,16 +426,16 @@
 
         <!-- Quick actions -->
         <div class="card animate-in">
-            <div class="card-header"><i class="bi bi-lightning me-2"></i>Quick Actions</div>
+            <div class="card-header"><i class="bi bi-lightning me-2"></i>{% trans "Quick Actions" %}</div>
             <div class="card-body d-grid gap-2">
                 <a href="{% url 'leaves:submit' %}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus-circle me-1"></i>Apply for Leave
+                    <i class="bi bi-plus-circle me-1"></i>{% trans "Apply for Leave" %}
                 </a>
                 <a href="{% url 'leaves:my_requests' %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-journal-text me-1"></i>My Leave History
+                    <i class="bi bi-journal-text me-1"></i>{% trans "My Leave History" %}
                 </a>
                 <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-person-circle me-1"></i>My Profile
+                    <i class="bi bi-person-circle me-1"></i>{% trans "My Profile" %}
                 </a>
             </div>
         </div>
