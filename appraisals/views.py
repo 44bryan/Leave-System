@@ -354,20 +354,24 @@ def _build_chain_steps(record):
 
     steps = [('employee', 'You (Employee)', done_employee)]
 
-    if has_unit_head and has_supervisor:
+    if has_unit_head:
         uh_name = emp.unit_head.get_full_name()
-        sv_name = emp.supervisor.get_full_name()
         steps.append(('unit_head', f'Unit Head — {uh_name}', done_unit_head))
-        steps.append(('manager',   f'Line Manager — {sv_name}', done_manager))
-    else:
-        reviewer = emp.supervisor or emp.unit_head
-        label = f'Supervisor — {reviewer.get_full_name()}' if reviewer else 'Supervisor (Grades You)'
-        steps.append(('unit_head', label, done_unit_head))
+
+    if has_supervisor:
+        sv_name = emp.supervisor.get_full_name()
+        if not has_unit_head:
+            # Supervisor also fills the unit-head grading step
+            steps.append(('unit_head', f'Supervisor (Grading) — {sv_name}', done_unit_head))
+        steps.append(('manager', f'Line Manager — {sv_name}', done_manager))
+    elif not has_unit_head:
+        # No reviewer configured at all
+        steps.append(('unit_head', 'Supervisor (Grades You)', done_unit_head))
 
     steps += [
-        ('hr',       'HR Manager',    done_hr),
+        ('hr',       'HR Manager',     done_hr),
         ('director', 'Admin Director', done_director),
-        ('ceo',      'CEO',           done_ceo),
+        ('ceo',      'CEO',            done_ceo),
     ]
     return steps
 
@@ -531,33 +535,35 @@ def unit_head_fill(request, record_pk):
         _save_sig(record, 'unit_head_sig_b64', p.get('signature_data', ''))
 
         subj = record.employee
-        if subj.unit_head_id and subj.supervisor_id:
-            # Employee has both — now route to line manager (supervisor)
+        if subj.supervisor_id:
+            # Always route to line manager step when a supervisor is set.
+            # If unit_head == supervisor (or no unit_head), the same person fills twice
+            # (unit head grading step + line manager comment step).
             record.status = AppraisalRecord.STATUS_MANAGER
             record.save()
             notify(
                 subj.supervisor.user,
                 f'Appraisal Review Needed — {subj.get_full_name()}',
-                f'Unit Head has reviewed {subj.get_full_name()}\'s appraisal for {record.cycle}. '
+                f'Unit Head review done for {subj.get_full_name()}\'s appraisal ({record.cycle}). '
                 f'Your line-manager comment is next.',
                 notification_type='general',
                 url=f'/appraisals/manager/{record.pk}/',
             )
             messages.success(request, "Unit head review submitted. Line manager notified.")
         else:
-            # No unit_head — supervisor filled this step, go straight to HR
+            # No supervisor at all — go straight to HR
             record.status = AppraisalRecord.STATUS_HR
             record.save()
             for hr_emp in Employee.objects.filter(role='hr', is_active=True):
                 notify(
                     hr_emp.user,
                     f'Appraisal HR Review Needed — {subj.get_full_name()}',
-                    f'Supervisor has graded and commented on {subj.get_full_name()}\'s '
-                    f'appraisal for {record.cycle}. Your review is next.',
+                    f'Review complete for {subj.get_full_name()}\'s appraisal ({record.cycle}). '
+                    f'Your HR review is next.',
                     notification_type='general',
                     url=f'/appraisals/hr-review/{record.pk}/',
                 )
-            messages.success(request, "Supervisor grades and comment submitted.")
+            messages.success(request, "Review submitted.")
         return redirect('dashboard:home')
 
     pf_fields = [
