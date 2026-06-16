@@ -17,24 +17,6 @@
 <div class="row g-4">
 <div class="col-lg-9">
 
-<!-- Header -->
-<div class="card animate-in mb-4 print-card" style="border-top:4px solid #31b8cf;">
-    <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-            <div>
-                <h5 class="fw-bold mb-1" style="color:#0A4D68;">Magrabi ICO Cameroon Eye Institute</h5>
-                <div class="text-muted">{% trans "Personnel Appraisal" %} — {{ record.cycle }}</div>
-                <div class="text-muted small">{% trans "Period:" %} {{ record.cycle.get_trimester_dates }} {{ record.cycle.year }}</div>
-            </div>
-            <div class="text-end">
-                <div class="fw-bold">{{ record.employee.user.last_name }} {{ record.employee.user.first_name }}</div>
-                <div class="small text-muted">{{ record.employee.position }}</div>
-                <div class="small text-muted">{{ record.employee.department }}</div>
-                <span class="badge mt-1" style="background:#e8f7fa;color:#0A4D68;">{{ record.get_status_display }}</span>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Employee Section -->
 {% if record.employee_signed_at %}
