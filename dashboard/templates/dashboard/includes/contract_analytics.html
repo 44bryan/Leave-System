@@ -275,7 +275,7 @@
             {% if contract_long_service %}
             <div class="list-group list-group-flush">
                 {% for emp in contract_long_service %}
-                <a href="{% url 'accounts:employee_detail' emp.pk %}" class="list-group-item list-group-item-action px-4 py-2 text-decoration-none">
+                <a href="{% url 'accounts:employee_edit' emp.pk %}" class="list-group-item list-group-item-action px-4 py-2 text-decoration-none">
                     <div class="d-flex align-items-center gap-3">
                         <div style="width:26px;text-align:center;font-size:.82rem;font-weight:800;color:{% if forloop.counter == 1 %}#d97706{% elif forloop.counter == 2 %}#6b7a8d{% elif forloop.counter == 3 %}#b45309{% else %}#c4d4de{% endif %};">
                             #{{ forloop.counter }}
