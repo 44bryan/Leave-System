@@ -346,32 +346,21 @@ def employee_fill(request, record_pk):
 
         if is_initial_submit:
             record.employee_signed_at = timezone.now()
-            if emp.unit_head_id:
-                # Has a unit head — they comment first, supervisor grades second
+            # First reviewer: unit_head if set, otherwise supervisor (they fill comment step first)
+            first_reviewer = emp.unit_head or emp.supervisor
+            if first_reviewer:
                 record.status = AppraisalRecord.STATUS_UNIT_HEAD
                 record.save()
                 notify(
-                    emp.unit_head.user,
+                    first_reviewer.user,
                     f'Appraisal Comment Needed — {emp.get_full_name()}',
                     f'{emp.get_full_name()} has submitted their appraisal for {record.cycle}. '
-                    f'Please log in to add your unit head comment.',
+                    f'Please log in to add your comment.',
                     notification_type='general',
                     url=f'/appraisals/unit-head/{record.pk}/',
                 )
-            elif emp.supervisor_id:
-                # No unit head — go straight to supervisor for grading
-                record.status = AppraisalRecord.STATUS_MANAGER
-                record.save()
-                notify(
-                    emp.supervisor.user,
-                    f'Appraisal Grading Needed — {emp.get_full_name()}',
-                    f'{emp.get_full_name()} has submitted their appraisal for {record.cycle}. '
-                    f'Please log in to grade and add your line manager comment.',
-                    notification_type='general',
-                    url=f'/appraisals/manager/{record.pk}/',
-                )
             else:
-                # No unit head and no supervisor — go straight to HR
+                # No reviewer at all — go straight to HR
                 record.status = AppraisalRecord.STATUS_HR
                 record.save()
                 for hr_emp in Employee.objects.filter(role='hr', is_active=True):
@@ -456,15 +445,17 @@ def _build_chain_steps(record):
 
     steps = [('employee', 'You (Employee)', done_employee)]
 
-    if has_unit_head:
-        uh_name = emp.unit_head.get_full_name()
-        steps.append(('unit_head', f'Unit Head (Comment) — {uh_name}', done_unit_head))
-
-    if has_supervisor:
+    if has_unit_head and has_supervisor:
+        # Separate people for each role
+        steps.append(('unit_head', f'Unit Head (Comment) — {emp.unit_head.get_full_name()}', done_unit_head))
+        steps.append(('manager',   f'Line Manager (Grade & Comment) — {emp.supervisor.get_full_name()}', done_manager))
+    elif has_supervisor:
+        # Supervisor fills both: comment step first, then grade + comment step
         sv_name = emp.supervisor.get_full_name()
-        steps.append(('manager', f'Line Manager (Grade & Comment) — {sv_name}', done_manager))
-    elif not has_unit_head:
-        steps.append(('manager', 'Line Manager (Grade & Comment)', done_manager))
+        steps.append(('unit_head', f'Supervisor (Comment) — {sv_name}', done_unit_head))
+        steps.append(('manager',   f'Supervisor (Grade & Comment) — {sv_name}', done_manager))
+    elif has_unit_head:
+        steps.append(('unit_head', f'Unit Head (Comment) — {emp.unit_head.get_full_name()}', done_unit_head))
 
     steps += [
         ('hr',       'HR Manager',     done_hr),
@@ -613,8 +604,9 @@ def unit_head_fill(request, record_pk):
     record = get_object_or_404(AppraisalRecord, pk=record_pk)
 
     subj = record.employee
-    # Unit head step is ONLY for employees who have a unit_head set
-    if not emp or emp != subj.unit_head:
+    # Unit head fills this step if set; otherwise the supervisor fills it (comment role)
+    expected = subj.unit_head if subj.unit_head_id else subj.supervisor
+    if not emp or emp != expected:
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
     if record.status != AppraisalRecord.STATUS_UNIT_HEAD:
@@ -905,10 +897,13 @@ def pending_unit_head(request):
     emp = get_employee(request)
     if not emp:
         return redirect('dashboard:home')
-    # Only the unit_head field recipient fills this step
+    from django.db.models import Q
+    # unit_head fills if set; otherwise the supervisor fills the comment step
     records = AppraisalRecord.objects.filter(
         status=AppraisalRecord.STATUS_UNIT_HEAD,
-        employee__unit_head=emp,
+    ).filter(
+        Q(employee__unit_head=emp) |
+        Q(employee__unit_head__isnull=True, employee__supervisor=emp)
     ).select_related('employee__user', 'cycle')
     return render(request, 'appraisals/pending_list.html', {
         'records': records, 'role': 'unit_head',
