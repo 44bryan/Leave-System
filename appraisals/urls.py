@@ -29,8 +29,10 @@ urlpatterns = [
     path('pdf/<int:record_pk>/',         views.appraisal_pdf,     name='pdf'),
 
     # HR management
-    path('hr/',                          views.hr_dashboard,      name='hr_dashboard'),
-    path('hr/initiate/',                 views.hr_initiate,       name='hr_initiate'),
-    path('cycles/<int:cycle_pk>/',       views.cycle_records,     name='cycle_records'),
-    path('cycles/<int:cycle_pk>/distribute/', views.distribute,   name='distribute'),
+    path('hr/',                               views.hr_dashboard,       name='hr_dashboard'),
+    path('hr/initiate/',                      views.hr_initiate,        name='hr_initiate'),
+    path('hr/deadline-missed/',               views.hr_deadline_missed,  name='hr_deadline_missed'),
+    path('hr/unlock/<int:record_pk>/',        views.hr_unlock_employee,  name='hr_unlock_employee'),
+    path('cycles/<int:cycle_pk>/',            views.cycle_records,       name='cycle_records'),
+    path('cycles/<int:cycle_pk>/distribute/', views.distribute,          name='distribute'),
 ]

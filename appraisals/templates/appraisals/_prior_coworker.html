@@ -1,7 +1,8 @@
+{% load i18n %}
 {% if record.coworker_signed_at %}
 <div class="card animate-in mb-4">
     <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;">
-        <i class="bi bi-people me-2"></i>Co-Worker's Comment (Read Only)
+        <i class="bi bi-people me-2"></i>{% trans "Co-Worker's Comment (Read Only)" %}
     </div>
     <div class="card-body p-4">
         <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;">{{ record.coworker_comment|default:"—" }}</div>

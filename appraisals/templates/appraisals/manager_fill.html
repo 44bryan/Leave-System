@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n appraisal_tags %}
-{% block title %}Manager Appraisal Rating — AEF HRM{% endblock %}
-{% block page_title %}Line Manager — Appraiser Rating & Comment{% endblock %}
+{% block title %}{% trans "Manager Appraisal Rating" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Line Manager — Appraiser Rating & Comment" %}{% endblock %}
 {% block page_subtitle %}{{ record.employee.get_full_name }} · {{ record.cycle }}{% endblock %}
 
 {% block content %}
@@ -15,41 +15,41 @@
 
 <!-- Employee's self-assessment (read-only view) -->
 <div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;"><i class="bi bi-eye me-2"></i>Employee's Self-Assessment (Read Only)</div>
+    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;"><i class="bi bi-eye me-2"></i>{% trans "Employee's Self-Assessment (Read Only)" %}</div>
     <div class="card-body p-4">
         <div class="row g-3 mb-3">
             <div class="col-sm-6">
-                <div class="text-muted small fw-bold mb-1">Summary of Tasks</div>
+                <div class="text-muted small fw-bold mb-1">{% trans "Summary of Tasks" %}</div>
                 <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;">{{ record.tasks_summary|default:"—" }}</div>
             </div>
             <div class="col-sm-6">
-                <div class="text-muted small fw-bold mb-1">Tasks Assimilated</div>
+                <div class="text-muted small fw-bold mb-1">{% trans "Tasks Assimilated" %}</div>
                 <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;">{{ record.tasks_assimilated|default:"—" }}</div>
             </div>
         </div>
         <div class="mb-3">
-            <div class="text-muted small fw-bold mb-1">Goals to Reach</div>
+            <div class="text-muted small fw-bold mb-1">{% trans "Goals to Reach" %}</div>
             <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;">{{ record.goals_to_reach|default:"—" }}</div>
         </div>
         <div class="row g-2">
-            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Self</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_self|default:"—" }}</div></div>
-            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Supervision</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_supervision|default:"—" }}</div></div>
-            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">On Organisation</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_org|default:"—" }}</div></div>
+            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">{% trans "On Self" %}</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_self|default:"—" }}</div></div>
+            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">{% trans "On Supervision" %}</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_supervision|default:"—" }}</div></div>
+            <div class="col-sm-4"><div class="text-muted small fw-bold mb-1">{% trans "On Organisation" %}</div><div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:.85rem;">{{ record.comment_on_org|default:"—" }}</div></div>
         </div>
     </div>
 </div>
 
 <!-- Appraiser Rating -->
 <div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-star-fill me-2"></i>Appraiser's Rating (You fill this)</div>
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-star-fill me-2"></i>{% trans "Appraiser's Rating (You fill this)" %}</div>
     <div class="card-body p-4">
         <p class="text-muted small mb-3">
             1 = Does not meet · 2 = Some difficulties · 3 = Meets requirements · 4 = Exceeds · 5 = Greatly exceeds
         </p>
-        <h6 class="fw-bold mb-2">Performance Factors</h6>
+        <h6 class="fw-bold mb-2">{% trans "Performance Factors" %}</h6>
         <div class="table-responsive mb-4">
             <table class="table table-bordered align-middle text-center" style="font-size:.88rem;">
-                <thead class="table-light"><tr><th class="text-start">Factor</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+                <thead class="table-light"><tr><th class="text-start">{% trans "Factor" %}</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
                 <tbody>
                 {% for fname, label in pf_fields %}
                 <tr>
@@ -64,10 +64,10 @@
                 </tbody>
             </table>
         </div>
-        <h6 class="fw-bold mb-2">Attitude (Approach) and Aptitude (Skill) Factors</h6>
+        <h6 class="fw-bold mb-2">{% trans "Attitude (Approach) and Aptitude (Skill) Factors" %}</h6>
         <div class="table-responsive">
             <table class="table table-bordered align-middle text-center" style="font-size:.88rem;">
-                <thead class="table-light"><tr><th class="text-start">Factor</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+                <thead class="table-light"><tr><th class="text-start">{% trans "Factor" %}</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
                 <tbody>
                 {% for fname, label in aa_fields %}
                 <tr>
@@ -87,20 +87,20 @@
 
 <!-- Manager Comment -->
 <div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-chat-left-text me-2"></i>Manager Comment & Signature</div>
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-chat-left-text me-2"></i>{% trans "Manager Comment & Signature" %}</div>
     <div class="card-body p-4">
         <div class="mb-4">
-            <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
+            <label class="form-label fw-semibold">{% trans "Your Comment" %} <span class="text-danger">*</span></label>
             <textarea name="manager_comment" class="form-control" rows="4" required
-                      placeholder="Provide your assessment and any recommendations..."></textarea>
+                      placeholder="{% trans "Provide your assessment and any recommendations..." %}"></textarea>
         </div>
         {% include 'appraisals/_sig_pad.html' %}
     </div>
 </div>
 
 <div class="d-flex gap-2 mb-4">
-    <button type="submit" class="btn btn-primary px-5"><i class="bi bi-send-check me-2"></i>Submit Rating & Comment</button>
-    <a href="{% url 'appraisals:pending_manager' %}" class="btn btn-outline-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary px-5"><i class="bi bi-send-check me-2"></i>{% trans "Submit Rating & Comment" %}</button>
+    <a href="{% url 'appraisals:pending_manager' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
 </div>
 </form>
 </div></div>

@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block title %}{{ title }} — AEF HRM{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
-{% block page_subtitle %}Appraisals waiting for your action{% endblock %}
+{% block page_subtitle %}{% trans "Appraisals waiting for your action" %}{% endblock %}
 
 {% block content %}
 <div class="card animate-in">
@@ -14,13 +14,13 @@
         {% if not records %}
         <div class="text-center py-5 text-muted">
             <i class="bi bi-clipboard2-check" style="font-size:2.5rem;opacity:.4;"></i>
-            <div class="mt-2">No appraisals waiting for your action.</div>
+            <div class="mt-2">{% trans "No appraisals waiting for your action." %}</div>
         </div>
         {% else %}
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
-                    <tr><th>Employee</th><th>Department</th><th>Cycle</th><th>Period</th><th>Submitted</th><th></th></tr>
+                    <tr><th>{% trans "Employee" %}</th><th>{% trans "Department" %}</th><th>{% trans "Cycle" %}</th><th>{% trans "Period" %}</th><th>{% trans "Submitted" %}</th><th></th></tr>
                 </thead>
                 <tbody>
                 {% for record in records %}

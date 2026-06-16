@@ -76,6 +76,7 @@ def hr_initiate(request):
         year      = request.POST.get('year', '').strip()
         trimester = request.POST.get('trimester', '').strip()
         title     = request.POST.get('title', '').strip()
+        deadline_raw = request.POST.get('employee_deadline', '').strip()
 
         try:
             year      = int(year)
@@ -90,10 +91,20 @@ def hr_initiate(request):
             messages.error(request, "A cycle for that trimester/year already exists.")
             return redirect('appraisals:hr_initiate')
 
+        from datetime import date as _date
+        employee_deadline = None
+        if deadline_raw:
+            try:
+                employee_deadline = _date.fromisoformat(deadline_raw)
+            except ValueError:
+                messages.error(request, "Invalid deadline date format.")
+                return redirect('appraisals:hr_initiate')
+
         cycle = AppraisalCycle.objects.create(
             year=year, trimester=trimester,
             title=title or f"Trim {trimester} — {year}",
             initiated_by=request.user,
+            employee_deadline=employee_deadline,
         )
 
         # Create one AppraisalRecord per active, non-superuser employee
@@ -156,6 +167,66 @@ def cycle_records(request, cycle_pk):
 
 
 @login_required
+def hr_unlock_employee(request, record_pk):
+    """HR opens an employee's overdue appraisal section so they can still submit."""
+    emp = get_employee(request)
+    if not emp or (not emp.is_hr() and not request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+    if record.status != AppraisalRecord.STATUS_EMPLOYEE:
+        messages.error(request, "This appraisal is not awaiting the employee — nothing to unlock.")
+        return redirect('appraisals:hr_deadline_missed')
+
+    if request.method == 'POST':
+        note = request.POST.get('note', '').strip()
+        record.hr_unlocked    = True
+        record.hr_unlock_note = note
+        record.hr_unlocked_at = timezone.now()
+        record.hr_unlocked_by = emp
+        record.save(update_fields=['hr_unlocked', 'hr_unlock_note', 'hr_unlocked_at', 'hr_unlocked_by'])
+
+        notify(
+            record.employee.user,
+            f'Appraisal Re-opened — {record.cycle}',
+            f'HR has re-opened your appraisal for {record.cycle}. '
+            f'Please log in immediately and complete your section.',
+            notification_type='general',
+            url='/appraisals/my/',
+        )
+        messages.success(request, f"Appraisal re-opened for {record.employee.get_full_name()}. They have been notified.")
+        return redirect('appraisals:hr_deadline_missed')
+
+    return render(request, 'appraisals/hr_unlock_confirm.html', {'record': record})
+
+
+@login_required
+def hr_deadline_missed(request):
+    """HR view listing all employees who missed the deadline and haven't submitted."""
+    emp = get_employee(request)
+    if not emp or (not emp.is_hr() and not request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    from datetime import date
+    today = date.today()
+
+    # Records still at employee stage with a passed deadline
+    records = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_EMPLOYEE,
+        cycle__employee_deadline__lt=today,
+    ).select_related('employee__user', 'employee__department', 'cycle').order_by(
+        'cycle__year', 'cycle__trimester', 'employee__user__last_name'
+    )
+
+    return render(request, 'appraisals/hr_deadline_missed.html', {
+        'records': records,
+        'today': today,
+    })
+
+
+@login_required
 def distribute(request, cycle_pk):
     """HR marks cycle as distributed — staff can now see their completed form."""
     emp = get_employee(request)
@@ -191,35 +262,34 @@ def my_appraisals(request):
         messages.error(request, "No employee profile found.")
         return redirect('dashboard:home')
 
+    from datetime import date as _date
+    today = _date.today()
+
     # Active = cycle not yet distributed and record awaiting employee action
-    active_records = AppraisalRecord.objects.filter(
+    all_pending = AppraisalRecord.objects.filter(
         employee=emp,
         status=AppraisalRecord.STATUS_EMPLOYEE,
         cycle__is_distributed=False,
     ).select_related('cycle')
+
+    active_records = []
+    overdue_records = []
+    for r in all_pending:
+        dl = r.cycle.employee_deadline
+        if dl and today > dl and not r.hr_unlocked:
+            overdue_records.append(r)
+        else:
+            active_records.append(r)
 
     history = AppraisalRecord.objects.filter(
         employee=emp,
         cycle__is_distributed=True,
     ).select_related('cycle').order_by('-cycle__year', '-cycle__trimester')
 
-    # Co-worker reviews this employee has been asked to complete
-    coworker_pending = AppraisalRecord.objects.filter(
-        coworker_signed_by=emp,
-        status=AppraisalRecord.STATUS_COWORKER,
-    ).select_related('employee__user', 'cycle')
-
-    # Co-worker reviews already submitted (can still edit before manager stage)
-    coworker_submitted = AppraisalRecord.objects.filter(
-        coworker_signed_by=emp,
-        status=AppraisalRecord.STATUS_UNIT_HEAD,
-    ).select_related('employee__user', 'cycle')
-
     return render(request, 'appraisals/my_appraisals.html', {
         'active_records': active_records,
+        'overdue_records': overdue_records,
         'history': history,
-        'coworker_pending': coworker_pending,
-        'coworker_submitted': coworker_submitted,
     })
 
 
@@ -238,6 +308,15 @@ def employee_fill(request, record_pk):
     if record.status not in _editable_by_employee:
         messages.error(request, "You can no longer edit this appraisal.")
         return redirect('appraisals:my_appraisals')
+
+    # Deadline enforcement — block if deadline passed and HR hasn't unlocked this record
+    from datetime import date as _date
+    deadline = record.cycle.employee_deadline
+    if deadline and _date.today() > deadline and not record.hr_unlocked:
+        return render(request, 'appraisals/deadline_passed.html', {
+            'record': record,
+            'deadline': deadline,
+        })
 
     if request.method == 'POST':
         p = request.POST

@@ -1,50 +1,51 @@
+{% load i18n %}
 {% if record.unit_head_signed_at %}
 <div class="card animate-in mb-4">
     <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;">
-        <i class="bi bi-person-badge me-2"></i>Supervisor / Line Manager — Appraiser Rating &amp; Comment (Read Only)
+        <i class="bi bi-person-badge me-2"></i>{% trans "Supervisor / Line Manager — Appraiser Rating &amp; Comment (Read Only)" %}
     </div>
     <div class="card-body p-4">
         <div class="row g-3 mb-3">
             <div class="col-md-6">
-                <div class="text-muted small fw-bold mb-1">Performance Factors (Appraiser Rating)</div>
+                <div class="text-muted small fw-bold mb-1">{% trans "Performance Factors (Appraiser Rating)" %}</div>
                 <table class="table table-sm table-bordered mb-0" style="font-size:.82rem;">
                     <tbody>
-                    <tr><td>Quality of Work</td><td class="text-center fw-bold">{{ record.mgr_pf_quality_of_work|default:"—" }}</td></tr>
-                    <tr><td>Quantity of Work</td><td class="text-center fw-bold">{{ record.mgr_pf_quantity_of_work|default:"—" }}</td></tr>
-                    <tr><td>Knowledge of Techniques</td><td class="text-center fw-bold">{{ record.mgr_pf_knowledge_techniques|default:"—" }}</td></tr>
-                    <tr><td>Ability / Interest to Learn</td><td class="text-center fw-bold">{{ record.mgr_pf_ability_to_learn|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Quality of Work" %}</td><td class="text-center fw-bold">{{ record.mgr_pf_quality_of_work|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Quantity of Work" %}</td><td class="text-center fw-bold">{{ record.mgr_pf_quantity_of_work|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Knowledge of Techniques" %}</td><td class="text-center fw-bold">{{ record.mgr_pf_knowledge_techniques|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Ability / Interest to Learn" %}</td><td class="text-center fw-bold">{{ record.mgr_pf_ability_to_learn|default:"—" }}</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="col-md-6">
-                <div class="text-muted small fw-bold mb-1">Attitude &amp; Aptitude Factors (Appraiser Rating)</div>
+                <div class="text-muted small fw-bold mb-1">{% trans "Attitude &amp; Aptitude Factors (Appraiser Rating)" %}</div>
                 <table class="table table-sm table-bordered mb-0" style="font-size:.82rem;">
                     <tbody>
-                    <tr><td>Motivation and Initiative</td><td class="text-center fw-bold">{{ record.mgr_aa_motivation|default:"—" }}</td></tr>
-                    <tr><td>Attitude towards Colleagues</td><td class="text-center fw-bold">{{ record.mgr_aa_attitude_colleagues|default:"—" }}</td></tr>
-                    <tr><td>Relations with Patients</td><td class="text-center fw-bold">{{ record.mgr_aa_relations_patients|default:"—" }}</td></tr>
-                    <tr><td>Judgment &amp; Team Spirit</td><td class="text-center fw-bold">{{ record.mgr_aa_judgment_team|default:"—" }}</td></tr>
-                    <tr><td>Punctuality &amp; Attendance</td><td class="text-center fw-bold">{{ record.mgr_aa_punctuality|default:"—" }}</td></tr>
-                    <tr><td>Personal Presentation</td><td class="text-center fw-bold">{{ record.mgr_aa_presentation|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Motivation and Initiative" %}</td><td class="text-center fw-bold">{{ record.mgr_aa_motivation|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Attitude towards Colleagues" %}</td><td class="text-center fw-bold">{{ record.mgr_aa_attitude_colleagues|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Relations with Patients" %}</td><td class="text-center fw-bold">{{ record.mgr_aa_relations_patients|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Judgment &amp; Team Spirit" %}</td><td class="text-center fw-bold">{{ record.mgr_aa_judgment_team|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Punctuality &amp; Attendance" %}</td><td class="text-center fw-bold">{{ record.mgr_aa_punctuality|default:"—" }}</td></tr>
+                    <tr><td>{% trans "Personal Presentation" %}</td><td class="text-center fw-bold">{{ record.mgr_aa_presentation|default:"—" }}</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <!-- Total Ratings by Administration (as given by supervisor) -->
+        <!-- {% trans "Total Ratings by Administration" %} (as given by supervisor) -->
         <div class="mb-3">
             <div class="text-muted small fw-bold mb-1">Total Ratings by Administration</div>
             <table class="table table-bordered align-middle text-center mb-0" style="font-size:.85rem;">
-                <thead class="table-light"><tr><th class="text-start">SN</th><th class="text-start">Category</th><th>Total Marks</th><th>Score</th></tr></thead>
+                <thead class="table-light"><tr><th class="text-start">SN</th><th class="text-start">{% trans "Category" %}</th><th>{% trans "Total Marks" %}</th><th>{% trans "Score" %}</th></tr></thead>
                 <tbody>
-                <tr><td>1</td><td class="text-start">Performance Factors</td><td>12.5</td><td class="fw-bold">{{ record.mgr_performance_score|default:"—" }}</td></tr>
-                <tr><td>2</td><td class="text-start">Attitude and Aptitude Factors</td><td>7.5</td><td class="fw-bold">{{ record.mgr_attitude_score|default:"—" }}</td></tr>
-                <tr><td>3</td><td class="text-start">Discipline Sanctions (–1 each)</td><td></td><td class="fw-bold text-danger">{{ discipline_data.deduction }}</td></tr>
-                <tr><td>4</td><td class="text-start">Awards (Bonus +1 each)</td><td></td><td class="fw-bold text-success">+{{ record.award_bonus }}</td></tr>
+                <tr><td>1</td><td class="text-start">{% trans "Performance Factors" %}</td><td>12.5</td><td class="fw-bold">{{ record.mgr_performance_score|default:"—" }}</td></tr>
+                <tr><td>2</td><td class="text-start">{% trans "Attitude and Aptitude Factors" %}</td><td>7.5</td><td class="fw-bold">{{ record.mgr_attitude_score|default:"—" }}</td></tr>
+                <tr><td>3</td><td class="text-start">{% trans "Discipline Sanctions (–1 each)" %}</td><td></td><td class="fw-bold text-danger">{{ discipline_data.deduction }}</td></tr>
+                <tr><td>4</td><td class="text-start">{% trans "Awards (Bonus +1 each)" %}</td><td></td><td class="fw-bold text-success">+{{ record.award_bonus }}</td></tr>
                 </tbody>
-                <tfoot><tr class="table-primary"><th colspan="2" class="text-start">Total</th><th>20</th><th class="fw-bold">{{ record.total_score|default:"—" }}</th></tr></tfoot>
+                <tfoot><tr class="table-primary"><th colspan="2" class="text-start">{% trans "Total" %}</th><th>20</th><th class="fw-bold">{{ record.total_score|default:"—" }}</th></tr></tfoot>
             </table>
         </div>
-        <div class="text-muted small fw-bold mb-1">Supervisor Comment</div>
+        <div class="text-muted small fw-bold mb-1">{% trans "Supervisor Comment" %}</div>
         <div style="background:#f8fafc;border-radius:8px;padding:10px;font-size:.88rem;" class="mb-3">{{ record.unit_head_comment|default:"—" }}</div>
         <div class="fw-semibold small">
             {{ record.unit_head_signed_by.get_full_name|default:"—" }} &middot; {{ record.unit_head_signed_at|date:"d M Y" }}

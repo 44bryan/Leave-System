@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n appraisal_tags %}
-{% block title %}HR Comment — AEF HRM{% endblock %}
-{% block page_title %}HR Manager Comment{% endblock %}
+{% block title %}{% trans "HR Comment" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "HR Manager Comment" %}{% endblock %}
 {% block page_subtitle %}{{ record.employee.get_full_name }} · {{ record.cycle }}{% endblock %}
 
 {% block content %}
@@ -20,15 +20,15 @@
 <!-- Optional: Modify Ratings -->
 <div class="card animate-in mb-4" style="border-color:#f59e0b;">
     <div class="card-header fw-bold" style="background:#fffbeb;border-color:#f59e0b;color:#92400e;">
-        <i class="bi bi-pencil-square me-2"></i>Optional: Modify Appraiser Ratings
-        <span class="text-muted fw-normal small ms-2">— Leave unchanged to keep the manager's original scores</span>
+        <i class="bi bi-pencil-square me-2"></i>{% trans "Optional: Modify Appraiser Ratings" %}
+        <span class="text-muted fw-normal small ms-2">— {% trans "Leave unchanged to keep the manager's original scores" %}</span>
     </div>
     <div class="card-body p-4">
         <p class="text-muted small mb-3">1 = Does not meet · 2 = Some difficulties · 3 = Meets requirements · 4 = Exceeds · 5 = Greatly exceeds</p>
-        <h6 class="fw-bold mb-2">Performance Factors <span class="text-muted small fw-normal">(Manager scored: {{ record.mgr_performance_score|default:"—" }} / 12.5)</span></h6>
+        <h6 class="fw-bold mb-2">{% trans "Performance Factors" %} <span class="text-muted small fw-normal">({% trans "Manager scored:" %} {{ record.mgr_performance_score|default:"—" }} / 12.5)</span></h6>
         <div class="table-responsive mb-4">
             <table class="table table-bordered align-middle text-center" style="font-size:.88rem;">
-                <thead class="table-light"><tr><th class="text-start">Factor</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+                <thead class="table-light"><tr><th class="text-start">{% trans "Factor" %}</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
                 <tbody>
                 {% for fname, label in pf_fields %}
                 <tr>
@@ -43,10 +43,10 @@
                 </tbody>
             </table>
         </div>
-        <h6 class="fw-bold mb-2">Attitude & Aptitude Factors <span class="text-muted small fw-normal">(Manager scored: {{ record.mgr_attitude_score|default:"—" }} / 7.5)</span></h6>
+        <h6 class="fw-bold mb-2">{% trans "Attitude & Aptitude Factors" %} <span class="text-muted small fw-normal">({% trans "Manager scored:" %} {{ record.mgr_attitude_score|default:"—" }} / 7.5)</span></h6>
         <div class="table-responsive">
             <table class="table table-bordered align-middle text-center" style="font-size:.88rem;">
-                <thead class="table-light"><tr><th class="text-start">Factor</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+                <thead class="table-light"><tr><th class="text-start">{% trans "Factor" %}</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
                 <tbody>
                 {% for fname, label in aa_fields %}
                 <tr>
@@ -66,17 +66,17 @@
 
 <!-- HR Comment -->
 <div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-clipboard2-heart me-2"></i>HR Manager Comment & Signature</div>
+    <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;"><i class="bi bi-clipboard2-heart me-2"></i>{% trans "HR Manager Comment & Signature" %}</div>
     <div class="card-body p-4">
         <div class="mb-4">
-            <label class="form-label fw-semibold">Your Comment <span class="text-danger">*</span></label>
+            <label class="form-label fw-semibold">{% trans "Your Comment" %} <span class="text-danger">*</span></label>
             <textarea name="hr_comment" class="form-control" rows="5" required
-                      placeholder="Provide HR's assessment and observations..."></textarea>
+                      placeholder="{% trans "Provide HR's assessment and observations..." %}"></textarea>
         </div>
         {% include 'appraisals/_sig_pad.html' %}
         <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-primary px-5"><i class="bi bi-send-check me-2"></i>Submit HR Comment</button>
-            <a href="{% url 'appraisals:pending_hr' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary px-5"><i class="bi bi-send-check me-2"></i>{% trans "Submit HR Comment" %}</button>
+            <a href="{% url 'appraisals:pending_hr' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
         </div>
     </div>
 </div>

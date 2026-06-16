@@ -1,29 +1,30 @@
+{% load i18n %}
 {# Reusable partial: comment box + signature for co-worker, unit head, HR, director, CEO #}
 <div class="card animate-in mb-4">
     <div class="card-header fw-bold" style="background:#31b8cf;color:#fff;">{{ section_title }}</div>
     <div class="card-body p-4">
         <div class="mb-4">
-            <label class="form-label fw-semibold">Comment <span class="text-danger">*</span></label>
+            <label class="form-label fw-semibold">{% trans "Comment" %} <span class="text-danger">*</span></label>
             <textarea name="{{ comment_field }}" class="form-control" rows="4" required
                       placeholder="{{ placeholder }}"></textarea>
         </div>
-        <label class="form-label fw-semibold"><i class="bi bi-pen me-1" style="color:#2db4c3;"></i>Your Signature <span class="text-danger">*</span></label>
+        <label class="form-label fw-semibold"><i class="bi bi-pen me-1" style="color:#2db4c3;"></i>{% trans "Your Signature" %} <span class="text-danger">*</span></label>
         <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #cbd5e0;">
             {% if current_sig_b64 %}
             <div style="font-size:.78rem;color:#1a8fa0;margin-bottom:8px;">
-                <i class="bi bi-check-circle-fill text-success me-1"></i>Saved signature will be used. Draw to replace.
+                <i class="bi bi-check-circle-fill text-success me-1"></i>{% trans "Saved signature will be used. Draw to replace." %}
             </div>
             {% endif %}
             <div style="position:relative;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;">
                 <canvas id="sigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
                 <div id="sigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:.85rem;pointer-events:none;text-align:center;">
-                    <i class="bi bi-pen" style="font-size:1.4rem;display:block;margin-bottom:4px;"></i>Draw your signature here
+                    <i class="bi bi-pen" style="font-size:1.4rem;display:block;margin-bottom:4px;"></i>{% trans "Draw your signature here" %}
                 </div>
             </div>
             <div class="d-flex justify-content-between mt-2">
-                <span id="sigError" class="text-danger small" style="display:none;"><i class="bi bi-exclamation-circle me-1"></i>Please sign.</span>
+                <span id="sigError" class="text-danger small" style="display:none;"><i class="bi bi-exclamation-circle me-1"></i>{% trans "Please sign." %}</span>
                 <span></span>
-                <button type="button" id="clearSig" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eraser me-1"></i>Clear</button>
+                <button type="button" id="clearSig" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eraser me-1"></i>{% trans "Clear" %}</button>
             </div>
         </div>
     </div>
