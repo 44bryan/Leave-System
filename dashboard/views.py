@@ -118,7 +118,14 @@ def _build_contract_analytics(today, year):
           'total': v.get('total', 0)} for k, v in _dept_map.items()],
         key=lambda x: -x['total']
     )
-    contract_long_service = sorted(_active_cdi, key=lambda c: -c.years_of_service)[:8]
+    # Long service: ALL active employees ranked by date_joined_company (not CDI-only)
+    from accounts.models import Employee as _EmpAll
+    _all_staff = list(
+        _EmpAll.objects.filter(is_active=True, date_joined_company__isnull=False)
+        .select_related('user', 'department')
+        .order_by('date_joined_company')[:10]
+    )
+    contract_long_service = _all_staff  # renamed in template context for backward compat
     contract_recent_activity = list(
         _Contract.objects.select_related('employee', 'employee__user', 'created_by').order_by('-created_at')[:10]
     )
@@ -2017,3 +2024,51 @@ def factory_reset_yearend(request):
         "Staff, contracts, discipline records, and notifications are untouched."
     )
     return redirect('dashboard:admin_settings')
+
+
+@login_required
+def activity_log(request):
+    """System-wide activity log — superuser only."""
+    if not request.user.is_superuser:
+        from django.contrib import messages as _msg
+        _msg.error(request, "Access denied. System Administrator only.")
+        return redirect('dashboard:home')
+
+    from .models import AuditLog
+    from django.contrib.auth import get_user_model
+    from django.core.paginator import Paginator
+
+    User = get_user_model()
+
+    qs = AuditLog.objects.select_related('user', 'target_user').all()
+
+    # Filters
+    action_filter = request.GET.get('action', '')
+    user_filter   = request.GET.get('user_id', '')
+    date_from     = request.GET.get('date_from', '')
+    date_to       = request.GET.get('date_to', '')
+
+    if action_filter:
+        qs = qs.filter(action=action_filter)
+    if user_filter:
+        qs = qs.filter(user_id=user_filter)
+    if date_from:
+        qs = qs.filter(timestamp__date__gte=date_from)
+    if date_to:
+        qs = qs.filter(timestamp__date__lte=date_to)
+
+    paginator = Paginator(qs, 50)
+    page_obj  = paginator.get_page(request.GET.get('page', 1))
+
+    users = User.objects.filter(audit_logs__isnull=False).distinct().order_by('last_name', 'first_name')
+
+    return render(request, 'dashboard/activity_log.html', {
+        'page_obj':      page_obj,
+        'action_choices': AuditLog.ACTION_CHOICES,
+        'users':         users,
+        'action_filter': action_filter,
+        'user_filter':   user_filter,
+        'date_from':     date_from,
+        'date_to':       date_to,
+        'total_count':   qs.count(),
+    })

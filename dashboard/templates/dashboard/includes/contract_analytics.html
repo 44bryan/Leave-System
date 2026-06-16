@@ -271,28 +271,28 @@
 <div class="row g-4 mb-4 animate-in">
     <div class="col-lg-6">
         <div class="card">
-            <div class="card-header"><i class="bi bi-trophy-fill me-2" style="color:#d97706;"></i>Longest-Serving Staff (CDI)</div>
+            <div class="card-header"><i class="bi bi-trophy-fill me-2" style="color:#d97706;"></i>Longest-Serving Staff</div>
             {% if contract_long_service %}
             <div class="list-group list-group-flush">
-                {% for c in contract_long_service %}
-                <a href="{% url 'contracts:detail' c.pk %}" class="list-group-item list-group-item-action px-4 py-2 text-decoration-none">
+                {% for emp in contract_long_service %}
+                <a href="{% url 'accounts:employee_detail' emp.pk %}" class="list-group-item list-group-item-action px-4 py-2 text-decoration-none">
                     <div class="d-flex align-items-center gap-3">
                         <div style="width:26px;text-align:center;font-size:.82rem;font-weight:800;color:{% if forloop.counter == 1 %}#d97706{% elif forloop.counter == 2 %}#6b7a8d{% elif forloop.counter == 3 %}#b45309{% else %}#c4d4de{% endif %};">
                             #{{ forloop.counter }}
                         </div>
                         <div style="flex:1;min-width:0;">
-                            <div class="fw-600" style="font-size:.85rem;color:#0d1b2a;">{{ c.employee.get_full_name }}</div>
-                            <div style="font-size:.72rem;color:#9ab4c0;">{{ c.employee.department|default:"No dept" }} · since {{ c.start_date|date:"Y" }}</div>
+                            <div class="fw-600" style="font-size:.85rem;color:#0d1b2a;">{{ emp.get_full_name }}</div>
+                            <div style="font-size:.72rem;color:#9ab4c0;">{{ emp.department|default:"No dept" }} · since {{ emp.date_joined_company|date:"Y" }}</div>
                         </div>
                         <div class="text-end">
-                            <span class="badge bg-primary" style="font-size:.72rem;">{{ c.years_of_service }} yr{{ c.years_of_service|pluralize }}</span>
+                            <span class="badge bg-primary" style="font-size:.72rem;">{{ emp.years_of_service }} yr{{ emp.years_of_service|pluralize }}</span>
                         </div>
                     </div>
                 </a>
                 {% endfor %}
             </div>
             {% else %}
-            <div class="card-body text-center py-4 text-muted" style="font-size:.85rem;">No CDI contracts yet.</div>
+            <div class="card-body text-center py-4 text-muted" style="font-size:.85rem;">No employment dates recorded.</div>
             {% endif %}
         </div>
     </div>

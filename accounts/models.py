@@ -119,6 +119,17 @@ class Employee(models.Model):
     def is_wacs_resident(self):
         return self.role == 'wacs_resident'
 
+    def years_of_service(self):
+        """Years since date_joined_company. None if not set."""
+        if not self.date_joined_company:
+            return None
+        from datetime import date
+        today = date.today()
+        years = today.year - self.date_joined_company.year
+        if (today.month, today.day) < (self.date_joined_company.month, self.date_joined_company.day):
+            years -= 1
+        return max(years, 0)
+
     def age(self):
         if not self.date_of_birth:
             return None
