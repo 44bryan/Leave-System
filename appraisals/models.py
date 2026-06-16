@@ -18,7 +18,11 @@ class AppraisalCycle(models.Model):
     title        = models.CharField(max_length=200, blank=True)
     initiated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
                                      related_name='appraisal_cycles')
-    initiated_at   = models.DateTimeField(auto_now_add=True)
+    initiated_at      = models.DateTimeField(auto_now_add=True)
+    employee_deadline = models.DateField(
+        null=True, blank=True,
+        help_text='Last day for employees to submit their appraisal section.'
+    )
     is_distributed = models.BooleanField(default=False)
     distributed_at = models.DateTimeField(null=True, blank=True)
 
@@ -170,6 +174,13 @@ class AppraisalRecord(models.Model):
     hr_score_changes       = models.JSONField(null=True, blank=True, default=None)
     director_score_changes = models.JSONField(null=True, blank=True, default=None)
     ceo_score_changes      = models.JSONField(null=True, blank=True, default=None)
+
+    # HR deadline override — HR can re-open an employee's section after the cycle deadline
+    hr_unlocked      = models.BooleanField(default=False)
+    hr_unlock_note   = models.CharField(max_length=300, blank=True)
+    hr_unlocked_at   = models.DateTimeField(null=True, blank=True)
+    hr_unlocked_by   = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+                                         related_name='unlocked_appraisals')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
