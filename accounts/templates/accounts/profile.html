@@ -232,7 +232,11 @@
                     <div class="info-value">
                         {{ employee.date_joined_company|date:"d/m/Y"|default:"—" }}
                         {% if employee.date_joined_company %}
-                        <span class="badge bg-primary ms-1" style="font-size:.75rem;">{{ employee.years_of_service }} yr{{ employee.years_of_service|pluralize }}</span>
+                            {% if employee.years_of_service %}
+                            <span class="badge bg-primary ms-1" style="font-size:.75rem;">{{ employee.years_of_service }} yr{{ employee.years_of_service|pluralize }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary ms-1" style="font-size:.75rem;">&lt; 1 yr</span>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
