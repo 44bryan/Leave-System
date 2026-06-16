@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from datetime import date
 from leaves.models import LeaveBalance
+from leaves.seniority import seniority_entitlement
 
 
 class Command(BaseCommand):
@@ -32,7 +33,10 @@ class Command(BaseCommand):
             next_bal, created = LeaveBalance.objects.get_or_create(
                 employee=bal.employee,
                 year=to_year,
-                defaults={'total_entitlement': 18, 'carried_forward': carry},
+                defaults={
+                    'total_entitlement': seniority_entitlement(bal.employee, to_year),
+                    'carried_forward': carry,
+                },
             )
             if not created:
                 next_bal.carried_forward = carry

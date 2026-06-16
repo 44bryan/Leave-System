@@ -7,6 +7,7 @@ from django.urls import reverse
 from datetime import date
 from .models import LeaveRequest, LeaveBalance, LeaveType
 from .forms import LeaveRequestForm, ApprovalForm
+from .seniority import seniority_entitlement
 from accounts.models import Employee
 from notifications.utils import notify
 
@@ -64,7 +65,7 @@ def submit_leave(request):
     # Get or create balance
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=date.today().year,
-        defaults={'total_entitlement': 18}
+        defaults={'total_entitlement': seniority_entitlement(employee)}
     )
 
     # Build backup employee list: same dept, active, not self
@@ -223,6 +224,15 @@ def submit_leave(request):
                             notification_type='leave_submitted',
                             url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
                         )
+                try:
+                    from dashboard.models import AuditLog
+                    AuditLog.log(
+                        request, AuditLog.ACTION_LEAVE_SUBMIT,
+                        f"Submitted {leave.leave_type} leave request for {leave.total_days} day(s) "
+                        f"({leave.start_date} → {leave.end_date})",
+                    )
+                except Exception:
+                    pass
                 return redirect('leaves:my_requests')
 
     import json
@@ -259,7 +269,7 @@ def my_requests(request):
 
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=current_year,
-        defaults={'total_entitlement': 18}
+        defaults={'total_entitlement': seniority_entitlement(employee, current_year)}
     )
 
     return render(request, 'leaves/my_requests.html', {
@@ -491,6 +501,17 @@ def manager_action(request, pk):
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             leave.save()
+            try:
+                from dashboard.models import AuditLog
+                audit_action = AuditLog.ACTION_LEAVE_APPROVE if action == 'approve' else AuditLog.ACTION_LEAVE_REJECT
+                AuditLog.log(
+                    request, audit_action,
+                    f"Manager {'approved' if action == 'approve' else 'rejected'} leave request "
+                    f"for {leave.employee.get_full_name()} ({leave.leave_type}, {leave.start_date} → {leave.end_date})",
+                    target_user=leave.employee.user,
+                )
+            except Exception:
+                pass
             return redirect('leaves:manager_approvals')
     else:
         form = ApprovalForm()
@@ -614,6 +635,17 @@ def hr_action(request, pk):
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             leave.save()
+            try:
+                from dashboard.models import AuditLog
+                audit_action = AuditLog.ACTION_LEAVE_APPROVE if action == 'approve' else AuditLog.ACTION_LEAVE_REJECT
+                AuditLog.log(
+                    request, audit_action,
+                    f"HR {'approved' if action == 'approve' else 'rejected'} leave request "
+                    f"for {leave.employee.get_full_name()} ({leave.leave_type}, {leave.start_date} → {leave.end_date})",
+                    target_user=leave.employee.user,
+                )
+            except Exception:
+                pass
             return redirect('leaves:hr_approvals')
     else:
         form = ApprovalForm()
@@ -729,6 +761,17 @@ def director_action(request, pk):
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
             leave.save()
+            try:
+                from dashboard.models import AuditLog
+                audit_action = AuditLog.ACTION_LEAVE_APPROVE if action == 'approve' else AuditLog.ACTION_LEAVE_REJECT
+                AuditLog.log(
+                    request, audit_action,
+                    f"Director {'approved' if action == 'approve' else 'rejected'} leave request "
+                    f"for {leave.employee.get_full_name()} ({leave.leave_type}, {leave.start_date} → {leave.end_date})",
+                    target_user=leave.employee.user,
+                )
+            except Exception:
+                pass
             return redirect('leaves:director_approvals')
     else:
         form = ApprovalForm()
@@ -835,6 +878,17 @@ def ceo_action(request, pk):
                     notification_type='leave_rejected',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
+            try:
+                from dashboard.models import AuditLog
+                audit_action = AuditLog.ACTION_LEAVE_APPROVE if action == 'approve' else AuditLog.ACTION_LEAVE_REJECT
+                AuditLog.log(
+                    request, audit_action,
+                    f"CEO {'approved' if action == 'approve' else 'rejected'} leave request "
+                    f"for {leave.employee.get_full_name()} ({leave.leave_type}, {leave.start_date} → {leave.end_date})",
+                    target_user=leave.employee.user,
+                )
+            except Exception:
+                pass
             return redirect('leaves:ceo_approvals')
     else:
         form = ApprovalForm()
@@ -884,7 +938,7 @@ def leave_edit(request, pk):
 
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=employee, year=date.today().year,
-        defaults={'total_entitlement': 18}
+        defaults={'total_entitlement': seniority_entitlement(employee)}
     )
 
     dept_employees = Employee.objects.filter(
@@ -1058,7 +1112,7 @@ def employee_leave_summary(request, pk):
     year = int(request.GET.get('year', date.today().year))
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=target, year=year,
-        defaults={'total_entitlement': 18}
+        defaults={'total_entitlement': seniority_entitlement(target, year)}
     )
 
     all_requests = LeaveRequest.objects.filter(
@@ -1206,7 +1260,8 @@ def seed_default_leave_types():
 
 @login_required
 def leave_type_list(request):
-    if not request.user.is_superuser:
+    emp = get_employee(request)
+    if not (request.user.is_superuser or (emp and (emp.is_hr() or emp.is_ceo()))):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
     leave_types = LeaveType.objects.all()
