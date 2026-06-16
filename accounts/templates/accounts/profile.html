@@ -229,7 +229,12 @@
                 </div>
                 <div class="info-item">
                     <div class="info-label">{% trans "Joined Hospital" %}</div>
-                    <div class="info-value">{{ employee.date_joined_company|default:"—" }}</div>
+                    <div class="info-value">
+                        {{ employee.date_joined_company|date:"d/m/Y"|default:"—" }}
+                        {% if employee.date_joined_company %}
+                        <span class="badge bg-primary ms-1" style="font-size:.75rem;">{{ employee.years_of_service }} yr{{ employee.years_of_service|pluralize }}</span>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">{% trans "Staff Category" %}</div>
