@@ -484,7 +484,8 @@ _RATING_FNAMES = [
 
 def _apply_score_override(post, record, by_emp, role='hr'):
     """Store score overrides only when values actually differ from the supervisor's scores.
-    Saves a per-role snapshot of which fields changed and to what value."""
+    Saves a per-role snapshot of which fields changed and to what value.
+    Notifies the line manager whenever their scores are adjusted."""
     snapshot = {}
     for fname in _RATING_FNAMES:
         v = _int_or_none(post.get(f'override_{fname}'))
@@ -509,6 +510,21 @@ def _apply_score_override(post, record, by_emp, role='hr'):
             record.score_modified_by_ceo = by_emp
             record.score_modified_at_ceo = now
             record.ceo_score_changes = snapshot
+
+        # Notify the line manager that their grading was adjusted
+        role_labels = {'hr': 'HR', 'director': 'Admin Director', 'ceo': 'CEO'}
+        role_label = role_labels.get(role, role.upper())
+        supervisor = record.employee.supervisor
+        if supervisor:
+            notify(
+                supervisor.user,
+                f'Appraisal Score Adjusted — {record.employee.get_full_name()}',
+                f'{role_label} has adjusted {len(snapshot)} score(s) on '
+                f'{record.employee.get_full_name()}\'s appraisal ({record.cycle}). '
+                f'You can view the changes in the appraisal detail.',
+                notification_type='general',
+                url=f'/appraisals/detail/{record.pk}/',
+            )
 
 
 def _score_form_ctx(record):
