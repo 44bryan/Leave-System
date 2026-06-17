@@ -82,6 +82,10 @@ class Employee(models.Model):
     school_name = models.CharField(max_length=200, blank=True, default='', help_text='Name of university or school (interns only)')
     speciality = models.CharField(max_length=200, blank=True, default='', help_text='Field of study or speciality (interns only)')
 
+    # Two-Factor Authentication
+    totp_secret = models.CharField(max_length=64, blank=True, default='', help_text='TOTP secret for 2FA')
+    totp_enabled = models.BooleanField(default=False, help_text='2FA enabled for this account')
+
     class Meta:
         ordering = ['user__last_name', 'user__first_name']
 
@@ -217,6 +221,38 @@ class EmployeeDocument(models.Model):
 
     def __str__(self):
         return f'{self.title} — {self.employee.get_full_name()}'
+
+
+class OnboardingChecklist(models.Model):
+    """Auto-created when a new employee is added. HR ticks tasks off as they onboard."""
+    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, related_name='onboarding')
+    issue_contract = models.BooleanField(default=False, verbose_name='Contract issued')
+    set_leave_balance = models.BooleanField(default=False, verbose_name='Leave balance configured')
+    assign_manager = models.BooleanField(default=False, verbose_name='Manager assigned')
+    profile_photo = models.BooleanField(default=False, verbose_name='Profile photo uploaded')
+    signature_captured = models.BooleanField(default=False, verbose_name='Signature captured')
+    credentials_sent = models.BooleanField(default=False, verbose_name='Login credentials sent')
+    id_document_uploaded = models.BooleanField(default=False, verbose_name='ID / Passport uploaded')
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Onboarding — {self.employee.get_full_name()}"
+
+    @property
+    def completed_count(self):
+        fields = ['issue_contract', 'set_leave_balance', 'assign_manager',
+                  'profile_photo', 'signature_captured', 'credentials_sent', 'id_document_uploaded']
+        return sum(1 for f in fields if getattr(self, f))
+
+    @property
+    def total_count(self):
+        return 7
+
+    @property
+    def is_complete(self):
+        return self.completed_count == self.total_count
 
 
 class DepartmentHistory(models.Model):

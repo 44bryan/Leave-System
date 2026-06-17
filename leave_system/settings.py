@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'contracts',
     'notifications',
     'appraisals',
+    'payroll',
 ]
 
 MIDDLEWARE = [
@@ -65,19 +66,26 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'axes.middleware.AxesMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'leave_system.urls'
 
+_TEMPLATE_LOADERS = [
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'APP_DIRS': False,
         'OPTIONS': {
+            'loaders': [
+                ('django.template.loaders.cached.Loader', _TEMPLATE_LOADERS)
+            ] if not DEBUG else _TEMPLATE_LOADERS,
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -183,14 +191,7 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='AEF HRM <pm@hr.micei.
 # Public URL used in email notification links
 SITE_URL = config('SITE_URL', default='https://hr.micei.org')
 
-# ── Brute-force login protection (django-axes) ───────────────────────────────
+# ── Authentication ───────────────────────────────────────────────────────────
 AUTHENTICATION_BACKENDS = [
-    'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
-
-AXES_FAILURE_LIMIT      = 5        # lock after 5 failed attempts
-AXES_COOLOFF_TIME       = 1        # unlock after 1 hour
-AXES_LOCKOUT_CALLABLE   = None     # use default 403 lockout response
-AXES_RESET_ON_SUCCESS   = True     # clear failure count on successful login
-AXES_LOCKOUT_PARAMETERS = ['username', 'ip_address']  # lock by username AND IP

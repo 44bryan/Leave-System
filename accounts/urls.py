@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from . import views
 
 app_name = 'accounts'
@@ -6,6 +7,33 @@ app_name = 'accounts'
 urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+
+    # Password reset via email (self-service)
+    path('password-reset/',
+         auth_views.PasswordResetView.as_view(
+             template_name='accounts/password_reset_form.html',
+             email_template_name='accounts/password_reset_email.html',
+             subject_template_name='accounts/password_reset_subject.txt',
+             success_url='/accounts/password-reset/done/',
+         ),
+         name='password_reset'),
+    path('password-reset/done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='accounts/password_reset_done.html',
+         ),
+         name='password_reset_done'),
+    path('password-reset/confirm/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='accounts/password_reset_confirm.html',
+             success_url='/accounts/password-reset/complete/',
+         ),
+         name='password_reset_confirm'),
+    path('password-reset/complete/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='accounts/password_reset_complete.html',
+         ),
+         name='password_reset_complete'),
+
     path('profile/', views.profile_view, name='profile'),
     path('employees/', views.employee_list, name='employee_list'),
     path('employees/add/', views.employee_create, name='employee_create'),
@@ -27,4 +55,8 @@ urlpatterns = [
     path('documents/<int:doc_pk>/delete/', views.document_delete, name='document_delete'),
     path('my-documents/', views.my_documents, name='my_documents'),
     path('my-documents/<int:doc_pk>/delete/', views.my_document_delete, name='my_document_delete'),
+    path('onboarding/', views.onboarding_list, name='onboarding_list'),
+    path('onboarding/<int:pk>/update/', views.onboarding_update, name='onboarding_update'),
+    path('2fa/setup/', views.setup_2fa, name='setup_2fa'),
+    path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
 ]

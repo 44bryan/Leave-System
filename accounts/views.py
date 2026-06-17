@@ -15,7 +15,16 @@ def login_view(request):
 
     form = LoginForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        login(request, form.get_user())
+        user = form.get_user()
+        # Check if 2FA is enabled for this user
+        try:
+            if user.employee.totp_enabled and user.employee.totp_secret:
+                request.session['2fa_pending_user_id'] = user.pk
+                request.session['2fa_next'] = request.GET.get('next', 'dashboard:home')
+                return redirect('accounts:verify_2fa')
+        except Exception:
+            pass
+        login(request, user)
         return redirect(request.GET.get('next', 'dashboard:home'))
 
     return render(request, 'accounts/login.html', {'form': form})
@@ -52,11 +61,11 @@ def profile_view(request):
 
 
 def _is_hr_or_superuser(user):
-    """HR Admin or Superuser — can manage employees."""
+    """HR Admin, CEO, or Superuser — can manage employees."""
     if user.is_superuser:
         return True
     try:
-        return user.employee.is_hr()
+        return user.employee.is_hr() or user.employee.is_ceo()
     except Exception:
         return False
 
@@ -245,6 +254,15 @@ def employee_create(request):
                 )
 
             messages.success(request, f"Employee {employee.get_full_name()} created and contract issued successfully.")
+            try:
+                from dashboard.models import AuditLog
+                AuditLog.log(
+                    request, AuditLog.ACTION_EMPLOYEE,
+                    f"Created new employee profile: {employee.get_full_name()} ({employee.employee_id}, {employee.role})",
+                    target_user=employee.user,
+                )
+            except Exception:
+                pass
             return redirect('accounts:employee_list')
         except Exception as e:
             messages.error(request, f"Error creating employee: {e}")
@@ -1219,3 +1237,139 @@ def document_delete(request, doc_pk):
         doc.delete()
         messages.success(request, 'Document deleted.')
     return redirect(reverse('accounts:employee_history', args=[employee_pk]) + '#documents')
+
+
+@login_required
+def setup_2fa(request):
+    """Allow any user to set up TOTP 2FA on their account."""
+    try:
+        employee = request.user.employee
+    except Exception:
+        messages.error(request, "No employee profile found.")
+        return redirect('dashboard:home')
+
+    try:
+        import pyotp, qrcode, io, base64
+    except ImportError:
+        messages.error(request, "2FA library not installed. Contact admin.")
+        return redirect('accounts:profile')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'enable':
+            token = request.POST.get('token', '').strip()
+            secret = request.session.get('pending_totp_secret', '')
+            if not secret:
+                messages.error(request, "Session expired. Please start again.")
+                return redirect('accounts:setup_2fa')
+            totp = pyotp.TOTP(secret)
+            if totp.verify(token, valid_window=1):
+                employee.totp_secret = secret
+                employee.totp_enabled = True
+                employee.save(update_fields=['totp_secret', 'totp_enabled'])
+                request.session.pop('pending_totp_secret', None)
+                messages.success(request, "Two-factor authentication enabled successfully.")
+                return redirect('accounts:profile')
+            else:
+                messages.error(request, "Invalid code. Please try again.")
+
+        elif action == 'disable':
+            employee.totp_enabled = False
+            employee.totp_secret = ''
+            employee.save(update_fields=['totp_enabled', 'totp_secret'])
+            messages.success(request, "Two-factor authentication disabled.")
+            return redirect('accounts:profile')
+
+    # Generate new secret for setup
+    secret = pyotp.random_base32()
+    request.session['pending_totp_secret'] = secret
+    totp = pyotp.TOTP(secret)
+    uri = totp.provisioning_uri(
+        name=request.user.email or request.user.username,
+        issuer_name='AEF HRM'
+    )
+    img = qrcode.make(uri)
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    qr_b64 = base64.b64encode(buf.getvalue()).decode()
+
+    return render(request, 'accounts/setup_2fa.html', {
+        'employee': employee,
+        'secret': secret,
+        'qr_b64': qr_b64,
+    })
+
+
+def verify_2fa(request):
+    """Step 2 of login: verify TOTP token."""
+    pending_user_id = request.session.get('2fa_pending_user_id')
+    if not pending_user_id:
+        return redirect('accounts:login')
+
+    from django.contrib.auth.models import User
+    try:
+        user = User.objects.get(pk=pending_user_id)
+        employee = user.employee
+    except Exception:
+        return redirect('accounts:login')
+
+    if request.method == 'POST':
+        import pyotp
+        token = request.POST.get('token', '').strip()
+        totp = pyotp.TOTP(employee.totp_secret)
+        if totp.verify(token, valid_window=1):
+            request.session.pop('2fa_pending_user_id', None)
+            next_url = request.session.pop('2fa_next', 'dashboard:home')
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return redirect(next_url)
+        else:
+            messages.error(request, "Invalid or expired code. Try again.")
+
+    return render(request, 'accounts/verify_2fa.html', {
+        'username': user.get_full_name() or user.username
+    })
+
+
+@login_required
+def onboarding_list(request):
+    """HR view: list all employees with their onboarding status."""
+    if not (request.user.is_superuser or (hasattr(request.user, 'employee') and request.user.employee.is_hr())):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    from .models import OnboardingChecklist
+    # Ensure checklists exist for all employees
+    from django.db.models import Prefetch
+    employees = Employee.objects.filter(is_active=True).select_related('user', 'department')
+    for emp in employees:
+        OnboardingChecklist.objects.get_or_create(employee=emp)
+
+    checklists = OnboardingChecklist.objects.select_related(
+        'employee__user', 'employee__department'
+    ).filter(employee__is_active=True).order_by('employee__user__last_name')
+
+    return render(request, 'accounts/onboarding_list.html', {'checklists': checklists})
+
+
+@login_required
+def onboarding_update(request, pk):
+    """HR: toggle onboarding checklist items for an employee."""
+    if not (request.user.is_superuser or (hasattr(request.user, 'employee') and request.user.employee.is_hr())):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    from .models import OnboardingChecklist
+    checklist = get_object_or_404(OnboardingChecklist, pk=pk)
+
+    if request.method == 'POST':
+        fields = ['issue_contract', 'set_leave_balance', 'assign_manager',
+                  'profile_photo', 'signature_captured', 'credentials_sent', 'id_document_uploaded']
+        for field in fields:
+            setattr(checklist, field, field in request.POST)
+        checklist.notes = request.POST.get('notes', '')
+        checklist.save()
+        messages.success(request, f"Onboarding updated for {checklist.employee.get_full_name()}.")
+        return redirect('accounts:onboarding_list')
+
+    return render(request, 'accounts/onboarding_detail.html', {'checklist': checklist})

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Create Payslip — AEF HRM{% endblock %}
+{% block page_title %}Create Payslip{% endblock %}
+{% block nav_payroll %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'payroll:list' %}" class="btn btn-outline-primary btn-sm">
+  <i class="bi bi-arrow-left me-1"></i> All Payslips
+</a>
+{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<div class="row g-4">
+
+  <!-- Left: Employee + Period -->
+  <div class="col-lg-4">
+    <div class="card animate-in">
+      <div class="card-header">
+        <i class="bi bi-person me-2" style="color:#2db4c3;"></i>Employee & Period
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-3">
+          <label class="form-label fw-600">Employee <span class="text-danger">*</span></label>
+          <select name="employee" class="form-select" required>
+            <option value="">— Select Employee —</option>
+            {% for emp in employees %}
+            <option value="{{ emp.pk }}">{{ emp.user.get_full_name }} ({{ emp.employee_id }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-600">Month <span class="text-danger">*</span></label>
+          <select name="period_month" class="form-select" required>
+            {% for val, name in months %}
+            <option value="{{ val }}" {% if val == current_month %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-600">Year <span class="text-danger">*</span></label>
+          <select name="period_year" class="form-select" required>
+            {% for y in years %}
+            <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-600">Notes <small class="text-muted fw-normal">(optional)</small></label>
+          <textarea name="notes" class="form-control" rows="3" placeholder="Any notes..."></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-600">Upload PDF <small class="text-muted fw-normal">(optional)</small></label>
+          <input type="file" name="payslip_file" class="form-control" accept=".pdf">
+          <div class="form-text">Upload signed payslip PDF if available.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Salary breakdown -->
+  <div class="col-lg-8">
+    <div class="card animate-in">
+      <div class="card-header">
+        <i class="bi bi-cash-stack me-2" style="color:#2db4c3;"></i>Salary Breakdown
+      </div>
+      <div class="card-body p-4">
+
+        <div class="mb-3">
+          <label class="form-label fw-600">Gross Salary (XAF) <span class="text-danger">*</span></label>
+          <input type="number" name="gross_salary" class="form-control" step="1" min="0" required oninput="calcNet()">
+        </div>
+
+        <hr class="my-3">
+        <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:#059669;letter-spacing:.06em;" class="mb-2">
+          <i class="bi bi-plus-circle me-1"></i>Allowances
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-sm-4">
+            <label class="form-label" style="font-size:.8rem;">Transport Allowance</label>
+            <input type="number" name="transport_allowance" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label" style="font-size:.8rem;">Housing Allowance</label>
+            <input type="number" name="housing_allowance" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label" style="font-size:.8rem;">Other Allowances</label>
+            <input type="number" name="other_allowances" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
+            <input type="text" name="other_allowances_label" class="form-control form-control-sm mt-1" placeholder="Label (optional)">
+          </div>
+        </div>
+
+        <hr class="my-3">
+        <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:#dc2626;letter-spacing:.06em;" class="mb-2">
+          <i class="bi bi-dash-circle me-1"></i>Deductions
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-sm-4">
+            <label class="form-label" style="font-size:.8rem;">CNPS</label>
+            <input type="number" name="cnps" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label" style="font-size:.8rem;">Income Tax</label>
+            <input type="number" name="income_tax" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label" style="font-size:.8rem;">Other Deductions</label>
+            <input type="number" name="other_deductions" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
+            <input type="text" name="other_deductions_label" class="form-control form-control-sm mt-1" placeholder="Label (optional)">
+          </div>
+        </div>
+
+        <hr class="my-3">
+        <!-- Net display -->
+        <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background:#f0fdf4;border:1.5px solid #bbf7d0;">
+          <div>
+            <div style="font-size:.75rem;text-transform:uppercase;color:#059669;font-weight:700;">Net Salary</div>
+            <div style="font-size:.75rem;color:#6b7a8d;">Gross + Allowances − Deductions</div>
+          </div>
+          <div id="netDisplay" style="font-size:1.5rem;font-weight:800;color:#059669;">0 XAF</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-4">
+          <i class="bi bi-save me-1"></i> Save Payslip
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</form>
+
+<script>
+function v(name) { return parseFloat(document.querySelector('[name="'+name+'"]')?.value || 0) || 0; }
+function calcNet() {
+  const gross = v('gross_salary');
+  const allow = v('transport_allowance') + v('housing_allowance') + v('other_allowances');
+  const ded   = v('cnps') + v('income_tax') + v('other_deductions');
+  const net   = gross + allow - ded;
+  document.getElementById('netDisplay').textContent = net.toLocaleString('fr-CM') + ' XAF';
+  document.getElementById('netDisplay').style.color = net >= 0 ? '#059669' : '#dc2626';
+}
+</script>
+{% endblock %}

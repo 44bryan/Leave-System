@@ -287,8 +287,13 @@
             </button>
         </form>
 
-        <p class="text-center text-muted mt-4" style="font-size: 0.78rem;">
-            {% trans "Contact HR Admin if you need access or forgot your password." %}
+        <p class="text-center mt-3" style="font-size: 0.82rem;">
+            <a href="{% url 'accounts:password_reset' %}" style="color:#2db4c3;text-decoration:none;">
+                <i class="bi bi-key me-1"></i>{% trans "Forgot your password?" %}
+            </a>
+        </p>
+        <p class="text-center text-muted mt-1" style="font-size: 0.75rem;">
+            {% trans "Contact HR Admin if you need access." %}
         </p>
     </div>
 </div>

@@ -297,10 +297,24 @@
             </div>
         </div>
 
-        <div style="background:#f0fafc;border-radius:12px;border:1px solid #cde8ef;padding:16px 18px;display:flex;gap:12px;align-items:flex-start;">
-            <i class="bi bi-info-circle-fill" style="color:#2db4c3;font-size:1.1rem;flex-shrink:0;margin-top:1px;"></i>
-            <div style="font-size:0.81rem;color:#4a6b7c;line-height:1.6;">
-                {% trans "If you have forgotten your password, contact the system administrator to reset it for you." %}
+        <!-- 2FA Section -->
+        <div style="background:#f0fafc;border-radius:12px;border:1px solid #cde8ef;padding:16px 18px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div style="font-size:.88rem;font-weight:700;color:#0A4D68;">
+                        <i class="bi bi-shield-lock me-1"></i> Two-Factor Authentication
+                    </div>
+                    <div style="font-size:.78rem;color:#6b7a8d;margin-top:2px;">
+                        {% if employee.totp_enabled %}
+                        <span style="color:#059669;"><i class="bi bi-check-circle-fill me-1"></i>Enabled — your account is protected</span>
+                        {% else %}
+                        <span style="color:#9ab4c0;">Not enabled — add extra security to your account</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <a href="{% url 'accounts:setup_2fa' %}" class="btn btn-sm {% if employee.totp_enabled %}btn-outline-danger{% else %}btn-outline-primary{% endif %}" style="font-size:.78rem;">
+                    {% if employee.totp_enabled %}Manage{% else %}Enable{% endif %}
+                </a>
             </div>
         </div>
 

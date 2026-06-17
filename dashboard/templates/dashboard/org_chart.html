@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Org Chart — AEF HRM{% endblock %}
+{% block page_title %}Organisation Chart{% endblock %}
+{% block nav_org_chart %}active{% endblock %}
+
+{% block topbar_actions %}
+<form method="get" class="d-flex gap-2">
+  <select name="dept" class="form-select form-select-sm" style="width:200px;" onchange="this.form.submit()">
+    <option value="">All Departments</option>
+    {% for dept in departments %}
+    <option value="{{ dept.pk }}" {% if dept_filter == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+    {% endfor %}
+  </select>
+</form>
+{% endblock %}
+
+{% block content %}
+<style>
+.org-tree { list-style: none; padding: 0; margin: 0; }
+.org-tree ul { list-style: none; padding-left: 32px; margin: 0; border-left: 2px solid #cde8ef; margin-left: 20px; }
+.org-node { padding: 6px 0; }
+.org-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1.5px solid #cde8ef;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: .82rem;
+  transition: box-shadow .15s;
+  position: relative;
+}
+.org-card:hover { box-shadow: 0 2px 12px rgba(13,168,192,.15); border-color: #2db4c3; }
+.org-avatar {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg,#17c3d9,#0da8c0);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: .78rem;
+  flex-shrink: 0;
+}
+.org-name { font-weight: 600; color: #0A4D68; }
+.org-role { font-size: .72rem; color: #9ab4c0; }
+.org-dept { font-size: .7rem; color: #2db4c3; }
+.role-badge {
+  font-size: .62rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+</style>
+
+<div class="card animate-in p-4" style="overflow-x:auto;">
+  {% if nodes %}
+  <ul class="org-tree">
+    {% include "dashboard/org_chart_node.html" with nodes=nodes %}
+  </ul>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-diagram-3 fs-1 d-block mb-3" style="color:#cde8ef;"></i>
+    <div style="font-size:.95rem;font-weight:600;color:#6b7a8d;">No employees found</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

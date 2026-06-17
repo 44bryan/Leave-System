@@ -201,13 +201,15 @@ def admin_dashboard(request):
     total_users = User.objects.count()
     approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
     rejected_year = LeaveRequest.objects.filter(
-        status__in=['rejected_manager', 'rejected_hr', 'rejected_director'],
+        status__in=['rejected_unit_head', 'rejected_manager', 'rejected_hr', 'rejected_director'],
         start_date__year=year
     ).count()
     pending_manager = LeaveRequest.objects.filter(status='pending').count()
     pending_hr = LeaveRequest.objects.filter(status='manager_approved').count()
     pending_director = LeaveRequest.objects.filter(status='hr_approved').count()
-    pending_all = pending_manager + pending_hr + pending_director
+    pending_all = LeaveRequest.objects.filter(
+        status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved']
+    ).count()
 
     # ── Role breakdown ──
     role_counts = {
@@ -2071,4 +2073,135 @@ def activity_log(request):
         'date_from':     date_from,
         'date_to':       date_to,
         'total_count':   qs.count(),
+    })
+
+
+@login_required
+def org_chart(request):
+    """Visual org chart of the reporting hierarchy."""
+    employees = (
+        Employee.objects
+        .filter(is_active=True)
+        .select_related('user', 'department', 'supervisor')
+        .order_by('user__last_name')
+    )
+
+    # Build tree: supervisor_id → [direct reports]
+    from collections import defaultdict
+    tree = defaultdict(list)
+    emp_map = {}
+    for emp in employees:
+        emp_map[emp.pk] = emp
+        tree[emp.supervisor_id].append(emp)
+
+    # Roots = employees with no supervisor (or supervisor not in system)
+    roots = tree.get(None, [])
+
+    def build_node(emp):
+        return {
+            'emp': emp,
+            'children': [build_node(c) for c in sorted(tree.get(emp.pk, []), key=lambda e: e.user.last_name)],
+        }
+
+    nodes = [build_node(r) for r in sorted(roots, key=lambda e: e.user.last_name)]
+
+    dept_filter = request.GET.get('dept', '')
+    departments = Department.objects.all().order_by('name')
+
+    if dept_filter:
+        # Filter: only show employees in this dept (rebuild tree with subset)
+        filtered_emps = [e for e in employees if e.department_id and str(e.department_id) == dept_filter]
+        tree2 = defaultdict(list)
+        filtered_ids = {e.pk for e in filtered_emps}
+        for emp in filtered_emps:
+            sup_id = emp.supervisor_id if emp.supervisor_id in filtered_ids else None
+            tree2[sup_id].append(emp)
+        roots2 = tree2.get(None, [])
+        nodes = [build_node2(r, tree2) for r in sorted(roots2, key=lambda e: e.user.last_name)]
+
+    def build_node2(emp, t):
+        return {
+            'emp': emp,
+            'children': [build_node2(c, t) for c in sorted(t.get(emp.pk, []), key=lambda e: e.user.last_name)],
+        }
+
+    if dept_filter:
+        filtered_emps = [e for e in employees if e.department_id and str(e.department_id) == dept_filter]
+        tree2 = defaultdict(list)
+        filtered_ids = {e.pk for e in filtered_emps}
+        for emp in filtered_emps:
+            sup_id = emp.supervisor_id if emp.supervisor_id in filtered_ids else None
+            tree2[sup_id].append(emp)
+        roots2 = tree2.get(None, [])
+        nodes = [build_node2(r, tree2) for r in sorted(roots2, key=lambda e: e.user.last_name)]
+
+    return render(request, 'dashboard/org_chart.html', {
+        'nodes': nodes,
+        'departments': departments,
+        'dept_filter': dept_filter,
+        'total': employees.count(),
+    })
+
+
+@login_required
+def leave_calendar(request):
+    """Monthly calendar view showing who is on approved leave each day."""
+    import calendar as cal_module
+    today = date.today()
+    year = int(request.GET.get('year', today.year))
+    month = int(request.GET.get('month', today.month))
+
+    # Navigation
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+    if month == 12:
+        next_year, next_month = year + 1, 1
+    else:
+        next_year, next_month = year, month + 1
+
+    # First and last day of month
+    first_day = date(year, month, 1)
+    last_day = date(year, month, cal_module.monthrange(year, month)[1])
+
+    # All approved leaves overlapping this month
+    leaves = (
+        LeaveRequest.objects
+        .filter(status='approved', start_date__lte=last_day, end_date__gte=first_day)
+        .select_related('employee__user', 'leave_type')
+        .order_by('start_date')
+    )
+
+    # Department filter
+    dept_filter = request.GET.get('dept', '')
+    departments = Department.objects.all().order_by('name')
+    if dept_filter:
+        leaves = leaves.filter(employee__department__pk=dept_filter)
+
+    # Build day → list of leave records
+    day_leaves = {}
+    for leave in leaves:
+        current = max(leave.start_date, first_day)
+        end = min(leave.end_date, last_day)
+        while current <= end:
+            day_leaves.setdefault(current.day, []).append(leave)
+            current += timedelta(days=1)
+
+    # Build weeks grid
+    weeks = cal_module.monthcalendar(year, month)
+
+    return render(request, 'dashboard/leave_calendar.html', {
+        'year': year,
+        'month': month,
+        'month_name': cal_module.month_name[month],
+        'weeks': weeks,
+        'day_leaves': day_leaves,
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
+        'today': today,
+        'departments': departments,
+        'dept_filter': dept_filter,
     })
