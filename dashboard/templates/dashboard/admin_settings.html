@@ -49,6 +49,41 @@
         </div>
     </div>
 
+    <!-- ── Bulk Set Custom Entitlement ─────────────────────── -->
+    <div class="col-lg-6">
+        <div class="card animate-in">
+            <div class="card-header" style="background:#f0fdf4;border-color:#86efac;">
+                <i class="bi bi-people-fill me-2" style="color:#059669;"></i>
+                <strong>Bulk Set Leave Entitlement</strong>
+            </div>
+            <div class="card-body p-4">
+                <p style="font-size:.875rem;color:#4a6b7c;">
+                    Set a <strong>custom annual entitlement</strong> for all active employees at once.
+                    Useful when a policy change (e.g. 20 days for a new year) differs from the 18-day default.
+                </p>
+                <form method="post" action="{% url 'dashboard:bulk_set_entitlement' %}"
+                      onsubmit="return confirm('Set entitlement to ' + document.getElementById('bulkDays').value + ' days for ALL active employees in ' + document.getElementById('bulkYear').value + '?');">
+                    {% csrf_token %}
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-5">
+                            <label class="form-label" style="font-size:.82rem;">Year</label>
+                            <select name="year" id="bulkYear" class="form-select form-select-sm">
+                                {% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-5">
+                            <label class="form-label" style="font-size:.82rem;">Days</label>
+                            <input type="number" name="days" id="bulkDays" class="form-control form-control-sm" min="0" max="365" value="18" required>
+                        </div>
+                        <div class="col-sm-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success btn-sm w-100">Apply</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ── Reset Leave Balances ───────────────────────────── -->
     <div class="col-lg-6">
         <div class="card animate-in">

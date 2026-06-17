@@ -23,6 +23,10 @@ CSRF_TRUSTED_ORIGINS = [
 CSRF_COOKIE_SECURE    = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 
+# SameSite=Lax fixes CSRF 403 on mobile browsers (avoids over-blocking POST requests)
+CSRF_COOKIE_SAMESITE    = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+
 # Timeout sessions after 8 hours of inactivity (enterprise: reduces hijack window)
 SESSION_COOKIE_AGE = 28800
 

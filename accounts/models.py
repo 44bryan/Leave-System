@@ -213,6 +213,8 @@ class EmployeeDocument(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
     title = models.CharField(max_length=200)
     file = models.FileField(upload_to='employee_docs/%Y/')
+    expiry_date = models.DateField(null=True, blank=True, help_text='Leave blank if document does not expire.')
+    expiry_note = models.CharField(max_length=200, blank=True, help_text='Optional reminder note about expiry.')
     uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
@@ -221,6 +223,25 @@ class EmployeeDocument(models.Model):
 
     def __str__(self):
         return f'{self.title} — {self.employee.get_full_name()}'
+
+    def days_until_expiry(self):
+        if not self.expiry_date:
+            return None
+        from datetime import date
+        return (self.expiry_date - date.today()).days
+
+    def expiry_status(self):
+        """Returns 'expired', 'critical' (<30d), 'warning' (<90d), or 'ok'."""
+        days = self.days_until_expiry()
+        if days is None:
+            return 'ok'
+        if days < 0:
+            return 'expired'
+        if days <= 30:
+            return 'critical'
+        if days <= 90:
+            return 'warning'
+        return 'ok'
 
 
 class OnboardingChecklist(models.Model):

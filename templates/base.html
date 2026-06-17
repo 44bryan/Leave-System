@@ -1501,6 +1501,11 @@
                     <i class="bi bi-list-check"></i> {% trans "Onboarding" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:expiring_documents' %}" class="nav-link-sidebar {% block nav_expiring_docs %}{% endblock %}">
+                    <i class="bi bi-file-earmark-exclamation"></i> {% trans "Expiring Docs" %}
+                </a>
+            </li>
             {% endif %}
             {% if user.is_superuser %}
             <li class="nav-item-sidebar">

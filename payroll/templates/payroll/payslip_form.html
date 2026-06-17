@@ -71,8 +71,11 @@
 
         <div class="mb-3">
           <label class="form-label fw-600">Gross Salary (XAF) <span class="text-danger">*</span></label>
-          <input type="number" name="gross_salary" class="form-control" step="1" min="0" required oninput="calcNet()">
+          <input type="number" name="gross_salary" id="grossSalary" class="form-control" step="1" min="0" required oninput="calcNet()">
         </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="autoCalc()" title="Estimate CNPS (4.2%) and IRPP based on Cameroonian tax rules">
+          <i class="bi bi-calculator me-1"></i> Auto-calculate CNPS & Tax
+        </button>
 
         <hr class="my-3">
         <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:#059669;letter-spacing:.06em;" class="mb-2">
@@ -136,6 +139,8 @@
 
 <script>
 function v(name) { return parseFloat(document.querySelector('[name="'+name+'"]')?.value || 0) || 0; }
+function setField(name, val) { const el = document.querySelector('[name="'+name+'"]'); if(el) { el.value = Math.round(val); } }
+
 function calcNet() {
   const gross = v('gross_salary');
   const allow = v('transport_allowance') + v('housing_allowance') + v('other_allowances');
@@ -143,6 +148,36 @@ function calcNet() {
   const net   = gross + allow - ded;
   document.getElementById('netDisplay').textContent = net.toLocaleString('fr-CM') + ' XAF';
   document.getElementById('netDisplay').style.color = net >= 0 ? '#059669' : '#dc2626';
+}
+
+function autoCalc() {
+  /* Cameroonian payroll rules (2024):
+     CNPS employee contribution: 4.2% of gross (transport exempt up to 26,250 XAF/month)
+     IRPP: progressive brackets on taxable income = gross - CNPS - professional deduction (30% of gross, max 500,000/yr = 41,667/mo)
+  */
+  const gross = v('gross_salary');
+  if (!gross) { alert('Enter the gross salary first.'); return; }
+
+  const transport = v('transport_allowance');
+  // CNPS base = gross (transport exempt up to 26,250 XAF)
+  const transportExempt = Math.min(transport, 26250);
+  const cnpsBase = Math.max(0, gross - transportExempt);
+  const cnps = cnpsBase * 0.042;  // 4.2% employee share
+
+  // IRPP: taxable = gross - cnps - professional deduction (30% capped at 41,667/mo)
+  const profDeduction = Math.min(gross * 0.30, 41667);
+  const taxable = Math.max(0, gross - cnps - profDeduction);
+
+  // Progressive IRPP brackets (monthly, XAF)
+  let irpp = 0;
+  if (taxable <= 62000)        irpp = taxable * 0.10;
+  else if (taxable <= 310000)  irpp = 6200 + (taxable - 62000) * 0.15;
+  else if (taxable <= 1000000) irpp = 6200 + 37200 + (taxable - 310000) * 0.25;
+  else                         irpp = 6200 + 37200 + 172500 + (taxable - 1000000) * 0.35;
+
+  setField('cnps', cnps);
+  setField('income_tax', irpp);
+  calcNet();
 }
 </script>
 {% endblock %}

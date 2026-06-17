@@ -480,7 +480,7 @@
                     <form method="post" enctype="multipart/form-data" action="{% url 'accounts:document_upload' employee.pk %}">
                         {% csrf_token %}
                         <div class="row g-2">
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-3">
                                 <select name="category" class="form-select form-select-sm">
                                     <option value="id">ID Card / Passport</option>
                                     <option value="contract">Contract Copy</option>
@@ -489,11 +489,18 @@
                                     <option value="other">Other</option>
                                 </select>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-3">
                                 <input type="text" name="title" class="form-control form-control-sm" placeholder="Document title" required>
                             </div>
-                            <div class="col-12 col-md-3">
+                            <div class="col-12 col-md-2">
                                 <input type="file" name="file" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <input type="date" name="expiry_date" class="form-control form-control-sm" placeholder="Expiry date (optional)">
+                                <div class="form-text" style="font-size:.7rem;">Expiry (optional)</div>
+                            </div>
+                            <div class="col-12 col-md-1">
+                                <input type="text" name="expiry_note" class="form-control form-control-sm" placeholder="Note">
                             </div>
                             <div class="col-12 col-md-1">
                                 <button type="submit" class="btn btn-sm btn-success w-100">Save</button>
@@ -513,7 +520,7 @@
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light"><tr>
-                            <th>Category</th><th>Title</th><th>Uploaded By</th><th>Date</th><th></th>
+                            <th>Category</th><th>Title</th><th>Uploaded By</th><th>Date</th><th>Expires</th><th></th>
                         </tr></thead>
                         <tbody>
                         {% for doc in documents %}
@@ -522,6 +529,21 @@
                             <td>{{ doc.title }}</td>
                             <td>{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by }}</td>
                             <td>{{ doc.uploaded_at|date:"d M Y" }}</td>
+                            <td>
+                                {% if doc.expiry_date %}
+                                    {% with status=doc.expiry_status days=doc.days_until_expiry %}
+                                    {% if status == 'expired' %}
+                                    <span class="badge" style="background:#fef2f2;color:#dc2626;">Expired</span>
+                                    {% elif status == 'critical' %}
+                                    <span class="badge" style="background:#fef2f2;color:#dc2626;">{{ doc.expiry_date|date:"d M Y" }} ({{ days }}d)</span>
+                                    {% elif status == 'warning' %}
+                                    <span class="badge" style="background:#fffbeb;color:#92400e;">{{ doc.expiry_date|date:"d M Y" }} ({{ days }}d)</span>
+                                    {% else %}
+                                    <span class="badge" style="background:#f0fdf4;color:#166534;">{{ doc.expiry_date|date:"d M Y" }}</span>
+                                    {% endif %}
+                                    {% endwith %}
+                                {% else %}—{% endif %}
+                            </td>
                             <td class="text-end">
                                 <a href="{{ doc.file.url }}" target="_blank" class="btn btn-xs btn-outline-primary me-1" style="font-size:.75rem;padding:2px 8px;">
                                     <i class="bi bi-download me-1"></i>Download

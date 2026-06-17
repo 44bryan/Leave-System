@@ -59,4 +59,5 @@ urlpatterns = [
     path('onboarding/<int:pk>/update/', views.onboarding_update, name='onboarding_update'),
     path('2fa/setup/', views.setup_2fa, name='setup_2fa'),
     path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
+    path('documents/expiring/', views.expiring_documents, name='expiring_documents'),
 ]

@@ -1150,12 +1150,16 @@ def document_upload(request, employee_pk):
         title = request.POST.get('title', '').strip()
         category = request.POST.get('category', 'other')
         file = request.FILES.get('file')
+        expiry_date = request.POST.get('expiry_date') or None
+        expiry_note = request.POST.get('expiry_note', '').strip()
         if title and file:
             EmployeeDocument.objects.create(
                 employee=employee,
                 title=title,
                 category=category,
                 file=file,
+                expiry_date=expiry_date,
+                expiry_note=expiry_note,
                 uploaded_by=request.user,
             )
             messages.success(request, f'Document "{title}" uploaded successfully.')
@@ -1178,12 +1182,16 @@ def my_documents(request):
         title = request.POST.get('title', '').strip()
         category = request.POST.get('category', 'other')
         file = request.FILES.get('file')
+        expiry_date = request.POST.get('expiry_date') or None
+        expiry_note = request.POST.get('expiry_note', '').strip()
         if title and file:
             EmployeeDocument.objects.create(
                 employee=employee,
                 title=title,
                 category=category,
                 file=file,
+                expiry_date=expiry_date,
+                expiry_note=expiry_note,
                 uploaded_by=request.user,
             )
             messages.success(request, f'Document "{title}" uploaded successfully.')
@@ -1328,6 +1336,34 @@ def verify_2fa(request):
 
     return render(request, 'accounts/verify_2fa.html', {
         'username': user.get_full_name() or user.username
+    })
+
+
+@login_required
+def expiring_documents(request):
+    """HR/superuser: list all employee documents expiring within 90 days."""
+    viewer = get_employee(request)
+    is_privileged = (
+        request.user.is_superuser
+        or (viewer and (viewer.is_hr() or viewer.is_director() or viewer.is_ceo()))
+    )
+    if not is_privileged:
+        return redirect('dashboard:home')
+
+    from accounts.models import EmployeeDocument
+    from datetime import date, timedelta
+    today = date.today()
+    in_90 = today + timedelta(days=90)
+
+    docs = (
+        EmployeeDocument.objects
+        .filter(expiry_date__isnull=False, expiry_date__lte=in_90)
+        .select_related('employee__user', 'employee__department')
+        .order_by('expiry_date')
+    )
+    return render(request, 'accounts/expiring_documents.html', {
+        'docs': docs,
+        'today': today,
     })
 
 

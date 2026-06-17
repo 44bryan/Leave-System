@@ -1909,6 +1909,34 @@ def adjust_entitlement(request, pk):
 
 
 @superuser_required_view
+def bulk_set_entitlement(request):
+    """Set a custom leave entitlement for ALL active employees at once."""
+    if request.method != 'POST':
+        return redirect('dashboard:admin_settings')
+    year = int(request.POST.get('year', date.today().year))
+    try:
+        days = int(request.POST.get('days', 18))
+        if days < 0:
+            raise ValueError
+    except ValueError:
+        messages.error(request, "Invalid number of days.")
+        return redirect('dashboard:admin_settings')
+
+    employees = Employee.objects.filter(is_active=True)
+    count = 0
+    for emp in employees:
+        bal, _ = LeaveBalance.objects.get_or_create(
+            employee=emp, year=year,
+            defaults={'total_entitlement': days}
+        )
+        bal.total_entitlement = days
+        bal.save()
+        count += 1
+    messages.success(request, f"Leave entitlement set to {days} days for {count} employees ({year}).")
+    return redirect('dashboard:admin_settings')
+
+
+@superuser_required_view
 def factory_reset_full(request):
     """
     Full factory reset: wipes ALL data except the superuser account,
