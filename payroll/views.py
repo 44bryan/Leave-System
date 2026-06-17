@@ -9,6 +9,11 @@ from accounts.models import Employee
 from .models import Payslip, MONTH_CHOICES
 
 
+def _payroll_enabled():
+    from dashboard.models import SystemSettings
+    return SystemSettings.get().payroll_enabled
+
+
 def _is_hr_or_above(user):
     if user.is_superuser:
         return True
@@ -22,6 +27,9 @@ def _is_hr_or_above(user):
 @login_required
 def payslip_list(request):
     """HR/Admin: list all payslips. Employee: only own payslips."""
+    if not _payroll_enabled() and not request.user.is_superuser:
+        messages.error(request, "The Payroll module is not currently active.")
+        return redirect('dashboard:home')
     is_hr = _is_hr_or_above(request.user)
 
     year_filter = request.GET.get('year', '')
@@ -65,6 +73,9 @@ def payslip_list(request):
 @login_required
 def payslip_create(request):
     """HR only: create a payslip for an employee."""
+    if not _payroll_enabled() and not request.user.is_superuser:
+        messages.error(request, "The Payroll module is not currently active.")
+        return redirect('dashboard:home')
     if not _is_hr_or_above(request.user):
         messages.error(request, "Access denied.")
         return redirect('payroll:list')
@@ -156,6 +167,9 @@ def payslip_create(request):
 
 @login_required
 def payslip_detail(request, pk):
+    if not _payroll_enabled() and not request.user.is_superuser:
+        messages.error(request, "The Payroll module is not currently active.")
+        return redirect('dashboard:home')
     slip = get_object_or_404(Payslip, pk=pk)
 
     # Employees can only see their own
@@ -173,6 +187,9 @@ def payslip_detail(request, pk):
 
 @login_required
 def payslip_delete(request, pk):
+    if not _payroll_enabled() and not request.user.is_superuser:
+        messages.error(request, "The Payroll module is not currently active.")
+        return redirect('dashboard:home')
     if not _is_hr_or_above(request.user):
         messages.error(request, "Access denied.")
         return redirect('payroll:list')
@@ -190,6 +207,9 @@ def payslip_delete(request, pk):
 @login_required
 def my_payslips(request):
     """Employee self-service: view own payslip history."""
+    if not _payroll_enabled() and not request.user.is_superuser:
+        messages.error(request, "The Payroll module is not currently active.")
+        return redirect('dashboard:home')
     try:
         employee = request.user.employee
     except Exception:

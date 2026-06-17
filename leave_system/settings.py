@@ -93,6 +93,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'notifications.context_processors.notifications_ctx',
+                'dashboard.context_processors.system_settings_ctx',
             ],
         },
     },

@@ -17,6 +17,38 @@
 {% block content %}
 <div class="row g-4">
 
+    <!-- ── Module Toggles ───────────────────────────────────── -->
+    <div class="col-12">
+        <div class="card animate-in">
+            <div class="card-header" style="background:#e8f4fd;border-color:#90caf9;">
+                <i class="bi bi-toggles me-2" style="color:#0a4d68;"></i>
+                <strong>Module Activation</strong>
+                <span class="text-muted ms-2" style="font-size:.82rem;">Enable or disable optional system modules</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background:#f8fbff;border:1px solid #dce8f5;">
+                    <div>
+                        <div class="fw-600" style="color:#0a4d68;"><i class="bi bi-cash-stack me-2"></i>Payroll &amp; Payslips</div>
+                        <div style="font-size:.82rem;color:#6c7a8a;">Allow HR to upload payslips and employees to view their pay history.</div>
+                    </div>
+                    <form method="post" action="{% url 'dashboard:toggle_module' %}" class="ms-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="module" value="payroll">
+                        {% if system_settings.payroll_enabled %}
+                        <button type="submit" class="btn btn-sm btn-success" style="min-width:90px;">
+                            <i class="bi bi-check-circle me-1"></i> Active
+                        </button>
+                        {% else %}
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" style="min-width:90px;">
+                            <i class="bi bi-slash-circle me-1"></i> Inactive
+                        </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ── Reset Leave Balances ───────────────────────────── -->
     <div class="col-lg-6">
         <div class="card animate-in">

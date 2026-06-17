@@ -2076,6 +2076,22 @@ def activity_log(request):
     })
 
 
+@superuser_required_view
+def toggle_module(request):
+    """Superuser: enable/disable optional system modules."""
+    if request.method != 'POST':
+        return redirect('dashboard:admin_settings')
+    from .models import SystemSettings
+    settings_obj = SystemSettings.get()
+    module = request.POST.get('module')
+    if module == 'payroll':
+        settings_obj.payroll_enabled = not settings_obj.payroll_enabled
+        settings_obj.save(update_fields=['payroll_enabled'])
+        state = "enabled" if settings_obj.payroll_enabled else "disabled"
+        messages.success(request, f"Payroll module {state}.")
+    return redirect('dashboard:admin_settings')
+
+
 @login_required
 def org_chart(request):
     """Visual org chart of the reporting hierarchy."""

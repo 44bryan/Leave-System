@@ -23,6 +23,7 @@ urlpatterns = [
     path('reports/contracts/', views.export_contracts_excel, name='export_contracts'),
     path('reports/discipline/', views.export_discipline_excel, name='export_discipline'),
     path('activity-log/', views.activity_log, name='activity_log'),
+    path('admin-settings/toggle-module/', views.toggle_module, name='toggle_module'),
     path('leave-calendar/', views.leave_calendar, name='leave_calendar'),
     path('org-chart/', views.org_chart, name='org_chart'),
 ]

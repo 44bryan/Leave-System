@@ -1167,11 +1167,13 @@
                 </a>
             </li>
             {% endif %}
+            {% if system_settings.payroll_enabled or user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'payroll:my_payslips' %}" class="nav-link-sidebar {% block nav_my_payslips %}{% endblock %}">
                     <i class="bi bi-receipt"></i> {% trans "My Payslips" %}
                 </a>
             </li>
+            {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'contracts:my_contract' %}" class="nav-link-sidebar {% block nav_my_contract %}{% endblock %}">
                     <i class="bi bi-file-earmark-person"></i> {% trans "My Contract" %}
@@ -1426,6 +1428,7 @@
     </div>
     {% endif %}
 
+    {% if system_settings.payroll_enabled or user.is_superuser %}
     {% if user.is_superuser or user.employee.is_hr or user.employee.is_director or user.employee.is_ceo %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Payroll" %}</div>
@@ -1444,6 +1447,7 @@
             {% endif %}
         </ul>
     </div>
+    {% endif %}
     {% endif %}
 
     {% if user.is_superuser or user.employee.is_hr or user.employee.is_ceo %}

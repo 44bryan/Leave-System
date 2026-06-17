@@ -57,3 +57,24 @@ class AuditLog(models.Model):
             ip_address=ip,
             target_user=target_user,
         )
+
+
+class SystemSettings(models.Model):
+    """Singleton model — only one row ever exists (pk=1).
+    Superusers use this to enable/disable optional modules."""
+
+    payroll_enabled = models.BooleanField(
+        default=False,
+        help_text="Allow HR to upload payslips and employees to view pay history.",
+    )
+
+    class Meta:
+        verbose_name = "System Settings"
+
+    def __str__(self):
+        return "System Settings"
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
