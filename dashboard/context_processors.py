@@ -1,5 +1,6 @@
-from .models import SystemSettings
-
-
 def system_settings_ctx(request):
-    return {'system_settings': SystemSettings.get()}
+    try:
+        from .models import SystemSettings
+        return {'system_settings': SystemSettings.get()}
+    except Exception:
+        return {'system_settings': None}
