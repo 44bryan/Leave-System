@@ -1992,6 +1992,70 @@ def factory_reset_full(request):
 
 
 @superuser_required_view
+def go_live_reset(request):
+    """
+    Go-Live Reset: clears all test/transactional data before going live.
+    KEEPS: employees, users, departments, contracts, employee documents,
+           leave types, system settings.
+    CLEARS: appraisals, leave requests, leave balances, discipline records,
+            notifications, payslips, audit logs, login attempt logs.
+    RESETS: onboarding checklists to unchecked.
+    """
+    from django.contrib import messages
+    from django.db import transaction
+
+    if request.method != 'POST':
+        return redirect('dashboard:admin_settings')
+
+    confirm = request.POST.get('confirm_text', '').strip()
+    if confirm != 'GO LIVE':
+        messages.error(request, "Confirmation text did not match. Reset cancelled.")
+        return redirect('dashboard:admin_settings')
+
+    from appraisals.models import AppraisalCycle, AppraisalRecord
+    from discipline.models import DisciplineRecord
+    from notifications.models import Notification
+    from payroll.models import Payslip
+    from dashboard.models import AuditLog
+    from contracts.models import ContractNotification
+    from accounts.models import OnboardingChecklist
+
+    with transaction.atomic():
+        AppraisalRecord.objects.all().delete()
+        AppraisalCycle.objects.all().delete()
+        LeaveRequest.objects.all().delete()
+        LeaveBalance.objects.all().delete()
+        DisciplineRecord.objects.all().delete()
+        Notification.objects.all().delete()
+        Payslip.objects.all().delete()
+        AuditLog.objects.all().delete()
+        ContractNotification.objects.all().delete()
+        OnboardingChecklist.objects.all().update(
+            issue_contract=False,
+            set_leave_balance=False,
+            assign_manager=False,
+            profile_photo=False,
+            signature_captured=False,
+            credentials_sent=False,
+            id_document_uploaded=False,
+            notes='',
+        )
+        try:
+            from axes.models import AccessAttempt, AccessLog
+            AccessAttempt.objects.all().delete()
+            AccessLog.objects.all().delete()
+        except Exception:
+            pass
+
+    messages.success(
+        request,
+        "Go-Live Reset complete. All test data cleared. "
+        "Employees, contracts, documents and departments are intact."
+    )
+    return redirect('dashboard:admin_settings')
+
+
+@superuser_required_view
 def factory_reset_soft(request):
     """
     Soft reset: deletes all leave requests, balances, discipline records, and contract data
