@@ -2337,7 +2337,6 @@ msgid "Years of Service"
 msgstr "Années de service"
 
 #: contracts/templates/contracts/contract_detail.html:92
-#, python-format
 msgid "%(n)s yr%(n|pluralize)s"
 msgstr "%(n)s an(s)"
 
@@ -2793,7 +2792,6 @@ msgid "Service & Contract"
 msgstr "Nouveau contrat"
 
 #: contracts/templates/contracts/my_contract.html:352
-#, python-format
 msgid "yr%(n|pluralize)s service"
 msgstr "an(s) de service"
 
@@ -2830,7 +2828,6 @@ msgid "To Retirement (60)"
 msgstr "Proches de la retraite"
 
 #: contracts/templates/contracts/my_contract.html:415
-#, python-format
 msgid "%(y)s yr%(y|pluralize)s"
 msgstr "%(y)s an(s)"
 
@@ -2997,7 +2994,6 @@ msgid "Retirement age reached"
 msgstr "Suivi des retraites"
 
 #: contracts/templates/contracts/stats.html:236
-#, python-format
 msgid "%(n)s yr%(n|pluralize)s to retirement"
 msgstr "%(n)s an(s) avant la retraite"
 
