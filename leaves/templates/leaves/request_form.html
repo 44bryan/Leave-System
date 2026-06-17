@@ -366,6 +366,18 @@ updateDays();
             return;
         }
 
+        // Block if deductible leave exceeds remaining balance
+        if (sDate && eDate && eDate >= sDate) {
+            const isDeductible = deductibleMap[leaveTypeEl.value];
+            const days = countWorkingDays(sDate, eDate);
+            if (isDeductible && days > remainingDays) {
+                e.preventDefault();
+                balanceErr.style.display = 'block';
+                balanceErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+        }
+
         if (signaturePad && !signaturePad.isEmpty()) {
             dataInput.value = signaturePad.toDataURL('image/png');
         } else if (savedSigB64) {
