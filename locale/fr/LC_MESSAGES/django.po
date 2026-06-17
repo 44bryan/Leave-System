@@ -2,1558 +2,4846 @@
 # Magrabi ICO Cameroon Eye Institute
 msgid ""
 msgstr ""
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-14 20:58+0100\n"
+"Language: fr\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# base.html
-msgid "LeaveDesk — Magrabi ICO"
-msgstr "LeaveDesk — Magrabi ICO"
+#: accounts/templates/accounts/admin_reset_credentials.html:4
+msgid "Reset User Credentials"
+msgstr "Réinitialiser les Identifiants"
 
-msgid "My Profile"
-msgstr "Mon Profil"
+#: accounts/templates/accounts/admin_reset_credentials.html:20
+msgid "Current username"
+msgstr "Nom d'utilisateur actuel"
 
-msgid "Sign Out"
-msgstr "Se Déconnecter"
+#: accounts/templates/accounts/admin_reset_credentials.html:27
+msgid "Reset Credentials"
+msgstr "Réinitialiser les Identifiants"
 
-msgid "Main"
-msgstr "Principal"
-
-msgid "Dashboard"
-msgstr "Tableau de bord"
-
-msgid "Apply for Leave"
-msgstr "Demander un congé"
-
-msgid "My Requests"
-msgstr "Mes Demandes"
-
-msgid "Approvals"
-msgstr "Approbations"
-
-msgid "Manager Queue"
-msgstr "File du Responsable"
-
-msgid "HR Admin"
-msgstr "RH Admin"
-
-msgid "HR Approvals"
-msgstr "Approbations RH"
-
-msgid "All Requests"
-msgstr "Toutes les Demandes"
-
-msgid "Leave Tracker"
-msgstr "Suivi des Congés"
-
-msgid "Admin"
-msgstr "Administration"
-
-msgid "Employees"
-msgstr "Employés"
-
-msgid "Departments"
-msgstr "Départements"
-
-msgid "Director"
-msgstr "Directeur"
-
-msgid "Director Queue"
-msgstr "File du Directeur"
-
-msgid "HR Admin Reviews"
-msgstr "Révision par les RH"
-
-msgid "Director Final Approval"
-msgstr "Approbation Finale du Directeur"
-
-msgid "Administration Director signs off"
-msgstr "Le Directeur Administratif valide"
-
-msgid "Director Approvals"
-msgstr "Approbations du Directeur"
-
-msgid "Director Final Approvals"
-msgstr "Approbations Finales — Directeur"
-
-msgid "HR-Approved — Awaiting Administration Director Final Decision"
-msgstr "Approuvé par les RH — En attente de décision finale du Directeur"
-
-msgid "Manager"
-msgstr "Responsable"
-
-msgid "HR Admin"
-msgstr "Admin RH"
-
-msgid "HR Approved By"
-msgstr "Approuvé par les RH"
-
-msgid "HR Date"
-msgstr "Date RH"
-
-msgid "No requests awaiting Director approval."
-msgstr "Aucune demande en attente d'approbation du Directeur."
-
-msgid "Final Decision"
-msgstr "Décision Finale"
-
-msgid "Prior Approvals"
-msgstr "Approbations Précédentes"
-
-# login.html
-msgid "Staff Leave Management Portal"
-msgstr "Portail de Gestion des Congés du Personnel"
-
-msgid "Streamlined HR administration for our teams."
-msgstr "Administration RH simplifiée pour nos équipes."
-
-msgid "Submit leave requests digitally"
-msgstr "Soumettre les demandes de congé en ligne"
-
-msgid "Two-stage approval workflow"
-msgstr "Processus d'approbation en deux étapes"
-
-msgid "Real-time leave balance tracking"
-msgstr "Suivi du solde de congés en temps réel"
-
-msgid "Secure role-based access"
-msgstr "Accès sécurisé basé sur les rôles"
-
-msgid "Welcome back"
-msgstr "Bon retour"
-
-msgid "Sign in to access your HR portal"
-msgstr "Connectez-vous pour accéder à votre portail RH"
-
-msgid "Invalid credentials. Please check and try again."
-msgstr "Identifiants invalides. Veuillez vérifier et réessayer."
-
+#: accounts/templates/accounts/admin_reset_credentials.html:33
+#: accounts/templates/accounts/employee_form.html:36
+#: accounts/templates/accounts/employee_history.html:181
+#: accounts/templates/accounts/login.html:267
+#: accounts/templates/accounts/profile.html:186
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-msgid "Password"
-msgstr "Mot de passe"
+#: accounts/templates/accounts/admin_reset_credentials.html:41
+msgid "Password Reset"
+msgstr "Réinitialisation du Mot de Passe"
 
-msgid "Show password"
-msgstr "Afficher le mot de passe"
+#: accounts/templates/accounts/admin_reset_credentials.html:41
+msgid "leave blank to keep the current password"
+msgstr "laisser vide pour conserver le mot de passe actuel"
 
-msgid "Sign In"
-msgstr "Se Connecter"
+#: accounts/templates/accounts/admin_reset_credentials.html:44
+#: accounts/templates/accounts/change_password.html:22
+#: accounts/templates/accounts/profile.html:270
+msgid "New Password"
+msgstr "Nouveau mot de passe"
 
-msgid "Contact HR Admin if you need access or forgot your password."
-msgstr "Contactez l'administrateur RH si vous avez besoin d'accès ou avez oublié votre mot de passe."
+#: accounts/templates/accounts/admin_reset_credentials.html:49
+#: accounts/templates/accounts/change_password.html:27
+#: accounts/templates/accounts/profile.html:275
+msgid "Minimum 8 characters."
+msgstr "Minimum 8 caractères."
 
-# employee_dashboard.html
-msgid "My Dashboard"
-msgstr "Mon Tableau de bord"
+#: accounts/templates/accounts/admin_reset_credentials.html:52
+msgid "Confirm Password"
+msgstr "Confirmer le Mot de Passe"
 
-msgid "Annual Entitlement"
-msgstr "Droit Annuel"
+#: accounts/templates/accounts/admin_reset_credentials.html:65
+#: accounts/templates/accounts/profile.html:162
+msgid "Save Changes"
+msgstr "Enregistrer les Modifications"
 
-msgid "Total days"
-msgstr "Jours total"
+#: accounts/templates/accounts/admin_reset_credentials.html:67
+#: accounts/templates/accounts/change_password.html:43
+#: accounts/templates/accounts/employee_confirm_delete.html:32
+#: accounts/templates/accounts/employee_form.html:297
+#: accounts/templates/accounts/profile.html:165
+#: appraisals/templates/appraisals/ceo_fill.html:86
+#: appraisals/templates/appraisals/coworker_fill.html:29
+#: appraisals/templates/appraisals/director_fill.html:84
+#: appraisals/templates/appraisals/employee_fill.html:225
+#: appraisals/templates/appraisals/hr_fill.html:79
+#: appraisals/templates/appraisals/hr_initiate.html:42
+#: appraisals/templates/appraisals/manager_fill.html:103
+#: appraisals/templates/appraisals/unit_head_fill.html:124
+#: contracts/templates/contracts/issue_contract.html:146
+#: contracts/templates/contracts/issue_contract.html:148
+#: leaves/templates/leaves/action_form.html:180
+#: leaves/templates/leaves/request_form.html:130
+msgid "Cancel"
+msgstr "Annuler"
 
-msgid "Used"
-msgstr "Utilisés"
+#: accounts/templates/accounts/change_password.html:3
+#: accounts/templates/accounts/change_password.html:4
+#: accounts/templates/accounts/profile.html:257 templates/base.html:1457
+msgid "Change Password"
+msgstr "Changer le mot de passe"
 
-msgid "Remaining"
-msgstr "Restants"
+#: accounts/templates/accounts/change_password.html:10
+#, fuzzy
+#| msgid "Change Password"
+msgid "Change Your Password"
+msgstr "Changer le mot de passe"
 
-msgid "Pending Requests"
-msgstr "Demandes en Attente"
+#: accounts/templates/accounts/change_password.html:15
+#: accounts/templates/accounts/profile.html:263
+msgid "Current Password"
+msgstr "Mot de passe actuel"
 
-msgid "View Pending"
-msgstr "Voir les Demandes en Attente"
+#: accounts/templates/accounts/change_password.html:30
+#: accounts/templates/accounts/profile.html:278
+msgid "Confirm New Password"
+msgstr "Confirmer le nouveau mot de passe"
 
-msgid "Submit a new leave request"
-msgstr "Soumettre une nouvelle demande de congé"
+#: accounts/templates/accounts/change_password.html:41
+#: accounts/templates/accounts/profile.html:285
+msgid "Update Password"
+msgstr "Mettre à jour le mot de passe"
 
-msgid "New Request"
-msgstr "Nouvelle Demande"
+#: accounts/templates/accounts/department_list.html:3
+#: accounts/templates/accounts/department_list.html:4
+#: dashboard/templates/dashboard/admin_dashboard.html:71
+#: dashboard/templates/dashboard/admin_dashboard.html:660
+#: dashboard/templates/dashboard/admin_dashboard.html:693
+#: templates/base.html:1411
+msgid "Departments"
+msgstr "Départements"
 
-msgid "Recent Leave Requests"
-msgstr "Demandes de Congé Récentes"
+#: accounts/templates/accounts/department_list.html:11
+#: accounts/templates/accounts/employee_list.html:31
+#: contracts/templates/contracts/bulk_issue_contract.html:122
+#: discipline/templates/discipline/list.html:180
+#: leaves/templates/leaves/all_leaves.html:33
+msgid "All Departments"
+msgstr "Tous les Départements"
 
-msgid "View All"
-msgstr "Voir Tout"
+#: accounts/templates/accounts/department_list.html:15
+#: contracts/templates/contracts/contract_detail.html:59
+msgid "Name"
+msgstr "Nom"
 
-msgid "Leave Type"
-msgstr "Type de Congé"
+#: accounts/templates/accounts/department_list.html:15
+#: accounts/templates/accounts/department_list.html:53
+msgid "Code"
+msgstr "Code"
 
-msgid "Start"
-msgstr "Début"
+#: accounts/templates/accounts/department_list.html:15
+msgid "Staff Count"
+msgstr "Nb. Personnel"
 
-msgid "End"
-msgstr "Fin"
-
-msgid "Days"
-msgstr "Jours"
-
-msgid "Status"
-msgstr "Statut"
-
-msgid "Applied"
-msgstr "Soumis"
-
-msgid "No leave requests yet."
-msgstr "Aucune demande de congé pour l'instant."
-
-msgid "Apply now"
-msgstr "Demander maintenant"
-
-# my_requests.html
-msgid "My Leave Requests"
-msgstr "Mes Demandes de Congé"
-
-msgid "Total Days"
-msgstr "Jours Totaux"
-
-msgid "Used %"
-msgstr "Utilisés %"
-
-msgid "All Leave Requests"
-msgstr "Toutes les Demandes de Congé"
-
-msgid "Start Date"
-msgstr "Date de Début"
-
-msgid "End Date"
-msgstr "Date de Fin"
-
-msgid "Reason"
-msgstr "Motif"
-
-msgid "Applied On"
-msgstr "Soumis le"
-
+#: accounts/templates/accounts/department_list.html:15
+#: accounts/templates/accounts/employee_list.html:122
+#: leaves/templates/leaves/leave_detail.html:145
+#: leaves/templates/leaves/my_requests.html:140
 msgid "Actions"
 msgstr "Actions"
 
+#: accounts/templates/accounts/department_list.html:27
+#, fuzzy
+#| msgid "Yes, Delete"
+msgid "Delete"
+msgstr "Oui, Supprimer"
+
+#: accounts/templates/accounts/department_list.html:34
+msgid "No departments yet."
+msgstr "Aucun département pour l'instant."
+
+#: accounts/templates/accounts/department_list.html:44
+#: accounts/templates/accounts/department_list.html:58
+msgid "Add Department"
+msgstr "Ajouter un Département"
+
+#: accounts/templates/accounts/department_list.html:49
+msgid "Department Name"
+msgstr "Nom du Département"
+
+#: accounts/templates/accounts/department_list.html:55
+msgid "Short code e.g. OPH, HR, ADMIN"
+msgstr "Code court ex. OPH, RH, ADMIN"
+
+#: accounts/templates/accounts/employee_confirm_delete.html:3
+#: accounts/templates/accounts/employee_confirm_delete.html:4
+msgid "Delete Employee"
+msgstr "Supprimer l'Employé"
+
+#: accounts/templates/accounts/employee_confirm_delete.html:5
+msgid "This action cannot be undone"
+msgstr "Cette action ne peut pas être annulée"
+
+#: accounts/templates/accounts/employee_confirm_delete.html:12
+msgid "Confirm Deletion"
+msgstr "Confirmer la Suppression"
+
+#: accounts/templates/accounts/employee_confirm_delete.html:24
+msgid "Deleting this employee will permanently remove their account, all leave requests, and leave balances."
+msgstr "La suppression de cet employé supprimera définitivement son compte, toutes ses demandes de congé et ses soldes de congé."
+
+#: accounts/templates/accounts/employee_confirm_delete.html:30
+msgid "Yes, Delete"
+msgstr "Oui, Supprimer"
+
+# employee_form.html
+#: accounts/templates/accounts/employee_form.html:18
+#: accounts/templates/accounts/employee_history.html:176
+msgid "Personal Information"
+msgstr "Informations personnelles"
+
+# employee_form.html
+#: accounts/templates/accounts/employee_form.html:24
+#: accounts/templates/accounts/employee_form.html:49
+#: accounts/templates/accounts/profile.html:127
+msgid "First Name"
+msgstr "Prénom"
+
+#: accounts/templates/accounts/employee_form.html:28
+#: accounts/templates/accounts/employee_form.html:53
+#: accounts/templates/accounts/profile.html:132
+msgid "Last Name"
+msgstr "Nom de Famille"
+
+#: accounts/templates/accounts/employee_form.html:32
+#: accounts/templates/accounts/employee_form.html:57
+#: accounts/templates/accounts/employee_history.html:182
+#: accounts/templates/accounts/profile.html:137
+#: accounts/templates/accounts/profile.html:190
+msgid "Email"
+msgstr "E-mail"
+
+#: accounts/templates/accounts/employee_form.html:38
+msgid "Auto-generated. You may edit if needed."
+msgstr "Généré automatiquement. Modifiable si nécessaire."
+
+#: accounts/templates/accounts/employee_form.html:41
+msgid "Default Password"
+msgstr "Mot de passe par défaut"
+
+#: accounts/templates/accounts/employee_form.html:43
+msgid "Default"
+msgstr "Défaut"
+
+#: accounts/templates/accounts/employee_form.html:43
+msgid "employee must change at first login."
+msgstr "l'employé doit le modifier à la première connexion."
+
+#: accounts/templates/accounts/employee_form.html:66
+#: accounts/templates/accounts/employee_history.html:186
+#: accounts/templates/accounts/profile.html:202
+msgid "Sex"
+msgstr "Sexe"
+
+#: accounts/templates/accounts/employee_form.html:70
+#: accounts/templates/accounts/employee_history.html:184
+#: accounts/templates/accounts/profile.html:147
+#: accounts/templates/accounts/profile.html:198
+msgid "Date of Birth"
+msgstr "Date de naissance"
+
+#: accounts/templates/accounts/employee_form.html:74
+#: accounts/templates/accounts/employee_history.html:187
+#: accounts/templates/accounts/profile.html:206
+msgid "Nationality"
+msgstr "Nationalité"
+
+#: accounts/templates/accounts/employee_form.html:83
+#: accounts/templates/accounts/employee_history.html:200
+msgid "Employment Details"
+msgstr "Détails de l'emploi"
+
+#: accounts/templates/accounts/employee_form.html:94
+#: accounts/templates/accounts/employee_history.html:180
+#: accounts/templates/accounts/profile.html:182
+#: contracts/templates/contracts/contract_detail.html:63
+msgid "Employee ID"
+msgstr "Matricule"
+
+#: accounts/templates/accounts/employee_form.html:98
+#: accounts/templates/accounts/employee_history.html:205
+#: accounts/templates/accounts/employee_list.html:118
+#: contracts/templates/contracts/contract_detail.html:71
+#: contracts/templates/contracts/my_contract.html:383
+#: leaves/templates/leaves/action_form.html:226
+msgid "Position"
+msgstr "Poste"
+
+#: accounts/templates/accounts/employee_form.html:102
+#: accounts/templates/accounts/employee_history.html:204
+#: accounts/templates/accounts/employee_list.html:29
+#: accounts/templates/accounts/employee_list.html:117
+#: accounts/templates/accounts/profile.html:223
+#: appraisals/templates/appraisals/_record_summary.html:17
+#: appraisals/templates/appraisals/cycle_records.html:19
+#: appraisals/templates/appraisals/pending_list.html:23
+#: contracts/templates/contracts/bulk_issue_contract.html:141
+#: contracts/templates/contracts/contract_detail.html:67
+#: contracts/templates/contracts/my_contract.html:294
+#: contracts/templates/contracts/my_contract.html:337
+#: contracts/templates/contracts/my_contract.html:389
+#: contracts/templates/contracts/stats.html:327
+#: dashboard/templates/dashboard/admin_dashboard.html:341
+#: discipline/templates/discipline/list.html:178
+#: discipline/templates/discipline/list.html:232
+#: leaves/templates/leaves/action_form.html:24
+#: leaves/templates/leaves/action_form.html:222
+#: leaves/templates/leaves/all_leaves.html:31
+#: leaves/templates/leaves/director_approvals.html:35
+#: leaves/templates/leaves/hr_approvals.html:25
+#: leaves/templates/leaves/manager_approvals.html:25
+msgid "Department"
+msgstr "Département"
+
+#: accounts/templates/accounts/employee_form.html:106
+#: accounts/templates/accounts/employee_history.html:203
+#: accounts/templates/accounts/employee_list.html:38
+#: accounts/templates/accounts/employee_list.html:119
+msgid "Role"
+msgstr "Rôle"
+
+#: accounts/templates/accounts/employee_form.html:110
+#: accounts/templates/accounts/employee_history.html:206
+#: accounts/templates/accounts/profile.html:235
+#: contracts/templates/contracts/my_contract.html:401
+msgid "Staff Category"
+msgstr "Catégorie du personnel"
+
+#: accounts/templates/accounts/employee_form.html:115
+msgid "Line Manager / Supervisor"
+msgstr "Responsable Hiérarchique / Superviseur"
+
+#: accounts/templates/accounts/employee_form.html:124
+#: accounts/templates/accounts/employee_history.html:208
+msgid "Unit Head"
+msgstr "Chef d'unité"
+
+#: accounts/templates/accounts/employee_form.html:131
+msgid "Optional — leave blank if this employee has no unit head above their manager."
+msgstr "Optionnel — laisser vide si cet employé n'a pas de chef d'unité au-dessus de son responsable."
+
+#: accounts/templates/accounts/employee_form.html:137
+#: accounts/templates/accounts/employee_form.html:168
+#, fuzzy
+#| msgid "Administration Director"
+msgid "Reports directly to Administration Director"
+msgstr "Directeur Administratif"
+
+#: accounts/templates/accounts/employee_form.html:139
+msgid "Leave skips Unit Head & Manager — goes to HR then Admin Director."
+msgstr "Le congé saute le Chef d'Unité et le Responsable — va aux RH puis au Directeur Administratif."
+
+#: accounts/templates/accounts/employee_form.html:140
+msgid "HR staff"
+msgstr "Personnel RH"
+
+#: accounts/templates/accounts/employee_form.html:140
+msgid "leaves go straight to Admin Director only."
+msgstr "les congés vont directement au Directeur Administratif uniquement."
+
+#: accounts/templates/accounts/employee_form.html:147
+#: accounts/templates/accounts/employee_form.html:178
+msgid "Reports directly to CEO"
+msgstr "Rapporte directement au PDG"
+
+#: accounts/templates/accounts/employee_form.html:149
+msgid "Leave skips ALL steps — CEO is the sole approver."
+msgstr "Le congé saute TOUTES les étapes — le PDG est le seul approbateur."
+
+#: accounts/templates/accounts/employee_form.html:150
+msgid "Automatically applies to"
+msgstr "S'applique automatiquement aux"
+
+#: accounts/templates/accounts/employee_form.html:150
+#: appraisals/templates/appraisals/appraisal_detail.html:201
+msgid "Admin Director"
+msgstr "Directeur Administratif"
+
+#: accounts/templates/accounts/employee_form.html:150
+msgid "and"
+msgstr "et"
+
+#: accounts/templates/accounts/employee_form.html:150
+msgid "Medical Director"
+msgstr "Directeur Médical"
+
+#: accounts/templates/accounts/employee_form.html:150
+msgid "roles."
+msgstr "rôles."
+
+#: accounts/templates/accounts/employee_form.html:157
+#: accounts/templates/accounts/employee_form.html:188
+msgid "Reports directly to HR (HR is final approver)"
+msgstr "Rapporte directement aux RH (les RH sont approbateur final)"
+
+#: accounts/templates/accounts/employee_form.html:159
+msgid "Leave skips Unit Head & Manager — HR approves as final authority. No Director step."
+msgstr "Le congé saute le Chef d'Unité et le Responsable — les RH approuvent en tant qu'autorité finale. Pas d'étape Directeur."
+
+#: accounts/templates/accounts/employee_form.html:196
+#: accounts/templates/accounts/employee_history.html:183
+#: accounts/templates/accounts/profile.html:142
+#: accounts/templates/accounts/profile.html:194
+msgid "Phone"
+msgstr "Téléphone"
+
+#: accounts/templates/accounts/employee_form.html:200
+msgid "Date Joined Hospital"
+msgstr "Date d'Entrée à l'Hôpital"
+
+#: accounts/templates/accounts/employee_form.html:204
+msgid "Contract Number"
+msgstr "Numéro de Contrat"
+
+#: accounts/templates/accounts/employee_form.html:206
+msgid "Official reference number (optional)"
+msgstr "Numéro de référence officiel (optionnel)"
+
+#: accounts/templates/accounts/employee_form.html:209
+#: accounts/templates/accounts/employee_history.html:212
+#: accounts/templates/accounts/profile.html:243
+msgid "Qualifications"
+msgstr "Qualifications"
+
+#: accounts/templates/accounts/employee_form.html:211
+msgid "Academic / professional qualifications"
+msgstr "Qualifications académiques / professionnelles"
+
+#: accounts/templates/accounts/employee_form.html:219
+#: contracts/templates/contracts/my_contract.html:124
+msgid "Internship Details"
+msgstr "Détails du Stage"
+
+#: accounts/templates/accounts/employee_form.html:223
+#: accounts/templates/accounts/employee_history.html:189
+msgid "School / University"
+msgstr "École / Université"
+
+#: accounts/templates/accounts/employee_form.html:225
+msgid "Name of institution the intern is from"
+msgstr "Nom de l'institution d'origine du stagiaire"
+
+#: accounts/templates/accounts/employee_form.html:229
+msgid "Field of Study / Speciality"
+msgstr "Domaine d'Étude / Spécialité"
+
+#: accounts/templates/accounts/employee_form.html:231
+msgid "e.g. Medicine, Nursing, Ophthalmology"
+msgstr "ex. Médecine, Soins Infirmiers, Ophtalmologie"
+
+#: accounts/templates/accounts/employee_form.html:240
+#: accounts/templates/accounts/employee_history.html:105
+#: accounts/templates/accounts/employee_history.html:315
+#: accounts/templates/accounts/employee_list.html:52
+#: accounts/templates/accounts/employee_list.html:159
+#: contracts/templates/contracts/contract_detail.html:124
+#: contracts/templates/contracts/my_contract.html:154
+#: contracts/templates/contracts/my_contract.html:255
+#: contracts/templates/contracts/my_contract.html:314
+#: discipline/templates/discipline/list.html:280
+msgid "Active"
+msgstr "Actif"
+
+#: accounts/templates/accounts/employee_form.html:243
+msgid "Uncheck to deactivate"
+msgstr "Décocher pour désactiver"
+
+#: accounts/templates/accounts/employee_form.html:254
+#: accounts/templates/accounts/employee_history.html:297
+msgid "Initial Contract"
+msgstr "Contrat Initial"
+
+#: accounts/templates/accounts/employee_form.html:258
+msgid "A contract is required to activate the employee account. The employee will be notified automatically."
+msgstr "Un contrat est requis pour activer le compte de l'employé. L'employé sera notifié automatiquement."
+
+#: accounts/templates/accounts/employee_form.html:263
+#: contracts/templates/contracts/bulk_issue_contract.html:28
+#: contracts/templates/contracts/contract_detail.html:105
+#: contracts/templates/contracts/issue_contract.html:55
+#: contracts/templates/contracts/my_contract.html:131
+msgid "Contract Type"
+msgstr "Type de Contrat"
+
+#: accounts/templates/accounts/employee_form.html:268
+#: contracts/templates/contracts/bulk_issue_contract.html:81
+#: contracts/templates/contracts/contract_detail.html:135
+#: contracts/templates/contracts/issue_contract.html:120
+#: contracts/templates/contracts/my_contract.html:166
+#: leaves/templates/leaves/action_form.html:36
+#: leaves/templates/leaves/leave_detail.html:29
+#: leaves/templates/leaves/my_requests.html:134
+#: leaves/templates/leaves/request_form.html:39
+msgid "Start Date"
+msgstr "Date de Début"
+
+#: accounts/templates/accounts/employee_form.html:273
+#: contracts/templates/contracts/bulk_issue_contract.html:87
+#: contracts/templates/contracts/contract_detail.html:139
+#: contracts/templates/contracts/issue_contract.html:129
+#: contracts/templates/contracts/my_contract.html:172
+#: leaves/templates/leaves/action_form.html:40
+#: leaves/templates/leaves/leave_detail.html:33
+#: leaves/templates/leaves/my_requests.html:135
+#: leaves/templates/leaves/request_form.html:44
+msgid "End Date"
+msgstr "Date de Fin"
+
+#: accounts/templates/accounts/employee_form.html:275
+msgid "Required for CDD / INTERN / WACS."
+msgstr "Requis pour CDD / INTERN / WACS."
+
+#: accounts/templates/accounts/employee_form.html:284
+msgid "Please fix the errors below:"
+msgstr "Veuillez corriger les erreurs ci-dessous :"
+
+#: accounts/templates/accounts/employee_form.html:295
+msgid "Save"
+msgstr "Enregistrer"
+
+#: accounts/templates/accounts/employee_form.html:311
+msgid "Contract Management"
+msgstr "Gestion des Contrats"
+
+#: accounts/templates/accounts/employee_form.html:315
+msgid "Change / Renew Contract"
+msgstr "Modifier / Renouveler le Contrat"
+
+#: accounts/templates/accounts/employee_form.html:315
+#: contracts/templates/contracts/issue_contract.html:4
+#: contracts/templates/contracts/issue_contract.html:5
+#: contracts/templates/contracts/issue_contract.html:143
+msgid "Issue Contract"
+msgstr "Émettre un Contrat"
+
+# employee_history.html
+#: accounts/templates/accounts/employee_history.html:3
+#: accounts/templates/accounts/employee_history.html:4
+msgid "Employee Record"
+msgstr "Dossier de l'employé"
+
+#: accounts/templates/accounts/employee_history.html:5
+msgid "Full audit trail"
+msgstr "Historique complet"
+
+#: accounts/templates/accounts/employee_history.html:81
+#: accounts/templates/accounts/profile.html:97
+msgid "Edit Profile"
+msgstr "Modifier le profil"
+
+#: accounts/templates/accounts/employee_history.html:84
+msgid "Back to List"
+msgstr "Retour à la liste"
+
+#: accounts/templates/accounts/employee_history.html:107
+#: accounts/templates/accounts/employee_list.html:161
+msgid "Inactive"
+msgstr "Inactif"
+
+#: accounts/templates/accounts/employee_history.html:114
+msgid "Joined:"
+msgstr "Arrivée :"
+
+#: accounts/templates/accounts/employee_history.html:121
+#: accounts/templates/accounts/employee_history.html:145
+#: templates/base.html:1374
+msgid "Contracts"
+msgstr "Contrats"
+
+#: accounts/templates/accounts/employee_history.html:125
+#, fuzzy
+#| msgid "My Leave"
+msgid "Leaves"
+msgstr "Mon congé"
+
+#: accounts/templates/accounts/employee_history.html:129
+#: accounts/templates/accounts/employee_history.html:157
+#: dashboard/templates/dashboard/admin_dashboard.html:567
+#: templates/base.html:1350
+msgid "Discipline"
+msgstr "Discipline"
+
+#: accounts/templates/accounts/employee_history.html:140
+#: contracts/templates/contracts/stats.html:243
+#, fuzzy
+#| msgid "My Profile"
+msgid "Profile"
+msgstr "Mon Profil"
+
+#: accounts/templates/accounts/employee_history.html:151
+msgid "Leave History"
+msgstr "Historique des congés"
+
+#: accounts/templates/accounts/employee_history.html:179
+msgid "Full Name"
+msgstr "Nom complet"
+
+#: accounts/templates/accounts/employee_history.html:185
+#: contracts/templates/contracts/contract_detail.html:77
+#: contracts/templates/contracts/my_contract.html:408
+msgid "Age"
+msgstr "Âge"
+
+#: accounts/templates/accounts/employee_history.html:185
+msgid "years"
+msgstr "ans"
+
+#: accounts/templates/accounts/employee_history.html:192
+msgid "Speciality"
+msgstr "Spécialité"
+
+#: accounts/templates/accounts/employee_history.html:207
+#: accounts/templates/accounts/profile.html:227
+#: contracts/templates/contracts/my_contract.html:395
+msgid "Line Manager"
+msgstr "Responsable Hiérarchique"
+
+#: accounts/templates/accounts/employee_history.html:209
+#: accounts/templates/accounts/profile.html:231
+msgid "Joined Hospital"
+msgstr "Entrée à l'Hôpital"
+
+#: accounts/templates/accounts/employee_history.html:210
+msgid "Contract No."
+msgstr "N° de contrat"
+
+#: accounts/templates/accounts/employee_history.html:222
+#: leaves/templates/leaves/action_form.html:206
+msgid "Leave Balance"
+msgstr "Solde de Congés"
+
+#: accounts/templates/accounts/employee_history.html:226
+#: leaves/templates/leaves/my_requests.html:41
+msgid "Available"
+msgstr "Disponible"
+
+#: accounts/templates/accounts/employee_history.html:230
+#: dashboard/templates/dashboard/employee_dashboard.html:80
+#: dashboard/templates/dashboard/employee_dashboard.html:164
+#: dashboard/templates/dashboard/includes/my_leave_section.html:72
+#: dashboard/templates/dashboard/manager_dashboard.html:206
+#: dashboard/templates/dashboard/unit_head_dashboard.html:97
+#: dashboard/templates/dashboard/unit_head_dashboard.html:266
+#: leaves/templates/leaves/action_form.html:208
+#: leaves/templates/leaves/my_requests.html:45
+#: leaves/templates/leaves/request_form.html:144
+msgid "Used"
+msgstr "Utilisés"
+
+#: accounts/templates/accounts/employee_history.html:234
+#: dashboard/templates/dashboard/employee_dashboard.html:84
+#: dashboard/templates/dashboard/includes/my_leave_section.html:76
+#: dashboard/templates/dashboard/manager_dashboard.html:207
+#: dashboard/templates/dashboard/unit_head_dashboard.html:101
+#: dashboard/templates/dashboard/unit_head_dashboard.html:267
+#: leaves/templates/leaves/my_requests.html:49
+#: leaves/templates/leaves/request_form.html:148
+msgid "Remaining"
+msgstr "Restants"
+
+#: accounts/templates/accounts/employee_history.html:238
+#: dashboard/templates/dashboard/manager_dashboard.html:205
+#: dashboard/templates/dashboard/unit_head_dashboard.html:265
+msgid "Entitlement"
+msgstr "Droit"
+
+#: accounts/templates/accounts/employee_history.html:252
+msgid "Contract History"
+msgstr "Historique des contrats"
+
+#: accounts/templates/accounts/employee_history.html:259
+msgid "No contracts on record."
+msgstr "Aucun contrat enregistré."
+
+#: accounts/templates/accounts/employee_history.html:292
+#, fuzzy
+#| msgid "Suspension"
+msgid "Extension"
+msgstr "Suspension"
+
+#: accounts/templates/accounts/employee_history.html:294
+#, fuzzy
+#| msgid "Renewed"
+msgid "Renewal"
+msgstr "Renouvelé"
+
+#: accounts/templates/accounts/employee_history.html:303
+#: contracts/templates/contracts/bulk_issue_contract.html:45
+#: contracts/templates/contracts/contract_detail.html:110
+#: contracts/templates/contracts/contract_detail.html:197
+#: contracts/templates/contracts/issue_contract.html:77
+#: contracts/templates/contracts/my_contract.html:274
+#: contracts/templates/contracts/stats.html:43
+#: contracts/templates/contracts/stats.html:330
+msgid "Internship"
+msgstr "Stage"
+
+#: accounts/templates/accounts/employee_history.html:316
+#: contracts/templates/contracts/contract_detail.html:126
+#: contracts/templates/contracts/my_contract.html:160
+msgid "Expired"
+msgstr "Expiré"
+
+#: accounts/templates/accounts/employee_history.html:317
+#: contracts/templates/contracts/contract_detail.html:128
+#: contracts/templates/contracts/my_contract.html:156
+msgid "Terminated"
+msgstr "Résilié"
+
+#: accounts/templates/accounts/employee_history.html:318
+msgid "Extended / Renewed"
+msgstr "Prolongé / Renouvelé"
+
+#: accounts/templates/accounts/employee_history.html:328
+msgid "No fixed end date"
+msgstr "Pas de date de fin fixe"
+
+#: accounts/templates/accounts/employee_history.html:341
+#: contracts/templates/contracts/stats.html:193
+#: contracts/templates/contracts/stats.html:438
+#: discipline/templates/discipline/list.html:321
+#: leaves/templates/leaves/all_leaves.html:80
+msgid "View"
+msgstr "Voir"
+
+#: accounts/templates/accounts/employee_history.html:357
+msgid "Leave Request History"
+msgstr "Historique des demandes de congé"
+
+#: accounts/templates/accounts/employee_history.html:365
+#: dashboard/templates/dashboard/admin_dashboard.html:438
+#: dashboard/templates/dashboard/admin_dashboard.html:471
+#: dashboard/templates/dashboard/employee_dashboard.html:246
+#: leaves/templates/leaves/action_form.html:28
+#: leaves/templates/leaves/all_leaves.html:75
+#: leaves/templates/leaves/ceo_approvals.html:32
+#: leaves/templates/leaves/director_approvals.html:36
+#: leaves/templates/leaves/edit_form.html:23
+#: leaves/templates/leaves/hr_approvals.html:26
+#: leaves/templates/leaves/leave_detail.html:25
+#: leaves/templates/leaves/manager_approvals.html:26
+#: leaves/templates/leaves/my_requests.html:133
+#: leaves/templates/leaves/request_form.html:20
+msgid "Leave Type"
+msgstr "Type de Congé"
+
+#: accounts/templates/accounts/employee_history.html:366
+#: appraisals/templates/appraisals/hr_initiate.html:58
+#: appraisals/templates/appraisals/my_appraisals.html:95
+#: appraisals/templates/appraisals/pending_list.html:23
+#: leaves/templates/leaves/all_leaves.html:76
+#: leaves/templates/leaves/ceo_approvals.html:33
+#: leaves/templates/leaves/director_approvals.html:37
+#: leaves/templates/leaves/hr_approvals.html:27
+msgid "Period"
+msgstr "Période"
+
+#: accounts/templates/accounts/employee_history.html:367
+#: dashboard/templates/dashboard/admin_dashboard.html:438
+#: dashboard/templates/dashboard/admin_dashboard.html:471
+#: dashboard/templates/dashboard/employee_dashboard.html:249
+#: leaves/templates/leaves/all_leaves.html:77
+#: leaves/templates/leaves/ceo_approvals.html:34
+#: leaves/templates/leaves/director_approvals.html:38
+#: leaves/templates/leaves/hr_approvals.html:28
+#: leaves/templates/leaves/manager_approvals.html:29
+#: leaves/templates/leaves/my_requests.html:136
+msgid "Days"
+msgstr "Jours"
+
+#: accounts/templates/accounts/employee_history.html:368
+#: accounts/templates/accounts/employee_list.html:121
+#: appraisals/templates/appraisals/cycle_records.html:19
+#: appraisals/templates/appraisals/hr_initiate.html:58
+#: appraisals/templates/appraisals/my_appraisals.html:95
+#: contracts/templates/contracts/contract_detail.html:119
+#: contracts/templates/contracts/my_contract.html:151
+#: dashboard/templates/dashboard/employee_dashboard.html:250
+#: dashboard/templates/dashboard/manager_dashboard.html:209
+#: dashboard/templates/dashboard/unit_head_dashboard.html:269
+#: leaves/templates/leaves/all_leaves.html:22
+#: leaves/templates/leaves/all_leaves.html:78
+#: leaves/templates/leaves/my_requests.html:105
+#: leaves/templates/leaves/my_requests.html:138
+msgid "Status"
+msgstr "Statut"
+
+#: accounts/templates/accounts/employee_history.html:369
+#: dashboard/templates/dashboard/employee_dashboard.html:251
+#: leaves/templates/leaves/all_leaves.html:79
+msgid "Applied"
+msgstr "Soumis"
+
+#: accounts/templates/accounts/employee_history.html:389
+msgid "No leave requests on record."
+msgstr "Aucune demande de congé enregistrée."
+
+#: accounts/templates/accounts/employee_history.html:401
+#: discipline/templates/discipline/list.html:4
+#: discipline/templates/discipline/list.html:5
+#: discipline/templates/discipline/list.html:212 templates/base.html:1310
+msgid "Discipline Records"
+msgstr "Dossiers disciplinaires"
+
+#: accounts/templates/accounts/employee_history.html:405
+msgid "Clean record"
+msgstr "Dossier vierge"
+
+#: accounts/templates/accounts/employee_history.html:411
+msgid "No discipline records."
+msgstr "Aucun dossier disciplinaire."
+
+#: accounts/templates/accounts/employee_history.html:412
+msgid "This employee has a clean discipline record."
+msgstr "Cet employé a un dossier disciplinaire vierge."
+
+#: accounts/templates/accounts/employee_history.html:419
+#: discipline/templates/discipline/list.html:100
+#: discipline/templates/discipline/list.html:231
+msgid "Date"
+msgstr "Date"
+
+#: accounts/templates/accounts/employee_history.html:420
+#: discipline/templates/discipline/list.html:163
+msgid "Type"
+msgstr "Type"
+
+#: accounts/templates/accounts/employee_history.html:421
+#: discipline/templates/discipline/list.html:98
+#: discipline/templates/discipline/list.html:230
+#: leaves/templates/leaves/action_form.html:44
+#: leaves/templates/leaves/leave_detail.html:41
+#: leaves/templates/leaves/manager_approvals.html:30
+#: leaves/templates/leaves/my_requests.html:137
+msgid "Reason"
+msgstr "Motif"
+
+#: accounts/templates/accounts/employee_history.html:422
+#: contracts/templates/contracts/contract_detail.html:164
+#: contracts/templates/contracts/my_contract.html:192
+#: discipline/templates/discipline/list.html:232
+msgid "Issued By"
+msgstr "Émis par"
+
+#: accounts/templates/accounts/employee_history.html:423
+msgid "HR Proposal"
+msgstr "Proposition RH"
+
+#: accounts/templates/accounts/employee_history.html:424
+msgid "Director Decision"
+msgstr "Décision du Directeur"
+
+#: accounts/templates/accounts/employee_history.html:433
+#: discipline/templates/discipline/list.html:266
+msgid "Verbal Warning"
+msgstr "Avertissement verbal"
+
+#: accounts/templates/accounts/employee_history.html:434
+#: discipline/templates/discipline/list.html:270
+msgid "Written Caution"
+msgstr "Mise en garde écrite"
+
+#: accounts/templates/accounts/employee_history.html:435
+#: discipline/templates/discipline/list.html:274
+msgid "Final Warning"
+msgstr "Avertissement final"
+
+#: accounts/templates/accounts/employee_history.html:436
+#: discipline/templates/discipline/list.html:278
+msgid "Suspension"
+msgstr "Suspension"
+
+#: accounts/templates/accounts/employee_history.html:437
+#: discipline/templates/discipline/list.html:290
+msgid "Dismissal"
+msgstr "Licenciement"
+
+#: accounts/templates/accounts/employee_history.html:445
+#: accounts/templates/accounts/employee_history.html:450
+#: dashboard/templates/dashboard/ceo_dashboard.html:39
+#: dashboard/templates/dashboard/ceo_dashboard.html:174
+msgid "Pending"
+msgstr "En attente"
+
+#: accounts/templates/accounts/employee_list.html:3 templates/base.html:1398
+msgid "Employees"
+msgstr "Employés"
+
+# employee_list.html
+#: accounts/templates/accounts/employee_list.html:4
+msgid "Employee Management"
+msgstr "Gestion des Employés"
+
+#: accounts/templates/accounts/employee_list.html:5
+msgid "Manage all hospital staff"
+msgstr "Gérer tout le personnel de l'hôpital"
+
+#: accounts/templates/accounts/employee_list.html:10
+#: dashboard/templates/dashboard/admin_dashboard.html:9
+#: templates/base.html:1404
+msgid "Add Employee"
+msgstr "Ajouter un Employé"
+
+#: accounts/templates/accounts/employee_list.html:13
+#, fuzzy
+#| msgid "Reset Credentials"
+msgid "Export Credentials"
+msgstr "Réinitialiser les Identifiants"
+
+#: accounts/templates/accounts/employee_list.html:24
+msgid "Name / ID"
+msgstr "Nom / ID"
+
+#: accounts/templates/accounts/employee_list.html:26
+msgid "Search name or ID…"
+msgstr "Rechercher un nom ou un ID…"
+
+#: accounts/templates/accounts/employee_list.html:40
+msgid "All Roles"
+msgstr "Tous les Rôles"
+
+#: accounts/templates/accounts/employee_list.html:47
+#: discipline/templates/discipline/list.html:199
+#: leaves/templates/leaves/all_leaves.html:52
+#: leaves/templates/leaves/my_requests.html:115
+msgid "Filter"
+msgstr "Filtrer"
+
+#: accounts/templates/accounts/employee_list.html:48
+#: accounts/templates/accounts/employee_list.html:99
+#: appraisals/templates/appraisals/_comment_form.html:27
+#: appraisals/templates/appraisals/_sig_pad.html:19
+#: appraisals/templates/appraisals/employee_fill.html:215
+#: contracts/templates/contracts/bulk_issue_contract.html:128
+#: discipline/templates/discipline/list.html:201
+#: leaves/templates/leaves/action_form.html:170
+#: leaves/templates/leaves/my_requests.html:117
+#: leaves/templates/leaves/request_form.html:120
+msgid "Clear"
+msgstr "Effacer"
+
+#: accounts/templates/accounts/employee_list.html:55
+msgid "Former"
+msgstr "Anciens"
+
+#: accounts/templates/accounts/employee_list.html:70
+msgid "Former / Dismissed Employees"
+msgstr "Anciens employés / Licenciés"
+
+#: accounts/templates/accounts/employee_list.html:70
+msgid "Active Employees"
+msgstr "Employés Actifs"
+
+#: accounts/templates/accounts/employee_list.html:78
+msgid "Set Line Manager"
+msgstr "Définir le Responsable Hiérarchique"
+
+#: accounts/templates/accounts/employee_list.html:79
+msgid "Set Unit Head"
+msgstr "Définir le Chef d'Unité"
+
+#: accounts/templates/accounts/employee_list.html:80
+msgid "Set Department"
+msgstr "Définir le Département"
+
+#: accounts/templates/accounts/employee_list.html:84
+msgid "— Select person —"
+msgstr "— Sélectionner une personne —"
+
+#: accounts/templates/accounts/employee_list.html:91
+msgid "— Select department —"
+msgstr "— Sélectionner un département —"
+
+#: accounts/templates/accounts/employee_list.html:97
+msgid "Apply"
+msgstr "Appliquer"
+
+#: accounts/templates/accounts/employee_list.html:103
+msgid "Add New"
+msgstr "Ajouter Nouveau"
+
+#: accounts/templates/accounts/employee_list.html:115
+#: appraisals/templates/appraisals/_record_summary.html:7
+#: appraisals/templates/appraisals/appraisal_detail.html:185
+#: appraisals/templates/appraisals/cycle_records.html:19
+#: appraisals/templates/appraisals/pending_list.html:23
+#: contracts/templates/contracts/bulk_issue_contract.html:139
+#: contracts/templates/contracts/issue_contract.html:42
+#: dashboard/templates/dashboard/admin_dashboard.html:438
+#: dashboard/templates/dashboard/admin_dashboard.html:471
+#: dashboard/templates/dashboard/manager_dashboard.html:204
+#: dashboard/templates/dashboard/unit_head_dashboard.html:264
+#: discipline/templates/discipline/list.html:96
+#: discipline/templates/discipline/list.html:187
+#: discipline/templates/discipline/list.html:228
+#: leaves/templates/leaves/action_form.html:19
+#: leaves/templates/leaves/all_leaves.html:40
+#: leaves/templates/leaves/all_leaves.html:73
+#: leaves/templates/leaves/director_approvals.html:34
+#: leaves/templates/leaves/hr_approvals.html:24
+#: leaves/templates/leaves/leave_detail.html:20
+#: leaves/templates/leaves/manager_approvals.html:24
+msgid "Employee"
+msgstr "Employé"
+
+#: accounts/templates/accounts/employee_list.html:116
+#: contracts/templates/contracts/bulk_issue_contract.html:140
+msgid "ID"
+msgstr "Identifiant"
+
+#: accounts/templates/accounts/employee_list.html:120
+#: appraisals/templates/appraisals/_prior_hr.html:16
+#: appraisals/templates/appraisals/appraisal_detail.html:193
+msgid "Supervisor"
+msgstr "Superviseur"
+
+#: accounts/templates/accounts/employee_list.html:183
+msgid "No employees match your filters."
+msgstr "Aucun employé ne correspond à vos filtres."
+
+#: accounts/templates/accounts/employee_list.html:183
+msgid "Clear filters"
+msgstr "Effacer les filtres"
+
+#: accounts/templates/accounts/employee_list.html:185
+msgid "No employees yet."
+msgstr "Aucun employé pour l'instant."
+
+#: accounts/templates/accounts/employee_list.html:185
+msgid "Add the first one"
+msgstr "Ajouter le premier"
+
+# login.html
+#: accounts/templates/accounts/login.html:227
+msgid "Staff Leave Management Portal"
+msgstr "Portail de Gestion des Congés du Personnel"
+
+#: accounts/templates/accounts/login.html:227
+msgid "Streamlined HR administration for our teams."
+msgstr "Administration RH simplifiée pour nos équipes."
+
+#: accounts/templates/accounts/login.html:231
+msgid "Submit leave requests digitally"
+msgstr "Soumettre les demandes de congé en ligne"
+
+#: accounts/templates/accounts/login.html:235
+msgid "Two-stage approval workflow"
+msgstr "Processus d'approbation en deux étapes"
+
+#: accounts/templates/accounts/login.html:239
+msgid "Real-time leave balance tracking"
+msgstr "Suivi du solde de congés en temps réel"
+
+#: accounts/templates/accounts/login.html:243
+msgid "Secure role-based access"
+msgstr "Accès sécurisé basé sur les rôles"
+
+#: accounts/templates/accounts/login.html:254
+msgid "Welcome back"
+msgstr "Bon retour"
+
+#: accounts/templates/accounts/login.html:255
+msgid "Sign in to access your HR portal"
+msgstr "Connectez-vous pour accéder à votre portail RH"
+
+#: accounts/templates/accounts/login.html:260
+msgid "Invalid credentials. Please check and try again."
+msgstr "Identifiants invalides. Veuillez vérifier et réessayer."
+
+#: accounts/templates/accounts/login.html:274
+msgid "Password"
+msgstr "Mot de passe"
+
+#: accounts/templates/accounts/login.html:277
+msgid "Show password"
+msgstr "Afficher le mot de passe"
+
+#: accounts/templates/accounts/login.html:286
+msgid "Sign In"
+msgstr "Se Connecter"
+
+#: accounts/templates/accounts/login.html:291
+msgid "Contact HR Admin if you need access or forgot your password."
+msgstr "Contactez l'administrateur RH si vous avez besoin d'accès ou avez oublié votre mot de passe."
+
+#: accounts/templates/accounts/profile.html:3
+#: accounts/templates/accounts/profile.html:4
+#: contracts/templates/contracts/my_contract.html:379
+#: contracts/templates/contracts/my_contract.html:436 templates/base.html:1073
+#: templates/base.html:1447
+msgid "My Profile"
+msgstr "Mon Profil"
+
+#: accounts/templates/accounts/profile.html:110
+#: accounts/templates/accounts/profile.html:237
+#: appraisals/templates/appraisals/_prior_supervisor.html:38
+#: appraisals/templates/appraisals/appraisal_detail.html:156
+#: appraisals/templates/appraisals/unit_head_fill.html:82
+msgid "Category"
+msgstr "Catégorie"
+
+# profile.html
+#: accounts/templates/accounts/profile.html:121
+#, fuzzy
+#| msgid "Profile Information"
+msgid "Edit Your Information"
+msgstr "Informations du profil"
+
+# profile.html
+#: accounts/templates/accounts/profile.html:152
+#, fuzzy
+#| msgid "Profile Information"
+msgid "Profile Photo"
+msgstr "Informations du profil"
+
+#: accounts/templates/accounts/profile.html:156
+msgid "Current photo will be replaced if you select a new one."
+msgstr "La photo actuelle sera remplacée si vous en sélectionnez une nouvelle."
+
+#: accounts/templates/accounts/profile.html:171
+msgid "Employee ID, Department, Role, and Category are managed by HR."
+msgstr "L'identifiant employé, le département, le rôle et la catégorie sont gérés par les RH."
+
+#: accounts/templates/accounts/profile.html:179
+#, fuzzy
+#| msgid "Internship Details"
+msgid "Personal Details"
+msgstr "Détails du Stage"
+
+#: accounts/templates/accounts/profile.html:211
+msgid "Contract / Personnel No."
+msgstr "N° de contrat / personnel"
+
+#: accounts/templates/accounts/profile.html:220
+#, fuzzy
+#| msgid "Employment Details"
+msgid "Work Details"
+msgstr "Détails de l'emploi"
+
+#: accounts/templates/accounts/profile.html:294
+msgid "If you have forgotten your password, contact the system administrator to reset it for you."
+msgstr "Si vous avez oublié votre mot de passe, contactez l'administrateur système pour le réinitialiser."
+
+#: appraisals/templates/appraisals/_comment_form.html:7
+#, fuzzy
+#| msgid "Document"
+msgid "Comment"
+msgstr "Document"
+
+#: appraisals/templates/appraisals/_comment_form.html:11
+#: appraisals/templates/appraisals/_sig_pad.html:3
+#: appraisals/templates/appraisals/employee_fill.html:199
+#: leaves/templates/leaves/action_form.html:144
+#: leaves/templates/leaves/request_form.html:92
+msgid "Your Signature"
+msgstr "Votre signature"
+
+# request_form.html
+#: appraisals/templates/appraisals/_comment_form.html:15
+#, fuzzy
+#| msgid "Your saved signature will be used. Draw below to replace it."
+msgid "Saved signature will be used. Draw to replace."
+msgstr "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
+
+#: appraisals/templates/appraisals/_comment_form.html:21
+#: appraisals/templates/appraisals/_sig_pad.html:13
+#: appraisals/templates/appraisals/employee_fill.html:209
+#: leaves/templates/leaves/action_form.html:161
+#: leaves/templates/leaves/request_form.html:111
+msgid "Draw your signature here"
+msgstr "Dessinez votre signature ici"
+
+#: appraisals/templates/appraisals/_comment_form.html:25
+msgid "Please sign."
+msgstr "Veuillez signer."
+
+#: appraisals/templates/appraisals/_prior_coworker.html:5
+msgid "Co-Worker's Comment (Read Only)"
+msgstr "Commentaire du Collègue (Lecture Seule)"
+
+#: appraisals/templates/appraisals/_prior_director.html:5
+#, fuzzy
+#| msgid "Administration Director"
+msgid "Administrative Director Comment (Read Only)"
+msgstr "Directeur Administratif"
+
+#: appraisals/templates/appraisals/_prior_director.html:11
+msgid "Director modified the scores"
+msgstr "Le Directeur a modifié les notes"
+
+#: appraisals/templates/appraisals/_prior_director.html:16
+#: appraisals/templates/appraisals/_prior_hr.html:16
+#: appraisals/templates/appraisals/ceo_fill.html:33
+#: appraisals/templates/appraisals/ceo_fill.html:51
+#: appraisals/templates/appraisals/director_fill.html:32
+#: appraisals/templates/appraisals/director_fill.html:50
+#: appraisals/templates/appraisals/employee_fill.html:61
+#: appraisals/templates/appraisals/hr_fill.html:31
+#: appraisals/templates/appraisals/hr_fill.html:49
+#: appraisals/templates/appraisals/manager_fill.html:52
+#: appraisals/templates/appraisals/manager_fill.html:70
+#: appraisals/templates/appraisals/unit_head_fill.html:35
+#: appraisals/templates/appraisals/unit_head_fill.html:57
+msgid "Factor"
+msgstr "Facteur"
+
+#: appraisals/templates/appraisals/_prior_director.html:16
+msgid "Before"
+msgstr "Avant"
+
+#: appraisals/templates/appraisals/_prior_director.html:16
+#, fuzzy
+#| msgid "Director Reviewed"
+msgid "Director Modified"
+msgstr "Examiné par le Directeur"
+
+#: appraisals/templates/appraisals/_prior_employee.html:5
+#: appraisals/templates/appraisals/manager_fill.html:18
+msgid "Employee's Self-Assessment (Read Only)"
+msgstr "Auto-évaluation de l'Employé (Lecture Seule)"
+
+#: appraisals/templates/appraisals/_prior_employee.html:10
+#: appraisals/templates/appraisals/manager_fill.html:22
+msgid "Summary of Tasks"
+msgstr "Résumé des Tâches"
+
+#: appraisals/templates/appraisals/_prior_employee.html:14
+#: appraisals/templates/appraisals/appraisal_detail.html:50
+#: appraisals/templates/appraisals/manager_fill.html:26
+msgid "Tasks Assimilated"
+msgstr "Tâches Assimilées"
+
+#: appraisals/templates/appraisals/_prior_employee.html:19
+#: appraisals/templates/appraisals/appraisal_detail.html:55
+#: appraisals/templates/appraisals/manager_fill.html:31
+msgid "Goals to Reach"
+msgstr "Objectifs à Atteindre"
+
+#: appraisals/templates/appraisals/_prior_employee.html:22
+#, fuzzy
+#| msgid "Employees Warned"
+msgid "Employee's Self-Rating"
+msgstr "Employés avertis"
+
+#: appraisals/templates/appraisals/_prior_employee.html:26
+#: appraisals/templates/appraisals/_prior_supervisor.html:40
+#: appraisals/templates/appraisals/appraisal_detail.html:158
+#: appraisals/templates/appraisals/ceo_fill.html:30
+#: appraisals/templates/appraisals/director_fill.html:29
+#: appraisals/templates/appraisals/employee_fill.html:58
+#: appraisals/templates/appraisals/hr_fill.html:28
+#: appraisals/templates/appraisals/manager_fill.html:49
+#: appraisals/templates/appraisals/unit_head_fill.html:31
+#: appraisals/templates/appraisals/unit_head_fill.html:85
+msgid "Performance Factors"
+msgstr "Facteurs de Performance"
+
+#: appraisals/templates/appraisals/_prior_employee.html:29
+#: appraisals/templates/appraisals/_prior_supervisor.html:13
+msgid "Quality of Work"
+msgstr "Qualité du Travail"
+
+#: appraisals/templates/appraisals/_prior_employee.html:30
+#: appraisals/templates/appraisals/_prior_supervisor.html:14
+msgid "Quantity of Work"
+msgstr "Quantité du Travail"
+
+#: appraisals/templates/appraisals/_prior_employee.html:31
+#: appraisals/templates/appraisals/_prior_supervisor.html:15
+msgid "Knowledge of Techniques"
+msgstr "Connaissance des Techniques"
+
+#: appraisals/templates/appraisals/_prior_employee.html:32
+#: appraisals/templates/appraisals/_prior_supervisor.html:16
+msgid "Ability / Interest to Learn"
+msgstr "Capacité / Intérêt à Apprendre"
+
+#: appraisals/templates/appraisals/_prior_employee.html:37
+#: appraisals/templates/appraisals/ceo_fill.html:48
+#: appraisals/templates/appraisals/director_fill.html:47
+#: appraisals/templates/appraisals/hr_fill.html:46
+#: appraisals/templates/appraisals/unit_head_fill.html:53
+msgid "Attitude & Aptitude Factors"
+msgstr "Facteurs d'Attitude et d'Aptitude"
+
+#: appraisals/templates/appraisals/_prior_employee.html:40
+#: appraisals/templates/appraisals/_prior_supervisor.html:24
+msgid "Motivation and Initiative"
+msgstr "Motivation et Initiative"
+
+#: appraisals/templates/appraisals/_prior_employee.html:41
+#: appraisals/templates/appraisals/_prior_supervisor.html:25
+msgid "Attitude towards Colleagues"
+msgstr "Attitude envers les Collègues"
+
+#: appraisals/templates/appraisals/_prior_employee.html:42
+#: appraisals/templates/appraisals/_prior_supervisor.html:26
+msgid "Relations with Patients"
+msgstr "Relations avec les Patients"
+
+#: appraisals/templates/appraisals/_prior_employee.html:43
+msgid "Judgment & Team Spirit"
+msgstr "Jugement et Esprit d'Équipe"
+
+#: appraisals/templates/appraisals/_prior_employee.html:44
+msgid "Punctuality & Attendance"
+msgstr "Ponctualité et Assiduité"
+
+# employee_form.html
+#: appraisals/templates/appraisals/_prior_employee.html:45
+#: appraisals/templates/appraisals/_prior_supervisor.html:29
+#, fuzzy
+#| msgid "Personal Information"
+msgid "Personal Presentation"
+msgstr "Informations personnelles"
+
+#: appraisals/templates/appraisals/_prior_employee.html:51
+msgid "Comment on Self"
+msgstr "Commentaire sur Soi"
+
+#: appraisals/templates/appraisals/_prior_employee.html:52
+msgid "Comment on Supervision"
+msgstr "Commentaire sur la Supervision"
+
+#: appraisals/templates/appraisals/_prior_employee.html:53
+#, fuzzy
+#| msgid "Staff & Organization"
+msgid "Comment on Organisation"
+msgstr "Personnel & Organisation"
+
+#: appraisals/templates/appraisals/_prior_hr.html:5
+msgid "HR Manager Comment (Read Only)"
+msgstr "Commentaire du Responsable RH (Lecture Seule)"
+
+#: appraisals/templates/appraisals/_prior_hr.html:11
+msgid "HR modified the supervisor's scores"
+msgstr "Les RH ont modifié les notes du superviseur"
+
+#: appraisals/templates/appraisals/_prior_hr.html:16
+msgid "HR Modified"
+msgstr "Modifié par les RH"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:5
+msgid "Supervisor / Line Manager — Appraiser Rating &amp; Comment (Read Only)"
+msgstr "Superviseur / Responsable Hiérarchique — Notation &amp; Commentaire de l'Évaluateur (Lecture Seule)"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:10
+msgid "Performance Factors (Appraiser Rating)"
+msgstr "Facteurs de Performance (Notation de l'Évaluateur)"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:21
+msgid "Attitude &amp; Aptitude Factors (Appraiser Rating)"
+msgstr "Facteurs d'Attitude et d'Aptitude (Notation de l'Évaluateur)"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:27
+msgid "Judgment &amp; Team Spirit"
+msgstr "Jugement et Esprit d'Équipe"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:28
+msgid "Punctuality &amp; Attendance"
+msgstr "Ponctualité et Assiduité"
+
+# admin_dashboard.html
+#: appraisals/templates/appraisals/_prior_supervisor.html:34
+#: appraisals/templates/appraisals/appraisal_detail.html:153
+#: appraisals/templates/appraisals/unit_head_fill.html:74
+#: appraisals/templates/appraisals/unit_head_fill.html:77
+#, fuzzy
+#| msgid "System Administration"
+msgid "Total Ratings by Administration"
+msgstr "Administration du système"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:38
+#: appraisals/templates/appraisals/appraisal_detail.html:156
+#: appraisals/templates/appraisals/unit_head_fill.html:82
+#, fuzzy
+#| msgid "Total days"
+msgid "Total Marks"
+msgstr "Jours total"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:38
+#: appraisals/templates/appraisals/appraisal_detail.html:156
+#: appraisals/templates/appraisals/cycle_records.html:19
+#: appraisals/templates/appraisals/my_appraisals.html:95
+#: appraisals/templates/appraisals/unit_head_fill.html:82
+msgid "Score"
+msgstr "Score"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:41
+#: appraisals/templates/appraisals/appraisal_detail.html:159
+#: appraisals/templates/appraisals/unit_head_fill.html:86
+msgid "Attitude and Aptitude Factors"
+msgstr "Facteurs d'Attitude et d'Aptitude"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:42
+#: appraisals/templates/appraisals/appraisal_detail.html:160
+#: appraisals/templates/appraisals/unit_head_fill.html:87
+msgid "Discipline Sanctions (–1 each)"
+msgstr "Sanctions Disciplinaires (–1 chacune)"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:43
+#: appraisals/templates/appraisals/appraisal_detail.html:161
+msgid "Awards (Bonus +1 each)"
+msgstr "Récompenses (Bonus +1 chacune)"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:45
+#: appraisals/templates/appraisals/appraisal_detail.html:165
+#: appraisals/templates/appraisals/unit_head_fill.html:102
+#: contracts/templates/contracts/stats.html:332
+#, fuzzy
+#| msgid "Total days"
+msgid "Total"
+msgstr "Jours total"
+
+#: appraisals/templates/appraisals/_prior_supervisor.html:48
+#: appraisals/templates/appraisals/appraisal_detail.html:79
+#, fuzzy
+#| msgid "Supervisor"
+msgid "Supervisor Comment"
+msgstr "Superviseur"
+
+#: appraisals/templates/appraisals/_record_summary.html:12
+msgid "Appraisal Cycle"
+msgstr "Cycle d'Évaluation"
+
+# request_form.html
+#: appraisals/templates/appraisals/_sig_pad.html:7
+#: appraisals/templates/appraisals/employee_fill.html:203
+#, fuzzy
+#| msgid "Your saved signature will be used. Draw below to replace it."
+msgid "Saved signature will be used. Draw below to replace."
+msgstr "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
+
+#: appraisals/templates/appraisals/_sig_pad.html:17
+#: appraisals/templates/appraisals/employee_fill.html:213
+msgid "Please sign before submitting."
+msgstr "Veuillez signer avant de soumettre."
+
+#: appraisals/templates/appraisals/appraisal_detail.html:4
+#: appraisals/templates/appraisals/appraisal_detail.html:26
+#: appraisals/templates/appraisals/employee_fill.html:17
+#, fuzzy
+#| msgid "Pending Approvals"
+msgid "Personnel Appraisal"
+msgstr "Approbations en Attente"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:27
+#: appraisals/templates/appraisals/employee_fill.html:18
+#, fuzzy
+#| msgid "Period"
+msgid "Period:"
+msgstr "Période"
+
+# employee_history.html
+#: appraisals/templates/appraisals/appraisal_detail.html:42
+#, fuzzy
+#| msgid "Employee Record"
+msgid "1–6. Employee's Section"
+msgstr "Dossier de l'employé"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:46
+msgid "Tasks Summary"
+msgstr "Résumé des Tâches"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:59
+#: appraisals/templates/appraisals/employee_fill.html:186
+#: appraisals/templates/appraisals/manager_fill.html:35
+msgid "On Self"
+msgstr "Sur Soi-même"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:60
+#: appraisals/templates/appraisals/manager_fill.html:36
+#, fuzzy
+#| msgid "Supervisor"
+msgid "On Supervision"
+msgstr "Superviseur"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:61
+#: appraisals/templates/appraisals/manager_fill.html:37
+#, fuzzy
+#| msgid "Staff & Organization"
+msgid "On Organisation"
+msgstr "Personnel & Organisation"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:65
+#, fuzzy
+#| msgid "Sign In"
+msgid "Signed"
+msgstr "Se Connecter"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:91
+msgid "Line Manager — Appraiser Rating &amp; Comment"
+msgstr "Responsable Hiérarchique — Notation &amp; Commentaire de l'Évaluateur"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:95
+msgid "Performance Factors Score"
+msgstr "Score des Facteurs de Performance"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:101
+msgid "Attitude & Aptitude Score"
+msgstr "Score d'Attitude et d'Aptitude"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:117
+#: appraisals/templates/appraisals/hr_fill.html:4
+#, fuzzy
+#| msgid "Manager Date"
+msgid "HR Manager Comment"
+msgstr "Date du Responsable"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:129
+#: appraisals/templates/appraisals/director_fill.html:4
+#, fuzzy
+#| msgid "Administration Director"
+msgid "Administrative Director Comment"
+msgstr "Directeur Administratif"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:141
+#: appraisals/templates/appraisals/ceo_fill.html:3
+msgid "CEO Comment"
+msgstr "Commentaire du PDG"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:180
+msgid "Chain Progress"
+msgstr "Progression de la Chaîne"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:189
+#: appraisals/templates/appraisals/employee_fill.html:167
+msgid "Co-Worker"
+msgstr "Collègue"
+
+#: appraisals/templates/appraisals/appraisal_detail.html:197
+#, fuzzy
+#| msgid "Manager"
+msgid "HR Manager"
+msgstr "Responsable"
+
+#: appraisals/templates/appraisals/ceo_fill.html:4
+msgid "CEO Final Comment"
+msgstr "Commentaire Final du PDG"
+
+#: appraisals/templates/appraisals/ceo_fill.html:25
+msgid "Optional: Modify Final Ratings"
+msgstr "Facultatif : Modifier les Notes Finales"
+
+#: appraisals/templates/appraisals/ceo_fill.html:26
+msgid "Adjust scores if you disagree with prior assessment"
+msgstr "Ajuster les notes si vous n'êtes pas d'accord avec l'évaluation précédente"
+
+#: appraisals/templates/appraisals/ceo_fill.html:30
+#: appraisals/templates/appraisals/ceo_fill.html:48
+#: appraisals/templates/appraisals/director_fill.html:29
+#: appraisals/templates/appraisals/director_fill.html:47
+#, fuzzy
+#| msgid "Current Password"
+msgid "Current score:"
+msgstr "Mot de passe actuel"
+
+#: appraisals/templates/appraisals/ceo_fill.html:71
+msgid "CEO Comment & Signature"
+msgstr "Commentaire et Signature du PDG"
+
+#: appraisals/templates/appraisals/ceo_fill.html:73
+msgid "Once you submit, the appraisal chain is complete and HR can publish the results."
+msgstr "Une fois soumis, la chaîne d'évaluation est terminée et les RH peuvent publier les résultats."
+
+#: appraisals/templates/appraisals/ceo_fill.html:75
+#: appraisals/templates/appraisals/director_fill.html:73
+msgid "Award / Bonus Points"
+msgstr "Points de Récompense / Bonus"
+
+#: appraisals/templates/appraisals/ceo_fill.html:75
+msgid "override if needed"
+msgstr "remplacer si nécessaire"
+
+#: appraisals/templates/appraisals/ceo_fill.html:79
+#: appraisals/templates/appraisals/coworker_fill.html:22
+#: appraisals/templates/appraisals/director_fill.html:77
+#: appraisals/templates/appraisals/hr_fill.html:72
+#: appraisals/templates/appraisals/manager_fill.html:93
+#: appraisals/templates/appraisals/unit_head_fill.html:113
+#, fuzzy
+#| msgid "Document"
+msgid "Your Comment"
+msgstr "Document"
+
+#: appraisals/templates/appraisals/ceo_fill.html:81
+msgid "Provide the CEO's final comment..."
+msgstr "Saisir le commentaire final du PDG..."
+
+#: appraisals/templates/appraisals/ceo_fill.html:85
+msgid "Submit CEO Comment"
+msgstr "Soumettre le Commentaire du PDG"
+
+#: appraisals/templates/appraisals/coworker_fill.html:3
+#: appraisals/templates/appraisals/coworker_fill.html:14
+msgid "Co-Worker Comment"
+msgstr "Commentaire du Collègue"
+
+#: appraisals/templates/appraisals/coworker_fill.html:4
+msgid "Co-Worker Appraisal Comment"
+msgstr "Commentaire d'Évaluation du Collègue"
+
+#: appraisals/templates/appraisals/coworker_fill.html:24
+msgid "Share your observations about this colleague"
+msgstr "Partagez vos observations sur ce collègue"
+
+#: appraisals/templates/appraisals/coworker_fill.html:28
+#, fuzzy
+#| msgid "Submit Request"
+msgid "Submit Comment"
+msgstr "Soumettre la Demande"
+
+# employee_history.html
+#: appraisals/templates/appraisals/cycle_records.html:10
+#, fuzzy, python-format
+#| msgid "Employee Record"
+msgid "%(n)s Employee Records"
+msgstr "Dossier de l'employé"
+
+#: appraisals/templates/appraisals/cycle_records.html:42
+#, fuzzy
+#| msgid "No discipline records."
+msgid "No records."
+msgstr "Aucun dossier disciplinaire."
+
+#: appraisals/templates/appraisals/director_fill.html:3
+#, fuzzy
+#| msgid "Director Queue"
+msgid "Director Comment"
+msgstr "File du Directeur"
+
+#: appraisals/templates/appraisals/director_fill.html:24
+#: appraisals/templates/appraisals/hr_fill.html:23
+msgid "Optional: Modify Appraiser Ratings"
+msgstr "Facultatif : Modifier les Notes de l'Évaluateur"
+
+#: appraisals/templates/appraisals/director_fill.html:25
+msgid "Adjust scores if you disagree with the manager's assessment"
+msgstr "Ajuster les notes si vous n'êtes pas d'accord avec l'évaluation du responsable"
+
+#: appraisals/templates/appraisals/director_fill.html:70
+#, fuzzy
+#| msgid "Administration Director signs off"
+msgid "Administrative Director Comment & Signature"
+msgstr "Le Directeur Administratif valide"
+
+#: appraisals/templates/appraisals/director_fill.html:73
+msgid "add points for special achievements"
+msgstr "ajouter des points pour des réalisations spéciales"
+
+#: appraisals/templates/appraisals/director_fill.html:79
+msgid "Provide the Director's assessment..."
+msgstr "Saisir l'évaluation du Directeur..."
+
+#: appraisals/templates/appraisals/director_fill.html:83
+#, fuzzy
+#| msgid "Submit Decision"
+msgid "Submit Director Comment"
+msgstr "Soumettre la Décision"
+
+#: appraisals/templates/appraisals/employee_fill.html:4
+msgid "Personnel Appraisal Form"
+msgstr "Fiche d'Évaluation du Personnel"
+
+#: appraisals/templates/appraisals/employee_fill.html:23
+#, fuzzy
+#| msgid "Expired"
+msgid "Hired:"
+msgstr "Expiré"
+
+#: appraisals/templates/appraisals/employee_fill.html:34
+#, fuzzy
+#| msgid "Notifications"
+msgid "1. Job Identification"
+msgstr "Notifications"
+
+#: appraisals/templates/appraisals/employee_fill.html:39
+msgid "Summary of main job attributions / tasks"
+msgstr "Résumé des principales attributions / tâches du poste"
+
+#: appraisals/templates/appraisals/employee_fill.html:43
+msgid "Tasks assimilated by the employee"
+msgstr "Tâches assimilées par l'employé"
+
+#: appraisals/templates/appraisals/employee_fill.html:51
+msgid "2. Appraisee's Rating (Self-Assessment)"
+msgstr "2. Notation de l'Évalué (Auto-évaluation)"
+
+#: appraisals/templates/appraisals/employee_fill.html:77
+#: appraisals/templates/appraisals/manager_fill.html:67
+msgid "Attitude (Approach) and Aptitude (Skill) Factors"
+msgstr "Facteurs d'Attitude (Approche) et d'Aptitude (Compétence)"
+
+#: appraisals/templates/appraisals/employee_fill.html:100
+msgid "3. Goals to Reach (Agreed Action Points)"
+msgstr "3. Objectifs à Atteindre (Points d'Action Convenus)"
+
+#: appraisals/templates/appraisals/employee_fill.html:102
+msgid "Goals for next trimester..."
+msgstr "Objectifs pour le prochain trimestre..."
+
+#: appraisals/templates/appraisals/employee_fill.html:108
+msgid "4. Disciplinary Sanctions (–) — Auto-filled by system"
+msgstr "4. Sanctions Disciplinaires (–) — Remplies automatiquement par le système"
+
+#: appraisals/templates/appraisals/employee_fill.html:110
+msgid "Based on discipline records for this trimester period"
+msgstr "Basé sur les dossiers disciplinaires pour cette période trimestrielle"
+
+#: appraisals/templates/appraisals/employee_fill.html:113
+#, fuzzy
+#| msgid "Contract Type"
+msgid "Sanction Type"
+msgstr "Type de Contrat"
+
+#: appraisals/templates/appraisals/employee_fill.html:113
+#: appraisals/templates/appraisals/employee_fill.html:142
+msgid "YES"
+msgstr "OUI"
+
+#: appraisals/templates/appraisals/employee_fill.html:113
+#: appraisals/templates/appraisals/employee_fill.html:142
+msgid "NO"
+msgstr "NON"
+
+#: appraisals/templates/appraisals/employee_fill.html:127
+msgid "Total Deduction from score"
+msgstr "Déduction totale du score"
+
+#: appraisals/templates/appraisals/employee_fill.html:138
+msgid "5. Awards Received (+)"
+msgstr "5. Récompenses Reçues (+)"
+
+#: appraisals/templates/appraisals/employee_fill.html:142
+msgid "Award"
+msgstr "Récompense"
+
+#: appraisals/templates/appraisals/employee_fill.html:145
+#, fuzzy
+#| msgid "Employee Info"
+msgid "Employee of the Month"
+msgstr "Informations sur l'Employé"
+
+#: appraisals/templates/appraisals/employee_fill.html:152
+msgid "Other Awards / Rewards"
+msgstr "Autres Récompenses / Prix"
+
+#: appraisals/templates/appraisals/employee_fill.html:153
+msgid "e.g. Best Staff Award..."
+msgstr "ex. Meilleur Employé..."
+
+#: appraisals/templates/appraisals/employee_fill.html:160
+msgid "6. Select a Co-Worker"
+msgstr "6. Sélectionner un Collègue"
+
+#: appraisals/templates/appraisals/employee_fill.html:160
+msgid "who will comment on your work"
+msgstr "qui commentera votre travail"
+
+#: appraisals/templates/appraisals/employee_fill.html:165
+msgid "Choose a colleague (from any department) who will provide a brief comment about your work. They will be notified automatically after you submit."
+msgstr "Choisissez un collègue (de n'importe quel département) qui fournira un bref commentaire sur votre travail. Il sera notifié automatiquement après votre soumission."
+
+#: appraisals/templates/appraisals/employee_fill.html:168
+msgid "Type to search by name or department..."
+msgstr "Rechercher par nom ou département..."
+
+#: appraisals/templates/appraisals/employee_fill.html:170
+#, fuzzy
+#| msgid "— Select department —"
+msgid "— Select a colleague —"
+msgstr "— Sélectionner un département —"
+
+#: appraisals/templates/appraisals/employee_fill.html:177
+msgid "This person cannot be yourself. They will receive a notification to log in and add their comment."
+msgstr "Cette personne ne peut pas être vous-même. Elle recevra une notification pour se connecter et ajouter son commentaire."
+
+#: appraisals/templates/appraisals/employee_fill.html:183
+msgid "7. Employee's Comments &amp; Signature"
+msgstr "7. Commentaires et Signature de l'Employé"
+
+#: appraisals/templates/appraisals/employee_fill.html:187
+msgid "Comment about yourself..."
+msgstr "Commentaire sur vous-même..."
+
+#: appraisals/templates/appraisals/employee_fill.html:190
+#, fuzzy
+#| msgid "Supervisor"
+msgid "On Work Supervision"
+msgstr "Superviseur"
+
+#: appraisals/templates/appraisals/employee_fill.html:191
+msgid "Comment on supervision..."
+msgstr "Commentaire sur la supervision..."
+
+#: appraisals/templates/appraisals/employee_fill.html:194
+#, fuzzy
+#| msgid "Staff & Organization"
+msgid "On Work Organisation"
+msgstr "Personnel & Organisation"
+
+#: appraisals/templates/appraisals/employee_fill.html:195
+msgid "Comment on work organisation..."
+msgstr "Commentaire sur l'organisation du travail..."
+
+#: appraisals/templates/appraisals/employee_fill.html:234
+#, fuzzy
+#| msgid "Sign In"
+msgid "Signing Chain"
+msgstr "Se Connecter"
+
+# employee_list.html
+#: appraisals/templates/appraisals/hr_dashboard.html:3
+#: appraisals/templates/appraisals/hr_dashboard.html:4
+#, fuzzy
+#| msgid "Employee Management"
+msgid "Appraisal Management"
+msgstr "Gestion des Employés"
+
+#: appraisals/templates/appraisals/hr_dashboard.html:5
+msgid "Manage appraisal cycles and distribute results"
+msgstr "Gérer les cycles d'évaluation et distribuer les résultats"
+
+#: appraisals/templates/appraisals/hr_dashboard.html:19
+#, fuzzy
+#| msgid "No employees yet."
+msgid "No appraisal cycles yet."
+msgstr "Aucun employé pour l'instant."
+
+#: appraisals/templates/appraisals/hr_dashboard.html:20
+msgid "Start by initiating the first appraisal cycle."
+msgstr "Commencez par initier le premier cycle d'évaluation."
+
+#: appraisals/templates/appraisals/hr_dashboard.html:37
+#: appraisals/templates/appraisals/hr_initiate.html:65
+msgid "Distributed"
+msgstr "Distribué"
+
+#: appraisals/templates/appraisals/hr_dashboard.html:39
+#: appraisals/templates/appraisals/hr_initiate.html:65
+msgid "In Progress"
+msgstr "En Cours"
+
+#: appraisals/templates/appraisals/hr_dashboard.html:54
+#, fuzzy
+#| msgid "Total days"
+msgid "Total Records"
+msgstr "Jours total"
+
+#: appraisals/templates/appraisals/hr_dashboard.html:62
+msgid "Completed"
+msgstr "Terminé"
+
+#: appraisals/templates/appraisals/hr_dashboard.html:68
+#: appraisals/templates/appraisals/my_appraisals.html:67
+msgid "Initiated"
+msgstr "Initié"
+
+#: appraisals/templates/appraisals/hr_dashboard.html:71
+msgid "Initiated by"
+msgstr "Initié par"
+
+#: appraisals/templates/appraisals/hr_fill.html:3
+msgid "HR Comment"
+msgstr "Commentaire RH"
+
+#: appraisals/templates/appraisals/hr_fill.html:24
+msgid "Leave unchanged to keep the manager's original scores"
+msgstr "Laisser inchangé pour conserver les notes originales du responsable"
+
+# manager_dashboard.html
+#: appraisals/templates/appraisals/hr_fill.html:28
+#: appraisals/templates/appraisals/hr_fill.html:46
+#, fuzzy
+#| msgid "Manager Dashboard"
+msgid "Manager scored:"
+msgstr "Tableau de bord du Responsable"
+
+#: appraisals/templates/appraisals/hr_fill.html:69
+msgid "HR Manager Comment & Signature"
+msgstr "Commentaire et Signature du Responsable RH"
+
+#: appraisals/templates/appraisals/hr_fill.html:74
+msgid "Provide HR's assessment and observations..."
+msgstr "Saisir l'évaluation et les observations des RH..."
+
+#: appraisals/templates/appraisals/hr_fill.html:78
+#, fuzzy
+#| msgid "Submit Request"
+msgid "Submit HR Comment"
+msgstr "Soumettre la Demande"
+
+#: appraisals/templates/appraisals/hr_initiate.html:3
+msgid "Initiate Appraisal Cycle"
+msgstr "Initier un Cycle d'Évaluation"
+
+#: appraisals/templates/appraisals/hr_initiate.html:4
+msgid "Initiate New Appraisal Cycle"
+msgstr "Initier un Nouveau Cycle d'Évaluation"
+
+#: appraisals/templates/appraisals/hr_initiate.html:5
+msgid "Creates appraisal forms for all active employees"
+msgstr "Crée des fiches d'évaluation pour tous les employés actifs"
+
+#: appraisals/templates/appraisals/hr_initiate.html:11
+msgid "New Appraisal Cycle"
+msgstr "Nouveau Cycle d'Évaluation"
+
+#: appraisals/templates/appraisals/hr_initiate.html:15
+msgid "This will create appraisal forms for <strong>all active employees</strong> and send them a notification. Make sure you have the correct trimester and year selected before submitting."
+msgstr "Cela créera des fiches d'évaluation pour <strong>tous les employés actifs</strong> et leur enverra une notification. Assurez-vous d'avoir sélectionné le bon trimestre et la bonne année avant de soumettre."
+
+#: appraisals/templates/appraisals/hr_initiate.html:20
+#: leaves/templates/leaves/all_leaves.html:14
+#: leaves/templates/leaves/my_requests.html:97
+msgid "Year"
+msgstr "Année"
+
+#: appraisals/templates/appraisals/hr_initiate.html:24
+msgid "Trimester"
+msgstr "Trimestre"
+
+#: appraisals/templates/appraisals/hr_initiate.html:26
+#: contracts/templates/contracts/bulk_issue_contract.html:60
+#, fuzzy
+#| msgid "— Select person —"
+msgid "— Select —"
+msgstr "— Sélectionner une personne —"
+
+#: appraisals/templates/appraisals/hr_initiate.html:27
+msgid "Trimester 1 — November to February"
+msgstr "Trimestre 1 — Novembre à Février"
+
+#: appraisals/templates/appraisals/hr_initiate.html:28
+msgid "Trimester 2 — March to June"
+msgstr "Trimestre 2 — Mars à Juin"
+
+#: appraisals/templates/appraisals/hr_initiate.html:29
+msgid "Trimester 3 — July to October"
+msgstr "Trimestre 3 — Juillet à Octobre"
+
+#: appraisals/templates/appraisals/hr_initiate.html:33
+msgid "Custom Label"
+msgstr "Libellé Personnalisé"
+
+#: appraisals/templates/appraisals/hr_initiate.html:33
+#: contracts/templates/contracts/bulk_issue_contract.html:95
+#: contracts/templates/contracts/issue_contract.html:137
+#: leaves/templates/leaves/action_form.html:135
+#: leaves/templates/leaves/request_form.html:64
+#: leaves/templates/leaves/request_form.html:78
+msgid "optional"
+msgstr "facultatif"
+
+#: appraisals/templates/appraisals/hr_initiate.html:35
+msgid "Leave blank to auto-generate."
+msgstr "Laisser vide pour générer automatiquement."
+
+#: appraisals/templates/appraisals/hr_initiate.html:51
+msgid "Previous Cycles"
+msgstr "Cycles Précédents"
+
+#: appraisals/templates/appraisals/hr_initiate.html:54
+#, fuzzy
+#| msgid "No employees yet."
+msgid "No cycles yet."
+msgstr "Aucun employé pour l'instant."
+
+#: appraisals/templates/appraisals/hr_initiate.html:58
+#: appraisals/templates/appraisals/my_appraisals.html:95
+#: appraisals/templates/appraisals/pending_list.html:23
+msgid "Cycle"
+msgstr "Cycle"
+
+#: appraisals/templates/appraisals/hr_initiate.html:58
+#, fuzzy
+#| msgid "Record(s)"
+msgid "Records"
+msgstr "Enregistrement(s)"
+
+# manager_approvals.html
+#: appraisals/templates/appraisals/manager_fill.html:3
+#, fuzzy
+#| msgid "Manager Approvals"
+msgid "Manager Appraisal Rating"
+msgstr "Approbations du Responsable"
+
+#: appraisals/templates/appraisals/manager_fill.html:4
+msgid "Line Manager — Appraiser Rating & Comment"
+msgstr "Responsable Hiérarchique — Notation & Commentaire de l'Évaluateur"
+
+#: appraisals/templates/appraisals/manager_fill.html:44
+msgid "Appraiser's Rating (You fill this)"
+msgstr "Notation de l'Évaluateur (Vous remplissez ceci)"
+
+#: appraisals/templates/appraisals/manager_fill.html:90
+msgid "Manager Comment & Signature"
+msgstr "Commentaire et Signature du Responsable"
+
+#: appraisals/templates/appraisals/manager_fill.html:95
+msgid "Provide your assessment and any recommendations..."
+msgstr "Saisir votre évaluation et vos recommandations..."
+
+#: appraisals/templates/appraisals/manager_fill.html:102
+msgid "Submit Rating & Comment"
+msgstr "Soumettre la Notation et le Commentaire"
+
+#: appraisals/templates/appraisals/my_appraisals.html:3
+#: appraisals/templates/appraisals/my_appraisals.html:4
+#: templates/base.html:1150
+#, fuzzy
+#| msgid "HR Approvals"
+msgid "My Appraisals"
+msgstr "Approbations RH"
+
+#: appraisals/templates/appraisals/my_appraisals.html:5
+msgid "Your personnel appraisal forms"
+msgstr "Vos fiches d'évaluation du personnel"
+
+#: appraisals/templates/appraisals/my_appraisals.html:13
+msgid "Co-Worker Comment Needed:"
+msgstr "Commentaire du Collègue Requis :"
+
+#: appraisals/templates/appraisals/my_appraisals.html:19
+#, fuzzy
+#| msgid "Awaiting You"
+msgid "Awaiting Your Comment"
+msgstr "En attente de vous"
+
+#: appraisals/templates/appraisals/my_appraisals.html:34
+msgid "Co-Worker Comments Submitted"
+msgstr "Commentaires du Collègue Soumis"
+
+#: appraisals/templates/appraisals/my_appraisals.html:56
+#, fuzzy
+#| msgid "Action Required"
+msgid "Action Required:"
+msgstr "Action requise"
+
+#: appraisals/templates/appraisals/my_appraisals.html:62
+msgid "Action Required"
+msgstr "Action requise"
+
+#: appraisals/templates/appraisals/my_appraisals.html:79
+#, fuzzy
+#| msgid "Approval History"
+msgid "Appraisal History"
+msgstr "Historique des Approbations"
+
+#: appraisals/templates/appraisals/my_appraisals.html:86
+#, fuzzy
+#| msgid "No employees yet."
+msgid "No completed appraisals yet."
+msgstr "Aucun employé pour l'instant."
+
+#: appraisals/templates/appraisals/my_appraisals.html:88
+msgid "Your appraisal forms will appear here once HR initiates a new cycle."
+msgstr "Vos fiches d'évaluation apparaîtront ici une fois que les RH auront initié un nouveau cycle."
+
+#: appraisals/templates/appraisals/pending_list.html:5
+msgid "Appraisals waiting for your action"
+msgstr "Évaluations en attente de votre action"
+
+#: appraisals/templates/appraisals/pending_list.html:17
+msgid "No appraisals waiting for your action."
+msgstr "Aucune évaluation en attente de votre action."
+
+#: appraisals/templates/appraisals/pending_list.html:23
+#: leaves/templates/leaves/ceo_approvals.html:35
+#: leaves/templates/leaves/manager_approvals.html:31
+msgid "Submitted"
+msgstr "Soumis le"
+
+#: appraisals/templates/appraisals/unit_head_fill.html:3
+#, fuzzy
+#| msgid "Supervisor"
+msgid "Supervisor Review"
+msgstr "Superviseur"
+
+#: appraisals/templates/appraisals/unit_head_fill.html:4
+msgid "Supervisor Review & Grading"
+msgstr "Revue et Notation du Superviseur"
+
+#: appraisals/templates/appraisals/unit_head_fill.html:17
+msgid "Your Appraiser Rating & Comment (Supervisor / Line Manager)"
+msgstr "Votre Notation et Commentaire (Superviseur / Responsable Hiérarchique)"
+
+#: appraisals/templates/appraisals/unit_head_fill.html:26
+msgid "Grade the employee below."
+msgstr "Notez l'employé ci-dessous."
+
+#: appraisals/templates/appraisals/unit_head_fill.html:90
+msgid "Awards / Bonus Points"
+msgstr "Récompenses / Points Bonus"
+
+#: appraisals/templates/appraisals/unit_head_fill.html:115
+msgid "Provide your assessment as supervisor / line manager..."
+msgstr "Saisir votre évaluation en tant que superviseur / responsable hiérarchique..."
+
+#: contracts/templates/contracts/bulk_issue_contract.html:4
+#: contracts/templates/contracts/bulk_issue_contract.html:5
+#, fuzzy
+#| msgid "Issue Contract"
+msgid "Bulk Issue Contracts"
+msgstr "Émettre un Contrat"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:10
+#: contracts/templates/contracts/contract_detail.html:11
+#: contracts/templates/contracts/issue_contract.html:15
+#: contracts/templates/contracts/stats.html:10 templates/base.html:1320
+#: templates/base.html:1385
+msgid "All Contracts"
+msgstr "Tous les contrats"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:21
+#, fuzzy
+#| msgid "Contract Type"
+msgid "Contract Terms"
+msgstr "Type de Contrat"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:33
+#: contracts/templates/contracts/issue_contract.html:61
+#, fuzzy
+#| msgid "CDD (Fixed Term)"
+msgid "Fixed Term"
+msgstr "CDD (Durée déterminée)"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:33
+#: contracts/templates/contracts/bulk_issue_contract.html:45
+#: contracts/templates/contracts/bulk_issue_contract.html:51
+#: contracts/templates/contracts/issue_contract.html:61
+#: contracts/templates/contracts/issue_contract.html:77
+#: contracts/templates/contracts/issue_contract.html:85
+msgid "has end date"
+msgstr "a une date de fin"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:39
+#: contracts/templates/contracts/contract_detail.html:277
+#: contracts/templates/contracts/issue_contract.html:69
+#, fuzzy
+#| msgid "CDI (Permanent)"
+msgid "Permanent"
+msgstr "CDI (Permanent)"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:39
+#: contracts/templates/contracts/issue_contract.html:69
+msgid "no end date"
+msgstr "pas de date de fin"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:51
+#: contracts/templates/contracts/issue_contract.html:85
+#: contracts/templates/contracts/stats.html:49
+#: contracts/templates/contracts/stats.html:331
+msgid "Residents"
+msgstr "Résidents"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:58
+#: contracts/templates/contracts/contract_detail.html:211
+#: contracts/templates/contracts/issue_contract.html:94
+#: contracts/templates/contracts/my_contract.html:146
+#, fuzzy
+#| msgid "Internship"
+msgid "Internship Type"
+msgstr "Stage"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:61
+#: contracts/templates/contracts/contract_detail.html:214
+#: contracts/templates/contracts/issue_contract.html:97
+#, fuzzy
+#| msgid "Internship"
+msgid "Academic Internship"
+msgstr "Stage"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:62
+#: contracts/templates/contracts/issue_contract.html:98
+#, fuzzy
+#| msgid "Employment Details"
+msgid "Pre-Employment Internship"
+msgstr "Détails de l'emploi"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:63
+#: contracts/templates/contracts/contract_detail.html:215
+#: contracts/templates/contracts/issue_contract.html:99
+#, fuzzy
+#| msgid "Internship"
+msgid "Professional Internship"
+msgstr "Stage"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:64
+#: contracts/templates/contracts/contract_detail.html:216
+#: contracts/templates/contracts/issue_contract.html:100
+msgid "Vocational / Technical Internship"
+msgstr "Stage Professionnel / Technique"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:65
+#: contracts/templates/contracts/issue_contract.html:101
+msgid "Observation / Discovery Internship"
+msgstr "Stage d'Observation / Découverte"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:66
+#: contracts/templates/contracts/contract_detail.html:218
+#: contracts/templates/contracts/issue_contract.html:102
+msgid "Other"
+msgstr "Autre"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:71
+#: contracts/templates/contracts/issue_contract.html:108
+#, fuzzy
+#| msgid "Department"
+msgid "Working Department"
+msgstr "Département"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:73
+#: contracts/templates/contracts/issue_contract.html:110
+#, fuzzy
+#| msgid "— Select department —"
+msgid "— Select Department —"
+msgstr "— Sélectionner un département —"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:83
+#: contracts/templates/contracts/bulk_issue_contract.html:91
+#: contracts/templates/contracts/bulk_issue_contract.html:201
+#: contracts/templates/contracts/issue_contract.html:122
+#: contracts/templates/contracts/issue_contract.html:131
+#: contracts/templates/contracts/issue_contract.html:171
+msgid "DD/MM/YYYY or YYYY-MM-DD"
+msgstr "JJ/MM/AAAA ou AAAA-MM-JJ"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:88
+#: contracts/templates/contracts/issue_contract.html:129
+#, fuzzy
+#| msgid "Required for CDD / INTERN / WACS."
+msgid "CDD / INTERN / WACS"
+msgstr "Requis pour CDD / INTERN / WACS."
+
+#: contracts/templates/contracts/bulk_issue_contract.html:95
+#: contracts/templates/contracts/contract_detail.html:157
+#: contracts/templates/contracts/issue_contract.html:137
+#: contracts/templates/contracts/my_contract.html:180
+msgid "Notes"
+msgstr "Notes"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:96
+msgid "Any notes about this contract…"
+msgstr "Remarques éventuelles sur ce contrat…"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:101
+msgid "Select employees on the right, then click <strong>Issue Contracts</strong>. Each employee gets their own contract record and notification."
+msgstr "Sélectionnez les employés à droite, puis cliquez sur <strong>Émettre des Contrats</strong>. Chaque employé reçoit son propre dossier de contrat et une notification."
+
+#: contracts/templates/contracts/bulk_issue_contract.html:106
+#, fuzzy
+#| msgid "Issue Contract"
+msgid "Issue Contracts"
+msgstr "Émettre un Contrat"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:106
+#: contracts/templates/contracts/bulk_issue_contract.html:181
+msgid "selected"
+msgstr "sélectionné(s)"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:117
+#, fuzzy
+#| msgid "Delete Employee"
+msgid "Select Employees"
+msgstr "Supprimer l'Employé"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:120
+#, fuzzy
+#| msgid "Search name or ID…"
+msgid "Search name / ID…"
+msgstr "Rechercher un nom ou un ID…"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:127
+msgid "Select All"
+msgstr "Tout Sélectionner"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:142
+#, fuzzy
+#| msgid "Active Contracts"
+msgid "Active Contract"
+msgstr "Contrats actifs"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:168
+#, fuzzy
+#| msgid "New Contract"
+msgid "No contract"
+msgstr "Nouveau contrat"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:174
+#, fuzzy
+#| msgid "Active Employees"
+msgid "No active employees found."
+msgstr "Employés Actifs"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:180
+#, fuzzy
+#| msgid "Employees"
+msgid "employee(s) shown"
+msgstr "Employés"
+
+#: contracts/templates/contracts/bulk_issue_contract.html:201
+#: contracts/templates/contracts/issue_contract.html:171
+msgid "Not applicable for CDI"
+msgstr "Non applicable pour CDI"
+
+#: contracts/templates/contracts/contract_detail.html:4
+#, fuzzy
+#| msgid "Contracts"
+msgid "Contract"
+msgstr "Contrats"
+
+#: contracts/templates/contracts/contract_detail.html:5
+#, fuzzy
+#| msgid "Contract Type"
+msgid "Contract Detail"
+msgstr "Type de Contrat"
+
+#: contracts/templates/contracts/contract_detail.html:15
+#: contracts/templates/contracts/my_contract.html:4
+#: contracts/templates/contracts/my_contract.html:5
+#: contracts/templates/contracts/notifications.html:10 templates/base.html:1140
+msgid "My Contract"
+msgstr "Mon contrat"
+
+#: contracts/templates/contracts/contract_detail.html:47
+#: contracts/templates/contracts/my_contract.html:101
+#: contracts/templates/contracts/my_contract.html:359
+#: dashboard/templates/dashboard/employee_dashboard.html:160
+msgid "days left"
+msgstr "jours restants"
+
+#: contracts/templates/contracts/contract_detail.html:55
+#, fuzzy
+#| msgid "Employment Details"
+msgid "Employee Details"
+msgstr "Détails de l'emploi"
+
+#: contracts/templates/contracts/contract_detail.html:79
+#, fuzzy, python-format
+#| msgid "years"
+msgid "%(a)s years"
+msgstr "ans"
+
+#: contracts/templates/contracts/contract_detail.html:82
+#: contracts/templates/contracts/stats.html:67
+#: dashboard/templates/dashboard/admin_dashboard.html:196
+msgid "Near Retirement"
+msgstr "Proches de la retraite"
+
+#: contracts/templates/contracts/contract_detail.html:90
+msgid "Years of Service"
+msgstr "Années de service"
+
+#: contracts/templates/contracts/contract_detail.html:92
+#, python-format
+msgid "%(n)s yr%(n|pluralize)s"
+msgstr "%(n)s an(s)"
+
+#: contracts/templates/contracts/contract_detail.html:101
+#: contracts/templates/contracts/my_contract.html:126
+#, fuzzy
+#| msgid "Contracts"
+msgid "Contract Details"
+msgstr "Contrats"
+
+#: contracts/templates/contracts/contract_detail.html:108
+#: contracts/templates/contracts/contract_detail.html:196
+#: contracts/templates/contracts/my_contract.html:134
+#, fuzzy
+#| msgid "CDI (Permanent)"
+msgid "CDI — Permanent"
+msgstr "CDI (Permanent)"
+
+#: contracts/templates/contracts/contract_detail.html:112
+#: contracts/templates/contracts/contract_detail.html:198
+#: contracts/templates/contracts/my_contract.html:138
+#: contracts/templates/contracts/my_contract.html:333
+#, fuzzy
+#| msgid "WACS Resident / Trainee"
+msgid "WACS Residency"
+msgstr "Résident WACS / Stagiaire"
+
+#: contracts/templates/contracts/contract_detail.html:114
+#: contracts/templates/contracts/contract_detail.html:195
+#: contracts/templates/contracts/my_contract.html:140
+#, fuzzy
+#| msgid "CDD (Fixed Term)"
+msgid "CDD — Fixed Term"
+msgstr "CDD (Durée déterminée)"
+
+#: contracts/templates/contracts/contract_detail.html:122
+#, fuzzy
+#| msgid "Department Leave Activity"
+msgid "Permanent / Active"
+msgstr "Activité des Congés par Département"
+
+#: contracts/templates/contracts/contract_detail.html:130
+msgid "Superseded — Renewed"
+msgstr "Remplacé — Renouvelé"
+
+#: contracts/templates/contracts/contract_detail.html:142
+#, fuzzy
+#| msgid "No department data yet"
+msgid "No end date"
+msgstr "Pas encore de données par département"
+
+#: contracts/templates/contracts/contract_detail.html:147
+#, fuzzy
+#| msgid "Remaining"
+msgid "Time Remaining"
+msgstr "Restants"
+
+#: contracts/templates/contracts/contract_detail.html:168
+msgid "Created On"
+msgstr "Créé le"
+
+#: contracts/templates/contracts/contract_detail.html:180
+#, fuzzy
+#| msgid "Actions"
+msgid "HR Actions"
+msgstr "Actions"
+
+#: contracts/templates/contracts/contract_detail.html:187
+#: contracts/templates/contracts/contract_detail.html:331
+#, fuzzy
+#| msgid "New Contract"
+msgid "Extend Contract"
+msgstr "Nouveau contrat"
+
+#: contracts/templates/contracts/contract_detail.html:193
+#, fuzzy
+#| msgid "Contract Type"
+msgid "New Contract Type"
+msgstr "Type de Contrat"
+
+#: contracts/templates/contracts/contract_detail.html:202
+#, fuzzy
+#| msgid "Start Date"
+msgid "New Start Date"
+msgstr "Date de Début"
+
+#: contracts/templates/contracts/contract_detail.html:206
+#, fuzzy
+#| msgid "End Date"
+msgid "New End Date"
+msgstr "Date de Fin"
+
+#: contracts/templates/contracts/contract_detail.html:206
+#, fuzzy
+#| msgid "Required for CDD / INTERN / WACS."
+msgid "CDD/INTERN/WACS"
+msgstr "Requis pour CDD / INTERN / WACS."
+
+#: contracts/templates/contracts/contract_detail.html:213
+#, fuzzy
+#| msgid "— Select person —"
+msgid "— Select Type —"
+msgstr "— Sélectionner une personne —"
+
+#: contracts/templates/contracts/contract_detail.html:217
+msgid "Observation / Shadowing"
+msgstr "Stage d'Observation / Shadowing"
+
+#: contracts/templates/contracts/contract_detail.html:222
+#, fuzzy
+#| msgid "optional"
+msgid "Notes (optional)"
+msgstr "facultatif"
+
+#: contracts/templates/contracts/contract_detail.html:223
+#: contracts/templates/contracts/contract_detail.html:350
+msgid "Extension notes…"
+msgstr "Notes de prolongation…"
+
+#: contracts/templates/contracts/contract_detail.html:228
+#: contracts/templates/contracts/contract_detail.html:342
+#, fuzzy
+#| msgid "Add New Employee"
+msgid "Extend & Notify Employee"
+msgstr "Ajouter un nouvel employé"
+
+#: contracts/templates/contracts/contract_detail.html:239
+#, fuzzy
+#| msgid "New Contract"
+msgid "Terminate Contract"
+msgstr "Nouveau contrat"
+
+#: contracts/templates/contracts/contract_detail.html:241
+msgid "Terminate this contract? The employee will be notified."
+msgstr "Mettre fin à ce contrat ? L'employé sera notifié."
+
+#: contracts/templates/contracts/contract_detail.html:245
+#, fuzzy
+#| msgid "optional"
+msgid "Reason (optional)"
+msgstr "facultatif"
+
+#: contracts/templates/contracts/contract_detail.html:246
+#, fuzzy
+#| msgid "Reason for Leave"
+msgid "Reason for termination…"
+msgstr "Motif du Congé"
+
+#: contracts/templates/contracts/contract_detail.html:250
+msgid "Terminate & Notify Employee"
+msgstr "Mettre fin au Contrat et Notifier l'Employé"
+
+#: contracts/templates/contracts/contract_detail.html:266
+#, fuzzy
+#| msgid "Contract History"
+msgid "Extension History"
+msgstr "Historique des contrats"
+
+#: contracts/templates/contracts/contract_detail.html:266
+#, fuzzy
+#| msgid "Leave History"
+msgid "Renewal History"
+msgstr "Historique des congés"
+
+#: contracts/templates/contracts/contract_detail.html:334
+#, fuzzy
+#| msgid "New Contract"
+msgid "Renew Contract"
+msgstr "Nouveau contrat"
+
+#: contracts/templates/contracts/contract_detail.html:346
+#, fuzzy
+#| msgid "Delete Employee"
+msgid "Renew & Notify Employee"
+msgstr "Supprimer l'Employé"
+
+#: contracts/templates/contracts/contract_detail.html:350
+msgid "Renewal notes…"
+msgstr "Notes de renouvellement…"
+
+#: contracts/templates/contracts/issue_contract.html:11
+#, fuzzy
+#| msgid "Active Employees"
+msgid "Back to Employee"
+msgstr "Employés Actifs"
+
+#: contracts/templates/contracts/issue_contract.html:26
+#, fuzzy, python-format
+#| msgid "Change / Renew Contract"
+msgid "Change / Renew Contract — %(name)s"
+msgstr "Modifier / Renouveler le Contrat"
+
+#: contracts/templates/contracts/issue_contract.html:26
+#, fuzzy
+#| msgid "Issue Contract"
+msgid "Issue New Contract"
+msgstr "Émettre un Contrat"
+
+#: contracts/templates/contracts/issue_contract.html:32
+#, python-format
+msgid "Issuing contract for <strong>%(name)s</strong> (%(eid)s)"
+msgstr "Émission d'un contrat pour <strong>%(name)s</strong> (%(eid)s)"
+
+#: contracts/templates/contracts/issue_contract.html:33
+msgid "Any existing active contract will be automatically marked as"
+msgstr "Tout contrat actif existant sera automatiquement marqué comme"
+
+#: contracts/templates/contracts/issue_contract.html:33
+#, fuzzy
+#| msgid "Renewed"
+msgid "renewed"
+msgstr "Renouvelé"
+
+#: contracts/templates/contracts/issue_contract.html:44
+#, fuzzy
+#| msgid "— Select person —"
+msgid "— Select Employee —"
+msgstr "— Sélectionner une personne —"
+
+#: contracts/templates/contracts/issue_contract.html:96
+#, fuzzy
+#| msgid "— Select person —"
+msgid "— Select Internship Type —"
+msgstr "— Sélectionner une personne —"
+
+#: contracts/templates/contracts/issue_contract.html:115
+msgid "The department where this intern or resident will be placed."
+msgstr "Le département où ce stagiaire ou résident sera affecté."
+
+#: contracts/templates/contracts/issue_contract.html:125
+msgid "Enter the actual employment start date (may be in the past)."
+msgstr "Saisissez la date de début d'emploi réelle (peut être dans le passé)."
+
+#: contracts/templates/contracts/issue_contract.html:138
+msgid "Any additional notes about this contract…"
+msgstr "Remarques supplémentaires sur ce contrat…"
+
+#: contracts/templates/contracts/my_contract.html:11
+#, fuzzy
+#| msgid "Download / Print PDF"
+msgid "Download Contract PDF"
+msgstr "Télécharger / Imprimer le PDF"
+
+#: contracts/templates/contracts/my_contract.html:16 templates/base.html:1114
+msgid "Notifications"
+msgstr "Notifications"
+
+#: contracts/templates/contracts/my_contract.html:30
+#, fuzzy
+#| msgid "No contracts on record."
+msgid "No Contract on Record"
+msgstr "Aucun contrat enregistré."
+
+#: contracts/templates/contracts/my_contract.html:31
+msgid "You do not have a contract registered in the system yet. Please contact HR."
+msgstr "Vous n'avez pas encore de contrat enregistré dans le système. Veuillez contacter les RH."
+
+#: contracts/templates/contracts/my_contract.html:73
+msgid "Permanent Contract (CDI)"
+msgstr "Contrat à Durée Indéterminée (CDI)"
+
+#: contracts/templates/contracts/my_contract.html:75
+#: contracts/templates/contracts/my_contract.html:136
+#, fuzzy
+#| msgid "Initial Contract"
+msgid "Internship Contract"
+msgstr "Contrat Initial"
+
+#: contracts/templates/contracts/my_contract.html:77
+#, fuzzy
+#| msgid "WACS Resident / Trainee"
+msgid "WACS Residency / Trainee Programme"
+msgstr "Résident WACS / Stagiaire"
+
+#: contracts/templates/contracts/my_contract.html:79
+msgid "Fixed-Term Contract (CDD)"
+msgstr "Contrat à Durée Déterminée (CDD)"
+
+#: contracts/templates/contracts/my_contract.html:84
+msgid "No fixed end date — your contract does not expire."
+msgstr "Pas de date de fin fixe — votre contrat n'expire pas."
+
+#: contracts/templates/contracts/my_contract.html:86
+#, fuzzy
+#| msgid "Internship Details"
+msgid "Internship period:"
+msgstr "Détails du Stage"
+
+#: contracts/templates/contracts/my_contract.html:89
+msgid "WACS Programme:"
+msgstr "Programme WACS :"
+
+#: contracts/templates/contracts/my_contract.html:92
+#, fuzzy, python-format
+#| msgid "No contracts on record."
+msgid "Your contract expired on %(end)s."
+msgstr "Aucun contrat enregistré."
+
+#: contracts/templates/contracts/my_contract.html:94
+msgid "Ends"
+msgstr "Se termine le"
+
+#: contracts/templates/contracts/my_contract.html:106
+#: contracts/templates/contracts/my_contract.html:111
+#, fuzzy
+#| msgid "%(days)s days remaining"
+msgid "days remaining"
+msgstr "%(days)s jours restants"
+
+#: contracts/templates/contracts/my_contract.html:125
+msgid "WACS Programme Details"
+msgstr "Détails du Programme WACS"
+
+#: contracts/templates/contracts/my_contract.html:158
+msgid "Superseded by renewal"
+msgstr "Remplacé par un renouvellement"
+
+#: contracts/templates/contracts/my_contract.html:166
+#, fuzzy
+#| msgid "Internship"
+msgid "Internship Start"
+msgstr "Stage"
+
+#: contracts/templates/contracts/my_contract.html:166
+msgid "Programme Start"
+msgstr "Début du Programme"
+
+#: contracts/templates/contracts/my_contract.html:172
+#, fuzzy
+#| msgid "Internship"
+msgid "Internship End"
+msgstr "Stage"
+
+#: contracts/templates/contracts/my_contract.html:172
+msgid "Programme End"
+msgstr "Fin du Programme"
+
+#: contracts/templates/contracts/my_contract.html:175
+msgid "No end date (permanent)"
+msgstr "Pas de date de fin (permanent)"
+
+#: contracts/templates/contracts/my_contract.html:187
+#, fuzzy
+#| msgid "Issued By"
+msgid "Date Issued"
+msgstr "Émis par"
+
+#: contracts/templates/contracts/my_contract.html:203
+#: contracts/templates/contracts/notifications.html:4
+#: contracts/templates/contracts/notifications.html:5
+#, fuzzy
+#| msgid "Notifications"
+msgid "Contract Notifications"
+msgstr "Notifications"
+
+#: contracts/templates/contracts/my_contract.html:205
+msgid "unread"
+msgstr "non lu(s)"
+
+#: contracts/templates/contracts/my_contract.html:224
+#, fuzzy
+#| msgid "Add New"
+msgid "New"
+msgstr "Ajouter Nouveau"
+
+#: contracts/templates/contracts/my_contract.html:232
+#, fuzzy
+#| msgid "Mark all read"
+msgid "Mark all as read"
+msgstr "Tout marquer comme lu"
+
+#: contracts/templates/contracts/my_contract.html:246
+#, fuzzy
+#| msgid "Internship"
+msgid "Internship Programme"
+msgstr "Stage"
+
+#: contracts/templates/contracts/my_contract.html:251
+#: contracts/templates/contracts/my_contract.html:310
+#, fuzzy
+#| msgid "Remaining"
+msgid "Days Remaining"
+msgstr "Restants"
+
+#: contracts/templates/contracts/my_contract.html:253
+#, fuzzy
+#| msgid "Internship Details"
+msgid "Internship Completed"
+msgstr "Détails du Stage"
+
+#: contracts/templates/contracts/my_contract.html:259
+#: contracts/templates/contracts/my_contract.html:318
+msgid "Programme Ends"
+msgstr "Fin du Programme"
+
+# employee_form.html
+#: contracts/templates/contracts/my_contract.html:270
+#, fuzzy
+#| msgid "Personal Information"
+msgid "Intern Information"
+msgstr "Informations personnelles"
+
+#: contracts/templates/contracts/my_contract.html:273
+#: contracts/templates/contracts/my_contract.html:332
+msgid "Programme Type"
+msgstr "Type de Programme"
+
+#: contracts/templates/contracts/my_contract.html:277
+#, fuzzy
+#| msgid "Monthly Leave Approvals"
+msgid "Leave Approvals"
+msgstr "Approbations de Congés Mensuelles"
+
+#: contracts/templates/contracts/my_contract.html:278
+#, fuzzy
+#| msgid "Director"
+msgid "Direct to HR"
+msgstr "Directeur"
+
+#: contracts/templates/contracts/my_contract.html:282
+#, fuzzy
+#| msgid "Position"
+msgid "Institution"
+msgstr "Poste"
+
+#: contracts/templates/contracts/my_contract.html:288
+#, fuzzy
+#| msgid "Field of Study / Speciality"
+msgid "Field of Study"
+msgstr "Domaine d'Étude / Spécialité"
+
+#: contracts/templates/contracts/my_contract.html:305
+#, fuzzy
+#| msgid "WACS Resident / Trainee"
+msgid "WACS Residency Programme"
+msgstr "Résident WACS / Stagiaire"
+
+#: contracts/templates/contracts/my_contract.html:312
+msgid "Programme Completed"
+msgstr "Programme Terminé"
+
+# profile.html
+#: contracts/templates/contracts/my_contract.html:329
+#, fuzzy
+#| msgid "Profile Information"
+msgid "Trainee Information"
+msgstr "Informations du profil"
+
+#: contracts/templates/contracts/my_contract.html:347
+#, fuzzy
+#| msgid "New Contract"
+msgid "Service & Contract"
+msgstr "Nouveau contrat"
+
+#: contracts/templates/contracts/my_contract.html:352
+#, python-format
+msgid "yr%(n|pluralize)s service"
+msgstr "an(s) de service"
+
+#: contracts/templates/contracts/my_contract.html:364
+#, fuzzy
+#| msgid "CDI (Permanent)"
+msgid "permanent"
+msgstr "CDI (Permanent)"
+
+#: contracts/templates/contracts/my_contract.html:371
+msgid "Contract expiring very soon. Contact HR."
+msgstr "Contrat expirant très prochainement. Contactez les RH."
+
+#: contracts/templates/contracts/my_contract.html:371
+#, python-format
+msgid "Contract expiring in %(days)s days. Contact HR."
+msgstr "Contrat expirant dans %(days)s jours. Contactez les RH."
+
+#: contracts/templates/contracts/my_contract.html:402
+#, fuzzy, python-format
+#| msgid "Category"
+msgid "Category %(cat)s"
+msgstr "Catégorie"
+
+#: contracts/templates/contracts/my_contract.html:409
+#, python-format
+msgid "%(a)s yrs"
+msgstr "%(a)s ans"
+
+#: contracts/templates/contracts/my_contract.html:412
+#, fuzzy
+#| msgid "Near Retirement"
+msgid "To Retirement (60)"
+msgstr "Proches de la retraite"
+
+#: contracts/templates/contracts/my_contract.html:415
+#, python-format
+msgid "%(y)s yr%(y|pluralize)s"
+msgstr "%(y)s an(s)"
+
+#: contracts/templates/contracts/my_contract.html:415
+msgid "Reached"
+msgstr "Atteint"
+
+#: contracts/templates/contracts/my_contract.html:427
+#: dashboard/templates/dashboard/admin_dashboard.html:651
+msgid "Quick Actions"
+msgstr "Actions rapides"
+
+#: contracts/templates/contracts/my_contract.html:430
+#: dashboard/templates/dashboard/employee_dashboard.html:139
+#: dashboard/templates/dashboard/includes/my_leave_section.html:131
+#: dashboard/templates/dashboard/unit_head_dashboard.html:156
+#: leaves/templates/leaves/request_form.html:3
+#: leaves/templates/leaves/request_form.html:4 templates/base.html:1123
+msgid "Apply for Leave"
+msgstr "Demander un congé"
+
+#: contracts/templates/contracts/my_contract.html:433
+#, fuzzy
+#| msgid "Leave History"
+msgid "My Leave History"
+msgstr "Historique des congés"
+
+#: contracts/templates/contracts/notifications.html:17
+#, fuzzy
+#| msgid "View All Notifications"
+msgid "All Contract Notifications"
+msgstr "Voir toutes les notifications"
+
+#: contracts/templates/contracts/notifications.html:45
+#, fuzzy
+#| msgid "New Contract"
+msgid "View Contract"
+msgstr "Nouveau contrat"
+
+#: contracts/templates/contracts/notifications.html:55
+#, fuzzy
+#| msgid "Notifications"
+msgid "No Notifications"
+msgstr "Notifications"
+
+#: contracts/templates/contracts/notifications.html:56
+#, fuzzy
+#| msgid "No notifications yet."
+msgid "You have no contract notifications yet."
+msgstr "Aucune notification pour l'instant."
+
+#: contracts/templates/contracts/stats.html:4
+#: contracts/templates/contracts/stats.html:5
+#, fuzzy
+#| msgid "Analytics"
+msgid "Contract Analytics"
+msgstr "Analytiques"
+
+#: contracts/templates/contracts/stats.html:13 templates/base.html:1379
+msgid "New Contract"
+msgstr "Nouveau contrat"
+
+#: contracts/templates/contracts/stats.html:25
+#, fuzzy
+#| msgid "Total Active Staff"
+msgid "Total Staff"
+msgstr "Personnel actif total"
+
+#: contracts/templates/contracts/stats.html:31
+#: dashboard/templates/dashboard/admin_dashboard.html:166
+msgid "CDI (Permanent)"
+msgstr "CDI (Permanent)"
+
+#: contracts/templates/contracts/stats.html:37
+#: dashboard/templates/dashboard/admin_dashboard.html:175
+msgid "CDD (Fixed Term)"
+msgstr "CDD (Durée déterminée)"
+
+#: contracts/templates/contracts/stats.html:55
+#: dashboard/templates/dashboard/admin_dashboard.html:183
+msgid "Expiring ≤ 30 days"
+msgstr "Expirant ≤ 30 jours"
+
+#: contracts/templates/contracts/stats.html:61
+#: dashboard/templates/dashboard/admin_dashboard.html:190
+msgid "Expired (Active)"
+msgstr "Expirés (Actifs)"
+
+# discipline strings
+#: contracts/templates/contracts/stats.html:77
+#, fuzzy, python-format
+#| msgid "Notices Issued by You"
+msgid "Contracts Issued %(y)s"
+msgstr "Avis émis par vous"
+
+#: contracts/templates/contracts/stats.html:83
+#, fuzzy, python-format
+#| msgid "Rejected %(y)s"
+msgid "Renewals %(y)s"
+msgstr "Rejetés %(y)s"
+
+#: contracts/templates/contracts/stats.html:89
+#, python-format
+msgid "Terminations %(y)s"
+msgstr "Résiliations %(y)s"
+
+#: contracts/templates/contracts/stats.html:96
+#, fuzzy
+#| msgid "Active Staff"
+msgid "Avg. Staff Age"
+msgstr "Personnel actif"
+
+#: contracts/templates/contracts/stats.html:110
+#: dashboard/templates/dashboard/admin_dashboard.html:206
+msgid "Action Required — Expiring Contracts"
+msgstr "Action requise — Contrats expirant"
+
+#: contracts/templates/contracts/stats.html:118
+msgid "Already Expired — Needs Immediate Attention"
+msgstr "Déjà Expiré — Nécessite une Attention Immédiate"
+
+#: contracts/templates/contracts/stats.html:126
+#, fuzzy
+#| msgid "Review Now"
+msgid "Renew Now"
+msgstr "Réviser maintenant"
+
+#: contracts/templates/contracts/stats.html:135
+#, fuzzy
+#| msgid "Expiring ≤ 30 days"
+msgid "Expiring within 30 days"
+msgstr "Expirant ≤ 30 jours"
+
+#: contracts/templates/contracts/stats.html:158
+#, fuzzy
+#| msgid "Expiring ≤ 60 days"
+msgid "Expiring in 31–60 days"
+msgstr "Expirant dans ≤ 60 jours"
+
+#: contracts/templates/contracts/stats.html:181
+#, fuzzy
+#| msgid "Expiring ≤ 60 days"
+msgid "Expiring in 61–90 days"
+msgstr "Expirant dans ≤ 60 jours"
+
+#: contracts/templates/contracts/stats.html:202
+#, fuzzy
+#| msgid "All Roles"
+msgid "All clear!"
+msgstr "Tous les Rôles"
+
+#: contracts/templates/contracts/stats.html:203
+msgid "No contracts expiring in the next 90 days."
+msgstr "Aucun contrat expirant dans les 90 prochains jours."
+
+#: contracts/templates/contracts/stats.html:214
+msgid "Approaching Retirement (age 60)"
+msgstr "Approche de la Retraite (âge 60)"
+
+#: contracts/templates/contracts/stats.html:233
+#, fuzzy
+#| msgid "Retirement Tracker"
+msgid "Retirement age reached"
+msgstr "Suivi des retraites"
+
+#: contracts/templates/contracts/stats.html:236
+#, python-format
+msgid "%(n)s yr%(n|pluralize)s to retirement"
+msgstr "%(n)s an(s) avant la retraite"
+
+#: contracts/templates/contracts/stats.html:252
+#, fuzzy
+#| msgid "No employees match your filters."
+msgid "No employees within 5 years of retirement."
+msgstr "Aucun employé ne correspond à vos filtres."
+
+#: contracts/templates/contracts/stats.html:264
+#, fuzzy
+#| msgid "Years of Service"
+msgid "Years of Service Breakdown"
+msgstr "Années de service"
+
+#: contracts/templates/contracts/stats.html:279
+#: contracts/templates/contracts/stats.html:354
+#, fuzzy
+#| msgid "No departments yet."
+msgid "No data yet."
+msgstr "Aucun département pour l'instant."
+
+#: contracts/templates/contracts/stats.html:295
+msgid "Age Distribution"
+msgstr "Distribution par Âge"
+
+#: contracts/templates/contracts/stats.html:296
+#, python-format
+msgid "Avg: %(a)s yrs"
+msgstr "Moy : %(a)s ans"
+
+#: contracts/templates/contracts/stats.html:304
+msgid "At risk"
+msgstr "À risque"
+
+#: contracts/templates/contracts/stats.html:313
+msgid "No date-of-birth data available. Add it via employee profiles."
+msgstr "Pas de données de date de naissance disponibles. Ajoutez-les via les profils des employés."
+
+#: contracts/templates/contracts/stats.html:322
+#, fuzzy
+#| msgid "Contract Management"
+msgid "Contracts by Department"
+msgstr "Gestion des Contrats"
+
+#: contracts/templates/contracts/stats.html:371
+msgid "Longest-Serving Staff (CDI)"
+msgstr "Personnel le Plus Ancien (CDI)"
+
+#: contracts/templates/contracts/stats.html:385
+msgid "Since"
+msgstr "Depuis"
+
+#: contracts/templates/contracts/stats.html:398
+#, fuzzy
+#| msgid "No contracts on record."
+msgid "No CDI contracts on record yet."
+msgstr "Aucun contrat enregistré."
+
+#: contracts/templates/contracts/stats.html:406
+#, fuzzy
+#| msgid "Recent System Activity"
+msgid "Recent Contract Activity"
+msgstr "Activité récente du système"
+
+#: contracts/templates/contracts/stats.html:428
+#, fuzzy
+#| msgid "Contract Overview"
+msgid "Contract terminated"
+msgstr "Aperçu des contrats"
+
+#: contracts/templates/contracts/stats.html:429
+#, fuzzy, python-format
+#| msgid "Contract Management"
+msgid "Contract renewed (%(t)s)"
+msgstr "Gestion des Contrats"
+
+#: contracts/templates/contracts/stats.html:430
+#, python-format
+msgid "New %(t)s issued"
+msgstr "Nouveau %(t)s émis"
+
+#: contracts/templates/contracts/stats.html:442
+#, fuzzy
+#| msgid "No contracts on record."
+msgid "No contract activity yet."
+msgstr "Aucun contrat enregistré."
+
+# admin_dashboard.html
+#: dashboard/templates/dashboard/admin_dashboard.html:3
+#: dashboard/templates/dashboard/admin_dashboard.html:4
+msgid "System Administration"
+msgstr "Administration du système"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:12
+#: templates/base.html:1076 templates/base.html:1430 templates/base.html:1452
+msgid "System Settings"
+msgstr "Paramètres système"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:34
+#: discipline/templates/discipline/list.html:61
+msgid "Action Required — Dismissal Notices"
+msgstr "Action requise — Avis de licenciement"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:35
+msgid "The following employees have been dismissed and their accounts must be deactivated:"
+msgstr "Les employés suivants ont été licenciés et leurs comptes doivent être désactivés :"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:42
+#: discipline/templates/discipline/list.html:71
+msgid "Deactivate Account"
+msgstr "Désactiver le compte"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:58
+msgid "System Overview"
+msgstr "Aperçu du système"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:64
+#: dashboard/templates/dashboard/ceo_dashboard.html:25
+#: dashboard/templates/dashboard/director_dashboard.html:29
+#: dashboard/templates/dashboard/includes/hero_banner.html:31
+msgid "Active Staff"
+msgstr "Personnel actif"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:78
+msgid "Awaiting Manager"
+msgstr "En Attente du Responsable"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:85
+#: discipline/templates/discipline/list.html:315
+msgid "Awaiting HR"
+msgstr "En attente des RH"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:92
+#: discipline/templates/discipline/list.html:311
+msgid "Awaiting Director"
+msgstr "En attente du directeur"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:99
+#: dashboard/templates/dashboard/ceo_dashboard.html:166
+#: dashboard/templates/dashboard/ceo_dashboard.html:386
+#: dashboard/templates/dashboard/ceo_dashboard.html:416
+#: dashboard/templates/dashboard/director_dashboard.html:171
+#: dashboard/templates/dashboard/hr_dashboard.html:489
+#, fuzzy
+#| msgid "Approve"
+msgid "Approved"
+msgstr "Approuver"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:114
+#: dashboard/templates/dashboard/hr_dashboard.html:382
+msgid "Employees Warned"
+msgstr "Employés avertis"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:127
+#: dashboard/templates/dashboard/hr_dashboard.html:391
+msgid "Suspensions"
+msgstr "Suspensions"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:140
+#: dashboard/templates/dashboard/hr_dashboard.html:400
+msgid "Dismissals"
+msgstr "Licenciements"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:148
+msgid "Contract Overview"
+msgstr "Aperçu des contrats"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:157
+msgid "Active Contracts"
+msgstr "Contrats actifs"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:426
+msgid "Leave Approvals Pipeline"
+msgstr "Pipeline d'approbation des congés"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:432
+#: dashboard/templates/dashboard/hr_dashboard.html:277
+msgid "Awaiting HR Review"
+msgstr "En attente de révision RH"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:438
+#: dashboard/templates/dashboard/admin_dashboard.html:471
+#: leaves/templates/leaves/ceo_approvals.html:37
+#: leaves/templates/leaves/director_approvals.html:43
+#: leaves/templates/leaves/hr_approvals.html:32
+#: leaves/templates/leaves/manager_approvals.html:32
+msgid "Action"
+msgstr "Action"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:449
+#: discipline/templates/discipline/list.html:125
+#: leaves/templates/leaves/manager_approvals.html:51
+msgid "Review"
+msgstr "Examiner"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:465
+msgid "Awaiting Director Approval"
+msgstr "En attente d'approbation du directeur"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:482
+msgid "Decide"
+msgstr "Décider"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:497
+#: dashboard/templates/dashboard/ceo_dashboard.html:87
+#: dashboard/templates/dashboard/director_dashboard.html:93
+#: dashboard/templates/dashboard/hr_dashboard.html:412
+msgid "Leave Activity"
+msgstr "Activité des congés"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:512
+#: dashboard/templates/dashboard/ceo_dashboard.html:123
+#: dashboard/templates/dashboard/director_dashboard.html:128
+#: dashboard/templates/dashboard/hr_dashboard.html:428
+#: dashboard/templates/dashboard/includes/hero_banner.html:45
+#: dashboard/templates/dashboard/manager_dashboard.html:44
+#: dashboard/templates/dashboard/manager_dashboard.html:69
+#: dashboard/templates/dashboard/unit_head_dashboard.html:194
+msgid "On Leave Today"
+msgstr "En Congé Aujourd'hui"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:529
+#: dashboard/templates/dashboard/ceo_dashboard.html:140
+#: dashboard/templates/dashboard/director_dashboard.html:145
+#: dashboard/templates/dashboard/hr_dashboard.html:445
+msgid "All staff are in today"
+msgstr "Tout le personnel est présent aujourd'hui"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:538
+#: dashboard/templates/dashboard/ceo_dashboard.html:151
+#: dashboard/templates/dashboard/director_dashboard.html:156
+#: dashboard/templates/dashboard/hr_dashboard.html:457
+msgid "Analytics"
+msgstr "Analytiques"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:544
+#, fuzzy
+#| msgid "Set Department"
+msgid "Staff by Department"
+msgstr "Définir le Département"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:555
+#: dashboard/templates/dashboard/hr_dashboard.html:524
+msgid "Department Leave Activity"
+msgstr "Activité des Congés par Département"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:575
+#: dashboard/templates/dashboard/ceo_dashboard.html:195
+#: dashboard/templates/dashboard/director_dashboard.html:200
+msgid "Warned"
+msgstr "Averti"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:579
+msgid "Susp."
+msgstr "Susp."
+
+#: dashboard/templates/dashboard/admin_dashboard.html:583
+msgid "Dism."
+msgstr "Renvoyé."
+
+#: dashboard/templates/dashboard/admin_dashboard.html:593
+#: dashboard/templates/dashboard/ceo_dashboard.html:215
+#: dashboard/templates/dashboard/director_dashboard.html:220
+#: dashboard/templates/dashboard/hr_dashboard.html:504
+#, fuzzy
+#| msgid "Contracts"
+msgid "Contract Mix"
+msgstr "Contrats"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:613
+#: dashboard/templates/dashboard/hr_dashboard.html:335
+#: dashboard/templates/dashboard/hr_dashboard.html:534
+msgid "Low Leave Balance (≤ 3 days)"
+msgstr "Solde de congés faible (≤ 3 jours)"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:636
+#: dashboard/templates/dashboard/hr_dashboard.html:553
+msgid "All employees have healthy leave balances"
+msgstr "Tous les employés ont des soldes de congés satisfaisants"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:645
+msgid "Staff & Organization"
+msgstr "Personnel & Organisation"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:654
+msgid "Add New Employee"
+msgstr "Ajouter un nouvel employé"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:657
+#: discipline/templates/discipline/list.html:189
+#: leaves/templates/leaves/all_leaves.html:42
+msgid "All Employees"
+msgstr "Tous les employés"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:663
+#: templates/base.html:1359
+msgid "Disciplinary Records"
+msgstr "Dossiers disciplinaires"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:666
+#: dashboard/templates/dashboard/hr_dashboard.html:9 templates/base.html:1226
+#: templates/base.html:1271 templates/base.html:1300
+msgid "Leave Tracker"
+msgstr "Suivi des Congés"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:669
+msgid "Django Admin Panel"
+msgstr "Panneau d'Administration Django"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:674
+msgid "Staff by Role"
+msgstr "Personnel par rôle"
+
+# additional
+#: dashboard/templates/dashboard/admin_dashboard.html:694
+msgid "Manage"
+msgstr "Gérer"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:716
+msgid "Recently Added"
+msgstr "Récemment ajoutés"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:717
+msgid "All"
+msgstr "Tout"
+
+#: dashboard/templates/dashboard/admin_dashboard.html:740
+msgid "Recent System Activity"
+msgstr "Activité récente du système"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:3
+#: dashboard/templates/dashboard/ceo_dashboard.html:4
+#, fuzzy
+#| msgid "CEO — Overview"
+msgid "CEO Overview"
+msgstr "PDG — Aperçu"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:9 templates/base.html:1305
+#, fuzzy
+#| msgid "New Disciplinary Notice"
+msgid "Issue Disciplinary Notice"
+msgstr "Nouveau avis disciplinaire"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:19
+msgid "Organisation at a Glance"
+msgstr "Aperçu de l'Organisation"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:32
+#: dashboard/templates/dashboard/director_dashboard.html:43
+#, python-format
+msgid "Approved %(y)s"
+msgstr "Approuvés %(y)s"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:46
+#: dashboard/templates/dashboard/director_dashboard.html:50
+#, python-format
+msgid "Rejected %(y)s"
+msgstr "Rejetés %(y)s"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:53
+#: dashboard/templates/dashboard/director_dashboard.html:57
+msgid "Discipline Cases"
+msgstr "Cas disciplinaires"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:63
+#: dashboard/templates/dashboard/director_dashboard.html:67
+#: dashboard/templates/dashboard/hr_dashboard.html:346
+#, fuzzy
+#| msgid "Approval Queue"
+msgid "Approval Rate"
+msgstr "File d'approbation"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:69
+#: dashboard/templates/dashboard/director_dashboard.html:73
+#: dashboard/templates/dashboard/hr_dashboard.html:328
+msgid "Staff on Leave Today"
+msgstr "Personnel en congé aujourd'hui"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:75
+#: dashboard/templates/dashboard/director_dashboard.html:79
+msgid "Absent Today"
+msgstr "Absent Aujourd'hui"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:81
+#: dashboard/templates/dashboard/hr_dashboard.html:367
+#, fuzzy
+#| msgid "Decision"
+msgid "Decisions Made"
+msgstr "Décision"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:92
+#: dashboard/templates/dashboard/director_dashboard.html:98
+msgid "Monthly Leave Approvals"
+msgstr "Approbations de Congés Mensuelles"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:93
+#: dashboard/templates/dashboard/employee_dashboard.html:240
+#: dashboard/templates/dashboard/hr_dashboard.html:150
+msgid "View All"
+msgstr "Voir Tout"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:103
+#, fuzzy
+#| msgid "On Leave Today"
+msgid "Attendance Today"
+msgstr "En Congé Aujourd'hui"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:110
+#: dashboard/templates/dashboard/director_dashboard.html:115
+#: dashboard/templates/dashboard/manager_dashboard.html:153
+msgid "Present"
+msgstr "Présent"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:114
+#: dashboard/templates/dashboard/director_dashboard.html:119
+#: dashboard/templates/dashboard/manager_dashboard.html:157
+#, fuzzy
+#| msgid "My Leave"
+msgid "On Leave"
+msgstr "Mon congé"
+
+# leave_detail.html
+#: dashboard/templates/dashboard/ceo_dashboard.html:159
+#: dashboard/templates/dashboard/director_dashboard.html:164
+#: dashboard/templates/dashboard/hr_dashboard.html:482
+#, fuzzy
+#| msgid "Leave Request"
+msgid "Leave Outcomes"
+msgstr "Demande de Congé"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:170
+#: dashboard/templates/dashboard/director_dashboard.html:175
+#: dashboard/templates/dashboard/hr_dashboard.html:493
+#, fuzzy
+#| msgid "Reject"
+msgid "Rejected"
+msgstr "Rejeter"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:187
+#: dashboard/templates/dashboard/director_dashboard.html:192
+#, fuzzy
+#| msgid "Discipline Records"
+msgid "Discipline Overview"
+msgstr "Dossiers disciplinaires"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:199
+#: dashboard/templates/dashboard/director_dashboard.html:204
+#, fuzzy
+#| msgid "Suspension"
+msgid "Suspended"
+msgstr "Suspension"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:203
+#: dashboard/templates/dashboard/director_dashboard.html:208
+#, fuzzy
+#| msgid "Dismissal"
+msgid "Dismissed"
+msgstr "Licenciement"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:232
+#: dashboard/templates/dashboard/director_dashboard.html:237
+#, fuzzy
+#| msgid "Analytics"
+msgid "Workforce Analytics"
+msgstr "Analytiques"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:238
+#: dashboard/templates/dashboard/director_dashboard.html:243
+#, fuzzy
+#| msgid "Add Department"
+msgid "Approved Leave by Department"
+msgstr "Ajouter un Département"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:244
+#: dashboard/templates/dashboard/ceo_dashboard.html:259
+#: dashboard/templates/dashboard/hr_dashboard.html:472
+#, fuzzy
+#| msgid "Approved This Year"
+msgid "No approved leaves this year yet"
+msgstr "Approuvés Cette Année"
+
+#: dashboard/templates/dashboard/ceo_dashboard.html:253
+#: dashboard/templates/dashboard/director_dashboard.html:258
+#, fuzzy
+#| msgid "Leave Type"
+msgid "Approved Leave by Type"
+msgstr "Type de Congé"
+
+# director_dashboard.html
+#: dashboard/templates/dashboard/director_dashboard.html:3
+#: dashboard/templates/dashboard/director_dashboard.html:4
+msgid "Executive Dashboard"
+msgstr "Tableau de bord Exécutif"
+
+#: dashboard/templates/dashboard/director_dashboard.html:9
+#: dashboard/templates/dashboard/hr_dashboard.html:12
+#: discipline/templates/discipline/list.html:35
+msgid "Issue Notice"
+msgstr "Émettre un avis"
+
+#: dashboard/templates/dashboard/director_dashboard.html:12
+msgid "Final Approvals"
+msgstr "Approbations finales"
+
+#: dashboard/templates/dashboard/director_dashboard.html:23
+msgid "At a Glance"
+msgstr "En un coup d'œil"
+
+#: dashboard/templates/dashboard/director_dashboard.html:36
+#: dashboard/templates/dashboard/director_dashboard.html:179
+msgid "Awaiting You"
+msgstr "En attente de vous"
+
+#: dashboard/templates/dashboard/director_dashboard.html:85
+#, fuzzy
+#| msgid "Your Signature"
+msgid "Awaiting Your Signature"
+msgstr "Votre signature"
+
+#: dashboard/templates/dashboard/director_dashboard.html:108
+#, fuzzy
+#| msgid "On Leave Today"
+msgid "Org Attendance Today"
+msgstr "En Congé Aujourd'hui"
+
+#: dashboard/templates/dashboard/director_dashboard.html:249
+msgid "No department data yet"
+msgstr "Pas encore de données par département"
+
+#: dashboard/templates/dashboard/director_dashboard.html:264
+#, fuzzy
+#| msgid "No department data yet"
+msgid "No leave type data yet"
+msgstr "Pas encore de données par département"
+
+# employee_dashboard.html
+#: dashboard/templates/dashboard/employee_dashboard.html:3
+#: dashboard/templates/dashboard/employee_dashboard.html:4
+#: dashboard/templates/dashboard/unit_head_dashboard.html:3
+#: dashboard/templates/dashboard/unit_head_dashboard.html:4
+msgid "My Dashboard"
+msgstr "Mon Tableau de bord"
+
+# employee_dashboard.html / unit_head_dashboard.html
+#: dashboard/templates/dashboard/employee_dashboard.html:5
+#: dashboard/templates/dashboard/unit_head_dashboard.html:5
+#, python-format
+msgid "Welcome back, %(name)s"
+msgstr "Bon retour, %(name)s"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:25
+#: dashboard/templates/dashboard/includes/my_leave_section.html:13
+#: dashboard/templates/dashboard/unit_head_dashboard.html:24
+#, python-format
+msgid "Happy Birthday, %(name)s!"
+msgstr "Joyeux anniversaire, %(name)s !"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:27
+#: dashboard/templates/dashboard/includes/my_leave_section.html:15
+#: dashboard/templates/dashboard/unit_head_dashboard.html:26
+#, fuzzy
+#| msgid "Wishing you a wonderful day from the entire Magrabi ICO Cameroon Eye Institute family."
+msgid "Wishing you a wonderful day from the entire Africa Eye Foundation Institute family."
+msgstr "Nous vous souhaitons une merveilleuse journée de la part de toute la famille du Magrabi ICO Cameroon Eye Institute."
+
+#: dashboard/templates/dashboard/employee_dashboard.html:37
+#: dashboard/templates/dashboard/includes/my_leave_section.html:25
+#: dashboard/templates/dashboard/unit_head_dashboard.html:36
+msgid "You are currently suspended."
+msgstr "Vous êtes actuellement suspendu."
+
+#: dashboard/templates/dashboard/employee_dashboard.html:39
+#: dashboard/templates/dashboard/includes/my_leave_section.html:27
+#: dashboard/templates/dashboard/unit_head_dashboard.html:38
+msgid "Suspension period:"
+msgstr "Période de suspension :"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:40
+#: dashboard/templates/dashboard/includes/my_leave_section.html:28
+#: dashboard/templates/dashboard/unit_head_dashboard.html:39
+msgid "to"
+msgstr "au"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:41
+#: dashboard/templates/dashboard/includes/my_leave_section.html:29
+#: dashboard/templates/dashboard/unit_head_dashboard.html:40
+msgid "Please contact HR for further information."
+msgstr "Veuillez contacter les RH pour plus d'informations."
+
+#: dashboard/templates/dashboard/employee_dashboard.html:50
+#: dashboard/templates/dashboard/includes/my_leave_section.html:38
+#: dashboard/templates/dashboard/unit_head_dashboard.html:49
+#, python-format
+msgid "You are currently on <strong>%(leave_type)s</strong> leave. You return on <strong>%(end_date)s</strong>."
+msgstr "Vous êtes actuellement en congé de <strong>%(leave_type)s</strong>. Vous revenez le <strong>%(end_date)s</strong>."
+
+# Non-deductible leave
+#: dashboard/templates/dashboard/employee_dashboard.html:61
+#: dashboard/templates/dashboard/includes/my_leave_section.html:53
+#: dashboard/templates/dashboard/unit_head_dashboard.html:78
+msgid "Deductible Leave"
+msgstr "Congés Déductibles"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:64
+#: dashboard/templates/dashboard/includes/my_leave_section.html:56
+#: dashboard/templates/dashboard/unit_head_dashboard.html:81
+msgid "Total available (days)"
+msgstr "Total disponible (jours)"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:68
+#: dashboard/templates/dashboard/includes/my_leave_section.html:60
+#: dashboard/templates/dashboard/unit_head_dashboard.html:85
+msgid "Annual:"
+msgstr "Annuel :"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:72
+#: dashboard/templates/dashboard/includes/my_leave_section.html:64
+#: dashboard/templates/dashboard/unit_head_dashboard.html:89
+msgid "Carried:"
+msgstr "Reporté :"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:90
+#: dashboard/templates/dashboard/includes/my_leave_section.html:82
+#: dashboard/templates/dashboard/unit_head_dashboard.html:107
+msgid "used"
+msgstr "utilisé"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:99
+#: dashboard/templates/dashboard/includes/my_leave_section.html:91
+#: dashboard/templates/dashboard/unit_head_dashboard.html:116
+msgid "Non-Deductible Leaves"
+msgstr "Congés Non Déductibles"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:105
+#: dashboard/templates/dashboard/includes/my_leave_section.html:97
+#: dashboard/templates/dashboard/unit_head_dashboard.html:122
+msgid "Days taken (no balance impact)"
+msgstr "Jours pris (sans impact sur le solde)"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:117
+#: dashboard/templates/dashboard/includes/my_leave_section.html:109
+#: dashboard/templates/dashboard/unit_head_dashboard.html:134
+msgid "None taken yet this year."
+msgstr "Aucun pris cette année."
+
+#: dashboard/templates/dashboard/employee_dashboard.html:131
+msgid "Pending Requests"
+msgstr "Demandes en Attente"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:133
+#: dashboard/templates/dashboard/includes/my_leave_section.html:125
+#: dashboard/templates/dashboard/unit_head_dashboard.html:150
+msgid "View Pending"
+msgstr "Voir les Demandes en Attente"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:141
+#: dashboard/templates/dashboard/includes/my_leave_section.html:133
+#: dashboard/templates/dashboard/unit_head_dashboard.html:158
+#: leaves/templates/leaves/my_requests.html:10
+msgid "New Request"
+msgstr "Nouvelle Demande"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:153
+#, fuzzy
+#| msgid "Leave Tracker"
+msgid "Leave Usage"
+msgstr "Suivi des Congés"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:165
+msgid "Left"
+msgstr "Restant"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:173
+msgid "Days Taken by Leave Type"
+msgstr "Jours Pris par Type de Congé"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:180
+#, fuzzy
+#| msgid "No leave requests yet."
+msgid "No approved leave history yet."
+msgstr "Aucune demande de congé pour l'instant."
+
+#: dashboard/templates/dashboard/employee_dashboard.html:239
+msgid "Recent Leave Requests"
+msgstr "Demandes de Congé Récentes"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:247
+msgid "Start"
+msgstr "Début"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:248
+msgid "End"
+msgstr "Fin"
+
+#: dashboard/templates/dashboard/employee_dashboard.html:273
+msgid "No leave requests yet."
+msgstr "Aucune demande de congé pour l'instant."
+
+#: dashboard/templates/dashboard/employee_dashboard.html:273
+msgid "Apply now"
+msgstr "Demander maintenant"
+
+# hr_dashboard.html
+#: dashboard/templates/dashboard/hr_dashboard.html:3
+#: dashboard/templates/dashboard/hr_dashboard.html:4
+msgid "HR Dashboard"
+msgstr "Tableau de bord RH"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:15
+#: leaves/templates/leaves/hr_approvals.html:3 templates/base.html:1215
+msgid "HR Approvals"
+msgstr "Approbations RH"
+
+# hr_dashboard.html
+#: dashboard/templates/dashboard/hr_dashboard.html:133
+msgid "Birthday"
+msgstr "Anniversaire"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:133
+msgid "s"
+msgstr "s"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:133
+msgid "Today!"
+msgstr "Aujourd'hui !"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:138 templates/base.html:1236
+msgid "Birthday Calendar"
+msgstr "Calendrier des anniversaires"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:144
+#, python-format
+msgid "Upcoming Birthdays This Month — %(count)s staff"
+msgstr "Anniversaires ce mois — %(count)s membres du personnel"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:165
+#, python-format
+msgid "%(count)s request(s) waiting for your review"
+msgstr "%(count)s demande(s) en attente de votre révision"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:166
+msgid "These have been approved by the manager and are now in your queue."
+msgstr "Ces demandes ont été approuvées par le responsable et sont maintenant dans votre file d'attente."
+
+#: dashboard/templates/dashboard/hr_dashboard.html:170
+msgid "Review Now"
+msgstr "Réviser maintenant"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:224
+#: dashboard/templates/dashboard/manager_dashboard.html:23
+msgid "Overview"
+msgstr "Aperçu"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:227
+#, fuzzy
+#| msgid "Leave Approvals Pipeline"
+msgid "Leave Approval Pipeline"
+msgstr "Pipeline d'approbation des congés"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:233
+msgid "Pipeline Stages — Requests in Flight"
+msgstr "Étapes du Pipeline — Demandes en Cours"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:248
+#: dashboard/templates/dashboard/hr_dashboard.html:261
+#: dashboard/templates/dashboard/hr_dashboard.html:287
+msgid "Step"
+msgstr "Étape"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:251
+#, fuzzy
+#| msgid "Awaiting Manager"
+msgid "Awaiting Unit Head / Manager"
+msgstr "En Attente du Responsable"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:264
+#, fuzzy
+#| msgid "Awaiting Manager"
+msgid "Unit Head Done — Awaiting Manager"
+msgstr "En Attente du Responsable"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:274
+#, fuzzy
+#| msgid "Director Queue"
+msgid "Your Queue"
+msgstr "File du Directeur"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:290
+#, fuzzy
+#| msgid "Awaiting Director"
+msgid "HR Done — Awaiting Director"
+msgstr "En attente du directeur"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:300
+msgid "Total Active Staff"
+msgstr "Personnel actif total"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:307
+msgid "Pending HR Review"
+msgstr "En attente de révision RH"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:314
+#, python-format
+msgid "Leaves Approved in %(y)s"
+msgstr "Congés approuvés en %(y)s"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:321
+#, python-format
+msgid "Leaves Rejected in %(y)s"
+msgstr "Congés rejetés en %(y)s"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:353
+#, fuzzy, python-format
+#| msgid "Staff on Leave Today"
+msgid "%% Staff on Leave Today"
+msgstr "Personnel en congé aujourd'hui"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:360
+msgid "Absent Today (count)"
+msgstr "Absent Aujourd'hui (nombre)"
+
+#: dashboard/templates/dashboard/hr_dashboard.html:466
+#, fuzzy
+#| msgid "Leave Type"
+msgid "Leave Type Breakdown"
+msgstr "Type de Congé"
+
+#: dashboard/templates/dashboard/includes/hero_banner.html:15
+#, fuzzy
+#| msgid "Welcome back"
+msgid "Welcome"
+msgstr "Bon retour"
+
+#: dashboard/templates/dashboard/includes/hero_banner.html:38
+#, fuzzy
+#| msgid "Pending Requests"
+msgid "Pending Leaves"
+msgstr "Demandes en Attente"
+
+#: dashboard/templates/dashboard/includes/my_leave_section.html:44
+#: dashboard/templates/dashboard/unit_head_dashboard.html:69
+msgid "My Leave"
+msgstr "Mon congé"
+
+#: dashboard/templates/dashboard/includes/my_leave_section.html:123
+#: dashboard/templates/dashboard/unit_head_dashboard.html:148
+msgid "My Pending Requests"
+msgstr "Mes demandes en attente"
+
+# manager_dashboard.html
+#: dashboard/templates/dashboard/manager_dashboard.html:3
+#: dashboard/templates/dashboard/manager_dashboard.html:4
+msgid "Manager Dashboard"
+msgstr "Tableau de bord du Responsable"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:9
+#: discipline/templates/discipline/list.html:37
+#, fuzzy
+#| msgid "Issue Notice"
+msgid "Propose Notice"
+msgstr "Émettre un avis"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:12
+#: dashboard/templates/dashboard/unit_head_dashboard.html:10
+msgid "Approval Queue"
+msgstr "File d'approbation"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:30
+#: dashboard/templates/dashboard/unit_head_dashboard.html:180
+#, fuzzy
+#| msgid "Awaiting HR Approval"
+msgid "Awaiting Approval"
+msgstr "En Attente d'Approbation RH"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:37
+msgid "Team Members"
+msgstr "Membres de l'équipe"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:51
+#, fuzzy
+#| msgid "Discipline Cases"
+msgid "Discipline Proposals"
+msgstr "Cas disciplinaires"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:60
+msgid "Team Status"
+msgstr "Statut de l'équipe"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:80
+msgid "Returns"
+msgstr "Retour le"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:86
+msgid "Full team present today"
+msgstr "Toute l'équipe est présente aujourd'hui"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:97
+msgid "Your Team"
+msgstr "Votre équipe"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:117
+msgid "No team members assigned yet"
+msgstr "Aucun membre d'équipe assigné pour l'instant"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:128
+#, fuzzy
+#| msgid "Analytics"
+msgid "Team Analytics"
+msgstr "Analytiques"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:135
+msgid "Team Leave Usage — Radar"
+msgstr "Utilisation des Congés de l'Équipe — Radar"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:146
+#, fuzzy
+#| msgid "Team On Leave Today"
+msgid "Team Attendance Today"
+msgstr "Équipe en Congé Aujourd'hui"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:166
+#, fuzzy
+#| msgid "Leave History"
+msgid "Leave Mix"
+msgstr "Historique des congés"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:182
+#, fuzzy
+#| msgid "Leave Balance"
+msgid "Team Leave Balances"
+msgstr "Solde de Congés"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:188
+msgid "Leave Usage by Team Member"
+msgstr "Utilisation des Congés par Membre de l'Équipe"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:197
+#, fuzzy
+#| msgid "Pending Leave Requests — Your Team"
+msgid "Deductible Leave Remaining — Your Team"
+msgstr "Demandes de Congé en Attente — Votre Équipe"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:198
+#: dashboard/templates/dashboard/unit_head_dashboard.html:258
+#, fuzzy
+#| msgid "Team Members"
+msgid "members"
+msgstr "Membres de l'équipe"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:208
+#: dashboard/templates/dashboard/unit_head_dashboard.html:268
+msgid "Usage"
+msgstr "Utilisation"
+
+#: dashboard/templates/dashboard/manager_dashboard.html:255
+#, fuzzy
+#| msgid "No team members assigned yet"
+msgid "No team members assigned"
+msgstr "Aucun membre d'équipe assigné pour l'instant"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:171
+msgid "My Unit"
+msgstr "Mon unité"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:187
+msgid "Unit Members"
+msgstr "Membres de l'unité"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:204
+#, fuzzy
+#| msgid "My Leave Balance"
+msgid "My Leave Usage"
+msgstr "Mon Solde de Congés"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:215
+#, fuzzy
+#| msgid "Unit On Leave Today"
+msgid "Unit Attendance Today"
+msgstr "Unité en congé aujourd'hui"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:225
+msgid "Leave Usage Snapshot"
+msgstr "Aperçu de l'Utilisation des Congés"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:231
+#, fuzzy
+#| msgid "Unit Members"
+msgid "No unit members"
+msgstr "Membres de l'unité"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:242
+#, fuzzy
+#| msgid "Leave Balance"
+msgid "Unit Leave Balances"
+msgstr "Solde de Congés"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:248
+msgid "Leave Usage by Member"
+msgstr "Utilisation des Congés par Membre"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:257
+msgid "Deductible Leave Remaining — Your Unit"
+msgstr "Congés Déductibles Restants — Votre Unité"
+
+#: dashboard/templates/dashboard/unit_head_dashboard.html:315
+#, fuzzy
+#| msgid "No team members assigned yet"
+msgid "No unit members assigned"
+msgstr "Aucun membre d'équipe assigné pour l'instant"
+
+#: discipline/templates/discipline/list.html:28
+#, fuzzy
+#| msgid "Status"
+msgid "Stats"
+msgstr "Statut"
+
+#: discipline/templates/discipline/list.html:63
+#, fuzzy
+#| msgid "The following employees have been dismissed and their accounts must be deactivated:"
+msgid "The following employees have been dismissed and their accounts must be deactivated manually by HR or Admin:"
+msgstr "Les employés suivants ont été licenciés et leurs comptes doivent être désactivés :"
+
+#: discipline/templates/discipline/list.html:69
+#, python-format
+msgid "dismissed %(date)s"
+msgstr "renvoyé le %(date)s"
+
+#: discipline/templates/discipline/list.html:86
+#, fuzzy
+#| msgid "Manager-Approved — Awaiting HR Final Decision"
+msgid "Pending Proposals — Awaiting HR Execution"
+msgstr "Approuvé par le Responsable — En Attente de la Décision Finale RH"
+
+#: discipline/templates/discipline/list.html:89
+msgid "These are not yet visible to the employees"
+msgstr "Ceux-ci ne sont pas encore visibles par les employés"
+
+#: discipline/templates/discipline/list.html:97
+msgid "Proposed Type"
+msgstr "Type Proposé"
+
+#: discipline/templates/discipline/list.html:99
+#, fuzzy
+#| msgid "Issued By"
+msgid "Proposed By"
+msgstr "Émis par"
+
+#: discipline/templates/discipline/list.html:143
+#, fuzzy
+#| msgid "Issue Notice"
+msgid "Executed Notices"
+msgstr "Émettre un avis"
+
+#: discipline/templates/discipline/list.html:151
+#, fuzzy
+#| msgid "Pending Approvals"
+msgid "Pending Proposals"
+msgstr "Approbations en Attente"
+
+#: discipline/templates/discipline/list.html:165
+msgid "All Types"
+msgstr "Tous les types"
+
+#: discipline/templates/discipline/list.html:173
+#, fuzzy
+#| msgid "Employee"
+msgid "Employee Name"
+msgstr "Employé"
+
+#: discipline/templates/discipline/list.html:175
+#, fuzzy
+#| msgid "Search name or ID…"
+msgid "Search by name…"
+msgstr "Rechercher un nom ou un ID…"
+
+#: discipline/templates/discipline/list.html:216
+#: discipline/templates/discipline/list.html:217
+#: leaves/templates/leaves/all_leaves.html:64
+#, fuzzy
+#| msgid "Download / Print PDF"
+msgid "Download PDF"
+msgstr "Télécharger / Imprimer le PDF"
+
+#: discipline/templates/discipline/list.html:229
+#, fuzzy
+#| msgid "Contract Type"
+msgid "Notice Type"
+msgstr "Type de Contrat"
+
+#: discipline/templates/discipline/list.html:233
+#, fuzzy
+#| msgid "Approval Workflow"
+msgid "Workflow"
+msgstr "Processus d'Approbation"
+
+#: discipline/templates/discipline/list.html:307
+msgid "Complete"
+msgstr "Complet"
+
+#: discipline/templates/discipline/list.html:332
+#, fuzzy
+#| msgid "No discipline records."
+msgid "No discipline records found"
+msgstr "Aucun dossier disciplinaire."
+
+#: discipline/templates/discipline/list.html:335
+msgid "Try adjusting your filters, or"
+msgstr "Essayez d'ajuster vos filtres, ou"
+
+#: discipline/templates/discipline/list.html:335
+#, fuzzy
+#| msgid "Clear filters"
+msgid "clear all filters"
+msgstr "Effacer les filtres"
+
+#: discipline/templates/discipline/list.html:337
+#, fuzzy
+#| msgid "No discipline records."
+msgid "No disciplinary actions have been recorded yet."
+msgstr "Aucun dossier disciplinaire."
+
+# action_form.html
+#: leaves/templates/leaves/action_form.html:13
+msgid "Leave Request Details"
+msgstr "Détails de la Demande de Congé"
+
+#: leaves/templates/leaves/action_form.html:32
+msgid "Duration"
+msgstr "Durée"
+
+#: leaves/templates/leaves/action_form.html:33
+msgid "day(s)"
+msgstr "jour(s)"
+
+#: leaves/templates/leaves/action_form.html:50
+#: leaves/templates/leaves/request_form.html:64
+#, fuzzy
+#| msgid "Employee"
+msgid "Back-up Employee"
+msgstr "Employé"
+
+#: leaves/templates/leaves/action_form.html:60
+#: leaves/templates/leaves/ceo_approvals.html:36
+#: leaves/templates/leaves/director_approvals.html:42
+#: leaves/templates/leaves/hr_approvals.html:31
+#: leaves/templates/leaves/leave_detail.html:46
+msgid "Document"
+msgstr "Document"
+
+#: leaves/templates/leaves/action_form.html:62
+msgid "View Attached Document"
+msgstr "Voir le Document Joint"
+
+#: leaves/templates/leaves/action_form.html:72
+msgid "Manager Remarks"
+msgstr "Observations du Responsable"
+
+#: leaves/templates/leaves/action_form.html:84
+msgid "Prior Approvals"
+msgstr "Approbations Précédentes"
+
+#: leaves/templates/leaves/action_form.html:88
+#: leaves/templates/leaves/director_approvals.html:39
+msgid "Manager"
+msgstr "Responsable"
+
+#: leaves/templates/leaves/action_form.html:95 templates/base.html:1211
+msgid "HR Admin"
+msgstr "RH Admin"
+
+#: leaves/templates/leaves/action_form.html:107
+msgid "Your Decision"
+msgstr "Votre Décision"
+
+#: leaves/templates/leaves/action_form.html:115
+msgid "Decision"
+msgstr "Décision"
+
+#: leaves/templates/leaves/action_form.html:121
+msgid "Approve"
+msgstr "Approuver"
+
+#: leaves/templates/leaves/action_form.html:128
+msgid "Reject"
+msgstr "Rejeter"
+
+#: leaves/templates/leaves/action_form.html:135
+msgid "Remarks"
+msgstr "Observations"
+
+# request_form.html
+#: leaves/templates/leaves/action_form.html:150
+#: leaves/templates/leaves/request_form.html:100
+msgid "Your saved signature will be used. Draw below to replace it."
+msgstr "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
+
+#: leaves/templates/leaves/action_form.html:178
+msgid "Submit Decision"
+msgstr "Soumettre la Décision"
+
+#: leaves/templates/leaves/action_form.html:190
+msgid "Employee Info"
+msgstr "Informations sur l'Employé"
+
+#: leaves/templates/leaves/action_form.html:215
+#, python-format
+msgid "%(days)s days remaining"
+msgstr "%(days)s jours restants"
+
+#: leaves/templates/leaves/action_form.html:230
+#: leaves/templates/leaves/my_requests.html:139
+msgid "Applied On"
+msgstr "Soumis le"
+
+#: leaves/templates/leaves/all_leaves.html:3
+#: leaves/templates/leaves/all_leaves.html:4 templates/base.html:1295
+msgid "All Leave Requests"
+msgstr "Toutes les Demandes de Congé"
+
+#: leaves/templates/leaves/all_leaves.html:24
+#: leaves/templates/leaves/my_requests.html:107
+msgid "All Statuses"
+msgstr "Tous les Statuts"
+
+#: leaves/templates/leaves/all_leaves.html:74
+msgid "Dept"
+msgstr "Dép."
+
+#: leaves/templates/leaves/all_leaves.html:118
+msgid "No records match your filters."
+msgstr "Aucun enregistrement ne correspond à vos filtres."
+
+#: leaves/templates/leaves/ceo_approvals.html:25
+#, fuzzy
+#| msgid "Administration Director signs off"
+msgid "Administration Director Leave — Awaiting CEO Approval"
+msgstr "Le Directeur Administratif valide"
+
+#: leaves/templates/leaves/ceo_approvals.html:31 templates/base.html:1256
+msgid "Director"
+msgstr "Directeur"
+
+#: leaves/templates/leaves/ceo_approvals.html:57
+#: leaves/templates/leaves/director_approvals.html:72
+#: leaves/templates/leaves/hr_approvals.html:58
+msgid "None"
+msgstr "Aucun"
+
+#: leaves/templates/leaves/ceo_approvals.html:62
+msgid "Review & Decide"
+msgstr "Examiner et Décider"
+
+#: leaves/templates/leaves/ceo_approvals.html:70
+#, fuzzy
+#| msgid "No requests awaiting Director approval."
+msgid "No Administration Director leave requests awaiting your approval."
+msgstr "Aucune demande en attente d'approbation du Directeur."
+
+#: leaves/templates/leaves/director_approvals.html:3
+msgid "Director Approvals"
+msgstr "Approbations du Directeur"
+
+#: leaves/templates/leaves/director_approvals.html:4
+msgid "Director Final Approvals"
+msgstr "Approbations Finales — Directeur"
+
+#: leaves/templates/leaves/director_approvals.html:28
+msgid "HR-Approved — Awaiting Administration Director Final Decision"
+msgstr "Approuvé par les RH — En attente de décision finale du Directeur"
+
+#: leaves/templates/leaves/director_approvals.html:40
+msgid "HR Approved By"
+msgstr "Approuvé par les RH"
+
+#: leaves/templates/leaves/director_approvals.html:41
+msgid "HR Date"
+msgstr "Date RH"
+
+#: leaves/templates/leaves/director_approvals.html:77
+msgid "Final Decision"
+msgstr "Décision Finale"
+
+#: leaves/templates/leaves/director_approvals.html:85
+msgid "No requests awaiting Director approval."
+msgstr "Aucune demande en attente d'approbation du Directeur."
+
+# hr_approvals.html
+#: leaves/templates/leaves/hr_approvals.html:4
+msgid "HR Final Approvals"
+msgstr "Approbations Finales RH"
+
+#: leaves/templates/leaves/hr_approvals.html:18
+msgid "Manager-Approved — Awaiting HR Final Decision"
+msgstr "Approuvé par le Responsable — En Attente de la Décision Finale RH"
+
+#: leaves/templates/leaves/hr_approvals.html:29
+msgid "Manager Approved By"
+msgstr "Approuvé par le Responsable"
+
+#: leaves/templates/leaves/hr_approvals.html:30
+msgid "Manager Date"
+msgstr "Date du Responsable"
+
+#: leaves/templates/leaves/hr_approvals.html:63
+msgid "Final Review"
+msgstr "Examen Final"
+
+#: leaves/templates/leaves/hr_approvals.html:71
+msgid "No requests awaiting HR approval."
+msgstr "Aucune demande en attente d'approbation RH."
+
+# leave_detail.html
+#: leaves/templates/leaves/leave_detail.html:3
+msgid "Leave Request"
+msgstr "Demande de Congé"
+
+#: leaves/templates/leaves/leave_detail.html:12
+msgid "Request Details"
+msgstr "Détails de la Demande"
+
+#: leaves/templates/leaves/leave_detail.html:37
+msgid "Total Days"
+msgstr "Jours Totaux"
+
+#: leaves/templates/leaves/leave_detail.html:48
+msgid "View Document"
+msgstr "Voir le Document"
+
+#: leaves/templates/leaves/leave_detail.html:55
+msgid "Approval History"
+msgstr "Historique des Approbations"
+
+#: leaves/templates/leaves/leave_detail.html:59
+msgid "Request Submitted"
+msgstr "Demande Soumise"
+
+#: leaves/templates/leaves/leave_detail.html:148
+msgid "Go Back"
+msgstr "Retour"
+
+#: leaves/templates/leaves/leave_detail.html:151
+msgid "Download / Print PDF"
+msgstr "Télécharger / Imprimer le PDF"
+
+#: leaves/templates/leaves/leave_detail.html:155
+#, fuzzy
+#| msgid "Submit Request"
+msgid "Edit Request"
+msgstr "Soumettre la Demande"
+
+#: leaves/templates/leaves/leave_detail.html:163
+msgid "Cancel Request"
+msgstr "Annuler la Demande"
+
+# manager_approvals.html
+#: leaves/templates/leaves/manager_approvals.html:3
+msgid "Manager Approvals"
+msgstr "Approbations du Responsable"
+
+#: leaves/templates/leaves/manager_approvals.html:4
+msgid "Pending Approvals"
+msgstr "Approbations en Attente"
+
+#: leaves/templates/leaves/manager_approvals.html:18
+msgid "Pending Leave Requests — Your Team"
+msgstr "Demandes de Congé en Attente — Votre Équipe"
+
+#: leaves/templates/leaves/manager_approvals.html:27
+msgid "From"
+msgstr "Du"
+
+#: leaves/templates/leaves/manager_approvals.html:28
+msgid "To"
+msgstr "Au"
+
+#: leaves/templates/leaves/manager_approvals.html:59
+msgid "No pending approvals. All caught up!"
+msgstr "Aucune approbation en attente. Tout est à jour !"
+
+# my_requests.html
+#: leaves/templates/leaves/my_requests.html:3
+#: leaves/templates/leaves/my_requests.html:4
+msgid "My Leave Requests"
+msgstr "Mes Demandes de Congé"
+
+#: leaves/templates/leaves/my_requests.html:22
+msgid "Deductible Leave Balance"
+msgstr "Solde de congés déductibles"
+
+# my_requests.html
+#: leaves/templates/leaves/my_requests.html:27
+msgid "Annual Entitlement:"
+msgstr "Droit annuel :"
+
+#: leaves/templates/leaves/my_requests.html:31
+msgid "Carried Forward:"
+msgstr "Reporté :"
+
+#: leaves/templates/leaves/my_requests.html:53
+#, fuzzy, python-format
+#| msgid "Used %"
+msgid "Used %%"
+msgstr "Utilisés %"
+
+#: leaves/templates/leaves/my_requests.html:68
+msgid "Non-Deductible Leaves Taken"
+msgstr "Congés non déductibles pris"
+
+#: leaves/templates/leaves/my_requests.html:74
+msgid "Total days this year"
+msgstr "Total des jours cette année"
+
+#: leaves/templates/leaves/my_requests.html:84
+msgid "No non-deductible leaves taken yet."
+msgstr "Aucun congé non déductible pris pour l'instant."
+
+# leave_detail.html
+#: leaves/templates/leaves/my_requests.html:125
+#, fuzzy
+#| msgid "Leave Request"
+msgid "Leave Requests"
+msgstr "Demande de Congé"
+
+#: leaves/templates/leaves/my_requests.html:126
+#, fuzzy
+#| msgid "Record(s)"
+msgid "record(s)"
+msgstr "Enregistrement(s)"
+
+#: leaves/templates/leaves/my_requests.html:191
+#, fuzzy
+#| msgid "No records match your filters."
+msgid "No requests match your filters."
+msgstr "Aucun enregistrement ne correspond à vos filtres."
+
+#: leaves/templates/leaves/my_requests.html:192
 msgid "Apply for leave"
 msgstr "Demander un congé"
 
 # request_form.html
+#: leaves/templates/leaves/request_form.html:13
 msgid "Leave Application Form"
 msgstr "Formulaire de Demande de Congé"
 
-msgid "Leave Type"
-msgstr "Type de Congé"
+#: leaves/templates/leaves/request_form.html:26
+msgid "Deductible — subtracted from your annual balance"
+msgstr "Déductible — déduit de votre solde annuel"
 
-msgid "Start Date"
-msgstr "Date de Début"
+#: leaves/templates/leaves/request_form.html:31
+msgid "Non-Deductible — does not affect your annual balance"
+msgstr "Non-Déductible — n'affecte pas votre solde annuel"
 
-msgid "End Date"
-msgstr "Date de Fin"
-
+#: leaves/templates/leaves/request_form.html:53
 msgid "working day(s) selected"
 msgstr "jour(s) ouvrable(s) sélectionné(s)"
 
+#: leaves/templates/leaves/request_form.html:58
 msgid "Reason for Leave"
 msgstr "Motif du Congé"
 
+#: leaves/templates/leaves/request_form.html:66
+msgid "Select a colleague to cover you"
+msgstr "Sélectionner un collègue pour vous remplacer"
+
+#: leaves/templates/leaves/request_form.html:78
 msgid "Supporting Document"
 msgstr "Document Justificatif"
 
-msgid "optional"
-msgstr "facultatif"
-
+#: leaves/templates/leaves/request_form.html:80
 msgid "Upload a medical certificate, marriage certificate, etc. if applicable."
 msgstr "Téléchargez un certificat médical, acte de mariage, etc. si applicable."
 
+#: leaves/templates/leaves/request_form.html:128
 msgid "Submit Request"
 msgstr "Soumettre la Demande"
 
-msgid "Cancel"
-msgstr "Annuler"
-
+#: leaves/templates/leaves/request_form.html:141
 msgid "Your Leave Balance"
 msgstr "Votre Solde de Congés"
 
-msgid "Approval Workflow"
-msgstr "Processus d'Approbation"
-
-msgid "You Submit"
-msgstr "Vous Soumettez"
-
-msgid "Status: Pending"
-msgstr "Statut : En attente"
-
-msgid "Line Manager Reviews"
-msgstr "Examen par le Responsable Hiérarchique"
-
-msgid "Approves or Rejects"
-msgstr "Approuve ou Rejette"
-
-msgid "HR Admin Final Approval"
-msgstr "Approbation Finale de l'Admin RH"
-
-msgid "Only if manager approved"
-msgstr "Uniquement si le responsable a approuvé"
-
-msgid "Fully Approved"
-msgstr "Entièrement Approuvé"
-
-msgid "Balance deducted automatically"
-msgstr "Solde déduit automatiquement"
-
-# leave_detail.html
-msgid "Leave Request"
-msgstr "Demande de Congé"
-
-msgid "Request Details"
-msgstr "Détails de la Demande"
-
-msgid "Employee"
-msgstr "Employé"
-
-msgid "Total Days"
-msgstr "Jours Totaux"
-
-msgid "Document"
-msgstr "Document"
-
-msgid "View Document"
-msgstr "Voir le Document"
-
-msgid "Approval History"
-msgstr "Historique des Approbations"
-
-msgid "Request Submitted"
-msgstr "Demande Soumise"
-
-msgid "Actions"
-msgstr "Actions"
-
-msgid "Go Back"
-msgstr "Retour"
-
-msgid "Print Approval Letter"
-msgstr "Imprimer la Lettre d'Approbation"
-
-msgid "Cancel Request"
-msgstr "Annuler la Demande"
-
-# employee_list.html
-msgid "Employee Management"
-msgstr "Gestion des Employés"
-
-msgid "Add Employee"
-msgstr "Ajouter un Employé"
-
-msgid "Add New"
-msgstr "Ajouter Nouveau"
-
-msgid "ID"
-msgstr "Identifiant"
-
-msgid "Department"
-msgstr "Département"
-
-msgid "Position"
-msgstr "Poste"
-
-msgid "Role"
-msgstr "Rôle"
-
-msgid "Supervisor"
-msgstr "Superviseur"
-
-msgid "Active"
-msgstr "Actif"
-
-msgid "Inactive"
-msgstr "Inactif"
-
-msgid "No employees yet."
-msgstr "Aucun employé pour l'instant."
-
-msgid "Add the first one"
-msgstr "Ajouter le premier"
-
-# employee_form.html
-msgid "First Name"
-msgstr "Prénom"
-
-msgid "Last Name"
-msgstr "Nom de Famille"
-
-msgid "Email"
-msgstr "E-mail"
-
-msgid "Username"
-msgstr "Nom d'utilisateur"
-
-msgid "Employee ID"
-msgstr "Matricule"
-
-msgid "Line Manager / Supervisor"
-msgstr "Responsable Hiérarchique / Superviseur"
-
-msgid "Phone"
-msgstr "Téléphone"
-
-msgid "Date Joined Hospital"
-msgstr "Date d'Entrée à l'Hôpital"
-
-msgid "Uncheck to deactivate"
-msgstr "Décocher pour désactiver"
-
-msgid "Please fix the errors below:"
-msgstr "Veuillez corriger les erreurs ci-dessous :"
-
-msgid "Save"
-msgstr "Enregistrer"
-
-# profile.html
-msgid "My Profile"
-msgstr "Mon Profil"
-
-msgid "Line Manager"
-msgstr "Responsable Hiérarchique"
-
-msgid "Joined Hospital"
-msgstr "Entrée à l'Hôpital"
-
-# hr_dashboard.html
-msgid "HR Dashboard"
-msgstr "Tableau de bord RH"
-
-msgid "Active Employees"
-msgstr "Employés Actifs"
-
-msgid "Awaiting Manager"
-msgstr "En Attente du Responsable"
-
-msgid "Awaiting HR Approval"
-msgstr "En Attente d'Approbation RH"
-
-msgid "Approved This Year"
-msgstr "Approuvés Cette Année"
-
-msgid "Rejected This Year"
-msgstr "Rejetés Cette Année"
-
-msgid "Monthly Leave Approvals"
-msgstr "Approbations de Congés Mensuelles"
-
-msgid "On Leave Today"
-msgstr "En Congé Aujourd'hui"
-
-msgid "All staff are in today"
-msgstr "Tout le personnel est présent aujourd'hui"
-
-msgid "Pending HR Approvals"
-msgstr "Approbations RH en Attente"
-
-msgid "Period"
-msgstr "Période"
-
-msgid "Manager Approved"
-msgstr "Approuvé par le Responsable"
-
-msgid "Action"
-msgstr "Action"
-
-msgid "Review"
-msgstr "Examiner"
-
-msgid "No pending approvals"
-msgstr "Aucune approbation en attente"
-
-msgid "Department Leave Activity"
-msgstr "Activité des Congés par Département"
-
-msgid "No department data yet"
-msgstr "Pas encore de données par département"
-
-msgid "Low Leave Balance (≤3 days)"
-msgstr "Solde de Congés Faible (≤3 jours)"
-
-msgid "All employees have healthy leave balances"
-msgstr "Tous les employés ont des soldes de congés satisfaisants"
-
-# manager_dashboard.html
-msgid "Manager Dashboard"
-msgstr "Tableau de bord du Responsable"
-
-msgid "Awaiting Your Approval"
-msgstr "En Attente de Votre Approbation"
-
-msgid "Your Team Members"
-msgstr "Membres de Votre Équipe"
-
-msgid "Team On Leave Today"
-msgstr "Équipe en Congé Aujourd'hui"
-
-msgid "My Leave Balance"
-msgstr "Mon Solde de Congés"
-
-msgid "Pending Approvals"
-msgstr "Approbations en Attente"
-
-msgid "Full team present today"
-msgstr "Toute l'équipe est présente aujourd'hui"
-
-# manager_approvals.html
-msgid "Manager Approvals"
-msgstr "Approbations du Responsable"
-
-msgid "Pending Leave Requests — Your Team"
-msgstr "Demandes de Congé en Attente — Votre Équipe"
-
-msgid "From"
-msgstr "Du"
-
-msgid "To"
-msgstr "Au"
-
-msgid "Submitted"
-msgstr "Soumis le"
-
-msgid "No pending approvals. All caught up!"
-msgstr "Aucune approbation en attente. Tout est à jour !"
-
-# hr_approvals.html
-msgid "HR Final Approvals"
-msgstr "Approbations Finales RH"
-
-msgid "Manager-Approved — Awaiting HR Final Decision"
-msgstr "Approuvé par le Responsable — En Attente de la Décision Finale RH"
-
-msgid "Manager Approved By"
-msgstr "Approuvé par le Responsable"
-
-msgid "Manager Date"
-msgstr "Date du Responsable"
-
-msgid "None"
-msgstr "Aucun"
-
-msgid "Final Review"
-msgstr "Examen Final"
-
-msgid "No requests awaiting HR approval."
-msgstr "Aucune demande en attente d'approbation RH."
-
-# action_form.html
-msgid "Leave Request Details"
-msgstr "Détails de la Demande de Congé"
-
-msgid "Duration"
-msgstr "Durée"
-
-msgid "day(s)"
-msgstr "jour(s)"
-
-msgid "View Attached Document"
-msgstr "Voir le Document Joint"
-
-msgid "Manager Remarks"
-msgstr "Observations du Responsable"
-
-msgid "Your Decision"
-msgstr "Votre Décision"
-
-msgid "Decision"
-msgstr "Décision"
-
-msgid "Approve"
-msgstr "Approuver"
-
-msgid "Reject"
-msgstr "Rejeter"
-
-msgid "Remarks"
-msgstr "Observations"
-
-msgid "Submit Decision"
-msgstr "Soumettre la Décision"
-
-msgid "Employee Info"
-msgstr "Informations sur l'Employé"
-
-msgid "Leave Balance"
-msgstr "Solde de Congés"
-
-# all_leaves.html
-msgid "All Leave Requests"
-msgstr "Toutes les Demandes de Congé"
-
-msgid "Year"
-msgstr "Année"
-
-msgid "All Statuses"
-msgstr "Tous les Statuts"
-
-msgid "All Departments"
-msgstr "Tous les Départements"
-
-msgid "Filter"
-msgstr "Filtrer"
-
-msgid "Dept"
-msgstr "Dép."
-
-msgid "View"
-msgstr "Voir"
-
-msgid "No records match your filters."
-msgstr "Aucun enregistrement ne correspond à vos filtres."
-
 # blocktrans strings
+#: leaves/templates/leaves/request_form.html:145
+#: leaves/templates/leaves/request_form.html:150
+#, python-format
 msgid "%(days)s days"
 msgstr "%(days)s jours"
 
+#: leaves/templates/leaves/request_form.html:159
+#, python-format
 msgid "%(total)s days total"
 msgstr "%(total)s jours au total"
 
-msgid "%(days)s days remaining"
-msgstr "%(days)s jours restants"
+#: leaves/templates/leaves/request_form.html:166
+msgid "Approval Workflow"
+msgstr "Processus d'Approbation"
+
+#: leaves/templates/leaves/request_form.html:171
+msgid "You Submit"
+msgstr "Vous Soumettez"
+
+#: leaves/templates/leaves/request_form.html:172
+msgid "Status: Pending"
+msgstr "Statut : En attente"
+
+#: leaves/templates/leaves/request_form.html:177
+#, fuzzy
+#| msgid "Unit Head Queue"
+msgid "Unit Head Reviews"
+msgstr "File du chef d'unité"
+
+#: leaves/templates/leaves/request_form.html:183
+msgid "Line Manager Reviews"
+msgstr "Examen par le Responsable Hiérarchique"
+
+#: leaves/templates/leaves/request_form.html:184
+msgid "Approves or Rejects"
+msgstr "Approuve ou Rejette"
+
+#: leaves/templates/leaves/request_form.html:188
+msgid "HR Admin Reviews"
+msgstr "Révision par les RH"
+
+#: leaves/templates/leaves/request_form.html:189
+msgid "Only if manager approved"
+msgstr "Uniquement si le responsable a approuvé"
+
+#: leaves/templates/leaves/request_form.html:193
+msgid "Director Final Approval"
+msgstr "Approbation Finale du Directeur"
+
+#: leaves/templates/leaves/request_form.html:194
+msgid "Administration Director signs off"
+msgstr "Le Directeur Administratif valide"
+
+#: leaves/templates/leaves/request_form.html:198
+msgid "Fully Approved"
+msgstr "Entièrement Approuvé"
+
+#: leaves/templates/leaves/request_form.html:199
+msgid "Balance deducted automatically"
+msgstr "Solde déduit automatiquement"
+
+#: notifications/templates/notifications/notification_detail.html:4
+#, fuzzy
+#| msgid "No notifications yet"
+msgid "Notification Detail"
+msgstr "Aucune notification pour l'instant"
+
+#: notifications/templates/notifications/notification_detail.html:10
+#, fuzzy
+#| msgid "Notifications"
+msgid "Back to Notifications"
+msgstr "Notifications"
+
+#: notifications/templates/notifications/notification_detail.html:30
+msgid "Read"
+msgstr "Lu"
+
+#: notifications/templates/notifications/notification_detail.html:34
+msgid "Unread"
+msgstr "Non lu"
+
+#: notifications/templates/notifications/notification_detail.html:51
+#, fuzzy
+#| msgid "Date"
+msgid "at"
+msgstr "Date"
+
+#: notifications/templates/notifications/notification_detail.html:52
+#, python-format
+msgid "%(when)s ago"
+msgstr "il y a %(when)s"
+
+#: notifications/templates/notifications/notification_detail.html:56
+msgid "View Related Page"
+msgstr "Voir la Page Associée"
+
+# base.html
+#: templates/base.html:7
+#, fuzzy
+#| msgid "LeaveDesk — Magrabi ICO"
+msgid "AEF HRM — Magrabi ICO"
+msgstr "LeaveDesk — Magrabi ICO"
 
 # topbar language switcher / settings
+#: templates/base.html:1062
 msgid "Settings"
 msgstr "Paramètres"
 
-msgid "Language"
-msgstr "Langue"
-
-# Non-deductible leave
-msgid "Deductible Leave"
-msgstr "Congés Déductibles"
-
-msgid "Non-Deductible Leaves"
-msgstr "Congés Non Déductibles"
-
-msgid "Total available (days)"
-msgstr "Total disponible (jours)"
-
-msgid "Days taken (no balance impact)"
-msgstr "Jours pris (sans impact sur le solde)"
-
-msgid "None taken yet this year."
-msgstr "Aucun pris cette année."
-
-# admin_dashboard.html
-msgid "System Administration"
-msgstr "Administration du système"
-
-msgid "System Overview"
-msgstr "Aperçu du système"
-
-msgid "Awaiting HR"
-msgstr "En attente des RH"
-
-msgid "Awaiting Director"
-msgstr "En attente du directeur"
-
-msgid "Employees Warned"
-msgstr "Employés avertis"
-
-msgid "Suspensions"
-msgstr "Suspensions"
-
-msgid "Dismissals"
-msgstr "Licenciements"
-
-msgid "Contract Overview"
-msgstr "Aperçu des contrats"
-
-msgid "Active Contracts"
-msgstr "Contrats actifs"
-
-msgid "CDI (Permanent)"
-msgstr "CDI (Permanent)"
-
-msgid "CDD (Fixed Term)"
-msgstr "CDD (Durée déterminée)"
-
-msgid "Expiring ≤ 30 days"
-msgstr "Expirant ≤ 30 jours"
-
-msgid "Expired (Active)"
-msgstr "Expirés (Actifs)"
-
-msgid "Near Retirement"
-msgstr "Proches de la retraite"
-
-msgid "Action Required — Expiring Contracts"
-msgstr "Action requise — Contrats expirant"
-
-msgid "Action Required — Dismissal Notices"
-msgstr "Action requise — Avis de licenciement"
-
-msgid "The following employees have been dismissed and their accounts must be deactivated:"
-msgstr "Les employés suivants ont été licenciés et leurs comptes doivent être désactivés :"
-
-msgid "Deactivate Account"
-msgstr "Désactiver le compte"
-
-msgid "Leave Approvals Pipeline"
-msgstr "Pipeline d'approbation des congés"
-
-msgid "Awaiting HR Review"
-msgstr "En attente de révision RH"
-
-msgid "Awaiting Director Approval"
-msgstr "En attente d'approbation du directeur"
-
-msgid "Leave Activity"
-msgstr "Activité des congés"
-
-msgid "Analytics"
-msgstr "Analytiques"
-
-msgid "Staff & Organization"
-msgstr "Personnel & Organisation"
-
-msgid "Quick Actions"
-msgstr "Actions rapides"
-
-msgid "Add New Employee"
-msgstr "Ajouter un nouvel employé"
-
-msgid "All Employees"
-msgstr "Tous les employés"
-
-msgid "Disciplinary Records"
-msgstr "Dossiers disciplinaires"
-
-msgid "Staff by Role"
-msgstr "Personnel par rôle"
-
-msgid "Recently Added"
-msgstr "Récemment ajoutés"
-
-msgid "All"
-msgstr "Tout"
-
-msgid "Recent System Activity"
-msgstr "Activité récente du système"
-
-msgid "System Settings"
-msgstr "Paramètres système"
-
-msgid "Add Employee"
-msgstr "Ajouter un employé"
-
-msgid "Issue Notice"
-msgstr "Émettre un avis"
-
-# employee_dashboard.html / unit_head_dashboard.html
-msgid "Welcome back, %(name)s"
-msgstr "Bon retour, %(name)s"
-
-msgid "Happy Birthday, %(name)s!"
-msgstr "Joyeux anniversaire, %(name)s !"
-
-msgid "Wishing you a wonderful day from the entire Magrabi ICO Cameroon Eye Institute family."
-msgstr "Nous vous souhaitons une merveilleuse journée de la part de toute la famille du Magrabi ICO Cameroon Eye Institute."
-
-msgid "You are currently suspended."
-msgstr "Vous êtes actuellement suspendu."
-
-msgid "Suspension period:"
-msgstr "Période de suspension :"
-
-msgid "to"
-msgstr "au"
-
-msgid "Please contact HR for further information."
-msgstr "Veuillez contacter les RH pour plus d'informations."
-
-msgid "You are currently on <strong>%(leave_type)s</strong> leave. You return on <strong>%(end_date)s</strong>."
-msgstr "Vous êtes actuellement en congé de <strong>%(leave_type)s</strong>. Vous revenez le <strong>%(end_date)s</strong>."
-
-msgid "Annual:"
-msgstr "Annuel :"
-
-msgid "Carried:"
-msgstr "Reporté :"
-
-# hr_dashboard.html
-msgid "Birthday"
-msgstr "Anniversaire"
-
-msgid "s"
-msgstr "s"
-
-msgid "Today!"
-msgstr "Aujourd'hui !"
-
-msgid "Birthday Calendar"
-msgstr "Calendrier des anniversaires"
-
-msgid "Upcoming Birthdays This Month — %(count)s staff"
-msgstr "Anniversaires ce mois — %(count)s membres du personnel"
-
-msgid "View All"
-msgstr "Voir tout"
-
-msgid "%(count)s request(s) waiting for your review"
-msgstr "%(count)s demande(s) en attente de votre révision"
-
-msgid "These have been approved by the manager and are now in your queue."
-msgstr "Ces demandes ont été approuvées par le responsable et sont maintenant dans votre file d'attente."
-
-msgid "Review Now"
-msgstr "Réviser maintenant"
-
-msgid "Overview"
-msgstr "Aperçu"
-
-msgid "Total Active Staff"
-msgstr "Personnel actif total"
-
-msgid "Pending HR Review"
-msgstr "En attente de révision RH"
-
-msgid "Leaves Approved in %(y)s"
-msgstr "Congés approuvés en %(y)s"
-
-msgid "Leaves Rejected in %(y)s"
-msgstr "Congés rejetés en %(y)s"
-
-msgid "Staff on Leave Today"
-msgstr "Personnel en congé aujourd'hui"
-
-msgid "Low Leave Balance (≤ 3 days)"
-msgstr "Solde de congés faible (≤ 3 jours)"
-
-msgid "Pending HR Approvals"
-msgstr "Approbations RH en attente"
-
-msgid "No pending HR approvals"
-msgstr "Aucune approbation RH en attente"
-
-msgid "Manager"
-msgstr "Responsable"
-
-# director_dashboard.html
-msgid "Executive Dashboard"
-msgstr "Tableau de bord Exécutif"
-
-msgid "Final Approvals"
-msgstr "Approbations finales"
-
-msgid "At a Glance"
-msgstr "En un coup d'œil"
-
-msgid "Active Staff"
-msgstr "Personnel actif"
-
-msgid "Awaiting You"
-msgstr "En attente de vous"
-
-msgid "Approved %(y)s"
-msgstr "Approuvés %(y)s"
-
-msgid "Rejected %(y)s"
-msgstr "Rejetés %(y)s"
-
-msgid "Discipline Cases"
-msgstr "Cas disciplinaires"
-
-msgid "Action Required"
-msgstr "Action requise"
-
-msgid "Requests Awaiting Your Final Approval"
-msgstr "Demandes en attente de votre approbation finale"
-
-msgid "No requests awaiting your approval — all clear!"
-msgstr "Aucune demande en attente de votre approbation — tout est en ordre !"
-
-msgid "Decide"
-msgstr "Décider"
-
-msgid "HR Approved By"
-msgstr "Approuvé par les RH"
-
-# request_form.html
-msgid "Your saved signature will be used. Draw below to replace it."
-msgstr "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
-
-msgid "Draw your signature here"
-msgstr "Dessinez votre signature ici"
-
-msgid "Clear"
-msgstr "Effacer"
-
-msgid "Your Signature"
-msgstr "Votre signature"
-
-# my_requests.html
-msgid "Annual Entitlement:"
-msgstr "Droit annuel :"
-
-msgid "Carried Forward:"
-msgstr "Reporté :"
-
-msgid "Total days this year"
-msgstr "Total des jours cette année"
-
-msgid "No non-deductible leaves taken yet."
-msgstr "Aucun congé non déductible pris pour l'instant."
-
-msgid "Deductible Leave Balance"
-msgstr "Solde de congés déductibles"
-
-msgid "Non-Deductible Leaves Taken"
-msgstr "Congés non déductibles pris"
-
-msgid "Available"
-msgstr "Disponible"
-
-# profile.html
-msgid "Profile Information"
-msgstr "Informations du profil"
-
-msgid "Joined Hospital"
-msgstr "Entrée à l'Hôpital"
-
-msgid "Staff Category"
-msgstr "Catégorie du personnel"
-
-msgid "Sex"
-msgstr "Sexe"
-
-msgid "Nationality"
-msgstr "Nationalité"
-
-msgid "Contract / Personnel No."
-msgstr "N° de contrat / personnel"
-
-msgid "Qualifications"
-msgstr "Qualifications"
-
-# employee_form.html
-msgid "Personal Information"
-msgstr "Informations personnelles"
-
-msgid "Employment Details"
-msgstr "Détails de l'emploi"
-
-msgid "Date of Birth"
-msgstr "Date de naissance"
-
-msgid "Line Manager / Supervisor"
-msgstr "Responsable hiérarchique / Superviseur"
-
-# employee_list.html
-msgid "Active Employees"
-msgstr "Employés actifs"
-
-msgid "Former / Dismissed"
-msgstr "Anciens / Licenciés"
-
-msgid "Former / Dismissed Employees"
-msgstr "Anciens employés / Licenciés"
-
-msgid "Add New"
-msgstr "Ajouter"
-
-# base.html sidebar
-msgid "Finance Director"
-msgstr "Directeur Financier"
-
-msgid "Director Queue"
-msgstr "File du Directeur"
-
-msgid "All Requests"
-msgstr "Toutes les demandes"
-
-msgid "CEO — Overview"
-msgstr "PDG — Aperçu"
-
-msgid "Discipline Records"
-msgstr "Dossiers disciplinaires"
-
-msgid "All Contracts"
-msgstr "Tous les contrats"
-
-msgid "Retirement Tracker"
-msgstr "Suivi des retraites"
-
-msgid "Discipline"
-msgstr "Discipline"
-
-msgid "New Disciplinary Notice"
-msgstr "Nouveau avis disciplinaire"
-
-msgid "Statistics"
-msgstr "Statistiques"
-
-msgid "Contracts"
-msgstr "Contrats"
-
-msgid "New Contract"
-msgstr "Nouveau contrat"
-
-msgid "Leave Types"
-msgstr "Types de congés"
-
-msgid "Import from Excel"
-msgstr "Importer depuis Excel"
-
-msgid "Mark all read"
-msgstr "Tout marquer comme lu"
-
-msgid "No notifications yet"
-msgstr "Aucune notification pour l'instant"
-
-msgid "View All Notifications"
-msgstr "Voir toutes les notifications"
-
-msgid "Account Suspended until %(end)s"
-msgstr "Compte suspendu jusqu'au %(end)s"
-
-msgid "Applying for leave is disabled. All other features remain accessible."
-msgstr "La demande de congé est désactivée. Toutes les autres fonctionnalités restent accessibles."
-
-# additional
-msgid "Manage"
-msgstr "Gérer"
-
-msgid "Leave Tracker"
-msgstr "Suivi des congés"
-
-msgid "My Discipline Record"
-msgstr "Mon dossier disciplinaire"
-
-msgid "My Contract"
-msgstr "Mon contrat"
-
-msgid "Notifications"
-msgstr "Notifications"
-
-msgid "Unit Head Queue"
-msgstr "File du chef d'unité"
-
-msgid "Approval Queue"
-msgstr "File d'approbation"
-
-msgid "Issue Notice"
-msgstr "Émettre un avis"
-
-msgid "All Leave Requests"
-msgstr "Toutes les demandes de congé"
-
-msgid "Awaiting My Approval"
-msgstr "En attente de mon approbation"
-
-msgid "My Pending Requests"
-msgstr "Mes demandes en attente"
-
-msgid "My Recent Leave Requests"
-msgstr "Mes demandes de congé récentes"
-
-msgid "My Unit"
-msgstr "Mon unité"
-
-msgid "Unit Members"
-msgstr "Membres de l'unité"
-
-msgid "Unit On Leave Today"
-msgstr "Unité en congé aujourd'hui"
-
-msgid "Leave Requests Awaiting Your Decision"
-msgstr "Demandes de congé en attente de votre décision"
-
-msgid "No pending requests. Your unit is all clear."
-msgstr "Aucune demande en attente. Votre unité est en ordre."
-
-msgid "My Leave"
-msgstr "Mon congé"
-
-msgid "My Pending Requests"
-msgstr "Mes demandes en attente"
-
-msgid "Review Now"
-msgstr "Réviser maintenant"
-
-msgid "Review"
-msgstr "Examiner"
-
-msgid "Team Members"
-msgstr "Membres de l'équipe"
-
-msgid "Leave Requests Awaiting Your Decision"
-msgstr "Demandes de congé en attente de votre décision"
-
-msgid "No pending approvals — all caught up!"
-msgstr "Aucune approbation en attente — tout est à jour !"
-
-msgid "Team Status"
-msgstr "Statut de l'équipe"
-
-msgid "Returns"
-msgstr "Retour le"
-
-msgid "Your Team"
-msgstr "Votre équipe"
-
-msgid "No team members assigned yet"
-msgstr "Aucun membre d'équipe assigné pour l'instant"
-
-msgid "Issue Notice"
-msgstr "Émettre un avis"
-
-msgid "Download / Print PDF"
-msgstr "Télécharger / Imprimer le PDF"
-
-msgid "Departments"
-msgstr "Départements"
-
-msgid "Department Leave Activity"
-msgstr "Activité des congés par département"
-
-msgid "All staff are in today"
-msgstr "Tout le personnel est présent aujourd'hui"
-
-msgid "All employees have healthy leave balances"
-msgstr "Tous les employés ont des soldes de congés satisfaisants"
-
-msgid "No department data yet"
-msgstr "Pas encore de données par département"
-
+#: templates/base.html:1079 templates/base.html:1461 templates/base.html:1543
+msgid "Sign Out"
+msgstr "Se Déconnecter"
+
+#: templates/base.html:1093
 msgid "Search users, events and more..."
 msgstr "Rechercher des utilisateurs, événements et plus..."
 
-msgid "Change Password"
-msgstr "Changer le mot de passe"
+#: templates/base.html:1105
+msgid "Main"
+msgstr "Principal"
 
-# profile.html
-msgid "Profile Information"
-msgstr "Informations du profil"
+#: templates/base.html:1109 templates/base.html:1474
+msgid "Dashboard"
+msgstr "Tableau de bord"
 
-msgid "Employee ID"
-msgstr "Matricule"
+#: templates/base.html:1128
+msgid "My Requests"
+msgstr "Mes Demandes"
 
-msgid "Username"
-msgstr "Nom d'utilisateur"
+#: templates/base.html:1134
+msgid "My Discipline Record"
+msgstr "Mon dossier disciplinaire"
 
-msgid "Email"
-msgstr "E-mail"
+#: templates/base.html:1145
+#, fuzzy
+#| msgid "Document"
+msgid "My Documents"
+msgstr "Document"
 
-msgid "Phone"
-msgstr "Téléphone"
+#: templates/base.html:1162 templates/base.html:1186
+msgid "Approvals"
+msgstr "Approbations"
 
-msgid "Line Manager"
-msgstr "Responsable hiérarchique"
+#: templates/base.html:1166
+msgid "Unit Head Queue"
+msgstr "File du chef d'unité"
 
-msgid "Joined Hospital"
-msgstr "Date d'entrée à l'hôpital"
+#: templates/base.html:1172 templates/base.html:1196 templates/base.html:1247
+#: templates/base.html:1276 templates/base.html:1335
+#, fuzzy
+#| msgid "Final Review"
+msgid "Appraisal Reviews"
+msgstr "Examen Final"
 
-msgid "Staff Category"
-msgstr "Catégorie du personnel"
-
-msgid "Category"
-msgstr "Catégorie"
-
-msgid "Sex"
-msgstr "Sexe"
-
-msgid "Male"
-msgstr "Masculin"
-
-msgid "Female"
-msgstr "Féminin"
-
-msgid "Nationality"
-msgstr "Nationalité"
-
-msgid "Contract / Personnel No."
-msgstr "N° de contrat / personnel"
-
-msgid "Qualifications"
-msgstr "Qualifications"
-
-msgid "Current Password"
-msgstr "Mot de passe actuel"
-
-msgid "New Password"
-msgstr "Nouveau mot de passe"
-
-msgid "Minimum 8 characters."
-msgstr "Minimum 8 caractères."
-
-msgid "Confirm New Password"
-msgstr "Confirmer le nouveau mot de passe"
-
-msgid "Update Password"
-msgstr "Mettre à jour le mot de passe"
-
-msgid "If you have forgotten your password, contact the system administrator to reset it for you."
-msgstr "Si vous avez oublié votre mot de passe, contactez l'administrateur système pour le réinitialiser."
-
-# employee_history.html
-msgid "Employee Record"
-msgstr "Dossier de l'employé"
-
-msgid "Full audit trail"
-msgstr "Historique complet"
-
-msgid "Edit Profile"
-msgstr "Modifier le profil"
-
-msgid "Back to List"
-msgstr "Retour à la liste"
-
-msgid "Active Staff"
-msgstr "Personnel actif"
-
-msgid "Active"
-msgstr "Actif"
-
-msgid "Inactive"
-msgstr "Inactif"
-
-msgid "Joined:"
-msgstr "Arrivée :"
-
-msgid "Contracts"
-msgstr "Contrats"
-
-msgid "Leave History"
-msgstr "Historique des congés"
-
-msgid "Discipline"
+#: templates/base.html:1178 templates/base.html:1202
+#, fuzzy
+#| msgid "Discipline"
+msgid "Propose Discipline"
 msgstr "Discipline"
 
-msgid "Personal Information"
-msgstr "Informations personnelles"
+#: templates/base.html:1190
+msgid "Manager Queue"
+msgstr "File du Responsable"
 
-msgid "Employment Details"
-msgstr "Détails de l'emploi"
+#: templates/base.html:1221 templates/base.html:1266
+msgid "All Requests"
+msgstr "Toutes les Demandes"
 
-msgid "Full Name"
-msgstr "Nom complet"
+#: templates/base.html:1231 templates/base.html:1325
+msgid "Retirement Tracker"
+msgstr "Suivi des retraites"
 
-msgid "Date of Birth"
-msgstr "Date de naissance"
+#: templates/base.html:1241
+#, fuzzy
+#| msgid "Approvals"
+msgid "Appraisals"
+msgstr "Approbations"
 
-msgid "Age"
-msgstr "Âge"
-
-msgid "years"
-msgstr "ans"
-
-msgid "School / University"
-msgstr "École / Université"
-
-msgid "Speciality"
-msgstr "Spécialité"
-
-msgid "Role"
-msgstr "Rôle"
-
-msgid "Department"
-msgstr "Département"
-
-msgid "Position"
-msgstr "Poste"
-
-msgid "Unit Head"
-msgstr "Chef d'unité"
-
-msgid "Contract No."
-msgstr "N° de contrat"
-
-msgid "Leave Balance"
-msgstr "Solde de congé"
-
-msgid "Available"
-msgstr "Disponible"
-
-msgid "Used"
-msgstr "Utilisé"
-
-msgid "Remaining"
-msgstr "Restant"
-
-msgid "Entitlement"
-msgstr "Droit"
-
-msgid "Contract History"
-msgstr "Historique des contrats"
-
-msgid "Start Date"
-msgstr "Date de début"
-
-msgid "End Date"
-msgstr "Date de fin"
-
-msgid "Status"
-msgstr "Statut"
-
-msgid "Notes"
-msgstr "Notes"
-
-msgid "Internship"
-msgstr "Stage"
-
-msgid "Expired"
-msgstr "Expiré"
-
-msgid "Terminated"
-msgstr "Résilié"
-
-msgid "Renewed"
-msgstr "Renouvelé"
-
-msgid "No contracts on record."
-msgstr "Aucun contrat enregistré."
-
-msgid "Leave Request History"
-msgstr "Historique des demandes de congé"
-
-msgid "Period"
-msgstr "Période"
-
-msgid "Days"
-msgstr "Jours"
-
-msgid "Applied"
-msgstr "Soumis"
-
-msgid "No leave requests on record."
-msgstr "Aucune demande de congé enregistrée."
-
-msgid "Discipline Records"
-msgstr "Dossiers disciplinaires"
-
-msgid "Clean record"
-msgstr "Dossier vierge"
-
-msgid "No discipline records."
-msgstr "Aucun dossier disciplinaire."
-
-msgid "This employee has a clean discipline record."
-msgstr "Cet employé a un dossier disciplinaire vierge."
-
-msgid "Date"
-msgstr "Date"
-
-msgid "Type"
-msgstr "Type"
-
-msgid "Reason"
-msgstr "Motif"
-
-msgid "Issued By"
-msgstr "Émis par"
-
-msgid "HR Proposal"
-msgstr "Proposition RH"
-
-msgid "Director Decision"
-msgstr "Décision du Directeur"
-
-msgid "Verbal Warning"
-msgstr "Avertissement verbal"
-
-msgid "Written Caution"
-msgstr "Mise en garde écrite"
-
-msgid "Final Warning"
-msgstr "Avertissement final"
-
-msgid "Suspension"
-msgstr "Suspension"
-
-msgid "Dismissal"
-msgstr "Licenciement"
-
-msgid "Pending"
-msgstr "En attente"
-
-# roles
-msgid "System Administrator"
-msgstr "Administrateur système"
-
-msgid "Administration Director"
-msgstr "Directeur Administratif"
-
+# base.html sidebar
+#: templates/base.html:1256
 msgid "Finance Director"
 msgstr "Directeur Financier"
 
-msgid "HR Admin"
-msgstr "Administrateur RH"
+#: templates/base.html:1260
+msgid "Director Queue"
+msgstr "File du Directeur"
 
-msgid "Line Manager"
-msgstr "Responsable hiérarchique"
+#: templates/base.html:1286
+msgid "CEO — Overview"
+msgstr "PDG — Aperçu"
 
-msgid "Employee"
-msgstr "Employé"
+#: templates/base.html:1290
+#, fuzzy
+#| msgid "Director Queue"
+msgid "Director Leave Queue"
+msgstr "File du Directeur"
 
-msgid "CEO"
-msgstr "PDG"
+#: templates/base.html:1315
+#, fuzzy
+#| msgid "Discipline Cases"
+msgid "Discipline Statistics"
+msgstr "Cas disciplinaires"
 
-msgid "Intern"
-msgstr "Stagiaire"
+# hr_dashboard.html
+#: templates/base.html:1330
+#, fuzzy
+#| msgid "Birthday"
+msgid "Upcoming Birthdays"
+msgstr "Anniversaire"
 
-msgid "WACS Resident / Trainee"
-msgstr "Résident WACS / Stagiaire"
+#: templates/base.html:1341
+#, fuzzy
+#| msgid "Contract Overview"
+msgid "Appraisals Overview"
+msgstr "Aperçu des contrats"
 
-# contract_list.html
-msgid "Total Contracts"
-msgstr "Total des contrats"
+#: templates/base.html:1354
+msgid "New Disciplinary Notice"
+msgstr "Nouveau avis disciplinaire"
 
-msgid "Active CDI"
-msgstr "CDI actifs"
+#: templates/base.html:1365
+msgid "Statistics"
+msgstr "Statistiques"
 
-msgid "Active CDD"
-msgstr "CDD actifs"
+#: templates/base.html:1394
+msgid "Admin"
+msgstr "Administration"
 
-msgid "Residents"
-msgstr "Résidents"
+#: templates/base.html:1418
+msgid "Leave Types"
+msgstr "Types de congés"
 
-msgid "Expiring ≤ 60 days"
-msgstr "Expirant dans ≤ 60 jours"
+#: templates/base.html:1423
+msgid "Import from Excel"
+msgstr "Importer depuis Excel"
 
-msgid "All Types"
-msgstr "Tous les types"
+#: templates/base.html:1435
+#, fuzzy
+#| msgid "Leave Activity"
+msgid "Activity Log"
+msgstr "Activité des congés"
 
-msgid "All Statuses"
-msgstr "Tous les statuts"
-
-msgid "Expiring Within"
-msgstr "Expiration dans"
-
-msgid "All Contracts"
-msgstr "Tous les contrats"
-
-msgid "Years of Service"
-msgstr "Années de service"
-
-msgid "Filter"
-msgstr "Filtrer"
-
-msgid "Clear"
-msgstr "Effacer"
-
-msgid "New Contract"
-msgstr "Nouveau contrat"
-
-# discipline strings
-msgid "Notices Issued by You"
-msgstr "Avis émis par vous"
-
-msgid "Director Reviewed"
-msgstr "Examiné par le Directeur"
-
-msgid "No Further Action"
-msgstr "Aucune suite"
-
-msgid "All Types"
-msgstr "Tous les types"
-
-msgid "All Departments"
-msgstr "Tous les départements"
-
-msgid "Issue Notice"
-msgstr "Émettre un avis"
-
-msgid "Action Required — Dismissal Notices"
-msgstr "Action requise — Avis de licenciement"
-
-msgid "Deactivate Account"
-msgstr "Désactiver le compte"
-
-# employee_list.html additional
-msgid "Active Employees"
-msgstr "Employés actifs"
-
-msgid "Former / Dismissed"
-msgstr "Anciens / Licenciés"
-
-msgid "Former / Dismissed Employees"
-msgstr "Anciens employés / Licenciés"
-
-msgid "Add Employee"
-msgstr "Ajouter un employé"
-
-msgid "Add New"
-msgstr "Ajouter"
-
-msgid "Employee Management"
-msgstr "Gestion des employés"
-
-msgid "Supervisor"
-msgstr "Superviseur"
-
-msgid "Actions"
-msgstr "Actions"
-
-msgid "No employees yet."
-msgstr "Aucun employé pour l'instant."
-
-msgid "Add the first one"
-msgstr "Ajouter le premier"
-
-# leave tracker
-msgid "Leave Tracker"
-msgstr "Suivi des congés"
-
-msgid "Year"
-msgstr "Année"
-
-msgid "All Departments"
-msgstr "Tous les départements"
-
-msgid "All Leave Requests"
-msgstr "Toutes les demandes de congé"
-
-msgid "All Statuses"
-msgstr "Tous les statuts"
-
-msgid "Leave Type"
-msgstr "Type de congé"
-
-msgid "Employee"
-msgstr "Employé"
-
-msgid "Dept"
-msgstr "Dépt"
-
-msgid "View"
-msgstr "Voir"
-
-msgid "Record(s)"
-msgstr "Enregistrement(s)"
-
-# action_form / leave requests
-msgid "New Request"
-msgstr "Nouvelle demande"
-
-msgid "View All"
-msgstr "Voir tout"
-
-msgid "View Pending"
-msgstr "Voir les demandes en attente"
-
-msgid "My Recent Leave Requests"
-msgstr "Mes demandes de congé récentes"
-
-msgid "No leave requests yet."
-msgstr "Aucune demande de congé pour l'instant."
-
-msgid "Apply now"
-msgstr "Demander maintenant"
-
-msgid "Decide"
-msgstr "Décider"
-
-# notifications
-msgid "Notifications"
-msgstr "Notifications"
-
-msgid "No notifications yet."
-msgstr "Aucune notification pour l'instant."
-
-msgid "Mark All Read"
+#: templates/base.html:1494
+msgid "Mark all read"
 msgstr "Tout marquer comme lu"
 
-msgid "View all notifications"
+#: templates/base.html:1516
+msgid "No notifications yet"
+msgstr "Aucune notification pour l'instant"
+
+#: templates/base.html:1522
+msgid "View All Notifications"
 msgstr "Voir toutes les notifications"
 
+#: templates/base.html:1539
+#, python-format
+msgid "Account Suspended until %(end)s"
+msgstr "Compte suspendu jusqu'au %(end)s"
+
+#: templates/base.html:1540
+msgid "Applying for leave is disabled. All other features remain accessible."
+msgstr "La demande de congé est désactivée. Toutes les autres fonctionnalités restent accessibles."
+
+#~ msgid "Annual Entitlement"
+#~ msgstr "Droit Annuel"
+
+#~ msgid "Submit a new leave request"
+#~ msgstr "Soumettre une nouvelle demande de congé"
+
+#~ msgid "HR Admin Final Approval"
+#~ msgstr "Approbation Finale de l'Admin RH"
+
+#~ msgid "Print Approval Letter"
+#~ msgstr "Imprimer la Lettre d'Approbation"
+
+#~ msgid "Rejected This Year"
+#~ msgstr "Rejetés Cette Année"
+
+#~ msgid "Pending HR Approvals"
+#~ msgstr "Approbations RH en Attente"
+
+#~ msgid "Manager Approved"
+#~ msgstr "Approuvé par le Responsable"
+
+#~ msgid "No pending approvals"
+#~ msgstr "Aucune approbation en attente"
+
+#~ msgid "Low Leave Balance (≤3 days)"
+#~ msgstr "Solde de Congés Faible (≤3 jours)"
+
+#~ msgid "Awaiting Your Approval"
+#~ msgstr "En Attente de Votre Approbation"
+
+#~ msgid "Your Team Members"
+#~ msgstr "Membres de Votre Équipe"
+
+#~ msgid "Language"
+#~ msgstr "Langue"
+
+#~ msgid "No pending HR approvals"
+#~ msgstr "Aucune approbation RH en attente"
+
+#~ msgid "Requests Awaiting Your Final Approval"
+#~ msgstr "Demandes en attente de votre approbation finale"
+
+#~ msgid "No requests awaiting your approval — all clear!"
+#~ msgstr "Aucune demande en attente de votre approbation — tout est en ordre !"
+
+#~ msgid "Former / Dismissed"
+#~ msgstr "Anciens / Licenciés"
+
+#~ msgid "Awaiting My Approval"
+#~ msgstr "En attente de mon approbation"
+
+#~ msgid "My Recent Leave Requests"
+#~ msgstr "Mes demandes de congé récentes"
+
+#~ msgid "Leave Requests Awaiting Your Decision"
+#~ msgstr "Demandes de congé en attente de votre décision"
+
+#~ msgid "No pending requests. Your unit is all clear."
+#~ msgstr "Aucune demande en attente. Votre unité est en ordre."
+
+#~ msgid "No pending approvals — all caught up!"
+#~ msgstr "Aucune approbation en attente — tout est à jour !"
+
+#~ msgid "Male"
+#~ msgstr "Masculin"
+
+#~ msgid "Female"
+#~ msgstr "Féminin"
+
+# roles
+#~ msgid "System Administrator"
+#~ msgstr "Administrateur système"
+
+#~ msgid "CEO"
+#~ msgstr "PDG"
+
+#~ msgid "Intern"
+#~ msgstr "Stagiaire"
+
+# contract_list.html
+#~ msgid "Total Contracts"
+#~ msgstr "Total des contrats"
+
+#~ msgid "Active CDI"
+#~ msgstr "CDI actifs"
+
+#~ msgid "Active CDD"
+#~ msgstr "CDD actifs"
+
+#~ msgid "Expiring Within"
+#~ msgstr "Expiration dans"
+
+#~ msgid "No Further Action"
+#~ msgstr "Aucune suite"
+
+#~ msgid "Mark All Read"
+#~ msgstr "Tout marquer comme lu"
+
+#~ msgid "View all notifications"
+#~ msgstr "Voir toutes les notifications"
+
+#~ msgid "No department"
+#~ msgstr "Aucun département"

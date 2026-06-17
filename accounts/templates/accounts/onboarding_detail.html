@@ -33,31 +33,6 @@
       <div class="card-body p-4">
         <form method="post">
           {% csrf_token %}
-          {% for field_name, label in onboarding_fields %}
-          <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
-            <input class="form-check-input" type="checkbox" name="{{ field_name }}" id="{{ field_name }}"
-                   {% if checklist|get_attr:field_name %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="{{ field_name }}" style="font-size:.88rem;">
-              {{ label }}
-            </label>
-          </div>
-          {% endfor %}
-
-          {% for field_name, label in fields %}
-          <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
-            <input class="form-check-input" type="checkbox" name="{{ field_name }}" id="{{ field_name }}"
-                   {% if field_name == 'issue_contract' and checklist.issue_contract %}checked
-                   {% elif field_name == 'set_leave_balance' and checklist.set_leave_balance %}checked
-                   {% elif field_name == 'assign_manager' and checklist.assign_manager %}checked
-                   {% elif field_name == 'profile_photo' and checklist.profile_photo %}checked
-                   {% elif field_name == 'signature_captured' and checklist.signature_captured %}checked
-                   {% elif field_name == 'credentials_sent' and checklist.credentials_sent %}checked
-                   {% elif field_name == 'id_document_uploaded' and checklist.id_document_uploaded %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="{{ field_name }}" style="font-size:.88rem;">{{ label }}</label>
-          </div>
-          {% endfor %}
-
-          <!-- Direct rendering without templatetag -->
           <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
             <input class="form-check-input" type="checkbox" name="issue_contract" id="issue_contract" {% if checklist.issue_contract %}checked{% endif %}>
             <label class="form-check-label fw-600" for="issue_contract" style="font-size:.88rem;"><i class="bi bi-file-earmark-text me-1" style="color:#2db4c3;"></i>Contract issued</label>
