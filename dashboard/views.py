@@ -2140,13 +2140,20 @@ def org_chart(request):
         emp_map[emp.pk] = emp
         tree[emp.supervisor_id].append(emp)
 
-    # Roots = employees with no supervisor (or supervisor not in system)
-    roots = tree.get(None, [])
+    # Roots = employees with no supervisor, or whose supervisor is not an active employee
+    all_ids = set(emp_map.keys())
+    roots = [emp for emp in employees if emp.supervisor_id is None or emp.supervisor_id not in all_ids]
 
     def build_node(emp):
         return {
             'emp': emp,
             'children': [build_node(c) for c in sorted(tree.get(emp.pk, []), key=lambda e: e.user.last_name)],
+        }
+
+    def build_node2(emp, t):
+        return {
+            'emp': emp,
+            'children': [build_node2(c, t) for c in sorted(t.get(emp.pk, []), key=lambda e: e.user.last_name)],
         }
 
     nodes = [build_node(r) for r in sorted(roots, key=lambda e: e.user.last_name)]
@@ -2156,22 +2163,6 @@ def org_chart(request):
 
     if dept_filter:
         # Filter: only show employees in this dept (rebuild tree with subset)
-        filtered_emps = [e for e in employees if e.department_id and str(e.department_id) == dept_filter]
-        tree2 = defaultdict(list)
-        filtered_ids = {e.pk for e in filtered_emps}
-        for emp in filtered_emps:
-            sup_id = emp.supervisor_id if emp.supervisor_id in filtered_ids else None
-            tree2[sup_id].append(emp)
-        roots2 = tree2.get(None, [])
-        nodes = [build_node2(r, tree2) for r in sorted(roots2, key=lambda e: e.user.last_name)]
-
-    def build_node2(emp, t):
-        return {
-            'emp': emp,
-            'children': [build_node2(c, t) for c in sorted(t.get(emp.pk, []), key=lambda e: e.user.last_name)],
-        }
-
-    if dept_filter:
         filtered_emps = [e for e in employees if e.department_id and str(e.department_id) == dept_filter]
         tree2 = defaultdict(list)
         filtered_ids = {e.pk for e in filtered_emps}
