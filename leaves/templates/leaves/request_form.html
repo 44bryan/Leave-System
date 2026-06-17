@@ -39,11 +39,13 @@
                             <label class="form-label">{% trans "Start Date" %} <span class="text-danger">*</span></label>
                             {{ form.start_date }}
                             {% for error in form.start_date.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            <div id="start-weekend-error" class="text-danger small mt-1" style="display:none;"><i class="bi bi-exclamation-circle me-1"></i>{% trans "Start date cannot be a Saturday or Sunday." %}</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{% trans "End Date" %} <span class="text-danger">*</span></label>
                             {{ form.end_date }}
                             {% for error in form.end_date.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                            <div id="end-weekend-error" class="text-danger small mt-1" style="display:none;"><i class="bi bi-exclamation-circle me-1"></i>{% trans "End date cannot be a Saturday or Sunday." %}</div>
                         </div>
                     </div>
 
@@ -51,6 +53,14 @@
                         <div class="alert alert-info py-2">
                             <i class="bi bi-calendar3 me-2"></i>
                             <strong id="days-count">0</strong> {% trans "working day(s) selected" %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="balance-error" style="display:none;">
+                        <div class="alert alert-danger py-2">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            {% trans "You do not have enough leave balance for the selected number of days." %}
+                            {% trans "Remaining balance:" %} <strong>{{ balance.remaining_days }} {% trans "day(s)" %}</strong>.
                         </div>
                     </div>
 
@@ -213,22 +223,50 @@ const startEl = document.querySelector('[name="start_date"]');
 const endEl = document.querySelector('[name="end_date"]');
 const preview = document.getElementById('days-preview');
 const count = document.getElementById('days-count');
+const startWeekendErr = document.getElementById('start-weekend-error');
+const endWeekendErr = document.getElementById('end-weekend-error');
+const balanceErr = document.getElementById('balance-error');
+const remainingDays = {{ balance.remaining_days }};
+
+function parseLocalDate(str) {
+    // Parse YYYY-MM-DD as LOCAL time (not UTC) to avoid day-shift in UTC+ timezones
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+}
+
+function isWeekend(date) {
+    const d = date.getDay();
+    return d === 0 || d === 6;
+}
 
 function countWorkingDays(start, end) {
-    let n = 0, cur = new Date(start);
-    cur.setHours(0,0,0,0);
-    const fin = new Date(end); fin.setHours(0,0,0,0);
-    while (cur <= fin) { if (cur.getDay() !== 0) n++; cur.setDate(cur.getDate()+1); }
+    let n = 0, cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const fin = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    while (cur <= fin) { const d = cur.getDay(); if (d !== 0 && d !== 6) n++; cur.setDate(cur.getDate()+1); }
     return n;
 }
+
 function updateDays() {
-    const s = new Date(startEl.value);
-    const e = new Date(endEl.value);
-    if (startEl.value && endEl.value && e >= s) {
-        count.textContent = countWorkingDays(s, e);
+    startWeekendErr.style.display = 'none';
+    endWeekendErr.style.display = 'none';
+    balanceErr.style.display = 'none';
+    preview.style.display = 'none';
+
+    const s = startEl.value ? parseLocalDate(startEl.value) : null;
+    const e = endEl.value ? parseLocalDate(endEl.value) : null;
+    let hasError = false;
+
+    if (s && isWeekend(s)) { startWeekendErr.style.display = 'block'; hasError = true; }
+    if (e && isWeekend(e)) { endWeekendErr.style.display = 'block'; hasError = true; }
+
+    if (s && e && e >= s && !hasError) {
+        const days = countWorkingDays(s, e);
+        count.textContent = days;
         preview.style.display = 'block';
-    } else {
-        preview.style.display = 'none';
+        const isDeductible = deductibleMap[leaveTypeEl.value];
+        if (isDeductible && days > remainingDays) {
+            balanceErr.style.display = 'block';
+        }
     }
 }
 startEl.addEventListener('change', updateDays);
@@ -252,9 +290,13 @@ function updateDeductibleIndicator() {
     badgeYes.style.display = isDeductible ? 'block' : 'none';
     badgeNo.style.display = isDeductible ? 'none' : 'block';
 }
-leaveTypeEl.addEventListener('change', updateDeductibleIndicator);
+leaveTypeEl.addEventListener('change', function() {
+    updateDeductibleIndicator();
+    updateDays();
+});
 // Run on page load in case a value is already selected (e.g. form re-render after error)
 updateDeductibleIndicator();
+updateDays();
 
 // ── Requestor Signature Pad ───────────────────────────────────────────────────
 (function () {
@@ -315,6 +357,15 @@ updateDeductibleIndicator();
     });
 
     document.querySelector('form').addEventListener('submit', function (e) {
+        // Block if weekend dates are selected
+        const sDate = startEl.value ? parseLocalDate(startEl.value) : null;
+        const eDate = endEl.value ? parseLocalDate(endEl.value) : null;
+        if ((sDate && isWeekend(sDate)) || (eDate && isWeekend(eDate))) {
+            e.preventDefault();
+            updateDays();
+            return;
+        }
+
         if (signaturePad && !signaturePad.isEmpty()) {
             dataInput.value = signaturePad.toDataURL('image/png');
         } else if (savedSigB64) {

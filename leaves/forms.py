@@ -30,6 +30,12 @@ class LeaveRequestForm(forms.ModelForm):
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
 
+        if start_date and start_date.weekday() >= 5:
+            self.add_error('start_date', "Start date cannot be a Saturday or Sunday.")
+
+        if end_date and end_date.weekday() >= 5:
+            self.add_error('end_date', "End date cannot be a Saturday or Sunday.")
+
         if start_date and end_date:
             if end_date < start_date:
                 raise forms.ValidationError("End date cannot be before start date.")
