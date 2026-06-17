@@ -1913,6 +1913,7 @@ def bulk_set_entitlement(request):
     """Set a custom leave entitlement for ALL active employees at once."""
     if request.method != 'POST':
         return redirect('dashboard:admin_settings')
+    from django.contrib import messages
     year = int(request.POST.get('year', date.today().year))
     try:
         days = int(request.POST.get('days', 18))
@@ -2109,6 +2110,7 @@ def toggle_module(request):
     """Superuser: enable/disable optional system modules."""
     if request.method != 'POST':
         return redirect('dashboard:admin_settings')
+    from django.contrib import messages
     from .models import SystemSettings
     settings_obj = SystemSettings.get()
     module = request.POST.get('module')

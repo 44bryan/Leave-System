@@ -43,7 +43,7 @@
                     <td class="py-3">
                         {% if status == 'expired' %}
                         <span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;">
-                            <i class="bi bi-x-circle me-1"></i>Expired {{ days|default:"0"|add:"0"|mul:"-1" }}d ago
+                            <i class="bi bi-x-circle me-1"></i>Expired ({{ doc.expiry_date|date:"d M Y" }})
                         </span>
                         {% elif status == 'critical' %}
                         <span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;">

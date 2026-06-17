@@ -38,7 +38,6 @@
               <span style="font-size:.75rem;color:#6b7a8d;">{{ cl.completed_count }}/{{ cl.total_count }}</span>
             </div>
           </td>
-          {% for field in "issue_contract,set_leave_balance,assign_manager,profile_photo,signature_captured,credentials_sent,id_document_uploaded"|split:"," %}{% endfor %}
           <td class="text-center">{% if cl.issue_contract %}<i class="bi bi-check-circle-fill" style="color:#059669;"></i>{% else %}<i class="bi bi-circle" style="color:#d1d5db;"></i>{% endif %}</td>
           <td class="text-center">{% if cl.set_leave_balance %}<i class="bi bi-check-circle-fill" style="color:#059669;"></i>{% else %}<i class="bi bi-circle" style="color:#d1d5db;"></i>{% endif %}</td>
           <td class="text-center">{% if cl.assign_manager %}<i class="bi bi-check-circle-fill" style="color:#059669;"></i>{% else %}<i class="bi bi-circle" style="color:#d1d5db;"></i>{% endif %}</td>
