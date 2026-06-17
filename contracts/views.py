@@ -20,10 +20,10 @@ def _is_hr_or_above(user):
 
 
 def _can_manage_contracts(user):
-    """Only HR and superuser can ISSUE / RENEW / TERMINATE contracts."""
+    """HR, CEO, and superuser can ISSUE / RENEW / TERMINATE contracts."""
     try:
         emp = user.employee
-        return emp.is_hr() or user.is_superuser
+        return emp.is_hr() or emp.is_ceo() or user.is_superuser
     except Exception:
         return user.is_superuser
 
@@ -386,6 +386,16 @@ def issue_contract(request):
         )
 
         messages.success(request, f"Contract issued for {emp.get_full_name()}.")
+        try:
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_CONTRACT,
+                f"Issued contract ({contract.contract_type}) for {emp.get_full_name()} "
+                f"({contract.start_date} → {contract.end_date or 'open-ended'})",
+                target_user=emp.user,
+            )
+        except Exception:
+            pass
         return redirect('contracts:detail', pk=contract.pk)
 
     preselect_employee_pk = request.GET.get('employee')
@@ -646,8 +656,8 @@ def contract_stats(request):
 
 @login_required
 def bulk_issue_contract(request):
-    if not _can_manage_contracts(request.user):
-        messages.error(request, "Access denied.")
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied. System admin only.")
         return redirect('dashboard:home')
 
     from accounts.models import Department as _Dept
