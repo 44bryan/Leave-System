@@ -17,6 +17,7 @@ urlpatterns = [
     path('admin-settings/reset-balance/<int:pk>/', views.reset_single_balance, name='reset_single_balance'),
     path('admin-settings/adjust-entitlement/<int:pk>/', views.adjust_entitlement, name='adjust_entitlement'),
     path('admin-settings/go-live-reset/', views.go_live_reset, name='go_live_reset'),
+    path('admin-settings/seniority-entitlements/', views.apply_seniority_entitlements, name='seniority_entitlements'),
     path('admin-settings/factory-reset/full/', views.factory_reset_full, name='factory_reset_full'),
     path('admin-settings/factory-reset/soft/', views.factory_reset_soft, name='factory_reset_soft'),
     path('admin-settings/factory-reset/yearend/', views.factory_reset_yearend, name='factory_reset_yearend'),

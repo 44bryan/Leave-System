@@ -134,6 +134,23 @@ class Employee(models.Model):
             years -= 1
         return max(years, 0)
 
+    def seniority_leave_entitlement(self):
+        """
+        Annual leave entitlement based on seniority (Cameroonian Labour Code):
+          0–5 years  → 18 days
+          6–10 years → 20 days
+          11+ years  → 22 days
+        Returns None if date_joined_company is not set.
+        """
+        years = self.years_of_service()
+        if years is None:
+            return None
+        if years <= 5:
+            return 18
+        if years <= 10:
+            return 20
+        return 22
+
     def age(self):
         if not self.date_of_birth:
             return None

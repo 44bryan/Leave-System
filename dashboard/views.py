@@ -1938,6 +1938,34 @@ def bulk_set_entitlement(request):
 
 
 @superuser_required_view
+def apply_seniority_entitlements(request):
+    """Auto-set each employee's leave entitlement for the given year based on years of service."""
+    if request.method != 'POST':
+        return redirect('dashboard:admin_settings')
+    from django.contrib import messages
+    year = int(request.POST.get('year', date.today().year))
+    employees = Employee.objects.filter(is_active=True).select_related('user')
+    updated = skipped = 0
+    for emp in employees:
+        days = emp.seniority_leave_entitlement()
+        if days is None:
+            skipped += 1
+            continue
+        bal, _ = LeaveBalance.objects.get_or_create(
+            employee=emp, year=year,
+            defaults={'total_entitlement': days}
+        )
+        bal.total_entitlement = days
+        bal.save()
+        updated += 1
+    msg = f"Seniority entitlements applied for {updated} employees ({year})."
+    if skipped:
+        msg += f" {skipped} skipped (no hire date set)."
+    messages.success(request, msg)
+    return redirect('dashboard:admin_settings')
+
+
+@superuser_required_view
 def factory_reset_full(request):
     """
     Full factory reset: wipes ALL data except the superuser account,

@@ -49,6 +49,63 @@
         </div>
     </div>
 
+    <!-- ── Seniority-Based Entitlement ─────────────────────── -->
+    <div class="col-12">
+        <div class="card animate-in">
+            <div class="card-header" style="background:#f0fdf4;border-color:#6ee7b7;">
+                <i class="bi bi-award-fill me-2" style="color:#059669;"></i>
+                <strong>Auto-Set Leave by Seniority</strong>
+                <span class="text-muted ms-2" style="font-size:.82rem;">Applies Cameroonian Labour Code entitlement based on each employee's date of hire</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded text-center" style="background:#f0fdf4;border:1px solid #6ee7b7;">
+                            <div style="font-size:1.6rem;font-weight:800;color:#059669;">18</div>
+                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">days</div>
+                            <div style="font-size:.75rem;color:#6b7a8d;">0 – 5 years of service</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded text-center" style="background:#eff6ff;border:1px solid #93c5fd;">
+                            <div style="font-size:1.6rem;font-weight:800;color:#1d4ed8;">20</div>
+                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">days</div>
+                            <div style="font-size:.75rem;color:#6b7a8d;">6 – 10 years of service</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded text-center" style="background:#fdf4ff;border:1px solid #d8b4fe;">
+                            <div style="font-size:1.6rem;font-weight:800;color:#7e22ce;">22</div>
+                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">days</div>
+                            <div style="font-size:.75rem;color:#6b7a8d;">11+ years of service</div>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:.82rem;color:#4a6b7c;margin-bottom:16px;">
+                    Calculates each employee's entitlement from their <strong>date of hire</strong> and applies it automatically.
+                    Employees without a hire date are skipped. You can still override individual balances below.
+                </p>
+                <form method="post" action="{% url 'dashboard:seniority_entitlements' %}"
+                      onsubmit="return confirm('Apply seniority-based entitlements to ALL active employees for ' + document.getElementById('senYear').value + '?');">
+                    {% csrf_token %}
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <label class="form-label mb-1" style="font-size:.82rem;">Year</label>
+                            <select name="year" id="senYear" class="form-select form-select-sm" style="width:110px;">
+                                {% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-award me-1"></i> Apply Seniority Entitlements
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ── Bulk Set Custom Entitlement ─────────────────────── -->
     <div class="col-lg-6">
         <div class="card animate-in">
