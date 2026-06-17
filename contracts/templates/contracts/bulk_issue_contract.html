@@ -1,76 +1,76 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Bulk Issue Contracts — AEF HRM{% endblock %}
-{% block page_title %}Bulk Issue Contracts{% endblock %}
+{% block title %}{% trans "Bulk Issue Contracts" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Bulk Issue Contracts" %}{% endblock %}
 {% block nav_contracts %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'contracts:list' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> All Contracts
+    <i class="bi bi-arrow-left me-1"></i> {% trans "All Contracts" %}
 </a>
 {% endblock %}
 
 {% block content %}
+<form method="post" id="bulkForm">
+{% csrf_token %}
 <div class="row g-4">
 
   <!-- Left: Contract Terms -->
   <div class="col-lg-4">
     <div class="card animate-in h-100">
       <div class="card-header">
-        <i class="bi bi-file-earmark-plus me-2" style="color:#2db4c3;"></i>Contract Terms
+        <i class="bi bi-file-earmark-plus me-2" style="color:#2db4c3;"></i>{% trans "Contract Terms" %}
       </div>
       <div class="card-body p-4">
-        <form method="post" id="bulkForm">
-          {% csrf_token %}
 
           <div class="mb-3">
-            <label class="form-label fw-600">Contract Type <span class="text-danger">*</span></label>
+            <label class="form-label fw-600">{% trans "Contract Type" %} <span class="text-danger">*</span></label>
             <div class="d-flex flex-column gap-2">
               <div class="form-check p-3 rounded border" style="background:#f8fafc;">
                 <input class="form-check-input" type="radio" name="contract_type" id="type_cdd" value="CDD" checked onchange="updateContractForm()">
                 <label class="form-check-label" for="type_cdd">
-                  <strong>CDD</strong> — Fixed Term <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                  <strong>CDD</strong> — {% trans "Fixed Term" %} <span class="text-muted" style="font-size:.8rem;">({% trans "has end date" %})</span>
                 </label>
               </div>
               <div class="form-check p-3 rounded border" style="background:#f8fafc;">
                 <input class="form-check-input" type="radio" name="contract_type" id="type_cdi" value="CDI" onchange="updateContractForm()">
                 <label class="form-check-label" for="type_cdi">
-                  <strong>CDI</strong> — Permanent <span class="text-muted" style="font-size:.8rem;">(no end date)</span>
+                  <strong>CDI</strong> — {% trans "Permanent" %} <span class="text-muted" style="font-size:.8rem;">({% trans "no end date" %})</span>
                 </label>
               </div>
               <div class="form-check p-3 rounded border" style="background:#f0fdf4;">
                 <input class="form-check-input" type="radio" name="contract_type" id="type_intern" value="INTERN" onchange="updateContractForm()">
                 <label class="form-check-label" for="type_intern">
-                  <strong>INTERN</strong> — Internship <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                  <strong>INTERN</strong> — {% trans "Internship" %} <span class="text-muted" style="font-size:.8rem;">({% trans "has end date" %})</span>
                 </label>
               </div>
               <div class="form-check p-3 rounded border" style="background:#fdf4ff;">
                 <input class="form-check-input" type="radio" name="contract_type" id="type_wacs" value="WACS" onchange="updateContractForm()">
                 <label class="form-check-label" for="type_wacs">
-                  <strong>WACS</strong> — Residents <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                  <strong>WACS</strong> — {% trans "Residents" %} <span class="text-muted" style="font-size:.8rem;">({% trans "has end date" %})</span>
                 </label>
               </div>
             </div>
           </div>
 
           <div class="mb-3 d-none" id="internship-type-wrap">
-            <label class="form-label fw-600">Internship Type <span class="text-danger">*</span></label>
+            <label class="form-label fw-600">{% trans "Internship Type" %} <span class="text-danger">*</span></label>
             <select name="internship_type" id="internship-type-select" class="form-select">
-              <option value="">— Select —</option>
-              <option value="academic">Academic Internship</option>
-              <option value="pre_employment">Pre-Employment Internship</option>
-              <option value="professional">Professional Internship</option>
-              <option value="vocational">Vocational / Technical Internship</option>
-              <option value="observation">Observation / Discovery Internship</option>
-              <option value="other">Other</option>
+              <option value="">{% trans "— Select —" %}</option>
+              <option value="academic">{% trans "Academic Internship" %}</option>
+              <option value="pre_employment">{% trans "Pre-Employment Internship" %}</option>
+              <option value="professional">{% trans "Professional Internship" %}</option>
+              <option value="vocational">{% trans "Vocational / Technical Internship" %}</option>
+              <option value="observation">{% trans "Observation / Discovery Internship" %}</option>
+              <option value="other">{% trans "Other" %}</option>
             </select>
           </div>
 
           <div class="mb-3 d-none" id="working-dept-wrap">
-            <label class="form-label fw-600">Working Department</label>
+            <label class="form-label fw-600">{% trans "Working Department" %}</label>
             <select name="working_department" id="working-dept-select" class="form-select">
-              <option value="">— Select Department —</option>
+              <option value="">{% trans "— Select Department —" %}</option>
               {% for dept in departments %}
               <option value="{{ dept.pk }}">{{ dept.name }}</option>
               {% endfor %}
@@ -78,35 +78,33 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-600">Start Date <span class="text-danger">*</span></label>
+            <label class="form-label fw-600">{% trans "Start Date" %} <span class="text-danger">*</span></label>
             <input type="text" name="start_date" class="form-control" required
-                   placeholder="DD/MM/YYYY or YYYY-MM-DD" autocomplete="off">
+                   placeholder="{% trans "DD/MM/YYYY or YYYY-MM-DD" %}" autocomplete="off">
           </div>
 
           <div class="mb-3" id="end-date-wrap">
-            <label class="form-label fw-600">End Date <span class="text-danger">*</span>
-              <small class="text-muted fw-normal" id="end-date-label">(CDD / INTERN / WACS)</small>
+            <label class="form-label fw-600">{% trans "End Date" %} <span class="text-danger">*</span>
+              <small class="text-muted fw-normal" id="end-date-label">({% trans "CDD / INTERN / WACS" %})</small>
             </label>
             <input type="text" name="end_date" id="end-date-input" class="form-control"
-                   placeholder="DD/MM/YYYY or YYYY-MM-DD" autocomplete="off">
+                   placeholder="{% trans "DD/MM/YYYY or YYYY-MM-DD" %}" autocomplete="off">
           </div>
 
           <div class="mb-4">
-            <label class="form-label fw-600">Notes <small class="text-muted fw-normal">(optional)</small></label>
-            <textarea name="notes" class="form-control" rows="3" placeholder="Any notes about this contract…"></textarea>
+            <label class="form-label fw-600">{% trans "Notes" %} <small class="text-muted fw-normal">({% trans "optional" %})</small></label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="{% trans "Any notes about this contract…" %}"></textarea>
           </div>
 
           <div class="alert py-2 px-3" style="background:#f0f9ff;border-left:3px solid #2db4c3;border-radius:8px;font-size:0.82rem;">
             <i class="bi bi-info-circle me-1"></i>
-            Select employees on the right, then click <strong>Issue Contracts</strong>.
-            Each employee gets their own contract record and notification.
+            {% blocktrans %}Select employees on the right, then click <strong>Issue Contracts</strong>. Each employee gets their own contract record and notification.{% endblocktrans %}
           </div>
 
           <button type="submit" class="btn btn-primary w-100 mt-3" id="submitBtn" disabled>
             <i class="bi bi-file-earmark-check me-1"></i>
-            Issue Contracts (<span id="selectedCount">0</span> selected)
+            {% trans "Issue Contracts" %} (<span id="selectedCount">0</span> {% trans "selected" %})
           </button>
-        </form>
       </div>
     </div>
   </div>
@@ -115,18 +113,18 @@
   <div class="col-lg-8">
     <div class="card animate-in">
       <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <span><i class="bi bi-people me-2" style="color:#2db4c3;"></i>Select Employees</span>
+        <span><i class="bi bi-people me-2" style="color:#2db4c3;"></i>{% trans "Select Employees" %}</span>
         <div class="d-flex gap-2 align-items-center flex-wrap">
           <input type="text" id="empSearch" class="form-control form-control-sm" style="width:200px;"
-                 placeholder="Search name / ID…" oninput="filterEmployees()">
+                 placeholder="{% trans "Search name / ID…" %}" oninput="filterEmployees()">
           <select id="deptFilter" class="form-select form-select-sm" style="width:180px;" onchange="filterEmployees()">
-            <option value="">All Departments</option>
+            <option value="">{% trans "All Departments" %}</option>
             {% for dept in departments %}
             <option value="{{ dept.pk }}">{{ dept.name }}</option>
             {% endfor %}
           </select>
-          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="selectAll()">Select All</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAll()">Clear</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="selectAll()">{% trans "Select All" %}</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAll()">{% trans "Clear" %}</button>
         </div>
       </div>
       <div class="card-body p-0">
@@ -137,10 +135,10 @@
                 <th style="width:40px;" class="ps-3">
                   <input type="checkbox" id="masterCheck" onchange="toggleAll(this)" class="form-check-input">
                 </th>
-                <th>Employee</th>
-                <th>ID</th>
-                <th>Department</th>
-                <th>Active Contract</th>
+                <th>{% trans "Employee" %}</th>
+                <th>{% trans "ID" %}</th>
+                <th>{% trans "Department" %}</th>
+                <th>{% trans "Active Contract" %}</th>
               </tr>
             </thead>
             <tbody>
@@ -166,26 +164,27 @@
                         {{ c.get_contract_type_display }} · {{ c.status|title }}
                       </span>
                     {% else %}
-                      <span style="font-size:0.78rem;color:#9ab4c0;">No contract</span>
+                      <span style="font-size:0.78rem;color:#9ab4c0;">{% trans "No contract" %}</span>
                     {% endif %}
                   {% endwith %}
                 </td>
               </tr>
               {% empty %}
-              <tr><td colspan="5" class="text-center text-muted py-4">No active employees found.</td></tr>
+              <tr><td colspan="5" class="text-center text-muted py-4">{% trans "No active employees found." %}</td></tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
         <div class="px-3 py-2 border-top" style="font-size:0.8rem;color:#6b7a8d;">
-          <span id="visibleCount">{{ employees|length }}</span> employee(s) shown ·
-          <span id="selectedCount2">0</span> selected
+          <span id="visibleCount">{{ employees|length }}</span> {% trans "employee(s) shown" %} ·
+          <span id="selectedCount2">0</span> {% trans "selected" %}
         </div>
       </div>
     </div>
   </div>
 
 </div>
+</form>
 
 <script>
 function updateContractForm() {
@@ -199,7 +198,7 @@ function updateContractForm() {
   endWrap.style.opacity = isCDI ? '0.4' : '1';
   endInput.required = !isCDI;
   endInput.disabled = isCDI;
-  endInput.placeholder = isCDI ? 'Not applicable for CDI' : 'DD/MM/YYYY or YYYY-MM-DD';
+  endInput.placeholder = isCDI ? '{% trans "Not applicable for CDI" %}' : '{% trans "DD/MM/YYYY or YYYY-MM-DD" %}';
   if (isCDI) endInput.value = '';
 
   const itWrap = document.getElementById('internship-type-wrap');
