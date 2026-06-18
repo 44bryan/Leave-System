@@ -33,10 +33,10 @@
             <div>
                 <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Contract Type" %}</label>
                 <select name="type" class="form-select form-select-sm" style="min-width:150px;">
-                    <option value="">{% trans "All Fixed-Term" %}</option>
-                    <option value="CDD"    {% if filter_type == 'CDD'    %}selected{% endif %}>{% trans "CDD — Fixed Term" %}</option>
-                    <option value="INTERN" {% if filter_type == 'INTERN' %}selected{% endif %}>{% trans "Internship" %}</option>
-                    <option value="WACS"   {% if filter_type == 'WACS'   %}selected{% endif %}>{% trans "WACS Residency" %}</option>
+                    <option value=""      {% if filter_type == ''       %}selected{% endif %}>{% trans "All Fixed-Term" %}</option>
+                    <option value="CDD"   {% if filter_type == 'CDD'    %}selected{% endif %}>{% trans "CDD — Fixed Term" %}</option>
+                    <option value="INTERN"{% if filter_type == 'INTERN' %}selected{% endif %}>{% trans "Internship" %}</option>
+                    <option value="WACS"  {% if filter_type == 'WACS'   %}selected{% endif %}>{% trans "WACS Residency" %}</option>
                 </select>
             </div>
             <div>

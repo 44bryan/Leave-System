@@ -779,7 +779,7 @@ def bulk_renew_contracts(request):
         }
         return dt + mapping[code]
 
-    filter_type   = request.GET.get('type', 'INTERN')
+    filter_type   = request.GET.get('type', '')
     filter_status = request.GET.get('status', 'expired')
     filter_dept   = request.GET.get('dept', '')
     filter_q      = request.GET.get('q', '').strip()
@@ -806,15 +806,18 @@ def bulk_renew_contracts(request):
             Q(employee__employee_id__icontains=filter_q)
         )
 
-    # Status filter: 'expired' means DB active but end_date in the past
+    # 'expired': DB-status='expired' OR (active but end_date already passed)
     if filter_status == 'expired':
-        qs = qs.filter(status='active', end_date__lt=today)
+        qs = qs.filter(
+            Q(status='expired') |
+            Q(status='active', end_date__lt=today)
+        )
     elif filter_status == 'expiring':
+        # Still active, end_date in the future
         qs = qs.filter(status='active', end_date__gte=today)
-    elif filter_status == 'active':
-        qs = qs.filter(status='active')
     else:
-        qs = qs.filter(status='active')
+        # 'active' or anything else — show all active (not terminated/renewed)
+        qs = qs.exclude(status__in=('terminated', 'renewed'))
 
     contracts = list(qs.order_by('end_date', 'employee__user__last_name'))
     all_departments = _Dept.objects.order_by('name')
