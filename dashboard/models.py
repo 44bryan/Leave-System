@@ -67,6 +67,14 @@ class SystemSettings(models.Model):
         default=False,
         help_text="Allow HR to upload payslips and employees to view pay history.",
     )
+    signatory_name = models.CharField(
+        max_length=200, blank=True, default='',
+        help_text="Full name of the person who signs contracts on behalf of the employer (e.g. CEO name).",
+    )
+    signatory_title = models.CharField(
+        max_length=200, blank=True, default='',
+        help_text="Job title of the contract signatory (e.g. Chief Executive Officer).",
+    )
 
     class Meta:
         verbose_name = "System Settings"

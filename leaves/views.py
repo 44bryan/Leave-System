@@ -1408,6 +1408,15 @@ def backfill_signatures(request):
         messages.success(request, f"Signatures synced to {updated} leave record(s).")
         return redirect('leaves:all_leaves')
 
+    total = LeaveRequest.objects.count()
+    missing = LeaveRequest.objects.filter(
+        employee_sig_b64='', manager_sig_b64='', hr_sig_b64='', director_sig_b64=''
+    ).count()
+    return render(request, 'leaves/backfill_signatures.html', {
+        'total': total,
+        'missing': missing,
+    })
+
 
 @login_required
 def set_leave_entitlement(request):
@@ -1448,13 +1457,4 @@ def set_leave_entitlement(request):
             f"Leave entitlement for {target.get_full_name()} ({year}) set to {days} days."
         )
 
-    return redirect(f'{request.POST.get("next", "")}' or 'dashboard:tracker')
-
-    total = LeaveRequest.objects.count()
-    missing = LeaveRequest.objects.filter(
-        employee_sig_b64='', manager_sig_b64='', hr_sig_b64='', director_sig_b64=''
-    ).count()
-    return render(request, 'leaves/backfill_signatures.html', {
-        'total': total,
-        'missing': missing,
-    })
+    return redirect(request.POST.get('next') or 'dashboard:tracker')

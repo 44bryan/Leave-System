@@ -49,6 +49,43 @@
         </div>
     </div>
 
+    <!-- ── Contract Signatory ──────────────────────────────── -->
+    <div class="col-12">
+        <div class="card animate-in">
+            <div class="card-header" style="background:#f0f4ff;border-color:#a5b4fc;">
+                <i class="bi bi-pen-fill me-2" style="color:#4f46e5;"></i>
+                <strong>{% trans "Contract Signatory" %}</strong>
+                <span class="text-muted ms-2" style="font-size:.82rem;">{% trans "Name and title printed on the employer signature block of every contract PDF" %}</span>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" action="{% url 'dashboard:toggle_module' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="module" value="signatory">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Full Name" %}</label>
+                            <input type="text" name="signatory_name" class="form-control form-control-sm"
+                                   value="{{ system_settings.signatory_name }}"
+                                   placeholder="e.g. Dr. John Doe">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Job Title" %}</label>
+                            <input type="text" name="signatory_title" class="form-control form-control-sm"
+                                   value="{{ system_settings.signatory_title }}"
+                                   placeholder="e.g. Chief Executive Officer">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="bi bi-save me-1"></i> {% trans "Save Signatory" %}
+                            </button>
+                            <span class="text-muted ms-3" style="font-size:.78rem;">{% trans "If the CEO has a signature image uploaded in their employee profile, it will also appear on the PDF automatically." %}</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ── Seniority-Based Entitlement ─────────────────────── -->
     <div class="col-12">
         <div class="card animate-in">

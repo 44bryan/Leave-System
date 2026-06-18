@@ -79,7 +79,10 @@ class DisciplineRecord(models.Model):
             start = self.suspension_start
             if isinstance(start, str):
                 from datetime import datetime
-                start = datetime.strptime(start, '%Y-%m-%d').date()
+                try:
+                    start = datetime.strptime(start, '%Y-%m-%d').date()
+                except ValueError:
+                    start = None
                 self.suspension_start = start
             self.suspension_end = start + timedelta(days=8)
         super().save(*args, **kwargs)

@@ -6,7 +6,7 @@
 {% block nav_discipline %}active{% endblock %}
 
 {% block topbar_actions %}
-{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' or request.user.employee.is_ceo or request.user.employee.role in "manager unit_head finance_director" %}
+{% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' or request.user.employee.is_ceo or request.user.employee.role == 'manager' or request.user.employee.role == 'unit_head' or request.user.employee.role == 'finance_director' %}
 <a href="{% url 'discipline:list' %}" class="btn btn-outline-primary btn-sm">
     <i class="bi bi-arrow-left me-1"></i> {% trans "Disciplinary Records" %}
 </a>

@@ -107,6 +107,32 @@ def _footer(c, page_num, W):
     c.line(14*mm, 14*mm, W - 14*mm, 14*mm)
 
 
+def _get_signatory():
+    """Return (name, title, signature_b64) from SystemSettings + CEO employee profile."""
+    try:
+        from dashboard.models import SystemSettings
+        ss = SystemSettings.get()
+        name = ss.signatory_name or ''
+        title = ss.signatory_title or ''
+    except Exception:
+        name, title = '', ''
+
+    sig_b64 = ''
+    try:
+        from accounts.models import Employee
+        ceo = Employee.objects.filter(role='ceo', is_active=True).first()
+        if ceo:
+            if not name:
+                name = ceo.get_full_name()
+            if not title:
+                title = ceo.get_role_display()
+            sig_b64 = ceo.signature_b64 or ''
+    except Exception:
+        pass
+
+    return name, title, sig_b64
+
+
 def generate_contract_pdf(contract):
     """
     Return a BytesIO containing the contract letter PDF.
@@ -265,7 +291,10 @@ def generate_contract_pdf(contract):
     col2_x = W / 2 + 8*mm
     line_w = W / 2 - 28*mm
 
-    # Employer side
+    ceo_name, ceo_title, ceo_sig_b64 = _get_signatory()
+    issue_date = _d(contract.created_at if hasattr(contract, 'created_at') else _date.today())
+
+    # ── Employer side ────────────────────────────────────────────────────────
     c.setFont("Helvetica-Bold", 9)
     c.setFillColorRGB(*_LABEL)
     c.drawString(col1_x, sig_y, "For the Employer")
@@ -273,17 +302,28 @@ def generate_contract_pdf(contract):
     c.setFillColorRGB(*_DARK)
     c.drawString(col1_x, sig_y - 5*mm, "Magrabi ICO Cameroon Eye Institute")
 
+    # Render CEO signature image if available
+    if ceo_sig_b64:
+        try:
+            import base64, io as _io
+            raw = base64.b64decode(ceo_sig_b64)
+            ir = ImageReader(_io.BytesIO(raw))
+            c.drawImage(ir, col1_x, sig_y - 20*mm, width=line_w, height=14*mm,
+                        preserveAspectRatio=True, mask='auto')
+        except Exception:
+            pass
+
     sig_y -= 22*mm
     c.setStrokeColorRGB(*_CYAN)
     c.setLineWidth(0.8)
     c.line(col1_x, sig_y, col1_x + line_w, sig_y)
     c.setFont("Helvetica", 8)
     c.setFillColorRGB(0.5, 0.5, 0.5)
-    c.drawString(col1_x, sig_y - 4*mm, "Signature & Stamp")
-    c.drawString(col1_x, sig_y - 8*mm, "Name: ___________________________")
-    c.drawString(col1_x, sig_y - 13*mm, "Date:  ___________________________")
+    c.drawString(col1_x, sig_y - 4*mm, f"Name:  {ceo_name}" if ceo_name else "Name: ___________________________")
+    c.drawString(col1_x, sig_y - 8*mm, f"Title:   {ceo_title}" if ceo_title else "Title:  ___________________________")
+    c.drawString(col1_x, sig_y - 13*mm, f"Date:  {issue_date}")
 
-    # Employee side — same starting Y as employer heading
+    # ── Employee side — same starting Y as employer heading ──────────────────
     sig_y = y
     c.setFont("Helvetica-Bold", 9)
     c.setFillColorRGB(*_LABEL)

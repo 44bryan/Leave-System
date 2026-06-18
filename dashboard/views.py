@@ -2211,6 +2211,11 @@ def toggle_module(request):
         settings_obj.save(update_fields=['payroll_enabled'])
         state = "enabled" if settings_obj.payroll_enabled else "disabled"
         messages.success(request, f"Payroll module {state}.")
+    elif module == 'signatory':
+        settings_obj.signatory_name = request.POST.get('signatory_name', '').strip()
+        settings_obj.signatory_title = request.POST.get('signatory_title', '').strip()
+        settings_obj.save(update_fields=['signatory_name', 'signatory_title'])
+        messages.success(request, "Contract signatory updated.")
     return redirect('dashboard:admin_settings')
 
 
