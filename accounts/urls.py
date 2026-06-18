@@ -39,6 +39,7 @@ urlpatterns = [
     path('employees/add/', views.employee_create, name='employee_create'),
     path('employees/<int:pk>/edit/', views.employee_edit, name='employee_edit'),
     path('employees/<int:pk>/delete/', views.employee_delete, name='employee_delete'),
+    path('employees/<int:pk>/toggle-lock/', views.toggle_account_lock, name='toggle_account_lock'),
     path('departments/', views.department_list, name='department_list'),
     path('departments/<int:pk>/delete/', views.department_delete, name='department_delete'),
     path('profile/change-password/', views.change_password, name='change_password'),

@@ -172,6 +172,15 @@
                             <a href="{% url 'accounts:reset_credentials' emp.pk %}" class="btn btn-sm btn-outline-warning" title="Reset Password / Username">
                                 <i class="bi bi-key"></i>
                             </a>
+                            <form method="post" action="{% url 'accounts:toggle_account_lock' emp.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                <button type="submit" class="btn btn-sm {% if emp.user.is_active %}btn-outline-secondary{% else %}btn-success{% endif %}"
+                                        title="{% if emp.user.is_active %}Lock account{% else %}Unlock account{% endif %}"
+                                        onclick="return confirm('{% if emp.user.is_active %}Lock {{ emp.get_full_name }}? They will not be able to log in.{% else %}Unlock {{ emp.get_full_name }}? They will be able to log in again.{% endif %}')">
+                                    <i class="bi bi-{% if emp.user.is_active %}lock{% else %}unlock{% endif %}"></i>
+                                </button>
+                            </form>
                             <a href="{% url 'accounts:employee_delete' emp.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
                                 <i class="bi bi-trash"></i>
                             </a>

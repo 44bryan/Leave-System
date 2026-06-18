@@ -86,6 +86,61 @@
         </div>
     </div>
 
+    <!-- ── Contract Auto-Lock ──────────────────────────────── -->
+    <div class="col-12">
+        <div class="card animate-in">
+            <div class="card-header" style="background:#fff7ed;border-color:#fed7aa;">
+                <i class="bi bi-lock-fill me-2" style="color:#c2410c;"></i>
+                <strong>{% trans "Contract Auto-Lock" %}</strong>
+                <span class="text-muted ms-2" style="font-size:.82rem;">{% trans "Automatically lock accounts when a fixed-term contract expires with no renewal" %}</span>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" action="{% url 'dashboard:toggle_module' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="module" value="auto_lock">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center gap-3 p-3 rounded" style="background:#fef3e2;border:1px solid #fcd9a0;">
+                                <div>
+                                    <div class="fw-600" style="font-size:.9rem;color:#7c2d12;">{% trans "Enable Auto-Lock" %}</div>
+                                    <div style="font-size:.8rem;color:#9a3412;">{% trans "When enabled, accounts of employees with expired fixed-term contracts are locked after the grace period below." %}</div>
+                                </div>
+                                <div class="ms-auto">
+                                    {% if system_settings.contract_auto_lock_enabled %}
+                                    <button type="submit" class="btn btn-sm btn-warning" style="min-width:90px;">
+                                        <i class="bi bi-lock me-1"></i> {% trans "Enabled" %}
+                                    </button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" style="min-width:90px;">
+                                        <i class="bi bi-unlock me-1"></i> {% trans "Disabled" %}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Grace Period (days)" %}</label>
+                            <input type="number" name="auto_lock_grace_days" class="form-control form-control-sm"
+                                   value="{{ system_settings.contract_auto_lock_grace_days }}" min="1" max="365">
+                            <div class="form-text">{% trans "Default: 60 days (~2 months)" %}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" name="save_grace" value="1" class="btn btn-sm btn-primary w-100">
+                                <i class="bi bi-save me-1"></i> {% trans "Save Grace Period" %}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3 p-3 rounded" style="background:#f1f5f9;font-size:.82rem;color:#475569;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        {% trans "To apply auto-lock now, run:" %} <code>python manage.py auto_lock_expired_contracts</code> {% trans "from the server." %}
+                        {% trans "Use" %} <code>--dry-run</code> {% trans "to preview without locking." %}
+                        {% trans "Accounts with an active contract are always automatically unlocked." %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ── Seniority-Based Entitlement ─────────────────────── -->
     <div class="col-12">
         <div class="card animate-in">

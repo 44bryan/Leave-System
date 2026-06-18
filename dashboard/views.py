@@ -2216,6 +2216,20 @@ def toggle_module(request):
         settings_obj.signatory_title = request.POST.get('signatory_title', '').strip()
         settings_obj.save(update_fields=['signatory_name', 'signatory_title'])
         messages.success(request, "Contract signatory updated.")
+    elif module == 'auto_lock':
+        if request.POST.get('save_grace'):
+            try:
+                grace = int(request.POST.get('auto_lock_grace_days', 60))
+                settings_obj.contract_auto_lock_grace_days = max(1, grace)
+                settings_obj.save(update_fields=['contract_auto_lock_grace_days'])
+                messages.success(request, f"Grace period set to {settings_obj.contract_auto_lock_grace_days} days.")
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid grace period value.")
+        else:
+            settings_obj.contract_auto_lock_enabled = not settings_obj.contract_auto_lock_enabled
+            settings_obj.save(update_fields=['contract_auto_lock_enabled'])
+            state = "enabled" if settings_obj.contract_auto_lock_enabled else "disabled"
+            messages.success(request, f"Contract auto-lock {state}.")
     return redirect('dashboard:admin_settings')
 
 

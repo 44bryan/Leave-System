@@ -75,6 +75,14 @@ class SystemSettings(models.Model):
         max_length=200, blank=True, default='',
         help_text="Job title of the contract signatory (e.g. Chief Executive Officer).",
     )
+    contract_auto_lock_enabled = models.BooleanField(
+        default=False,
+        help_text="Automatically lock accounts of employees whose fixed-term contract expired with no renewal, after the grace period below.",
+    )
+    contract_auto_lock_grace_days = models.IntegerField(
+        default=60,
+        help_text="Days after contract expiry before the account is auto-locked (default 60 = ~2 months).",
+    )
 
     class Meta:
         verbose_name = "System Settings"

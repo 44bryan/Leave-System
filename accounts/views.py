@@ -325,6 +325,32 @@ def employee_delete(request, pk):
     return render(request, 'accounts/employee_confirm_delete.html', {'employee': employee})
 
 
+@login_required
+def toggle_account_lock(request, pk):
+    """HR or superuser: lock/unlock an employee's login account."""
+    if not _is_hr_or_superuser(request.user):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    employee = get_object_or_404(Employee, pk=pk)
+    if request.method == 'POST':
+        user = employee.user
+        user.is_active = not user.is_active
+        user.save(update_fields=['is_active'])
+        state = "unlocked" if user.is_active else "locked"
+        messages.success(request, f"Account for {employee.get_full_name()} has been {state}.")
+        try:
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_EMPLOYEE,
+                f"Account {state} for {employee.get_full_name()} ({employee.employee_id})",
+                target_user=user,
+            )
+        except Exception:
+            pass
+    return redirect(request.POST.get('next', 'accounts:employee_list'))
+
+
 @superuser_required
 def department_list(request):
     departments = Department.objects.all()

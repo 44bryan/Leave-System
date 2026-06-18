@@ -246,13 +246,13 @@ def contract_list(request):
     elif filter_expiring == '60':
         contracts = [c for c in contracts if c.contract_type == 'CDD' and c.days_remaining is not None and 0 < c.days_remaining <= 60]
 
-    # Summary counts
-    all_contracts = Contract.objects.all()
-    total         = all_contracts.count()
-    active_cdi    = all_contracts.filter(contract_type='CDI',    status='active').count()
-    active_cdd    = all_contracts.filter(contract_type='CDD',    status='active').count()
-    active_intern = all_contracts.filter(contract_type='INTERN', status='active').count()
-    active_wacs   = all_contracts.filter(contract_type='WACS',   status='active').count()
+    # Summary counts — distinct employees (so a person with 3 renewals counts as 1)
+    all_active = Contract.objects.filter(status='active')
+    total         = all_active.values('employee').distinct().count()
+    active_cdi    = all_active.filter(contract_type='CDI'   ).values('employee').distinct().count()
+    active_cdd    = all_active.filter(contract_type='CDD'   ).values('employee').distinct().count()
+    active_intern = all_active.filter(contract_type='INTERN').values('employee').distinct().count()
+    active_wacs   = all_active.filter(contract_type='WACS'  ).values('employee').distinct().count()
     expiring_soon = [c for c in Contract.objects.filter(contract_type='CDD', status='active') if c.is_expiring_soon]
 
     from accounts.models import Department as _Dept, Employee as _Emp
