@@ -172,12 +172,14 @@ def my_contract(request):
         or emp.contracts.first()
     )
 
+    all_contracts = emp.contracts.order_by('-start_date', '-created_at')
     unread_count = emp.contract_notifications.filter(is_read=False).count()
     notifications = emp.contract_notifications.all()[:10]
 
     return render(request, 'contracts/my_contract.html', {
         'contract': contract,
         'employee': emp,
+        'all_contracts': all_contracts,
         'notifications': notifications,
         'unread_count': unread_count,
     })

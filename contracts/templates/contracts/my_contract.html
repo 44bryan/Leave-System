@@ -443,6 +443,69 @@
 
     </div>
 </div>
+
+{% if all_contracts.count > 1 %}
+<!-- Contract History -->
+<div class="card animate-in mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clock-history me-2" style="color:#2db4c3;"></i>{% trans "My Contract History" %}</span>
+        <span class="badge bg-secondary">{{ all_contracts.count }}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Start Date" %}</th>
+                    <th>{% trans "End Date" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in all_contracts %}
+                <tr {% if contract and c.pk == contract.pk %}style="background:#f0fdf4;"{% endif %}>
+                    <td>
+                        {% if c.contract_type == 'CDI' %}
+                        <span class="badge" style="background:#dcfce7;color:#1a8fa0;"><i class="bi bi-infinity me-1"></i>CDI</span>
+                        {% elif c.contract_type == 'INTERN' %}
+                        <span class="badge" style="background:#e0f2fe;color:#2db4c3;"><i class="bi bi-mortarboard me-1"></i>{% trans "Intern" %}</span>
+                        {% elif c.contract_type == 'WACS' %}
+                        <span class="badge" style="background:#fdf4ff;color:#2db4c3;"><i class="bi bi-award me-1"></i>WACS</span>
+                        {% else %}
+                        <span class="badge" style="background:#fef9c3;color:#a16207;"><i class="bi bi-calendar-range me-1"></i>CDD</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size:.85rem;">{{ c.start_date|date:"d M Y" }}</td>
+                    <td style="font-size:.85rem;">
+                        {% if c.end_date %}{{ c.end_date|date:"d M Y" }}{% else %}<span style="color:#9ab4c0;">{% trans "No end date" %}</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if contract and c.pk == contract.pk %}
+                        <span class="badge bg-success">{% trans "Current" %}</span>
+                        {% elif c.status == 'renewed' %}
+                        <span class="badge bg-secondary"><i class="bi bi-arrow-repeat me-1"></i>{% trans "Renewed" %}</span>
+                        {% elif c.status == 'terminated' %}
+                        <span class="badge bg-dark">{% trans "Terminated" %}</span>
+                        {% elif c.is_expired %}
+                        <span class="badge bg-danger">{% trans "Expired" %}</span>
+                        {% else %}
+                        <span class="badge bg-success">{% trans "Active" %}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'contracts:pdf' c.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Download PDF' %}">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
 {% endif %}
 
 {% endblock %}
