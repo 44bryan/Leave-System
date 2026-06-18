@@ -750,6 +750,161 @@ def bulk_issue_contract(request):
 
 
 @login_required
+def bulk_renew_contracts(request):
+    """Bulk-renew expired (or expiring) fixed-term contracts by a chosen duration."""
+    if not _can_manage_contracts(request.user):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    from dateutil.relativedelta import relativedelta
+    from accounts.models import Department as _Dept
+
+    DURATION_CHOICES = [
+        ('1m',  '1 Month'),
+        ('2m',  '2 Months'),
+        ('3m',  '3 Months'),
+        ('6m',  '6 Months'),
+        ('1y',  '1 Year'),
+        ('2y',  '2 Years'),
+    ]
+
+    def _apply_duration(dt, code):
+        mapping = {
+            '1m': relativedelta(months=1),
+            '2m': relativedelta(months=2),
+            '3m': relativedelta(months=3),
+            '6m': relativedelta(months=6),
+            '1y': relativedelta(years=1),
+            '2y': relativedelta(years=2),
+        }
+        return dt + mapping[code]
+
+    filter_type   = request.GET.get('type', 'INTERN')
+    filter_status = request.GET.get('status', 'expired')
+    filter_dept   = request.GET.get('dept', '')
+    filter_q      = request.GET.get('q', '').strip()
+
+    from django.db.models import Q, Value
+    from django.db.models.functions import Concat
+    today = date.today()
+
+    qs = Contract.objects.select_related(
+        'employee', 'employee__user', 'employee__department'
+    ).filter(contract_type__in=('CDD', 'INTERN', 'WACS')).annotate(
+        emp_full_name=Concat('employee__user__first_name', Value(' '), 'employee__user__last_name')
+    )
+
+    if filter_type:
+        qs = qs.filter(contract_type=filter_type)
+    if filter_dept:
+        qs = qs.filter(employee__department_id=filter_dept)
+    if filter_q:
+        qs = qs.filter(
+            Q(emp_full_name__icontains=filter_q) |
+            Q(employee__user__first_name__icontains=filter_q) |
+            Q(employee__user__last_name__icontains=filter_q) |
+            Q(employee__employee_id__icontains=filter_q)
+        )
+
+    # Status filter: 'expired' means DB active but end_date in the past
+    if filter_status == 'expired':
+        qs = qs.filter(status='active', end_date__lt=today)
+    elif filter_status == 'expiring':
+        qs = qs.filter(status='active', end_date__gte=today)
+    elif filter_status == 'active':
+        qs = qs.filter(status='active')
+    else:
+        qs = qs.filter(status='active')
+
+    contracts = list(qs.order_by('end_date', 'employee__user__last_name'))
+    all_departments = _Dept.objects.order_by('name')
+
+    if request.method == 'POST':
+        contract_ids = request.POST.getlist('contracts')
+        duration_code = request.POST.get('duration', '1m')
+
+        if not contract_ids:
+            messages.error(request, "Please select at least one contract to renew.")
+        elif duration_code not in dict(DURATION_CHOICES):
+            messages.error(request, "Invalid duration selected.")
+        else:
+            from notifications.utils import notify
+            renewed_count = 0
+            for cid in contract_ids:
+                try:
+                    old_c = Contract.objects.get(pk=cid)
+                except Contract.DoesNotExist:
+                    continue
+                if not old_c.end_date:
+                    continue
+
+                # New contract starts day after old end, ends old_end + duration
+                new_start = old_c.end_date + relativedelta(days=1)
+                new_end   = _apply_duration(old_c.end_date, duration_code)
+
+                old_c.status = 'renewed'
+                old_c.save()
+
+                new_c = Contract.objects.create(
+                    employee=old_c.employee,
+                    contract_type=old_c.contract_type,
+                    internship_type=old_c.internship_type,
+                    working_department=old_c.working_department,
+                    start_date=new_start,
+                    end_date=new_end,
+                    notes=old_c.notes,
+                    status='active',
+                    created_by=request.user,
+                    renewed_from=old_c,
+                )
+
+                renewal_msg = _contract_renewal_message(new_c)
+                ContractNotification.objects.create(
+                    employee=old_c.employee,
+                    contract=new_c,
+                    notification_type='renewed',
+                    message=renewal_msg,
+                )
+                notify(
+                    old_c.employee.user,
+                    title='Contract Extended',
+                    message=renewal_msg,
+                    notification_type='contract_renewed',
+                    url=reverse('contracts:detail', kwargs={'pk': new_c.pk}),
+                )
+                try:
+                    from dashboard.models import AuditLog
+                    AuditLog.log(
+                        request, AuditLog.ACTION_CONTRACT,
+                        f"Bulk-renewed contract ({new_c.contract_type}) for {old_c.employee.get_full_name()} "
+                        f"→ {new_c.start_date} to {new_c.end_date}",
+                        target_user=old_c.employee.user,
+                    )
+                except Exception:
+                    pass
+                renewed_count += 1
+
+            if renewed_count:
+                messages.success(
+                    request,
+                    f"{renewed_count} contract{'s' if renewed_count != 1 else ''} renewed successfully. "
+                    "All employees have been notified."
+                )
+                return redirect('contracts:list')
+
+    return render(request, 'contracts/bulk_renew_contracts.html', {
+        'contracts': contracts,
+        'duration_choices': DURATION_CHOICES,
+        'filter_type': filter_type,
+        'filter_status': filter_status,
+        'filter_dept': filter_dept,
+        'filter_q': filter_q,
+        'all_departments': all_departments,
+        'today': today,
+    })
+
+
+@login_required
 def contract_pdf(request, pk):
     """Download a contract as a PDF letter."""
     contract = get_object_or_404(Contract, pk=pk)

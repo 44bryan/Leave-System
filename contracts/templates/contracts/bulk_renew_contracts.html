@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Bulk Renew Contracts" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Bulk Renew Contracts" %}{% endblock %}
+{% block nav_contracts %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'contracts:list' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> {% trans "Back to Contracts" %}
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Info banner -->
+<div class="alert alert-info d-flex align-items-start gap-3 mb-4" style="border-radius:10px;">
+    <i class="bi bi-info-circle-fill fs-5 mt-1" style="color:#0ea5e9;flex-shrink:0;"></i>
+    <div>
+        <strong>{% trans "How it works:" %}</strong>
+        {% trans "Filter the list below to find expired or expiring contracts. Select the ones you want to renew, choose an extension duration, and click Renew. Each employee's new end date is calculated from their own previous end date — so employees with different dates each get the correct extension." %}
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="d-flex gap-2 flex-wrap align-items-end">
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Search" %}</label>
+                <input type="text" name="q" value="{{ filter_q }}" placeholder="{% trans 'Name or ID…' %}" class="form-control form-control-sm" style="min-width:160px;">
+            </div>
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Contract Type" %}</label>
+                <select name="type" class="form-select form-select-sm" style="min-width:150px;">
+                    <option value="">{% trans "All Fixed-Term" %}</option>
+                    <option value="CDD"    {% if filter_type == 'CDD'    %}selected{% endif %}>{% trans "CDD — Fixed Term" %}</option>
+                    <option value="INTERN" {% if filter_type == 'INTERN' %}selected{% endif %}>{% trans "Internship" %}</option>
+                    <option value="WACS"   {% if filter_type == 'WACS'   %}selected{% endif %}>{% trans "WACS Residency" %}</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Show" %}</label>
+                <select name="status" class="form-select form-select-sm" style="min-width:160px;">
+                    <option value="expired"  {% if filter_status == 'expired'  %}selected{% endif %}>{% trans "Expired (past end date)" %}</option>
+                    <option value="expiring" {% if filter_status == 'expiring' %}selected{% endif %}>{% trans "Still Active (not yet expired)" %}</option>
+                    <option value="active"   {% if filter_status == 'active'   %}selected{% endif %}>{% trans "All Active" %}</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Department" %}</label>
+                <select name="dept" class="form-select form-select-sm" style="min-width:170px;">
+                    <option value="">{% trans "All Departments" %}</option>
+                    {% for dept in all_departments %}
+                    <option value="{{ dept.pk }}" {% if filter_dept == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="d-flex gap-2 align-items-end">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
+                <a href="{% url 'contracts:bulk_renew' %}" class="btn btn-outline-secondary btn-sm">{% trans "Reset" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if contracts %}
+<!-- Main renewal form -->
+<form method="post" id="bulkRenewForm">
+    {% csrf_token %}
+    <!-- Preserve filter params so they survive the POST -->
+    <input type="hidden" name="q"      value="{{ filter_q }}">
+    <input type="hidden" name="type"   value="{{ filter_type }}">
+    <input type="hidden" name="status" value="{{ filter_status }}">
+    <input type="hidden" name="dept"   value="{{ filter_dept }}">
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span>
+                <i class="bi bi-arrow-repeat me-2" style="color:#f59e0b;"></i>
+                {% trans "Select Contracts to Renew" %}
+                <span class="badge bg-secondary ms-2">{{ contracts|length }}</span>
+            </span>
+
+            <!-- Duration picker + submit — always visible at top -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <label class="mb-0" style="font-size:.8rem;font-weight:600;white-space:nowrap;">{% trans "Extend by:" %}</label>
+                <select name="duration" class="form-select form-select-sm" style="min-width:130px;" required>
+                    {% for code, label in duration_choices %}
+                    <option value="{{ code }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-warning btn-sm" id="renewBtn" disabled>
+                    <i class="bi bi-arrow-repeat me-1"></i>
+                    <span id="renewBtnLabel">{% trans "Renew Selected (0)" %}</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">
+                            <input type="checkbox" id="selectAll" class="form-check-input" title="{% trans 'Select all' %}">
+                        </th>
+                        <th>{% trans "Employee" %}</th>
+                        <th>{% trans "Department" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Current End Date" %}</th>
+                        <th>{% trans "New End Date (preview)" %}</th>
+                        <th>{% trans "Status" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in contracts %}
+                    <tr class="contract-row" data-end="{{ c.end_date|date:'Y-m-d' }}">
+                        <td>
+                            <input type="checkbox" name="contracts" value="{{ c.pk }}"
+                                   class="form-check-input contract-checkbox">
+                        </td>
+                        <td>
+                            <div style="font-weight:600;">{{ c.employee.get_full_name }}</div>
+                            <div style="font-size:.72rem;color:#9ab4c0;">{{ c.employee.employee_id }}</div>
+                        </td>
+                        <td style="font-size:.82rem;">{{ c.employee.department|default:"—" }}</td>
+                        <td>
+                            {% if c.contract_type == 'INTERN' %}
+                            <span class="badge" style="background:#cffafe;color:#088395;"><i class="bi bi-mortarboard me-1"></i>{% trans "Intern" %}</span>
+                            {% elif c.contract_type == 'WACS' %}
+                            <span class="badge" style="background:#ede9fe;color:#2db4c3;"><i class="bi bi-hospital me-1"></i>WACS</span>
+                            {% else %}
+                            <span class="badge" style="background:#fef9c3;color:#a16207;"><i class="bi bi-calendar-range me-1"></i>CDD</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap;">
+                            {% if c.end_date %}
+                            <span {% if c.is_expired %}style="color:#dc2626;font-weight:600;"{% endif %}>
+                                {{ c.end_date|date:"d M Y" }}
+                                {% if c.is_expired %}<i class="bi bi-exclamation-triangle-fill ms-1" title="Expired"></i>{% endif %}
+                            </span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="new-end-preview" style="font-size:.85rem;color:#9ab4c0;">—</td>
+                        <td>
+                            {% if c.is_expired %}
+                            <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>{% trans "Expired" %}</span>
+                            {% else %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{{ c.duration_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span style="font-size:.83rem;color:#6b7280;">
+                <span id="selectedCount">0</span> {% trans "contract(s) selected" %}
+            </span>
+            <div class="d-flex gap-2">
+                <a href="{% url 'contracts:list' %}" class="btn btn-outline-secondary btn-sm">{% trans "Cancel" %}</a>
+                <button type="submit" class="btn btn-warning btn-sm" id="renewBtnBottom" disabled>
+                    <i class="bi bi-arrow-repeat me-1"></i>
+                    <span id="renewBtnLabelBottom">{% trans "Renew Selected (0)" %}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% else %}
+<div class="card">
+    <div class="text-center py-5" style="color:#9ab4c0;">
+        <i class="bi bi-check-circle" style="font-size:2.5rem;display:block;margin-bottom:12px;opacity:.5;"></i>
+        <div style="font-weight:600;font-size:.95rem;color:#4a6b7c;">{% trans "No contracts found" %}</div>
+        <div style="font-size:.82rem;margin-top:4px;">
+            {% trans "Try changing the filters above or" %}
+            <a href="{% url 'contracts:bulk_renew' %}">{% trans "reset the filters" %}</a>.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const selectAll   = document.getElementById('selectAll');
+    const checkboxes  = document.querySelectorAll('.contract-checkbox');
+    const countEl     = document.getElementById('selectedCount');
+    const renewBtn    = document.getElementById('renewBtn');
+    const renewBtnB   = document.getElementById('renewBtnBottom');
+    const durationSel = document.querySelector('select[name="duration"]');
+    const rows        = document.querySelectorAll('.contract-row');
+    const previewCells= document.querySelectorAll('.new-end-preview');
+
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function addDuration(dateStr, code) {
+        if (!dateStr) return '—';
+        const [y, m, d] = dateStr.split('-').map(Number);
+        let ny = y, nm = m, nd = d;
+        if (code === '1m') { nm += 1; }
+        else if (code === '2m') { nm += 2; }
+        else if (code === '3m') { nm += 3; }
+        else if (code === '6m') { nm += 6; }
+        else if (code === '1y') { ny += 1; }
+        else if (code === '2y') { ny += 2; }
+        // Roll over months
+        while (nm > 12) { nm -= 12; ny += 1; }
+        // Clamp day to max days in that month
+        const maxDay = new Date(ny, nm, 0).getDate();
+        nd = Math.min(nd, maxDay);
+        return `${String(nd).padStart(2,'0')} ${MONTHS[nm-1]} ${ny}`;
+    }
+
+    function updatePreviews() {
+        const code = durationSel ? durationSel.value : '1m';
+        rows.forEach((row, i) => {
+            const endDate = row.dataset.end;
+            const cb = row.querySelector('.contract-checkbox');
+            if (cb && cb.checked) {
+                previewCells[i].textContent = addDuration(endDate, code);
+                previewCells[i].style.color = '#059669';
+                previewCells[i].style.fontWeight = '600';
+            } else {
+                previewCells[i].textContent = '—';
+                previewCells[i].style.color = '#9ab4c0';
+                previewCells[i].style.fontWeight = 'normal';
+            }
+        });
+    }
+
+    function updateCount() {
+        const n = document.querySelectorAll('.contract-checkbox:checked').length;
+        countEl.textContent = n;
+        const label = `{% trans "Renew Selected" %} (${n})`;
+        if (renewBtn)  { renewBtn.textContent  = ''; renewBtn.innerHTML  = `<i class="bi bi-arrow-repeat me-1"></i>${label}`; renewBtn.disabled  = n === 0; }
+        if (renewBtnB) { renewBtnB.textContent = ''; renewBtnB.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i>${label}`; renewBtnB.disabled = n === 0; }
+        updatePreviews();
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', function () {
+        if (selectAll) selectAll.checked = [...checkboxes].every(c => c.checked);
+        updateCount();
+    }));
+
+    if (durationSel) durationSel.addEventListener('change', updatePreviews);
+
+    // Confirm before submitting
+    document.getElementById('bulkRenewForm')?.addEventListener('submit', function (e) {
+        const n = document.querySelectorAll('.contract-checkbox:checked').length;
+        if (n === 0) { e.preventDefault(); return; }
+        const dur = durationSel ? durationSel.options[durationSel.selectedIndex].text : '';
+        if (!confirm(`Renew ${n} contract(s) by ${dur}?\n\nThis will create new contracts and notify the employees.`)) {
+            e.preventDefault();
+        }
+    });
+})();
+</script>
+{% endblock %}
