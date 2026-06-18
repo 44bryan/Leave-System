@@ -17,7 +17,12 @@ CSRF_TRUSTED_ORIGINS = [
     'http://web-production-777c4.up.railway.app',
     'https://hr.micei.org',
     'http://hr.micei.org',
+    'https://www.hr.micei.org',
+    'http://www.hr.micei.org',
 ]
+
+# Explicit CSRF cookie age (1 year) — prevents Safari ITP from expiring it early
+CSRF_COOKIE_AGE = 31449600
 
 # Secure cookies — True in production (any non-DEBUG environment), False for local dev
 CSRF_COOKIE_SECURE    = not DEBUG
