@@ -131,16 +131,17 @@ def submit_leave(request):
                 elif employee.signature_b64:
                     leave.employee_sig_b64 = employee.signature_b64
                 leave.save()
-                if employee.is_intern():
-                    # Interns skip manager step — go directly to HR
+                if employee.is_intern() or employee.is_wacs_resident():
+                    # Interns and WACS residents skip manager — go directly to HR
+                    role_label = 'Intern' if employee.is_intern() else 'WACS Resident'
                     leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
                     leave.save(update_fields=['status'])
                     messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Sent directly to HR for review.")
                     for hr_emp in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
                         notify(
                             hr_emp.user,
-                            f'Intern Leave Request — {employee.get_full_name()}',
-                            f'{employee.get_full_name()} (Intern) has submitted a {leave.leave_type} request '
+                            f'{role_label} Leave Request — {employee.get_full_name()}',
+                            f'{employee.get_full_name()} ({role_label}) has submitted a {leave.leave_type} request '
                             f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). '
                             f'No manager approval required — awaiting your HR review.',
                             notification_type='leave_submitted',

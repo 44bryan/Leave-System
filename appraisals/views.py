@@ -107,8 +107,13 @@ def hr_initiate(request):
             employee_deadline=employee_deadline,
         )
 
-        # Create one AppraisalRecord per active, non-superuser employee
-        employees = Employee.objects.filter(is_active=True).select_related('user')
+        # Create one AppraisalRecord per active, non-superuser permanent/CDD staff
+        # Interns and WACS residents are excluded from appraisals
+        employees = Employee.objects.filter(
+            is_active=True
+        ).exclude(
+            role__in=('intern', 'wacs_resident')
+        ).select_related('user')
         created = 0
         for e in employees:
             if e.user.is_superuser:
