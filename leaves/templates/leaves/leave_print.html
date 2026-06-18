@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Approval Letter — {{ leave.employee.get_full_name }}</title>
+    <title>{% trans "Leave Approval Letter" %} — {{ leave.employee.get_full_name }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -306,10 +306,10 @@
 <!-- Action bar (screen only) -->
 <div class="print-bar">
     <a href="javascript:history.back()" class="btn-back">
-        &#8592; Back to Request
+        &#8592; {% trans "Back to Request" %}
     </a>
     <button class="btn-print" onclick="window.print()">
-        &#128438; Print / Save as PDF
+        &#128438; {% trans "Print / Save as PDF" %}
     </button>
 </div>
 
@@ -323,14 +323,14 @@
         </div>
         <div class="doc-header-text">
             <h1>Africa Eye Foundation Institute</h1>
-            <p>Human Resources Department · Staff Leave Management</p>
+            <p>{% trans "Human Resources Department · Staff Leave Management" %}</p>
         </div>
     </div>
 
     <!-- Title Band -->
     <div class="doc-title-band">
-        <h2>Leave Approval Notice</h2>
-        <p>Official document confirming approved staff leave</p>
+        <h2>{% trans "Leave Approval Notice" %}</h2>
+        <p>{% trans "Official document confirming approved staff leave" %}</p>
     </div>
 
     <!-- Body -->
@@ -338,115 +338,110 @@
 
         <!-- Reference and date -->
         <div class="ref-line">
-            <span>Ref: <strong>LV-{{ leave.pk|stringformat:"05d" }}</strong></span>
-            <span>Date Issued: <strong>{{ leave.hr_action_date|date:"F d, Y" }}</strong></span>
+            <span>{% trans "Ref:" %} <strong>LV-{{ leave.pk|stringformat:"05d" }}</strong></span>
+            <span>{% trans "Date Issued:" %} <strong>{{ leave.hr_action_date|date:"F d, Y" }}</strong></span>
         </div>
 
         <!-- Approved stamp -->
         <div class="approved-stamp">
             <div class="stamp-box">
-                <div class="stamp-text">APPROVED</div>
-                <div class="stamp-sub">Human Resources</div>
+                <div class="stamp-text">{% trans "APPROVED" %}</div>
+                <div class="stamp-sub">{% trans "Human Resources" %}</div>
             </div>
         </div>
 
-        <p class="salutation">Dear <strong>{{ leave.employee.get_full_name }}</strong>,</p>
+        <p class="salutation">{% trans "Dear" %} <strong>{{ leave.employee.get_full_name }}</strong>,</p>
 
         <p class="letter-body">
-            We are pleased to inform you that your leave request has been reviewed and <strong>fully approved</strong>
-            by the Human Resources Department. Please find the details of your approved leave below.
-            Kindly ensure that all pending duties are handed over to the appropriate colleague before
-            the commencement of your leave.
+            {% trans "We are pleased to inform you that your leave request has been reviewed and fully approved by the Human Resources Department. Please find the details of your approved leave below. Kindly ensure that all pending duties are handed over to the appropriate colleague before the commencement of your leave." %}
         </p>
 
         <!-- Leave details table -->
         <table class="detail-table">
             <tr>
-                <th>Employee Name</th>
+                <th>{% trans "Employee Name" %}</th>
                 <td><strong>{{ leave.employee.get_full_name }}</strong></td>
-                <th>Employee ID</th>
+                <th>{% trans "Employee ID" %}</th>
                 <td>{{ leave.employee.employee_id }}</td>
             </tr>
             <tr>
-                <th>Department</th>
+                <th>{% trans "Department" %}</th>
                 <td>{{ leave.employee.department|default:"—" }}</td>
-                <th>Position</th>
+                <th>{% trans "Position" %}</th>
                 <td>{{ leave.employee.position|default:"—" }}</td>
             </tr>
             <tr>
-                <th>Leave Type</th>
+                <th>{% trans "Leave Type" %}</th>
                 <td>{{ leave.leave_type }}</td>
-                <th>Total Days</th>
-                <td><strong>{{ leave.total_days }} day{{ leave.total_days|pluralize }}</strong></td>
+                <th>{% trans "Total Days" %}</th>
+                <td><strong>{{ leave.total_days }} {% blocktrans with days=leave.total_days count days=leave.total_days %}day{% plural %}days{% endblocktrans %}</strong></td>
             </tr>
             <tr>
-                <th>Start Date</th>
+                <th>{% trans "Start Date" %}</th>
                 <td><strong>{{ leave.start_date|date:"F d, Y" }}</strong></td>
-                <th>End Date</th>
+                <th>{% trans "End Date" %}</th>
                 <td><strong>{{ leave.end_date|date:"F d, Y" }}</strong></td>
             </tr>
             {% if leave.manager_action_by %}
             <tr>
-                <th>Manager Approval</th>
+                <th>{% trans "Manager Approval" %}</th>
                 <td>{{ leave.manager_action_by.get_full_name }}</td>
-                <th>Manager Approval Date</th>
+                <th>{% trans "Manager Approval Date" %}</th>
                 <td>{{ leave.manager_action_date|date:"F d, Y" }}</td>
             </tr>
             {% endif %}
             {% if leave.hr_action_by %}
             <tr>
-                <th>HR Approval</th>
+                <th>{% trans "HR Approval" %}</th>
                 <td>{{ leave.hr_action_by.get_full_name }}</td>
-                <th>HR Approval Date</th>
+                <th>{% trans "HR Approval Date" %}</th>
                 <td>{{ leave.hr_action_date|date:"F d, Y" }}</td>
             </tr>
             {% endif %}
             {% if leave.director_action_by %}
             <tr>
-                <th>Director Approval</th>
+                <th>{% trans "Director Approval" %}</th>
                 <td>{{ leave.director_action_by.get_full_name }}</td>
-                <th>Director Approval Date</th>
+                <th>{% trans "Director Approval Date" %}</th>
                 <td>{{ leave.director_action_date|date:"F d, Y" }}</td>
             </tr>
             {% endif %}
             {% if leave.reason %}
             <tr>
-                <th>Reason</th>
+                <th>{% trans "Reason" %}</th>
                 <td colspan="3">{{ leave.reason }}</td>
             </tr>
             {% endif %}
         </table>
 
         <p class="closing">
-            This letter serves as official confirmation of your approved leave. Please retain a copy
-            for your personal records. Should you need to return before your scheduled date, kindly
-            inform Human Resources immediately.<br><br>
-            We wish you a restful and pleasant leave.
+            {% trans "This letter serves as official confirmation of your approved leave. Please retain a copy for your personal records. Should you need to return before your scheduled date, kindly inform Human Resources immediately." %}<br><br>
+            {% trans "We wish you a restful and pleasant leave." %}
         </p>
 
         <!-- Signatures -->
         <div class="sig-section">
             <div class="sig-block">
-                <div class="sig-label">Approved by — Line Manager</div>
+                <div class="sig-label">{% trans "Approved by — Line Manager" %}</div>
                 <div class="sig-line">
                     <div class="sig-name">{{ leave.manager_action_by.get_full_name|default:"N/A" }}</div>
-                    <div class="sig-title">Line Manager</div>
+                    <div class="sig-title">{% trans "Line Manager" %}</div>
                     <div class="sig-date">{{ leave.manager_action_date|date:"d M Y" }}</div>
                 </div>
             </div>
             <div class="sig-block">
-                <div class="sig-label">Approved by — Human Resources</div>
+                <div class="sig-label">{% trans "Approved by — Human Resources" %}</div>
                 <div class="sig-line">
                     <div class="sig-name">{{ leave.hr_action_by.get_full_name|default:"N/A" }}</div>
-                    <div class="sig-title">HR Administrator</div>
+                    <div class="sig-title">{% trans "HR Administrator" %}</div>
                     <div class="sig-date">{{ leave.hr_action_date|date:"d M Y" }}</div>
                 </div>
             </div>
             <div class="sig-block">
-                <div class="sig-label">Final Approval — Administration Director</div>
+                <div class="sig-label">{% trans "Final Approval — Administration Director" %}</div>
                 <div class="sig-line">
                     <div class="sig-name">{{ leave.director_action_by.get_full_name|default:"N/A" }}</div>
-                    <div class="sig-title">Administration Director</div>
+                    <div class="sig-title">{% trans "Administration Director" %}</div>
                     <div class="sig-date">{{ leave.director_action_date|date:"d M Y" }}</div>
                 </div>
             </div>
@@ -456,8 +451,8 @@
 
     <!-- Footer -->
     <div class="doc-footer">
-        Africa Eye Foundation Institute &mdash; Human Resources Department &mdash; Confidential Document
-        &nbsp;&bull;&nbsp; Generated by AEF HRM
+        {% trans "Africa Eye Foundation Institute — Human Resources Department — Confidential Document" %}
+        &nbsp;&bull;&nbsp; {% trans "Generated by AEF HRM" %}
     </div>
 
 </div>

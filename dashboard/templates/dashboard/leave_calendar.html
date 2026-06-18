@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Leave Calendar — AEF HRM{% endblock %}
-{% block page_title %}Leave Calendar{% endblock %}
+{% block title %}{% trans "Leave Calendar" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Leave Calendar" %}{% endblock %}
 {% block nav_leave_calendar %}active{% endblock %}
 
 {% block topbar_actions %}
 <form method="get" class="d-flex gap-2 align-items-center">
   <select name="dept" class="form-select form-select-sm" style="width:180px;" onchange="this.form.submit()">
-    <option value="">All Departments</option>
+    <option value="">{% trans "All Departments" %}</option>
     {% for dept in departments %}
     <option value="{{ dept.pk }}" {% if dept_filter == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
     {% endfor %}
@@ -23,12 +23,12 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
   <a href="?year={{ prev_year }}&month={{ prev_month }}&dept={{ dept_filter }}"
      class="btn btn-outline-secondary btn-sm">
-    <i class="bi bi-chevron-left"></i> Prev
+    <i class="bi bi-chevron-left"></i> {% trans "Prev" %}
   </a>
   <h5 class="mb-0 fw-700" style="color:#0A4D68;">{{ month_name }} {{ year }}</h5>
   <a href="?year={{ next_year }}&month={{ next_month }}&dept={{ dept_filter }}"
      class="btn btn-outline-secondary btn-sm">
-    Next <i class="bi bi-chevron-right"></i>
+    {% trans "Next" %} <i class="bi bi-chevron-right"></i>
   </a>
 </div>
 
@@ -37,14 +37,13 @@
     <table class="table mb-0" style="table-layout:fixed;">
       <thead>
         <tr style="background:#f0f9fb;">
-          {% for day_name in "Mon Tue Wed Thu Fri Sat Sun" %}{% endfor %}
-          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">Mon</th>
-          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">Tue</th>
-          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">Wed</th>
-          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">Thu</th>
-          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">Fri</th>
-          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">Sat</th>
-          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">Sun</th>
+          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">{% trans "Mon" %}</th>
+          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">{% trans "Tue" %}</th>
+          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">{% trans "Wed" %}</th>
+          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">{% trans "Thu" %}</th>
+          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">{% trans "Fri" %}</th>
+          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">{% trans "Sat" %}</th>
+          <th class="text-center py-2" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b7a8d;font-weight:700;width:14.28%;">{% trans "Sun" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -60,11 +59,7 @@
                 {{ day }}
               </span>
             </div>
-            {% with leaves=day_leaves|default:"{}" %}
-            {% for leave in day_leaves|default_if_none:"" %}{% endfor %}
-            {% endwith %}
             <div style="overflow:hidden;max-height:80px;">
-              {% for leave in day_leaves|default_if_none:"" %}{% endfor %}
               {% for d, leaves_list in day_leaves.items %}{% if d == day %}{% for leave in leaves_list %}
               <div class="mb-1" style="border-radius:4px;padding:2px 5px;font-size:.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
                            background:#dbeafe;color:#1e40af;"
@@ -87,19 +82,19 @@
 <div class="mt-3 d-flex flex-wrap gap-3" style="font-size:.8rem;">
   <div class="d-flex align-items-center gap-1">
     <div style="width:12px;height:12px;border-radius:3px;background:#e0f7fa;border:1px solid #2db4c3;"></div>
-    <span class="text-muted">Today</span>
+    <span class="text-muted">{% trans "Today" %}</span>
   </div>
   <div class="d-flex align-items-center gap-1">
     <div style="width:12px;height:12px;border-radius:3px;background:#dbeafe;"></div>
-    <span class="text-muted">Annual / Sick Leave</span>
+    <span class="text-muted">{% trans "Annual / Sick Leave" %}</span>
   </div>
   <div class="d-flex align-items-center gap-1">
     <div style="width:12px;height:12px;border-radius:3px;background:#d1fae5;"></div>
-    <span class="text-muted">Maternity / Paternity</span>
+    <span class="text-muted">{% trans "Maternity / Paternity" %}</span>
   </div>
   <div class="d-flex align-items-center gap-1">
     <div style="width:12px;height:12px;border-radius:3px;background:#fef3c7;"></div>
-    <span class="text-muted">Other Leave</span>
+    <span class="text-muted">{% trans "Other Leave" %}</span>
   </div>
 </div>
 {% endblock %}

@@ -162,51 +162,7 @@
     </div>
 </div>
 
-<!-- Recent Leave Requests -->
-<div class="card animate-in delay-3 mb-5">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-journal-text me-2"></i>{% trans "My Recent Leave Requests" %}</span>
-        <a href="{% url 'leaves:my_requests' %}" class="btn btn-sm btn-outline-primary">{% trans "View All" %}</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th>{% trans "Leave Type" %}</th>
-                    <th>{% trans "Start" %}</th>
-                    <th>{% trans "End" %}</th>
-                    <th>{% trans "Days" %}</th>
-                    <th>{% trans "Status" %}</th>
-                    <th>{% trans "Applied" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for req in recent_requests %}
-                <tr>
-                    <td><strong>{{ req.leave_type }}</strong></td>
-                    <td>{{ req.start_date }}</td>
-                    <td>{{ req.end_date }}</td>
-                    <td><span class="badge bg-light text-dark border">{{ req.total_days }}d</span></td>
-                    <td>
-                        <span class="badge bg-{{ req.get_status_badge }}">
-                            <i class="bi bi-{{ req.get_status_icon }} me-1"></i>
-                            {{ req.get_status_display }}
-                        </span>
-                    </td>
-                    <td style="font-size:0.8rem; color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-5">
-                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                        {% trans "No leave requests yet." %} <a href="{% url 'leaves:submit' %}">{% trans "Apply now" %}</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+<!-- My leave requests moved to Leave Management → My Requests -->
 
 <!-- ══════════════════════════════════════════════════
      UNIT APPROVAL SECTION
@@ -279,54 +235,7 @@
     </div>
 </div>
 
-<!-- Pending approvals table -->
-<div class="card animate-in delay-2">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span>
-            <i class="bi bi-hourglass-split me-2" style="color:#f57f17;"></i>
-            {% trans "Leave Requests Awaiting Your Decision" %}
-        </span>
-        <a href="{% url 'leaves:unit_head_approvals' %}" class="btn btn-sm btn-outline-primary">{% trans "View All" %}</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th>{% trans "Employee" %}</th>
-                    <th>{% trans "Leave Type" %}</th>
-                    <th>{% trans "Period" %}</th>
-                    <th>{% trans "Days" %}</th>
-                    <th>{% trans "Action" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for req in pending_approvals %}
-                <tr>
-                    <td>
-                        <div class="fw-semibold" style="font-size:.88rem;">{{ req.employee.user.get_full_name }}</div>
-                        <div class="text-muted" style="font-size:.75rem;">{{ req.employee.employee_id }}</div>
-                    </td>
-                    <td><span class="badge" style="background:#e0f7fa;color:#2db4c3;font-weight:600;">{{ req.leave_type }}</span></td>
-                    <td style="font-size:.85rem;">{{ req.start_date }} → {{ req.end_date }}</td>
-                    <td><span class="badge bg-light text-dark border">{{ req.total_days }}d</span></td>
-                    <td>
-                        <a href="{% url 'leaves:unit_head_action' req.pk %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-eye me-1"></i>{% trans "Review" %}
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-4">
-                        <i class="bi bi-check-circle fs-3 d-block mb-2" style="color:#4ade80;"></i>
-                        {% trans "No pending requests. Your unit is all clear." %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+<!-- Pending approvals moved to Leave Management → Unit Head Queue -->
 
 <!-- ── Unit Leave Balances ── -->
 <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin:24px 0 12px;">

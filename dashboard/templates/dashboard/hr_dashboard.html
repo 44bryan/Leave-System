@@ -20,17 +20,17 @@
 {% block extra_css %}
 .section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
 .hr-kpi-card {
-    background:#fff;border-radius:14px;padding:18px 16px;
+    background:#fff;border-radius:14px;padding:13px 14px;
     box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid #eef2f7;
     transition:box-shadow .15s,transform .15s;
 }
 .hr-kpi-card:hover { box-shadow:0 4px 16px rgba(8,131,149,0.12);transform:translateY(-1px); }
 .hr-kpi-icon {
-    width:42px;height:42px;border-radius:12px;
+    width:34px;height:34px;border-radius:10px;
     display:flex;align-items:center;justify-content:center;
-    font-size:1.1rem;flex-shrink:0;margin-bottom:10px;
+    font-size:0.95rem;flex-shrink:0;margin-bottom:8px;
 }
-.hr-kpi-value { font-size:1.9rem;font-weight:800;line-height:1;color:#0d1b2a; }
+.hr-kpi-value { font-size:1.5rem;font-weight:800;line-height:1;color:#0d1b2a; }
 .hr-kpi-label { font-size:0.72rem;color:#9ab4c0;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px; }
 .disc-pill {
     display:flex;align-items:center;gap:10px;
@@ -404,61 +404,7 @@
 </div>
 </div><!-- /block discipline -->
 
-<!-- BLOCK: approvals -->
-<div class="dash-block" data-block="approvals">
-<div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
-<div class="section-label"><i class="bi bi-clipboard2-check me-1"></i> {% trans "Pending HR Approvals" %}</div>
-<div class="card animate-in mb-4" style="border-radius:14px;overflow:hidden;">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0" style="font-size:0.875rem;">
-            <thead>
-                <tr>
-                    <th>{% trans "Employee" %}</th>
-                    <th>{% trans "Department" %}</th>
-                    <th>{% trans "Leave Type" %}</th>
-                    <th>{% trans "Period" %}</th>
-                    <th>{% trans "Days" %}</th>
-                    <th>{% trans "Manager" %}</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for req in recent_requests %}
-                <tr class="leave-row">
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2db4c3,#088395);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem;flex-shrink:0;">
-                                {{ req.employee.user.first_name|first|upper }}
-                            </div>
-                            <span style="font-weight:600;color:#0d1b2a;">{{ req.employee.get_full_name }}</span>
-                        </div>
-                    </td>
-                    <td style="color:#4a6b7c;">{{ req.employee.department|default:"—" }}</td>
-                    <td>
-                        <span class="badge" style="background:#e0f7fa;color:#2db4c3;font-weight:600;">{{ req.leave_type }}</span>
-                    </td>
-                    <td style="color:#4a6b7c;white-space:nowrap;">{{ req.start_date|date:"d M" }} – {{ req.end_date|date:"d M Y" }}</td>
-                    <td style="font-weight:700;color:#0d1b2a;">{{ req.duration_days }}</td>
-                    <td style="color:#4a6b7c;">{{ req.employee.manager.get_full_name|default:"—" }}</td>
-                    <td>
-                        <a href="{% url 'leaves:hr_action' req.pk %}" class="btn btn-sm btn-outline-primary" style="font-size:0.78rem;border-radius:8px;">
-                            <i class="bi bi-eye me-1"></i>{% trans "Review" %}
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center py-4 text-muted">
-                        <i class="bi bi-check2-all d-block mb-1" style="font-size:1.5rem;color:#059669;"></i>
-                        <small>{% trans "No pending HR approvals" %}</small>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-</div><!-- /block approvals -->
+<!-- Pending HR approvals moved to Leave Management → HR Approvals Queue -->
 
 <!-- BLOCK: leave-activity -->
 <div class="dash-block" data-block="leave-activity">

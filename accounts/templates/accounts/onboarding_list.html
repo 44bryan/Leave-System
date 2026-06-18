@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Onboarding — AEF HRM{% endblock %}
-{% block page_title %}Employee Onboarding{% endblock %}
+{% block title %}{% trans "Onboarding" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Employee Onboarding" %}{% endblock %}
 {% block nav_onboarding %}active{% endblock %}
 
 {% block content %}
@@ -11,15 +11,15 @@
     <table class="table table-hover align-middle mb-0" style="font-size:.85rem;">
       <thead style="background:#f0f9fb;">
         <tr>
-          <th class="ps-4" style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Employee</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Progress</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Contract</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Balance</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Manager</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Photo</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Signature</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Creds</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">ID Doc</th>
+          <th class="ps-4" style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Employee" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Progress" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Contract" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Balance" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Manager" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Photo" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Signature" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Creds" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "ID Doc" %}</th>
           <th></th>
         </tr>
       </thead>
@@ -47,12 +47,12 @@
           <td class="text-center">{% if cl.id_document_uploaded %}<i class="bi bi-check-circle-fill" style="color:#059669;"></i>{% else %}<i class="bi bi-circle" style="color:#d1d5db;"></i>{% endif %}</td>
           <td>
             <a href="{% url 'accounts:onboarding_update' cl.pk %}" class="btn btn-sm btn-outline-primary" style="font-size:.75rem;">
-              <i class="bi bi-pencil"></i> Update
+              <i class="bi bi-pencil"></i> {% trans "Update" %}
             </a>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-center text-muted py-4">No employees found.</td></tr>
+        <tr><td colspan="10" class="text-center text-muted py-4">{% trans "No employees found." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

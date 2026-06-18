@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}Expiring Documents — AEF HRM{% endblock %}
-{% block page_title %}Expiring Documents{% endblock %}
+{% block title %}{% trans "Expiring Documents" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Expiring Documents" %}{% endblock %}
 
 {% block content %}
 <div class="card animate-in">
     <div class="card-header d-flex align-items-center justify-content-between">
         <div>
             <i class="bi bi-file-earmark-exclamation me-2" style="color:#dc2626;"></i>
-            <strong>Documents Expiring Within 90 Days</strong>
+            <strong>{% trans "Documents Expiring Within 90 Days" %}</strong>
         </div>
-        <span class="badge bg-danger">{{ docs|length }} document{{ docs|length|pluralize }}</span>
+        <span class="badge bg-danger">{{ docs|length }} {% trans "document" %}{{ docs|length|pluralize }}</span>
     </div>
     <div class="card-body p-0">
         {% if docs %}
@@ -18,13 +18,13 @@
             <table class="table table-hover mb-0" style="font-size:.875rem;">
                 <thead style="background:#f8fafc;">
                     <tr>
-                        <th class="px-4 py-3">Employee</th>
-                        <th class="py-3">Department</th>
-                        <th class="py-3">Document</th>
-                        <th class="py-3">Category</th>
-                        <th class="py-3">Expiry Date</th>
-                        <th class="py-3">Days Left</th>
-                        <th class="py-3">Note</th>
+                        <th class="px-4 py-3">{% trans "Employee" %}</th>
+                        <th class="py-3">{% trans "Department" %}</th>
+                        <th class="py-3">{% trans "Document" %}</th>
+                        <th class="py-3">{% trans "Category" %}</th>
+                        <th class="py-3">{% trans "Expiry Date" %}</th>
+                        <th class="py-3">{% trans "Days Left" %}</th>
+                        <th class="py-3">{% trans "Note" %}</th>
                         <th class="py-3"></th>
                     </tr>
                 </thead>
@@ -43,25 +43,25 @@
                     <td class="py-3">
                         {% if status == 'expired' %}
                         <span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;">
-                            <i class="bi bi-x-circle me-1"></i>Expired ({{ doc.expiry_date|date:"d M Y" }})
+                            <i class="bi bi-x-circle me-1"></i>{% trans "Expired" %} ({{ doc.expiry_date|date:"d M Y" }})
                         </span>
                         {% elif status == 'critical' %}
                         <span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;">
-                            <i class="bi bi-exclamation-triangle me-1"></i>{{ days }} days
+                            <i class="bi bi-exclamation-triangle me-1"></i>{{ days }} {% trans "days" %}
                         </span>
                         {% elif status == 'warning' %}
                         <span class="badge" style="background:#fffbeb;color:#92400e;border:1px solid #fde68a;">
-                            <i class="bi bi-exclamation-circle me-1"></i>{{ days }} days
+                            <i class="bi bi-exclamation-circle me-1"></i>{{ days }} {% trans "days" %}
                         </span>
                         {% else %}
-                        <span class="badge" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;">{{ days }} days</span>
+                        <span class="badge" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;">{{ days }} {% trans "days" %}</span>
                         {% endif %}
                     </td>
                     <td class="py-3" style="color:#6c7a8a;">{{ doc.expiry_note|default:"—" }}</td>
                     <td class="py-3">
                         <a href="{% url 'accounts:employee_history' doc.employee.pk %}#documents"
                            class="btn btn-sm btn-outline-primary" style="font-size:.75rem;">
-                            View
+                            {% trans "View" %}
                         </a>
                     </td>
                 </tr>
@@ -73,7 +73,7 @@
         {% else %}
         <div class="text-center py-5" style="color:#6c7a8a;">
             <i class="bi bi-check-circle" style="font-size:2.5rem;color:#059669;"></i>
-            <div class="mt-3 fw-600">No documents expiring within 90 days.</div>
+            <div class="mt-3 fw-600">{% trans "No documents expiring within 90 days." %}</div>
         </div>
         {% endif %}
     </div>

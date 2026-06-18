@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% if is_proposal_only %}Propose Discipline Notice{% else %}New Disciplinary Notice{% endif %}{% endblock %}
-{% block page_title %}{% if is_proposal_only %}Propose Discipline Notice{% else %}New Disciplinary Notice{% endif %}{% endblock %}
+{% block title %}{% if is_proposal_only %}{% trans "Propose Discipline Notice" %}{% else %}{% trans "New Disciplinary Notice" %}{% endif %}{% endblock %}
+{% block page_title %}{% if is_proposal_only %}{% trans "Propose Discipline Notice" %}{% else %}{% trans "New Disciplinary Notice" %}{% endif %}{% endblock %}
 {% block nav_discipline %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'discipline:list' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> Disciplinary Records
+    <i class="bi bi-arrow-left me-1"></i> {% trans "Disciplinary Records" %}
 </a>
 {% endblock %}
 
@@ -26,16 +26,12 @@
     {% if is_proposal_only %}
     <div class="alert alert-info mb-4" style="border-left:3px solid #2db4c3;">
         <i class="bi bi-info-circle me-2"></i>
-        As a <strong>{{ request.user.employee.get_role_display }}</strong>, you may only
-        <strong>propose a Verbal Warning</strong> to HR.
-        HR will review your proposal and formally issue the notice if appropriate.
-        Your submission will <em>not</em> be visible to the employee until HR executes it.
+        {% blocktrans with role=request.user.employee.get_role_display %}As a <strong>{{ role }}</strong>, you may only <strong>propose a Verbal Warning</strong> to HR. HR will review your proposal and formally issue the notice if appropriate. Your submission will <em>not</em> be visible to the employee until HR executes it.{% endblocktrans %}
     </div>
     {% elif can_choose %}
     <div class="alert alert-warning mb-4" style="border-left:3px solid #d97706;">
         <i class="bi bi-shield-check me-2"></i>
-        You may <strong>issue discipline directly</strong> or <strong>propose to HR</strong> for formal execution.
-        Use the toggle below to choose.
+        {% trans "You may <strong>issue discipline directly</strong> or <strong>propose to HR</strong> for formal execution. Use the toggle below to choose." %}
     </div>
     {% endif %}
 
@@ -44,34 +40,34 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center gap-2">
                     <i class="bi bi-file-earmark-text text-danger"></i>
-                    {% if is_proposal_only %}Verbal Warning Proposal{% else %}Disciplinary Notice Form{% endif %}
+                    {% if is_proposal_only %}{% trans "Verbal Warning Proposal" %}{% else %}{% trans "Disciplinary Notice Form" %}{% endif %}
                 </div>
                 <div class="card-body p-4">
                     <form method="post" enctype="multipart/form-data" id="disciplineForm">
                         {% csrf_token %}
 
                         {% if can_choose %}
-                        <!-- Formal vs Proposal toggle (CEO / Admin Director only) -->
+                        <!-- Formal vs Proposal toggle -->
                         <div class="mb-4 p-3 rounded" style="background:#f8fafc;border:1.5px solid #cbd5e1;">
                             <label class="form-label fw-600 mb-2">
                                 <i class="bi bi-toggle2-on me-1"></i>
-                                Submission Mode
+                                {% trans "Submission Mode" %}
                             </label>
                             <div class="d-flex gap-3">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="submit_as_proposal"
                                            id="modeFormal" value="0" checked>
                                     <label class="form-check-label fw-600" for="modeFormal">
-                                        <i class="bi bi-send-fill me-1 text-danger"></i>Issue Formally
-                                        <small class="d-block text-muted fw-normal">Immediately visible to employee</small>
+                                        <i class="bi bi-send-fill me-1 text-danger"></i>{% trans "Issue Formally" %}
+                                        <small class="d-block text-muted fw-normal">{% trans "Immediately visible to employee" %}</small>
                                     </label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="submit_as_proposal"
                                            id="modePropose" value="1">
                                     <label class="form-check-label fw-600" for="modePropose">
-                                        <i class="bi bi-person-plus me-1 text-primary"></i>Propose to HR
-                                        <small class="d-block text-muted fw-normal">HR reviews before notifying employee</small>
+                                        <i class="bi bi-person-plus me-1 text-primary"></i>{% trans "Propose to HR" %}
+                                        <small class="d-block text-muted fw-normal">{% trans "HR reviews before notifying employee" %}</small>
                                     </label>
                                 </div>
                             </div>
@@ -82,25 +78,25 @@
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <span class="badge bg-primary me-2" style="font-size:0.72rem;">1</span>
-                                Department
+                                {% trans "Department" %}
                             </label>
                             <select id="deptSelect" class="form-select">
-                                <option value="">— All Departments —</option>
+                                <option value="">— {% trans "All Departments" %} —</option>
                                 {% for dept in departments %}
                                 <option value="{{ dept.pk }}">{{ dept.name }}</option>
                                 {% endfor %}
                             </select>
-                            <div class="form-text">Select a department to filter employees below.</div>
+                            <div class="form-text">{% trans "Select a department to filter employees below." %}</div>
                         </div>
 
                         <!-- Step 2: Employee -->
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <span class="badge bg-primary me-2" style="font-size:0.72rem;">2</span>
-                                Employee <span class="text-danger">*</span>
+                                {% trans "Employee" %} <span class="text-danger">*</span>
                             </label>
                             <select name="employee" class="form-select" required id="employeeSelect">
-                                <option value="">— Select employee —</option>
+                                <option value="">— {% trans "Select employee" %} —</option>
                                 {% for e in employees %}
                                 <option value="{{ e.pk }}"
                                     data-dept="{{ e.department.pk|default:'' }}"
@@ -110,7 +106,7 @@
                                 {% endfor %}
                             </select>
                             <div id="noEmployeesMsg" class="form-text text-warning" style="display:none;">
-                                <i class="bi bi-exclamation-triangle me-1"></i>No employees found in this department.
+                                <i class="bi bi-exclamation-triangle me-1"></i>{% trans "No employees found in this department." %}
                             </div>
                         </div>
 
@@ -118,10 +114,10 @@
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <span class="badge bg-primary me-2" style="font-size:0.72rem;">3</span>
-                                {% if is_proposal_only %}Warning Type{% else %}Notice Type{% endif %} <span class="text-danger">*</span>
+                                {% if is_proposal_only %}{% trans "Warning Type" %}{% else %}{% trans "Notice Type" %}{% endif %} <span class="text-danger">*</span>
                             </label>
                             <select name="action_type" class="form-select" required id="actionTypeSelect">
-                                <option value="">— Select type —</option>
+                                <option value="">— {% trans "Select type" %} —</option>
                                 {% for key, label in available_types %}
                                 <option value="{{ key }}" {% if prefill_type == key %}selected{% endif %}>{{ label }}</option>
                                 {% endfor %}
@@ -134,12 +130,12 @@
                         <div class="mb-4 p-3 rounded" id="suspensionFields" style="display:none;background:#f8fafc;border:1.5px solid #cde8ef;">
                             <label class="form-label fw-600">
                                 <i class="bi bi-calendar-range me-1 text-dark"></i>
-                                Suspension Start Date <span class="text-danger">*</span>
+                                {% trans "Suspension Start Date" %} <span class="text-danger">*</span>
                             </label>
                             <input type="date" name="suspension_start" class="form-control" id="suspensionStart">
                             <div class="form-text mt-1">
                                 <i class="bi bi-info-circle me-1"></i>
-                                Duration is fixed at <strong>8 days</strong>. The end date is calculated automatically.
+                                {% trans "Duration is fixed at <strong>8 days</strong>. The end date is calculated automatically." %}
                             </div>
                         </div>
                         {% endif %}
@@ -148,49 +144,49 @@
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <span class="badge bg-primary me-2" style="font-size:0.72rem;">4</span>
-                                Reason / Description <span class="text-danger">*</span>
+                                {% trans "Reason / Description" %} <span class="text-danger">*</span>
                             </label>
                             <textarea name="reason" class="form-control" rows="5"
-                                placeholder="Describe the reason for this disciplinary action in clear and objective terms..." required></textarea>
+                                placeholder="{% trans "Describe the reason for this disciplinary action in clear and objective terms..." %}" required></textarea>
                         </div>
 
                         <!-- Supporting Document -->
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <i class="bi bi-paperclip me-1"></i>
-                                Supporting Document <span class="text-muted fw-normal">(optional)</span>
+                                {% trans "Supporting Document" %} <span class="text-muted fw-normal">({% trans "optional" %})</span>
                             </label>
                             <input type="file" name="document" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png">
-                            <div class="form-text">Attach the official notice letter or any supporting document (PDF, Word, or image).</div>
+                            <div class="form-text">{% trans "Attach the official notice letter or any supporting document (PDF, Word, or image)." %}</div>
                         </div>
 
-                        <!-- Proposal context note (for proposal-only roles and CEO/AD proposing) -->
+                        <!-- Proposal note -->
                         <div class="mb-4 p-3 rounded" id="proposalNoteSection" style="background:#fffbeb;border:1.5px solid #fde68a;{% if is_formal_only %}display:none;{% endif %}">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#d97706;font-weight:700;margin-bottom:10px;">
                                 <i class="bi bi-chat-left-text me-1"></i>
-                                Note to HR
-                                <span class="text-muted fw-normal" style="font-size:0.7rem;text-transform:none;">(not visible to employee)</span>
+                                {% trans "Note to HR" %}
+                                <span class="text-muted fw-normal" style="font-size:0.7rem;text-transform:none;">({% trans "not visible to employee" %})</span>
                             </div>
                             <textarea name="proposal_note" class="form-control" rows="3"
-                                placeholder="Explain your recommendation and any additional context for HR..."></textarea>
+                                placeholder="{% trans "Explain your recommendation and any additional context for HR..." %}"></textarea>
                         </div>
 
                         <!-- Internal Notes -->
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <i class="bi bi-lock me-1"></i>
-                                Internal Notes <span class="text-muted fw-normal">(not visible to employee)</span>
+                                {% trans "Internal Notes" %} <span class="text-muted fw-normal">({% trans "not visible to employee" %})</span>
                             </label>
                             <textarea name="notes" class="form-control" rows="3"
-                                placeholder="Any internal remarks for HR records only..."></textarea>
+                                placeholder="{% trans "Any internal remarks for HR records only..." %}"></textarea>
                         </div>
 
                         <div class="d-flex gap-3 pt-2">
                             <button type="submit" class="btn btn-danger px-5" id="submitBtn">
                                 <i class="bi bi-send me-2"></i>
-                                {% if is_proposal_only %}Submit Proposal to HR{% else %}Issue Notice{% endif %}
+                                {% if is_proposal_only %}{% trans "Submit Proposal to HR" %}{% else %}{% trans "Issue Notice" %}{% endif %}
                             </button>
-                            <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                            <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary px-4">{% trans "Cancel" %}</a>
                         </div>
                     </form>
                 </div>
@@ -216,11 +212,11 @@ deptSelect.addEventListener('change', function () {
 
 // ── Notice Type Description + Suspension Fields ──
 const typeDescriptions = {
-    'verbal_warning':  { text: 'An informal recorded warning — first step before formal written action.', color: '#92400e', bg: '#fef3c7' },
-    'written_caution': { text: 'A formal written caution placed on the employee\'s personnel record.', color: '#92400e', bg: '#fed7aa' },
-    'final_warning':   { text: 'A final written warning — next step is suspension or dismissal.', color: '#ffffff', bg: '#dc2626' },
-    'suspension':      { text: 'Employee is suspended from duty for exactly 8 days. End date is calculated automatically.', color: '#ffffff', bg: '#374151' },
-    'dismissal':       { text: 'Termination of employment. HR and Admin will be alerted to deactivate the account.', color: '#ffffff', bg: '#dc2626' },
+    'verbal_warning':  { text: '{% trans "An informal recorded warning — first step before formal written action." %}', color: '#92400e', bg: '#fef3c7' },
+    'written_caution': { text: '{% trans "A formal written caution placed on the employee\'s personnel record." %}', color: '#92400e', bg: '#fed7aa' },
+    'final_warning':   { text: '{% trans "A final written warning — next step is suspension or dismissal." %}', color: '#ffffff', bg: '#dc2626' },
+    'suspension':      { text: '{% trans "Employee is suspended from duty for exactly 8 days. End date is calculated automatically." %}', color: '#ffffff', bg: '#374151' },
+    'dismissal':       { text: '{% trans "Termination of employment. HR and Admin will be alerted to deactivate the account." %}', color: '#ffffff', bg: '#dc2626' },
 };
 
 const actionTypeSelect = document.getElementById('actionTypeSelect');
@@ -260,8 +256,8 @@ function updateMode() {
     const isProposal = document.getElementById('modePropose').checked;
     proposalNoteSection.style.display = isProposal ? 'block' : 'none';
     submitBtn.innerHTML = isProposal
-        ? '<i class="bi bi-person-plus me-2"></i>Submit Proposal to HR'
-        : '<i class="bi bi-send me-2"></i>Issue Notice';
+        ? '<i class="bi bi-person-plus me-2"></i>{% trans "Submit Proposal to HR" %}'
+        : '<i class="bi bi-send me-2"></i>{% trans "Issue Notice" %}';
 }
 radios.forEach(r => r.addEventListener('change', updateMode));
 updateMode();

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{{ target.get_full_name }} — Leave Summary{% endblock %}
-{% block page_title %}Leave Summary — {{ target.get_full_name }}{% endblock %}
+{% block title %}{{ target.get_full_name }} — {% trans "Leave Summary" %}{% endblock %}
+{% block page_title %}{% trans "Leave Summary" %} — {{ target.get_full_name }}{% endblock %}
 
 {% block topbar_actions %}
 <form method="get" class="d-flex align-items-center gap-2">
@@ -25,7 +25,7 @@
             <div style="opacity:.8;font-size:.85rem;">{{ target.employee_id }} &nbsp;·&nbsp; {{ target.position|default:"Staff" }} &nbsp;·&nbsp; {{ target.department|default:"No Dept" }}</div>
             <span class="badge mt-2" style="background:rgba(255,255,255,0.2);font-size:.75rem;">{{ target.get_role_display }}</span>
         </div>
-        <div class="text-end" style="opacity:.75;font-size:.8rem;">Year: <strong style="font-size:1.1rem;opacity:1;">{{ year }}</strong></div>
+        <div class="text-end" style="opacity:.75;font-size:.8rem;">{% trans "Year:" %} <strong style="font-size:1.1rem;opacity:1;">{{ year }}</strong></div>
     </div>
 </div>
 
@@ -36,29 +36,29 @@
         <div class="card animate-in h-100">
             <div class="card-header" style="background:#f0fafc;border-color:#cde8ef;">
                 <i class="bi bi-dash-circle me-2" style="color:#b45309;"></i>
-                <strong>Deductible Leave</strong>
-                <span class="badge ms-2" style="background:#fff8e1;color:#b45309;border:1px solid #fcd34d;">Annual Balance</span>
+                <strong>{% trans "Deductible Leave" %}</strong>
+                <span class="badge ms-2" style="background:#fff8e1;color:#b45309;border:1px solid #fcd34d;">{% trans "Annual Balance" %}</span>
             </div>
             <div class="card-body p-4">
                 <div class="row g-3 text-center mb-3">
                     <div class="col-4">
                         <div style="font-size:2rem;font-weight:800;color:#0A4D68;">{{ balance.total_entitlement }}</div>
-                        <div style="font-size:.72rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">Entitlement</div>
+                        <div style="font-size:.72rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">{% trans "Entitlement" %}</div>
                     </div>
                     <div class="col-4">
                         <div style="font-size:2rem;font-weight:800;color:#e53e3e;">{{ balance.used_days }}</div>
-                        <div style="font-size:.72rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">Used</div>
+                        <div style="font-size:.72rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">{% trans "Used" %}</div>
                     </div>
                     <div class="col-4">
                         <div style="font-size:2rem;font-weight:800;color:{% if balance.remaining_days <= 3 %}#e53e3e{% elif balance.remaining_days <= 6 %}#f57f17{% else %}#1a8fa0{% endif %};">{{ balance.remaining_days }}</div>
-                        <div style="font-size:.72rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">Remaining</div>
+                        <div style="font-size:.72rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">{% trans "Remaining" %}</div>
                     </div>
                 </div>
                 <div class="progress mb-1" style="height:10px;">
                     <div class="progress-bar {% if balance.usage_percentage > 80 %}bg-danger{% elif balance.usage_percentage > 50 %}bg-warning{% else %}bg-primary{% endif %}"
                          style="width:{{ balance.usage_percentage }}%;"></div>
                 </div>
-                <div style="font-size:.72rem;color:#6b7a8d;text-align:right;">{{ balance.usage_percentage }}% used</div>
+                <div style="font-size:.72rem;color:#6b7a8d;text-align:right;">{{ balance.usage_percentage }}% {% trans "used" %}</div>
             </div>
         </div>
     </div>
@@ -68,26 +68,26 @@
         <div class="card animate-in delay-1 h-100">
             <div class="card-header" style="background:#f0fdf4;border-color:#86efac;">
                 <i class="bi bi-shield-check me-2" style="color:#1a8fa0;"></i>
-                <strong>Non-Deductible Leave</strong>
-                <span class="badge ms-2" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">Does not reduce balance</span>
+                <strong>{% trans "Non-Deductible Leave" %}</strong>
+                <span class="badge ms-2" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">{% trans "Does not reduce balance" %}</span>
             </div>
             <div class="card-body p-4">
                 {% with nd_list=balance.non_deductible_by_type nd_total=balance.non_deductible_total %}
                 <div class="text-center mb-3">
                     <div style="font-size:2.2rem;font-weight:800;color:#1a8fa0;">{{ nd_total }}</div>
-                    <div style="font-size:.75rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">Total days taken this year</div>
+                    <div style="font-size:.75rem;color:#6b7a8d;font-weight:600;text-transform:uppercase;">{% trans "Total days taken this year" %}</div>
                 </div>
                 {% if nd_list %}
                 <div class="mt-2">
                     {% for item in nd_list %}
                     <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid #f0f4f8;">
                         <span style="font-size:.84rem;font-weight:500;">{{ item.name }}</span>
-                        <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">{{ item.days }} day{{ item.days|pluralize }}</span>
+                        <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">{{ item.days }} {% blocktrans with days=item.days count days=item.days %}day{% plural %}days{% endblocktrans %}</span>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="text-center text-muted py-2" style="font-size:.83rem;">No non-deductible leaves taken in {{ year }}.</div>
+                <div class="text-center text-muted py-2" style="font-size:.83rem;">{% blocktrans with year=year %}No non-deductible leaves taken in {{ year }}.{% endblocktrans %}</div>
                 {% endif %}
                 {% endwith %}
             </div>
@@ -98,20 +98,20 @@
 <!-- Full request list -->
 <div class="card animate-in delay-2">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-journal-text me-2"></i>All Leave Requests — {{ year }}</span>
+        <span><i class="bi bi-journal-text me-2"></i>{% blocktrans with year=year %}All Leave Requests — {{ year }}{% endblocktrans %}</span>
         <span class="badge bg-primary">{{ all_requests|length }}</span>
     </div>
     <div class="table-responsive">
         <table class="table mb-0">
             <thead>
                 <tr>
-                    <th>Leave Type</th>
-                    <th>Category</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Days</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>{% trans "Leave Type" %}</th>
+                    <th>{% trans "Category" %}</th>
+                    <th>{% trans "Start" %}</th>
+                    <th>{% trans "End" %}</th>
+                    <th>{% trans "Days" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th>{% trans "Actions" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -120,9 +120,9 @@
                     <td><strong>{{ req.leave_type }}</strong></td>
                     <td>
                         {% if req.leave_type.is_deductible %}
-                        <span class="badge" style="background:#fff8e1;color:#b45309;border:1px solid #fcd34d;font-size:.72rem;">Deductible</span>
+                        <span class="badge" style="background:#fff8e1;color:#b45309;border:1px solid #fcd34d;font-size:.72rem;">{% trans "Deductible" %}</span>
                         {% else %}
-                        <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;font-size:.72rem;">Non-Deductible</span>
+                        <span class="badge" style="background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;font-size:.72rem;">{% trans "Non-Deductible" %}</span>
                         {% endif %}
                     </td>
                     <td style="font-size:.82rem;">{{ req.start_date }}</td>
@@ -134,7 +134,7 @@
                         </span>
                     </td>
                     <td>
-                        <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-sm btn-outline-secondary" title="View">
+                        <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans "View" %}">
                             <i class="bi bi-eye"></i>
                         </a>
                     </td>
@@ -142,7 +142,7 @@
                 {% empty %}
                 <tr>
                     <td colspan="7" class="text-center text-muted py-4">
-                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>No leave requests for {{ year }}.
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>{% blocktrans with year=year %}No leave requests for {{ year }}.{% endblocktrans %}
                     </td>
                 </tr>
                 {% endfor %}

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}Activity Log — AEF HRM{% endblock %}
-{% block page_title %}System Activity Log{% endblock %}
+{% block title %}{% trans "Activity Log" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "System Activity Log" %}{% endblock %}
 
 {% block content %}
 <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:16px;">
-    <i class="bi bi-journal-text me-1"></i> Activity Log
-    <span class="badge ms-2" style="background:#0A4D68;color:#fff;font-size:0.65rem;">{{ total_count }} records</span>
+    <i class="bi bi-journal-text me-1"></i> {% trans "Activity Log" %}
+    <span class="badge ms-2" style="background:#0A4D68;color:#fff;font-size:0.65rem;">{{ total_count }} {% trans "records" %}</span>
 </div>
 
 <!-- Filters -->
@@ -14,18 +14,18 @@
     <div class="card-body py-3">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-sm-3">
-                <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">Action Type</label>
+                <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">{% trans "Action Type" %}</label>
                 <select name="action" class="form-select form-select-sm">
-                    <option value="">All Actions</option>
+                    <option value="">{% trans "All Actions" %}</option>
                     {% for value, label in action_choices %}
                     <option value="{{ value }}" {% if action_filter == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-sm-3">
-                <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">User</label>
+                <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">{% trans "User" %}</label>
                 <select name="user_id" class="form-select form-select-sm">
-                    <option value="">All Users</option>
+                    <option value="">{% trans "All Users" %}</option>
                     {% for u in users %}
                     <option value="{{ u.pk }}" {% if user_filter == u.pk|stringformat:"s" %}selected{% endif %}>
                         {{ u.get_full_name|default:u.username }}
@@ -34,16 +34,16 @@
                 </select>
             </div>
             <div class="col-sm-2">
-                <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">From</label>
+                <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">{% trans "From" %}</label>
                 <input type="date" name="date_from" class="form-control form-control-sm" value="{{ date_from }}">
             </div>
             <div class="col-sm-2">
-                <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">To</label>
+                <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">{% trans "To" %}</label>
                 <input type="date" name="date_to" class="form-control form-control-sm" value="{{ date_to }}">
             </div>
             <div class="col-sm-2 d-flex gap-2">
                 <button type="submit" class="btn btn-sm btn-primary w-100">
-                    <i class="bi bi-funnel me-1"></i>Filter
+                    <i class="bi bi-funnel me-1"></i>{% trans "Filter" %}
                 </button>
                 <a href="{% url 'dashboard:activity_log' %}" class="btn btn-sm btn-outline-secondary">
                     <i class="bi bi-x-lg"></i>
@@ -60,11 +60,11 @@
         <table class="table table-hover align-middle mb-0" style="font-size:0.85rem;">
             <thead style="background:#f0f9fb;">
                 <tr>
-                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">Date &amp; Time</th>
-                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">User</th>
-                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">Action</th>
-                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">Description</th>
-                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">IP Address</th>
+                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">{% trans "Date & Time" %}</th>
+                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">{% trans "User" %}</th>
+                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">{% trans "Action" %}</th>
+                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">{% trans "Description" %}</th>
+                    <th style="padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a8d;font-weight:700;">{% trans "IP Address" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -79,45 +79,45 @@
                     <div style="font-weight:600;color:#0A4D68;">{{ log.user.get_full_name|default:log.user.username }}</div>
                     <div style="font-size:0.72rem;color:#9ab4c0;">{{ log.user.username }}</div>
                     {% else %}
-                    <span style="color:#9ab4c0;font-style:italic;">System</span>
+                    <span style="color:#9ab4c0;font-style:italic;">{% trans "System" %}</span>
                     {% endif %}
                 </td>
                 <td style="padding:10px 16px;">
                     {% if log.action == 'login' %}
                         <span class="badge" style="background:#d1fae5;color:#065f46;">
-                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Login" %}
                         </span>
                     {% elif log.action == 'logout' %}
                         <span class="badge" style="background:#f3f4f6;color:#374151;">
-                            <i class="bi bi-box-arrow-right me-1"></i>Logout
+                            <i class="bi bi-box-arrow-right me-1"></i>{% trans "Logout" %}
                         </span>
                     {% elif log.action == 'leave_submit' %}
                         <span class="badge" style="background:#dbeafe;color:#1e40af;">
-                            <i class="bi bi-calendar-plus me-1"></i>Leave Submitted
+                            <i class="bi bi-calendar-plus me-1"></i>{% trans "Leave Submitted" %}
                         </span>
                     {% elif log.action == 'leave_approve' %}
                         <span class="badge" style="background:#d1fae5;color:#065f46;">
-                            <i class="bi bi-check-circle me-1"></i>Leave Approved
+                            <i class="bi bi-check-circle me-1"></i>{% trans "Leave Approved" %}
                         </span>
                     {% elif log.action == 'leave_reject' %}
                         <span class="badge" style="background:#fee2e2;color:#991b1b;">
-                            <i class="bi bi-x-circle me-1"></i>Leave Rejected
+                            <i class="bi bi-x-circle me-1"></i>{% trans "Leave Rejected" %}
                         </span>
                     {% elif log.action == 'contract' %}
                         <span class="badge" style="background:#ede9fe;color:#5b21b6;">
-                            <i class="bi bi-file-earmark-text me-1"></i>Contract
+                            <i class="bi bi-file-earmark-text me-1"></i>{% trans "Contract" %}
                         </span>
                     {% elif log.action == 'discipline' %}
                         <span class="badge" style="background:#fef3c7;color:#92400e;">
-                            <i class="bi bi-shield-exclamation me-1"></i>Discipline
+                            <i class="bi bi-shield-exclamation me-1"></i>{% trans "Discipline" %}
                         </span>
                     {% elif log.action == 'appraisal' %}
                         <span class="badge" style="background:#e0f7fa;color:#0A4D68;">
-                            <i class="bi bi-clipboard2-pulse me-1"></i>Appraisal
+                            <i class="bi bi-clipboard2-pulse me-1"></i>{% trans "Appraisal" %}
                         </span>
                     {% elif log.action == 'employee' %}
                         <span class="badge" style="background:#f3e8ff;color:#7c3aed;">
-                            <i class="bi bi-person me-1"></i>Employee
+                            <i class="bi bi-person me-1"></i>{% trans "Employee" %}
                         </span>
                     {% else %}
                         <span class="badge" style="background:#f3f4f6;color:#6b7280;">
@@ -129,7 +129,7 @@
                     {{ log.description }}
                     {% if log.target_user %}
                     <div style="font-size:0.72rem;color:#9ab4c0;margin-top:2px;">
-                        <i class="bi bi-person-fill me-1"></i>Re: {{ log.target_user.get_full_name|default:log.target_user.username }}
+                        <i class="bi bi-person-fill me-1"></i>{% trans "Re:" %} {{ log.target_user.get_full_name|default:log.target_user.username }}
                     </div>
                     {% endif %}
                 </td>
@@ -146,20 +146,20 @@
     {% if page_obj.has_other_pages %}
     <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top" style="background:#fafafa;">
         <div style="font-size:0.8rem;color:#6b7a8d;">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            &nbsp;·&nbsp; {{ total_count }} total records
+            {% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}Page {{ page }} of {{ total }}{% endblocktrans %}
+            &nbsp;·&nbsp; {{ total_count }} {% trans "total records" %}
         </div>
         <div class="d-flex gap-1">
             {% if page_obj.has_previous %}
             <a href="?page={{ page_obj.previous_page_number }}&action={{ action_filter }}&user_id={{ user_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
                class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-chevron-left"></i> Prev
+                <i class="bi bi-chevron-left"></i> {% trans "Prev" %}
             </a>
             {% endif %}
             {% if page_obj.has_next %}
             <a href="?page={{ page_obj.next_page_number }}&action={{ action_filter }}&user_id={{ user_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
                class="btn btn-sm btn-outline-secondary">
-                Next <i class="bi bi-chevron-right"></i>
+                {% trans "Next" %} <i class="bi bi-chevron-right"></i>
             </a>
             {% endif %}
         </div>
@@ -169,8 +169,8 @@
     {% else %}
     <div class="text-center py-5">
         <i class="bi bi-journal-x fs-1 d-block mb-3" style="color:#cde8ef;"></i>
-        <div style="font-size:0.95rem;font-weight:600;color:#6b7a8d;">No activity recorded yet</div>
-        <div style="font-size:0.82rem;color:#9ab4c0;margin-top:6px;">Activity will appear here as users log in and perform actions.</div>
+        <div style="font-size:0.95rem;font-weight:600;color:#6b7a8d;">{% trans "No activity recorded yet" %}</div>
+        <div style="font-size:0.82rem;color:#9ab4c0;margin-top:6px;">{% trans "Activity will appear here as users log in and perform actions." %}</div>
     </div>
     {% endif %}
 </div>

@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Onboarding — {{ checklist.employee.user.get_full_name }} — AEF HRM{% endblock %}
-{% block page_title %}Onboarding Checklist{% endblock %}
+{% block title %}{% trans "Onboarding" %} — {{ checklist.employee.user.get_full_name }} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Onboarding Checklist" %}{% endblock %}
 {% block nav_onboarding %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'accounts:onboarding_list' %}" class="btn btn-outline-primary btn-sm">
-  <i class="bi bi-arrow-left me-1"></i> All Onboarding
+  <i class="bi bi-arrow-left me-1"></i> {% trans "All Onboarding" %}
 </a>
 {% endblock %}
 
@@ -22,53 +22,53 @@
         <div class="progress" style="height:8px;border-radius:10px;">
           <div class="progress-bar" style="width:{% widthratio checklist.completed_count checklist.total_count 100 %}%;background:{% if checklist.is_complete %}#059669{% else %}#2db4c3{% endif %};border-radius:10px;"></div>
         </div>
-        <div class="mt-1" style="font-size:.8rem;color:#6b7a8d;">{{ checklist.completed_count }} of {{ checklist.total_count }} tasks complete</div>
+        <div class="mt-1" style="font-size:.8rem;color:#6b7a8d;">{% blocktrans with done=checklist.completed_count total=checklist.total_count %}{{ done }} of {{ total }} tasks complete{% endblocktrans %}</div>
       </div>
     </div>
   </div>
 
   <div class="col-lg-7">
     <div class="card animate-in">
-      <div class="card-header"><i class="bi bi-list-check me-2" style="color:#2db4c3;"></i>Onboarding Tasks</div>
+      <div class="card-header"><i class="bi bi-list-check me-2" style="color:#2db4c3;"></i>{% trans "Onboarding Tasks" %}</div>
       <div class="card-body p-4">
         <form method="post">
           {% csrf_token %}
           <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
             <input class="form-check-input" type="checkbox" name="issue_contract" id="issue_contract" {% if checklist.issue_contract %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="issue_contract" style="font-size:.88rem;"><i class="bi bi-file-earmark-text me-1" style="color:#2db4c3;"></i>Contract issued</label>
+            <label class="form-check-label fw-600" for="issue_contract" style="font-size:.88rem;"><i class="bi bi-file-earmark-text me-1" style="color:#2db4c3;"></i>{% trans "Contract issued" %}</label>
           </div>
           <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
             <input class="form-check-input" type="checkbox" name="set_leave_balance" id="set_leave_balance" {% if checklist.set_leave_balance %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="set_leave_balance" style="font-size:.88rem;"><i class="bi bi-calendar-check me-1" style="color:#2db4c3;"></i>Leave balance configured</label>
+            <label class="form-check-label fw-600" for="set_leave_balance" style="font-size:.88rem;"><i class="bi bi-calendar-check me-1" style="color:#2db4c3;"></i>{% trans "Leave balance configured" %}</label>
           </div>
           <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
             <input class="form-check-input" type="checkbox" name="assign_manager" id="assign_manager" {% if checklist.assign_manager %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="assign_manager" style="font-size:.88rem;"><i class="bi bi-person-check me-1" style="color:#2db4c3;"></i>Manager assigned</label>
+            <label class="form-check-label fw-600" for="assign_manager" style="font-size:.88rem;"><i class="bi bi-person-check me-1" style="color:#2db4c3;"></i>{% trans "Manager assigned" %}</label>
           </div>
           <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
             <input class="form-check-input" type="checkbox" name="profile_photo" id="profile_photo" {% if checklist.profile_photo %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="profile_photo" style="font-size:.88rem;"><i class="bi bi-camera me-1" style="color:#2db4c3;"></i>Profile photo uploaded</label>
+            <label class="form-check-label fw-600" for="profile_photo" style="font-size:.88rem;"><i class="bi bi-camera me-1" style="color:#2db4c3;"></i>{% trans "Profile photo uploaded" %}</label>
           </div>
           <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
             <input class="form-check-input" type="checkbox" name="signature_captured" id="signature_captured" {% if checklist.signature_captured %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="signature_captured" style="font-size:.88rem;"><i class="bi bi-pen me-1" style="color:#2db4c3;"></i>Signature captured</label>
+            <label class="form-check-label fw-600" for="signature_captured" style="font-size:.88rem;"><i class="bi bi-pen me-1" style="color:#2db4c3;"></i>{% trans "Signature captured" %}</label>
           </div>
           <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
             <input class="form-check-input" type="checkbox" name="credentials_sent" id="credentials_sent" {% if checklist.credentials_sent %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="credentials_sent" style="font-size:.88rem;"><i class="bi bi-key me-1" style="color:#2db4c3;"></i>Login credentials sent</label>
+            <label class="form-check-label fw-600" for="credentials_sent" style="font-size:.88rem;"><i class="bi bi-key me-1" style="color:#2db4c3;"></i>{% trans "Login credentials sent" %}</label>
           </div>
           <div class="form-check mb-3 p-3 rounded border" style="background:#f8fafc;">
             <input class="form-check-input" type="checkbox" name="id_document_uploaded" id="id_document_uploaded" {% if checklist.id_document_uploaded %}checked{% endif %}>
-            <label class="form-check-label fw-600" for="id_document_uploaded" style="font-size:.88rem;"><i class="bi bi-credit-card me-1" style="color:#2db4c3;"></i>ID / Passport uploaded</label>
+            <label class="form-check-label fw-600" for="id_document_uploaded" style="font-size:.88rem;"><i class="bi bi-credit-card me-1" style="color:#2db4c3;"></i>{% trans "ID / Passport uploaded" %}</label>
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-600" style="font-size:.85rem;">Notes</label>
+            <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Notes" %}</label>
             <textarea name="notes" class="form-control" rows="3">{{ checklist.notes }}</textarea>
           </div>
 
           <button type="submit" class="btn btn-primary w-100">
-            <i class="bi bi-save me-1"></i> Save
+            <i class="bi bi-save me-1"></i> {% trans "Save" %}
           </button>
         </form>
       </div>

@@ -1,22 +1,23 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Discipline Notice — {{ record.employee.get_full_name }}{% endblock %}
-{% block page_title %}Discipline Notice{% endblock %}
+{% block title %}{% trans "Discipline Notice" %} — {{ record.employee.get_full_name }}{% endblock %}
+{% block page_title %}{% trans "Discipline Notice" %}{% endblock %}
 {% block nav_discipline %}active{% endblock %}
 
 {% block topbar_actions %}
 {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' or request.user.employee.is_ceo or request.user.employee.role in "manager unit_head finance_director" %}
 <a href="{% url 'discipline:list' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> Disciplinary Records
+    <i class="bi bi-arrow-left me-1"></i> {% trans "Disciplinary Records" %}
 </a>
 {% else %}
 <a href="{% url 'discipline:my_notices' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> My Discipline Record
+    <i class="bi bi-arrow-left me-1"></i> {% trans "My Discipline Record" %}
 </a>
 {% endif %}
 {% if request.user.is_superuser or request.user.employee.role == 'admin_director' %}
 <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteRecordModal">
-    <i class="bi bi-trash3 me-1"></i> Delete Record
+    <i class="bi bi-trash3 me-1"></i> {% trans "Delete Record" %}
 </button>
 {% endif %}
 {% endblock %}
@@ -41,18 +42,17 @@
                 <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-hourglass-split fs-2 flex-shrink-0"></i>
                     <div style="flex:1;">
-                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;opacity:.8;">Pending HR Execution — Proposal</div>
+                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;opacity:.8;">{% trans "Pending HR Execution — Proposal" %}</div>
                         <div style="font-size:1.05rem;font-weight:800;">{{ record.get_action_type_display }}</div>
                         <div style="font-size:0.82rem;opacity:0.85;">
-                            Proposed by {{ record.issued_by.get_full_name|default:record.issued_by.username }}
-                            on {{ record.date_issued|date:"d F Y" }}
+                            {% blocktrans with name=record.issued_by.get_full_name|default:record.issued_by.username date=record.date_issued|date:"d F Y" %}Proposed by {{ name }} on {{ date }}{% endblocktrans %}
                         </div>
                     </div>
                     {% if request.user.is_superuser or request.user.employee.is_hr %}
                     <div>
                         <button type="button" class="btn btn-light btn-sm fw-bold"
                                 data-bs-toggle="modal" data-bs-target="#executeModal">
-                            <i class="bi bi-check-circle-fill me-1 text-success"></i>Execute Proposal
+                            <i class="bi bi-check-circle-fill me-1 text-success"></i>{% trans "Execute Proposal" %}
                         </button>
                     </div>
                     {% endif %}
@@ -66,7 +66,7 @@
                     <div class="modal-content" style="border-radius:12px;">
                         <div class="modal-header" style="background:linear-gradient(135deg,#088395,#2db4c3);border-radius:12px 12px 0 0;">
                             <h6 class="modal-title text-white fw-bold">
-                                <i class="bi bi-check-circle-fill me-2"></i>Execute Proposal
+                                <i class="bi bi-check-circle-fill me-2"></i>{% trans "Execute Proposal" %}
                             </h6>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
@@ -74,22 +74,21 @@
                             {% csrf_token %}
                             <div class="modal-body">
                                 <p style="font-size:.875rem;color:#4a6b7c;">
-                                    Formally execute this <strong>{{ record.get_action_type_display }}</strong>
-                                    for <strong>{{ record.employee.get_full_name }}</strong>?
-                                    <br><small class="text-muted">The employee will be notified and the record will become permanent.</small>
+                                    {% blocktrans with action=record.get_action_type_display name=record.employee.get_full_name %}Formally execute this <strong>{{ action }}</strong> for <strong>{{ name }}</strong>?{% endblocktrans %}
+                                    <br><small class="text-muted">{% trans "The employee will be notified and the record will become permanent." %}</small>
                                 </p>
                                 {% if record.action_type == 'suspension' and not record.suspension_start %}
                                 <div class="mb-3">
-                                    <label class="form-label fw-600" style="font-size:.85rem;">Suspension Start Date <span class="text-danger">*</span></label>
+                                    <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Suspension Start Date" %} <span class="text-danger">*</span></label>
                                     <input type="date" name="suspension_start" class="form-control form-control-sm" required>
-                                    <div class="form-text">End date is auto-calculated (8 days).</div>
+                                    <div class="form-text">{% trans "End date is auto-calculated (8 days)." %}</div>
                                 </div>
                                 {% endif %}
                             </div>
                             <div class="modal-footer border-0 pt-0">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
                                 <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="bi bi-check2 me-1"></i>Confirm & Execute
+                                    <i class="bi bi-check2 me-1"></i>{% trans "Confirm & Execute" %}
                                 </button>
                             </div>
                         </form>
@@ -115,30 +114,30 @@
                     <i class="bi bi-exclamation-octagon-fill fs-2"></i>
                     <div>
                         <div style="font-size:1.1rem; font-weight:800;">{{ record.get_action_type_display }}</div>
-                        <div style="font-size:0.875rem; opacity:0.85;">Issued on {{ record.date_issued|date:"d F Y" }}</div>
+                        <div style="font-size:0.875rem; opacity:0.85;">{% trans "Issued on" %} {{ record.date_issued|date:"d F Y" }}</div>
                     </div>
                 </div>
             </div>
             {% endif %}
 
             <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-person me-2"></i>Employee Details</div>
+                <div class="card-header"><i class="bi bi-person me-2"></i>{% trans "Employee Details" %}</div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Employee</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Employee" %}</div>
                             <div class="fw-600 mt-1">{{ record.employee.get_full_name }}</div>
                         </div>
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Employee ID</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Employee ID" %}</div>
                             <div class="fw-600 mt-1">{{ record.employee.employee_id }}</div>
                         </div>
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Department</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Department" %}</div>
                             <div class="mt-1">{{ record.employee.department|default:"—" }}</div>
                         </div>
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Position</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Position" %}</div>
                             <div class="mt-1">{{ record.employee.position|default:"—" }}</div>
                         </div>
                     </div>
@@ -146,39 +145,39 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-file-text me-2"></i>Notice Details</div>
+                <div class="card-header"><i class="bi bi-file-text me-2"></i>{% trans "Notice Details" %}</div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Issued By</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Issued By" %}</div>
                             <div class="mt-1">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</div>
                         </div>
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Date Issued</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Date Issued" %}</div>
                             <div class="mt-1">{{ record.date_issued|date:"d F Y" }}</div>
                         </div>
 
                         {% if record.action_type == 'suspension' %}
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Suspension Start</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Suspension Start" %}</div>
                             <div class="mt-1">{{ record.suspension_start|date:"d F Y"|default:"—" }}</div>
                         </div>
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Suspension End (8 days)</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Suspension End (8 days)" %}</div>
                             <div class="mt-1">{{ record.suspension_end|date:"d F Y"|default:"—" }}</div>
                         </div>
                         {% if record.is_currently_suspended %}
                         <div class="col-12">
                             <div class="alert alert-dark py-2 px-3 mb-0" style="font-size:0.875rem;">
                                 <i class="bi bi-person-slash me-2"></i>
-                                <strong>This employee is currently suspended.</strong>
+                                <strong>{% trans "This employee is currently suspended." %}</strong>
                             </div>
                         </div>
                         {% endif %}
                         {% endif %}
 
                         <div class="col-12">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Reason</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Reason" %}</div>
                             <div class="mt-2 p-3 rounded-2" style="background:#f8fafc; border:1px solid #e8f0f5; font-size:0.9rem; line-height:1.7;">
                                 {{ record.reason|linebreaks }}
                             </div>
@@ -186,10 +185,10 @@
 
                         {% if record.document %}
                         <div class="col-12">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">Attached Document</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Attached Document" %}</div>
                             <div class="mt-2">
                                 <a href="{{ record.document.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-file-earmark-arrow-down me-1"></i> Download Document
+                                    <i class="bi bi-file-earmark-arrow-down me-1"></i> {% trans "Download Document" %}
                                 </a>
                             </div>
                         </div>
@@ -203,8 +202,8 @@
             {% if request.user.is_superuser or request.user.employee.is_hr or record.issued_by == request.user %}
             <div class="card mb-4" style="border:1.5px solid #fde68a;background:#fffbeb;">
                 <div class="card-header" style="background:#fffbeb;border-color:#fde68a;font-size:.75rem;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:.06em;">
-                    <i class="bi bi-chat-left-text me-1"></i> Note to HR from Proposer
-                    <small class="text-muted fw-normal ms-1 text-lowercase">(not visible to employee)</small>
+                    <i class="bi bi-chat-left-text me-1"></i> {% trans "Note to HR from Proposer" %}
+                    <small class="text-muted fw-normal ms-1 text-lowercase">({% trans "not visible to employee" %})</small>
                 </div>
                 <div class="card-body">
                     <p style="font-size:0.875rem;color:#4a6b7c;margin:0;">{{ record.proposal_note|linebreaks }}</p>
@@ -213,7 +212,7 @@
             {% endif %}
             {% endif %}
 
-            <!-- ══ SANCTION REVIEW WORKFLOW (HR / Admin Director / Superuser only) ══ -->
+            <!-- ══ SANCTION REVIEW WORKFLOW ══ -->
             {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' %}
 
             <!-- Step 1 — Manager's Recommendation -->
@@ -221,19 +220,19 @@
             <div class="card mb-3" style="border:1.5px solid #fde68a;background:#fffbeb;">
                 <div class="card-header" style="background:#fffbeb;border-color:#fde68a;">
                     <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#d97706;font-weight:700;">
-                        <i class="bi bi-person-badge me-1"></i> Step 1 — Line Manager's Recommendation
+                        <i class="bi bi-person-badge me-1"></i> {% trans "Step 1 — Line Manager's Recommendation" %}
                     </span>
-                    <small class="text-muted fw-normal ms-1">(not visible to employee)</small>
+                    <small class="text-muted fw-normal ms-1">({% trans "not visible to employee" %})</small>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Proposed Sanction</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">{% trans "Proposed Sanction" %}</div>
                             <div class="mt-1 fw-bold" style="color:#d97706;">{{ record.get_recommended_sanction_display }}</div>
                         </div>
                         {% if record.recommendation_note %}
                         <div class="col-12">
-                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Details</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">{% trans "Details" %}</div>
                             <div class="mt-2 p-3 rounded-2" style="background:#fefce8;border:1px solid #fde68a;font-size:0.875rem;">
                                 {{ record.recommendation_note|linebreaks }}
                             </div>
@@ -244,24 +243,24 @@
             </div>
             {% endif %}
 
-            <!-- Step 2 — HR Proposed Sanction (shown once Step 1 exists or no manager recommendation needed) -->
+            <!-- Step 2 — HR Proposed Sanction -->
             <div class="card mb-3" style="border:1.5px solid #bfdbfe;background:#eff6ff;">
                 <div class="card-header" style="background:#eff6ff;border-color:#bfdbfe;">
                     <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#2db4c3;font-weight:700;">
-                        <i class="bi bi-people me-1"></i> Step 2 — HR Proposed Sanction
+                        <i class="bi bi-people me-1"></i> {% trans "Step 2 — HR Proposed Sanction" %}
                     </span>
-                    <small class="text-muted fw-normal ms-1">(not visible to employee)</small>
+                    <small class="text-muted fw-normal ms-1">({% trans "not visible to employee" %})</small>
                 </div>
                 <div class="card-body">
                     {% if record.hr_proposed_sanction %}
                     <div class="row g-3 mb-3">
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">HR Proposed Sanction</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">{% trans "HR Proposed Sanction" %}</div>
                             <div class="mt-1 fw-bold" style="color:#2db4c3;">{{ record.get_hr_proposed_sanction_display }}</div>
                         </div>
                         {% if record.hr_proposed_note %}
                         <div class="col-12">
-                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">HR Notes</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">{% trans "HR Notes" %}</div>
                             <div class="mt-2 p-3 rounded-2" style="background:#dbeafe;border:1px solid #bfdbfe;font-size:0.875rem;">
                                 {{ record.hr_proposed_note|linebreaks }}
                             </div>
@@ -277,54 +276,54 @@
                         <div class="row g-2">
                             <div class="col-sm-6">
                                 <label class="form-label" style="font-size:0.82rem;">
-                                    {% if record.hr_proposed_sanction %}Update HR Proposed Sanction{% else %}Submit HR Proposed Sanction{% endif %}
+                                    {% if record.hr_proposed_sanction %}{% trans "Update HR Proposed Sanction" %}{% else %}{% trans "Submit HR Proposed Sanction" %}{% endif %}
                                 </label>
                                 <select name="proposed_sanction" class="form-select form-select-sm">
-                                    <option value="">— Select sanction —</option>
-                                    <option value="written_caution" {% if record.hr_proposed_sanction == 'written_caution' %}selected{% endif %}>Written Caution</option>
-                                    <option value="final_warning" {% if record.hr_proposed_sanction == 'final_warning' %}selected{% endif %}>Final Written Warning</option>
-                                    <option value="suspension" {% if record.hr_proposed_sanction == 'suspension' %}selected{% endif %}>Suspension</option>
-                                    <option value="dismissal" {% if record.hr_proposed_sanction == 'dismissal' %}selected{% endif %}>Dismissal</option>
-                                    <option value="no_further_action" {% if record.hr_proposed_sanction == 'no_further_action' %}selected{% endif %}>No Further Action</option>
+                                    <option value="">— {% trans "Select sanction" %} —</option>
+                                    <option value="written_caution" {% if record.hr_proposed_sanction == 'written_caution' %}selected{% endif %}>{% trans "Written Caution" %}</option>
+                                    <option value="final_warning" {% if record.hr_proposed_sanction == 'final_warning' %}selected{% endif %}>{% trans "Final Written Warning" %}</option>
+                                    <option value="suspension" {% if record.hr_proposed_sanction == 'suspension' %}selected{% endif %}>{% trans "Suspension" %}</option>
+                                    <option value="dismissal" {% if record.hr_proposed_sanction == 'dismissal' %}selected{% endif %}>{% trans "Dismissal" %}</option>
+                                    <option value="no_further_action" {% if record.hr_proposed_sanction == 'no_further_action' %}selected{% endif %}>{% trans "No Further Action" %}</option>
                                 </select>
                             </div>
                             <div class="col-12">
                                 <textarea name="proposed_note" class="form-control form-control-sm" rows="2"
-                                    placeholder="HR remarks (optional)...">{{ record.hr_proposed_note }}</textarea>
+                                    placeholder="{% trans "HR remarks (optional)..." %}">{{ record.hr_proposed_note }}</textarea>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="bi bi-check2 me-1"></i>
-                                    {% if record.hr_proposed_sanction %}Update{% else %}Submit{% endif %} HR Proposal
+                                    {% if record.hr_proposed_sanction %}{% trans "Update" %}{% else %}{% trans "Submit" %}{% endif %} {% trans "HR Proposal" %}
                                 </button>
                             </div>
                         </div>
                     </form>
                     {% elif not record.hr_proposed_sanction %}
-                    <div class="text-muted" style="font-size:0.875rem;"><i class="bi bi-hourglass me-1"></i>Awaiting HR input.</div>
+                    <div class="text-muted" style="font-size:0.875rem;"><i class="bi bi-hourglass me-1"></i>{% trans "Awaiting HR input." %}</div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Step 3 — Director Proposed Sanction (only shown after HR has submitted a proposal) -->
+            <!-- Step 3 — Director Proposed Sanction -->
             {% if record.hr_proposed_sanction or request.user.is_superuser %}
             <div class="card mb-3" style="border:1.5px solid #fca5a5;background:#fff5f5;">
                 <div class="card-header" style="background:#fff5f5;border-color:#fca5a5;">
                     <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#b91c1c;font-weight:700;">
-                        <i class="bi bi-shield-check me-1"></i> Step 3 — Admin Director Final Proposal
+                        <i class="bi bi-shield-check me-1"></i> {% trans "Step 3 — Admin Director Final Proposal" %}
                     </span>
-                    <small class="text-muted fw-normal ms-1">(not visible to employee)</small>
+                    <small class="text-muted fw-normal ms-1">({% trans "not visible to employee" %})</small>
                 </div>
                 <div class="card-body">
                     {% if record.director_proposed_sanction %}
                     <div class="row g-3 mb-3">
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Director Proposed Sanction</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">{% trans "Director Proposed Sanction" %}</div>
                             <div class="mt-1 fw-bold" style="color:#b91c1c;">{{ record.get_director_proposed_sanction_display }}</div>
                         </div>
                         {% if record.director_proposed_note %}
                         <div class="col-12">
-                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">Director Notes</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">{% trans "Director Notes" %}</div>
                             <div class="mt-2 p-3 rounded-2" style="background:#fee2e2;border:1px solid #fca5a5;font-size:0.875rem;">
                                 {{ record.director_proposed_note|linebreaks }}
                             </div>
@@ -340,47 +339,47 @@
                         <div class="row g-2">
                             <div class="col-sm-6">
                                 <label class="form-label" style="font-size:0.82rem;">
-                                    {% if record.director_proposed_sanction %}Update Director Proposal{% else %}Submit Director Proposal{% endif %}
+                                    {% if record.director_proposed_sanction %}{% trans "Update Director Proposal" %}{% else %}{% trans "Submit Director Proposal" %}{% endif %}
                                 </label>
                                 <select name="proposed_sanction" class="form-select form-select-sm">
-                                    <option value="">— Select sanction —</option>
-                                    <option value="written_caution" {% if record.director_proposed_sanction == 'written_caution' %}selected{% endif %}>Written Caution</option>
-                                    <option value="final_warning" {% if record.director_proposed_sanction == 'final_warning' %}selected{% endif %}>Final Written Warning</option>
-                                    <option value="suspension" {% if record.director_proposed_sanction == 'suspension' %}selected{% endif %}>Suspension</option>
-                                    <option value="dismissal" {% if record.director_proposed_sanction == 'dismissal' %}selected{% endif %}>Dismissal</option>
-                                    <option value="no_further_action" {% if record.director_proposed_sanction == 'no_further_action' %}selected{% endif %}>No Further Action</option>
+                                    <option value="">— {% trans "Select sanction" %} —</option>
+                                    <option value="written_caution" {% if record.director_proposed_sanction == 'written_caution' %}selected{% endif %}>{% trans "Written Caution" %}</option>
+                                    <option value="final_warning" {% if record.director_proposed_sanction == 'final_warning' %}selected{% endif %}>{% trans "Final Written Warning" %}</option>
+                                    <option value="suspension" {% if record.director_proposed_sanction == 'suspension' %}selected{% endif %}>{% trans "Suspension" %}</option>
+                                    <option value="dismissal" {% if record.director_proposed_sanction == 'dismissal' %}selected{% endif %}>{% trans "Dismissal" %}</option>
+                                    <option value="no_further_action" {% if record.director_proposed_sanction == 'no_further_action' %}selected{% endif %}>{% trans "No Further Action" %}</option>
                                 </select>
                             </div>
                             <div class="col-12">
                                 <textarea name="proposed_note" class="form-control form-control-sm" rows="2"
-                                    placeholder="Director remarks (optional)...">{{ record.director_proposed_note }}</textarea>
+                                    placeholder="{% trans "Director remarks (optional)..." %}">{{ record.director_proposed_note }}</textarea>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-danger btn-sm">
                                     <i class="bi bi-check2 me-1"></i>
-                                    {% if record.director_proposed_sanction %}Update{% else %}Submit{% endif %} Director Proposal
+                                    {% if record.director_proposed_sanction %}{% trans "Update" %}{% else %}{% trans "Submit" %}{% endif %} {% trans "Director Proposal" %}
                                 </button>
                             </div>
                         </div>
                     </form>
                     {% elif not record.director_proposed_sanction %}
-                    <div class="text-muted" style="font-size:0.875rem;"><i class="bi bi-hourglass me-1"></i>Awaiting Director input.</div>
+                    <div class="text-muted" style="font-size:0.875rem;"><i class="bi bi-hourglass me-1"></i>{% trans "Awaiting Director input." %}</div>
                     {% endif %}
                 </div>
             </div>
-            {% endif %}{# end Step 3 conditional #}
+            {% endif %}
 
             <!-- Step 4 — HR Issue Final Discipline -->
             {% if record.director_proposed_sanction and record.director_proposed_sanction != 'no_further_action' %}
             {% if request.user.is_superuser or request.user.employee.is_hr %}
             <div class="alert alert-success mb-4" style="border-left:4px solid #2db4c3;">
                 <i class="bi bi-check-circle-fill me-2"></i>
-                <strong>Director has approved the proposed sanction.</strong>
-                You can now issue the formal discipline notice to the employee.
+                <strong>{% trans "Director has approved the proposed sanction." %}</strong>
+                {% trans "You can now issue the formal discipline notice to the employee." %}
                 <div class="mt-2">
                     <a href="{% url 'discipline:issue' %}?prefill_employee={{ record.employee.pk }}&prefill_type={{ record.director_proposed_sanction }}"
                        class="btn btn-success btn-sm">
-                        <i class="bi bi-send me-1"></i> Issue Final Discipline Notice
+                        <i class="bi bi-send me-1"></i> {% trans "Issue Final Discipline Notice" %}
                     </a>
                 </div>
             </div>
@@ -388,18 +387,18 @@
             {% elif record.director_proposed_sanction == 'no_further_action' %}
             <div class="alert alert-info mb-4">
                 <i class="bi bi-info-circle me-2"></i>
-                Director has proposed <strong>No Further Action</strong>. No additional notice is required.
+                {% blocktrans %}Director has proposed <strong>No Further Action</strong>. No additional notice is required.{% endblocktrans %}
             </div>
             {% endif %}
 
             {% endif %}
             <!-- ══ END WORKFLOW ══ -->
 
-            <!-- Internal notes — only visible to HR/Admin/Manager who issued -->
+            <!-- Internal notes -->
             {% if record.notes %}
             {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or record.issued_by == request.user %}
             <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-lock me-2"></i>Internal Notes <small class="text-muted fw-normal">(not visible to employee)</small></div>
+                <div class="card-header"><i class="bi bi-lock me-2"></i>{% trans "Internal Notes" %} <small class="text-muted fw-normal">({% trans "not visible to employee" %})</small></div>
                 <div class="card-body">
                     <p style="font-size:0.9rem; color:#4a6b7c; margin:0;">{{ record.notes|linebreaks }}</p>
                 </div>
@@ -410,9 +409,9 @@
             {% if record.action_type == 'dismissal' %}
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-octagon-fill me-2"></i>
-                <strong>Dismissal Notice:</strong> HR and Admin must manually deactivate this employee's account.
+                <strong>{% trans "Dismissal Notice:" %}</strong> {% trans "HR and Admin must manually deactivate this employee's account." %}
                 <a href="{% url 'accounts:employee_edit' record.employee.pk %}" class="alert-link ms-2">
-                    Go to Employee Profile <i class="bi bi-arrow-right ms-1"></i>
+                    {% trans "Go to Employee Profile" %} <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
             {% endif %}
@@ -426,23 +425,23 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="deleteRecordModalLabel"><i class="bi bi-trash3 me-2"></i>Delete Discipline Record</h5>
+                    <h5 class="modal-title" id="deleteRecordModalLabel"><i class="bi bi-trash3 me-2"></i>{% trans "Delete Discipline Record" %}</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>You are about to <strong>permanently delete</strong> this <strong>{{ record.get_action_type_display }}</strong> record for <strong>{{ record.employee.get_full_name }}</strong>.</p>
-                    <p class="text-muted mb-0" style="font-size:.875rem;">This action cannot be undone. The record will be completely erased — no trace will remain in the system.</p>
+                    <p>{% blocktrans with action=record.get_action_type_display name=record.employee.get_full_name %}You are about to <strong>permanently delete</strong> this <strong>{{ action }}</strong> record for <strong>{{ name }}</strong>.{% endblocktrans %}</p>
+                    <p class="text-muted mb-0" style="font-size:.875rem;">{% trans "This action cannot be undone. The record will be completely erased — no trace will remain in the system." %}</p>
                     {% if record.action_type == 'suspension' %}
                     <div class="alert alert-warning mt-3 mb-0" style="font-size:.85rem;">
-                        <i class="bi bi-info-circle me-1"></i> Deleting this suspension record will also lift any active suspension restriction on this employee's account.
+                        <i class="bi bi-info-circle me-1"></i> {% trans "Deleting this suspension record will also lift any active suspension restriction on this employee's account." %}
                     </div>
                     {% endif %}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
                     <form method="post" action="{% url 'discipline:delete' record.pk %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash3 me-1"></i>Yes, Delete Record</button>
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash3 me-1"></i>{% trans "Yes, Delete Record" %}</button>
                     </form>
                 </div>
             </div>

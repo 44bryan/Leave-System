@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}Notifications — AEF HRM{% endblock %}
-{% block page_title %}Notifications{% endblock %}
+{% block title %}{% trans "Notifications" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Notifications" %}{% endblock %}
 {% block nav_notifications %}active{% endblock %}
 
 {% block topbar_actions %}
@@ -9,7 +9,7 @@
 <form method="post" action="{% url 'notifications:mark_all_read' %}" class="d-inline">
     {% csrf_token %}
     <button type="submit" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-        <i class="bi bi-check2-all me-1"></i> Mark All Read
+        <i class="bi bi-check2-all me-1"></i> {% trans "Mark All Read" %}
     </button>
 </form>
 {% endwith %}
@@ -17,9 +17,9 @@
 
 {% block content %}
 <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-bell me-1"></i> All Notifications
+    <i class="bi bi-bell me-1"></i> {% trans "All Notifications" %}
     {% if notif_unread > 0 %}
-    <span class="badge bg-danger ms-1">{{ notif_unread }} unread</span>
+    <span class="badge bg-danger ms-1">{{ notif_unread }} {% trans "unread" %}</span>
     {% endif %}
 </div>
 
@@ -42,7 +42,7 @@
                         {% if not n.is_read %}
                         <span style="width:8px;height:8px;background:#2db4c3;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
                         {% endif %}
-                        <span style="font-size:0.72rem;color:#9ab4c0;white-space:nowrap;">{{ n.created_at|timesince }} ago</span>
+                        <span style="font-size:0.72rem;color:#9ab4c0;white-space:nowrap;">{% blocktrans with when=n.created_at|timesince %}{{ when }} ago{% endblocktrans %}</span>
                     </div>
                 </div>
                 <div style="font-size:0.82rem;color:#4a6b7c;margin-top:3px;line-height:1.45;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ n.message }}</div>
@@ -54,7 +54,7 @@
                     </span>
                     {% if n.url %}
                     &nbsp;·&nbsp;
-                    <span style="color:#2db4c3;"><i class="bi bi-box-arrow-up-right" style="font-size:0.65rem;"></i> has link</span>
+                    <span style="color:#2db4c3;"><i class="bi bi-box-arrow-up-right" style="font-size:0.65rem;"></i> {% trans "has link" %}</span>
                     {% endif %}
                 </div>
             </div>
@@ -64,8 +64,8 @@
     {% else %}
     <div class="text-center py-5 text-muted">
         <i class="bi bi-bell-slash fs-1 d-block mb-3" style="color:#cde8ef;"></i>
-        <div style="font-size:0.95rem;font-weight:600;color:#6b7a8d;">No notifications yet</div>
-        <div style="font-size:0.82rem;color:#9ab4c0;margin-top:6px;">You'll see leave updates, discipline notices, and contract changes here.</div>
+        <div style="font-size:0.95rem;font-weight:600;color:#6b7a8d;">{% trans "No notifications yet" %}</div>
+        <div style="font-size:0.82rem;color:#9ab4c0;margin-top:6px;">{% trans "You'll see leave updates, discipline notices, and contract changes here." %}</div>
     </div>
     {% endif %}
 </div>

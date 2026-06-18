@@ -53,54 +53,7 @@
     </div>
 </div>
 
-<!-- ── Pending Approvals ── -->
-<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">
-    <i class="bi bi-person-check me-1"></i> {% trans "Pending Approvals" %}
-</div>
-<div class="card mb-4 animate-in delay-2">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-hourglass-split me-2" style="color:#f57f17;"></i>{% trans "Leave Requests Awaiting Your Decision" %}</span>
-        <a href="{% url 'leaves:manager_approvals' %}" class="btn btn-sm btn-outline-primary">{% trans "View All" %}</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th>{% trans "Employee" %}</th>
-                    <th>{% trans "Leave Type" %}</th>
-                    <th>{% trans "Period" %}</th>
-                    <th>{% trans "Days" %}</th>
-                    <th>{% trans "Action" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for req in pending_approvals %}
-                <tr>
-                    <td>
-                        <div style="font-weight:600;">{{ req.employee.get_full_name }}</div>
-                        <div style="font-size:0.72rem;color:#6b7a8d;">{{ req.employee.position|default:"Staff" }}</div>
-                    </td>
-                    <td><span class="badge" style="background:#e0f7fa;color:#2db4c3;font-weight:600;">{{ req.leave_type }}</span></td>
-                    <td style="font-size:0.82rem;">{{ req.start_date }} → {{ req.end_date }}</td>
-                    <td><strong>{{ req.total_days }}d</strong></td>
-                    <td>
-                        <a href="{% url 'leaves:manager_action' req.pk %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-eye me-1"></i>{% trans "Review" %}
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-4">
-                        <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>
-                        {% trans "No pending approvals — all caught up!" %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+<!-- Pending approvals moved to Leave Management → Manager Approvals -->
 
 <!-- ── Team Status ── -->
 <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px;">

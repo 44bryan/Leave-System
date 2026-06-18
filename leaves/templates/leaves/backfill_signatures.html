@@ -1,42 +1,40 @@
 {% extends 'base.html' %}
-{% block title %}Sync Signatures{% endblock %}
-{% block page_title %}Sync Signatures to Leave Records{% endblock %}
-{% block page_subtitle %}Repair historical leave PDFs after signature system upgrade{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Sync Signatures" %}{% endblock %}
+{% block page_title %}{% trans "Sync Signatures to Leave Records" %}{% endblock %}
+{% block page_subtitle %}{% trans "Repair historical leave PDFs after signature system upgrade" %}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card animate-in">
             <div class="card-header">
-                <i class="bi bi-pen-fill me-2" style="color:#2db4c3;"></i>Signature Backfill
+                <i class="bi bi-pen-fill me-2" style="color:#2db4c3;"></i>{% trans "Signature Backfill" %}
             </div>
             <div class="card-body p-4">
                 <p style="font-size:0.9rem;">
-                    This will copy each employee's current saved signature to any historical leave
-                    records where the signature snapshot is still empty.
+                    {% trans "This will copy each employee's current saved signature to any historical leave records where the signature snapshot is still empty." %}
                 </p>
                 <div class="d-flex gap-4 mb-4">
                     <div class="text-center">
                         <div style="font-size:2rem;font-weight:800;color:#0A4D68;">{{ total }}</div>
-                        <div style="font-size:0.75rem;color:#6b7a8d;">Total leave records</div>
+                        <div style="font-size:0.75rem;color:#6b7a8d;">{% trans "Total leave records" %}</div>
                     </div>
                     <div class="text-center">
                         <div style="font-size:2rem;font-weight:800;color:#f57f17;">{{ missing }}</div>
-                        <div style="font-size:0.75rem;color:#6b7a8d;">Without any signature snapshot</div>
+                        <div style="font-size:0.75rem;color:#6b7a8d;">{% trans "Without any signature snapshot" %}</div>
                     </div>
                 </div>
                 <div class="alert alert-info" style="font-size:0.82rem;">
                     <i class="bi bi-info-circle me-1"></i>
-                    <strong>Note:</strong> Only employees who have drawn their signature at least once
-                    (after the latest deployment) will have their signatures synced. Others will remain
-                    empty until they approve a leave or re-draw on their next workflow action.
+                    <strong>{% trans "Note:" %}</strong> {% trans "Only employees who have drawn their signature at least once (after the latest deployment) will have their signatures synced. Others will remain empty until they approve a leave or re-draw on their next workflow action." %}
                 </div>
                 <form method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-arrow-repeat me-2"></i>Run Backfill Now
+                        <i class="bi bi-arrow-repeat me-2"></i>{% trans "Run Backfill Now" %}
                     </button>
-                    <a href="{% url 'leaves:all_leaves' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    <a href="{% url 'leaves:all_leaves' %}" class="btn btn-outline-secondary ms-2">{% trans "Cancel" %}</a>
                 </form>
             </div>
         </div>

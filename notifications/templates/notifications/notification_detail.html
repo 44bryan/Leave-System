@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}{{ notif.title }} — AEF HRM{% endblock %}
-{% block page_title %}Notification Detail{% endblock %}
+{% block page_title %}{% trans "Notification Detail" %}{% endblock %}
 {% block nav_notifications %}active{% endblock %}
 
 {% block content %}
 <div class="mb-3">
     <a href="{% url 'notifications:list' %}" class="btn btn-sm btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i> Back to Notifications
+        <i class="bi bi-arrow-left me-1"></i> {% trans "Back to Notifications" %}
     </a>
 </div>
 
@@ -26,11 +27,11 @@
                     </span>
                     {% if notif.is_read %}
                     <span class="badge bg-light text-secondary border" style="font-size:0.68rem;">
-                        <i class="bi bi-check2-all me-1"></i>Read
+                        <i class="bi bi-check2-all me-1"></i>{% trans "Read" %}
                     </span>
                     {% else %}
                     <span class="badge" style="background:#2db4c320;color:#2db4c3;font-size:0.68rem;">
-                        <i class="bi bi-circle-fill me-1" style="font-size:0.4rem;vertical-align:middle;"></i>Unread
+                        <i class="bi bi-circle-fill me-1" style="font-size:0.4rem;vertical-align:middle;"></i>{% trans "Unread" %}
                     </span>
                     {% endif %}
                 </div>
@@ -47,12 +48,12 @@
     <div class="card-footer d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#fafbfc;padding:14px 24px;">
         <div style="font-size:0.78rem;color:#9ab4c0;">
             <i class="bi bi-clock me-1"></i>
-            {{ notif.created_at|date:"l, d F Y" }} at {{ notif.created_at|time:"H:i" }}
-            <span class="ms-2 text-muted">({{ notif.created_at|timesince }} ago)</span>
+            {{ notif.created_at|date:"l, d F Y" }} {% trans "at" %} {{ notif.created_at|time:"H:i" }}
+            <span class="ms-2 text-muted">({% blocktrans with when=notif.created_at|timesince %}{{ when }} ago{% endblocktrans %})</span>
         </div>
         {% if notif.url %}
         <a href="{{ notif.url }}" class="btn btn-primary btn-sm">
-            <i class="bi bi-box-arrow-up-right me-1"></i>View Related Page
+            <i class="bi bi-box-arrow-up-right me-1"></i>{% trans "View Related Page" %}
         </a>
         {% endif %}
     </div>

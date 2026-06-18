@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Bulk Import Employees{% endblock %}
-{% block page_title %}Bulk Import Employees{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Bulk Import Employees" %}{% endblock %}
+{% block page_title %}{% trans "Bulk Import Employees" %}{% endblock %}
 {% block nav_employees %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> Employee List
+    <i class="bi bi-arrow-left me-1"></i> {% trans "Employee List" %}
 </a>
 <a href="{% url 'accounts:employee_import' %}?template=1" class="btn btn-outline-success btn-sm">
-    <i class="bi bi-download me-1"></i> Download Template
+    <i class="bi bi-download me-1"></i> {% trans "Download Template" %}
 </a>
 {% endblock %}
 
@@ -16,80 +17,75 @@
 <div class="row justify-content-center">
     <div class="col-lg-9">
 
-        <!-- Info card -->
         <div class="card mb-4 animate-in">
-            <div class="card-header"><i class="bi bi-table me-2"></i>How to Import</div>
+            <div class="card-header"><i class="bi bi-table me-2"></i>{% trans "How to Import" %}</div>
             <div class="card-body">
                 <ol class="mb-3" style="font-size:0.875rem;line-height:1.8;">
-                    <li>Download the <a href="{% url 'accounts:employee_import' %}?template=1" class="fw-semibold">Excel template</a> and fill in your employee data.</li>
-                    <li>Column headers <strong>must match exactly</strong> (case-insensitive, spaces treated as underscores).</li>
-                    <li>Upload the completed file below. Existing employees (same Employee ID) are skipped.</li>
-                    <li>Default password for all imported accounts: <code>Micei2021</code></li>
+                    <li>{% trans "Download the Excel template and fill in your employee data." %}</li>
+                    <li>{% trans "Column headers must match exactly (case-insensitive, spaces treated as underscores)." %}</li>
+                    <li>{% trans "Upload the completed file below. Existing employees (same Employee ID) are skipped." %}</li>
+                    <li>{% trans "Default password for all imported accounts:" %} <code>Micei2021</code></li>
                 </ol>
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered mb-0" style="font-size:0.8rem;">
                         <thead class="table-light">
-                            <tr><th>Column</th><th>Required?</th><th>Notes</th></tr>
+                            <tr><th>{% trans "Column" %}</th><th>{% trans "Required?" %}</th><th>{% trans "Notes" %}</th></tr>
                         </thead>
                         <tbody>
-                            <tr><td><code>first_name</code></td><td><span class="badge bg-danger">Yes</span></td><td>Employee's first name</td></tr>
-                            <tr><td><code>last_name</code></td><td><span class="badge bg-danger">Yes</span></td><td>Employee's last name</td></tr>
-                            <tr><td><code>employee_id</code></td><td><span class="badge bg-danger">Yes</span></td><td>Unique staff ID (e.g. EMP001)</td></tr>
-                            <tr><td><code>email</code></td><td><span class="badge bg-secondary">No</span></td><td>Login email; auto-generated if blank</td></tr>
-                            <tr><td><code>department</code></td><td><span class="badge bg-secondary">No</span></td><td>Must match an existing department name</td></tr>
-                            <tr><td><code>role</code></td><td><span class="badge bg-secondary">No</span></td><td>employee / manager / hr / intern / wacs_resident (default: employee)</td></tr>
-                            <tr><td><code>position</code></td><td><span class="badge bg-secondary">No</span></td><td>Job title</td></tr>
-                            <tr><td><code>phone</code></td><td><span class="badge bg-secondary">No</span></td><td></td></tr>
-                            <tr><td><code>date_of_birth</code></td><td><span class="badge bg-secondary">No</span></td><td>YYYY-MM-DD or DD/MM/YYYY</td></tr>
-                            <tr><td><code>date_joined_company</code></td><td><span class="badge bg-secondary">No</span></td><td>YYYY-MM-DD or DD/MM/YYYY</td></tr>
-                            <tr><td><code>sex</code></td><td><span class="badge bg-secondary">No</span></td><td>M or F</td></tr>
-                            <tr><td><code>nationality</code></td><td><span class="badge bg-secondary">No</span></td><td></td></tr>
-                            <tr><td><code>qualifications</code></td><td><span class="badge bg-secondary">No</span></td><td>Degrees, certifications</td></tr>
-                            <tr><td><code>staff_category</code></td><td><span class="badge bg-secondary">No</span></td><td>1–12 with optional letters, e.g. 5, 12, 12A, 12AB, 12AL</td></tr>
-                            <tr><td><code>contract_number</code></td><td><span class="badge bg-secondary">No</span></td><td>Official reference number</td></tr>
-                            <tr><td><code>contract_type</code></td><td><span class="badge bg-secondary">No</span></td><td>CDI / CDD / INTERN / WACS (default: CDI)</td></tr>
-                            <tr><td><code>contract_start_date</code></td><td><span class="badge bg-secondary">No</span></td><td>YYYY-MM-DD (defaults to today)</td></tr>
-                            <tr><td><code>contract_end_date</code></td><td><span class="badge bg-secondary">No</span></td><td>Required for CDD/INTERN/WACS</td></tr>
+                            <tr><td><code>first_name</code></td><td><span class="badge bg-danger">{% trans "Yes" %}</span></td><td>{% trans "Employee's first name" %}</td></tr>
+                            <tr><td><code>last_name</code></td><td><span class="badge bg-danger">{% trans "Yes" %}</span></td><td>{% trans "Employee's last name" %}</td></tr>
+                            <tr><td><code>employee_id</code></td><td><span class="badge bg-danger">{% trans "Yes" %}</span></td><td>{% trans "Unique staff ID (e.g. EMP001)" %}</td></tr>
+                            <tr><td><code>email</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>{% trans "Login email; auto-generated if blank" %}</td></tr>
+                            <tr><td><code>department</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>{% trans "Must match an existing department name" %}</td></tr>
+                            <tr><td><code>role</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>employee / manager / hr / intern / wacs_resident</td></tr>
+                            <tr><td><code>position</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>{% trans "Job title" %}</td></tr>
+                            <tr><td><code>phone</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td></td></tr>
+                            <tr><td><code>date_of_birth</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>YYYY-MM-DD {% trans "or" %} DD/MM/YYYY</td></tr>
+                            <tr><td><code>date_joined_company</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>YYYY-MM-DD {% trans "or" %} DD/MM/YYYY</td></tr>
+                            <tr><td><code>sex</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>M {% trans "or" %} F</td></tr>
+                            <tr><td><code>nationality</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td></td></tr>
+                            <tr><td><code>qualifications</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>{% trans "Degrees, certifications" %}</td></tr>
+                            <tr><td><code>contract_type</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>CDI / CDD / INTERN / WACS</td></tr>
+                            <tr><td><code>contract_start_date</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>YYYY-MM-DD</td></tr>
+                            <tr><td><code>contract_end_date</code></td><td><span class="badge bg-secondary">{% trans "No" %}</span></td><td>{% trans "Required for CDD/INTERN/WACS" %}</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Upload form -->
         <div class="card mb-4 animate-in delay-1">
-            <div class="card-header"><i class="bi bi-upload me-2"></i>Upload Excel File</div>
+            <div class="card-header"><i class="bi bi-upload me-2"></i>{% trans "Upload Excel File" %}</div>
             <div class="card-body">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Select .xlsx File *</label>
+                        <label class="form-label fw-semibold">{% trans "Select .xlsx File" %} *</label>
                         <input type="file" name="excel_file" accept=".xlsx" class="form-control" required>
-                        <div class="form-text">Only <code>.xlsx</code> format is supported (Excel 2007+).</div>
+                        <div class="form-text">{% trans "Only .xlsx format is supported (Excel 2007+)." %}</div>
                     </div>
                     <button type="submit" class="btn btn-primary px-4">
-                        <i class="bi bi-cloud-upload me-1"></i> Import Now
+                        <i class="bi bi-cloud-upload me-1"></i> {% trans "Import Now" %}
                     </button>
                 </form>
             </div>
         </div>
 
-        <!-- Results -->
         {% if results %}
         <div class="card animate-in delay-2">
             <div class="card-header d-flex align-items-center gap-2">
-                <i class="bi bi-list-check me-1"></i> Import Results
-                <span class="badge bg-success ms-auto">{{ results|length }} rows processed</span>
+                <i class="bi bi-list-check me-1"></i> {% trans "Import Results" %}
+                <span class="badge bg-success ms-auto">{% blocktrans with count=results|length %}{{ count }} rows processed{% endblocktrans %}</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-sm mb-0" style="font-size:0.82rem;">
                         <thead class="table-light">
                             <tr>
-                                <th>Row</th>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Message</th>
+                                <th>{% trans "Row" %}</th>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Status" %}</th>
+                                <th>{% trans "Message" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -99,11 +95,11 @@
                                 <td>{{ r.name }}</td>
                                 <td>
                                     {% if r.status == 'created' %}
-                                    <span class="badge bg-success">Created</span>
+                                    <span class="badge bg-success">{% trans "Created" %}</span>
                                     {% elif r.status == 'skipped' %}
-                                    <span class="badge bg-warning text-dark">Skipped</span>
+                                    <span class="badge bg-warning text-dark">{% trans "Skipped" %}</span>
                                     {% else %}
-                                    <span class="badge bg-danger">Error</span>
+                                    <span class="badge bg-danger">{% trans "Error" %}</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ r.message }}</td>

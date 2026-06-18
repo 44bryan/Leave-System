@@ -2,16 +2,18 @@
 {% load i18n %}
 {% block title %}{% trans "Employees" %} — AEF HRM{% endblock %}
 {% block page_title %}{% trans "Employee Management" %}{% endblock %}
-{% block page_subtitle %}Manage all hospital staff{% endblock %}
+{% block page_subtitle %}{% trans "Manage all hospital staff" %}{% endblock %}
 {% block nav_employees %}active{% endblock %}
 
 {% block topbar_actions %}
+{% if user.is_superuser or user.employee.is_hr %}
 <a href="{% url 'accounts:employee_create' %}" class="btn btn-primary btn-sm me-1">
     <i class="bi bi-person-plus me-1"></i>{% trans "Add Employee" %}
 </a>
 <a href="{% url 'accounts:export_credentials' %}" class="btn btn-outline-secondary btn-sm">
     <i class="bi bi-download me-1"></i>{% trans "Export Credentials" %}
 </a>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -21,38 +23,38 @@
         <form method="get" class="d-flex flex-wrap gap-2 align-items-end">
             <input type="hidden" name="show_former" value="{{ show_former|yesno:'1,0' }}">
             <div>
-                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Name / ID</label>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Name / ID" %}</label>
                 <input type="text" name="q" value="{{ name_q }}" class="form-control form-control-sm"
-                       placeholder="Search name or ID…" style="min-width:180px;">
+                       placeholder="{% trans 'Search name or ID…' %}" style="min-width:180px;">
             </div>
             <div>
-                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Department</label>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Department" %}</label>
                 <select name="dept" class="form-select form-select-sm" style="min-width:160px;">
-                    <option value="">All Departments</option>
+                    <option value="">{% trans "All Departments" %}</option>
                     {% for dept in departments %}
                     <option value="{{ dept.pk }}" {% if dept_q == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div>
-                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">Role</label>
+                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Role" %}</label>
                 <select name="role" class="form-select form-select-sm" style="min-width:150px;">
-                    <option value="">All Roles</option>
+                    <option value="">{% trans "All Roles" %}</option>
                     {% for val, label in role_choices %}
                     <option value="{{ val }}" {% if role_q == val %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="d-flex gap-2 align-items-end">
-                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>Filter</button>
-                <a href="?show_former={{ show_former|yesno:'1,0' }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
+                <a href="?show_former={{ show_former|yesno:'1,0' }}" class="btn btn-outline-secondary btn-sm">{% trans "Clear" %}</a>
             </div>
             <div class="ms-auto d-flex gap-2 align-items-end">
                 <a href="?show_former=0" class="btn btn-sm {% if not show_former %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-                    <i class="bi bi-people me-1"></i> Active
+                    <i class="bi bi-people me-1"></i> {% trans "Active" %}
                 </a>
                 <a href="?show_former=1" class="btn btn-sm {% if show_former %}btn-danger{% else %}btn-outline-secondary{% endif %}">
-                    <i class="bi bi-person-dash me-1"></i> Former
+                    <i class="bi bi-person-dash me-1"></i> {% trans "Former" %}
                 </a>
             </div>
         </form>
@@ -75,28 +77,28 @@
             <div id="bulkControls" style="display:none;" class="d-flex gap-2 align-items-center flex-wrap">
                 <span class="text-muted small" id="selectedCount">0 selected</span>
                 <select name="assignment_type" class="form-select form-select-sm" id="bulkType" style="min-width:160px;">
-                    <option value="supervisor">Set Line Manager</option>
-                    <option value="unit_head">Set Unit Head</option>
-                    <option value="department">Set Department</option>
+                    <option value="supervisor">{% trans "Set Line Manager" %}</option>
+                    <option value="unit_head">{% trans "Set Unit Head" %}</option>
+                    <option value="department">{% trans "Set Department" %}</option>
                 </select>
                 <!-- Person picker (line manager / unit head) -->
                 <select name="manager_id" id="bulkPersonPicker" class="form-select form-select-sm" style="min-width:180px;">
-                    <option value="">— Select person —</option>
+                    <option value="">{% trans "— Select person —" %}</option>
                     {% for m in managers %}
                     <option value="{{ m.pk }}">{{ m.get_full_name }} ({{ m.get_role_display }})</option>
                     {% endfor %}
                 </select>
                 <!-- Department picker (disabled until "Set Department" chosen, name swapped by JS) -->
                 <select id="bulkDeptPicker" class="form-select form-select-sm" style="min-width:180px;display:none;" disabled>
-                    <option value="">— Select department —</option>
+                    <option value="">{% trans "— Select department —" %}</option>
                     {% for dept in departments %}
                     <option value="{{ dept.pk }}">{{ dept.name }}</option>
                     {% endfor %}
                 </select>
                 <button type="submit" class="btn btn-sm btn-success">
-                    <i class="bi bi-check2 me-1"></i>Apply
+                    <i class="bi bi-check2 me-1"></i>{% trans "Apply" %}
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSelection">Clear</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSelection">{% trans "Clear" %}</button>
             </div>
             {% if not show_former %}
             <a href="{% url 'accounts:employee_create' %}" class="btn btn-sm btn-primary">
@@ -163,6 +165,7 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1">
+                            {% if user.is_superuser or user.employee.is_hr %}
                             <a href="{% url 'accounts:employee_edit' emp.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
                                 <i class="bi bi-pencil"></i>
                             </a>
@@ -172,6 +175,7 @@
                             <a href="{% url 'accounts:employee_delete' emp.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
                                 <i class="bi bi-trash"></i>
                             </a>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>
@@ -180,7 +184,7 @@
                     <td colspan="9" class="text-center text-muted py-5">
                         <i class="bi bi-person-x fs-2 d-block mb-2"></i>
                         {% if name_q or dept_q or role_q %}
-                        No employees match your filters. <a href="?show_former={{ show_former|yesno:'1,0' }}">Clear filters</a>
+                        {% trans "No employees match your filters." %} <a href="?show_former={{ show_former|yesno:'1,0' }}">{% trans "Clear filters" %}</a>
                         {% else %}
                         {% trans "No employees yet." %} <a href="{% url 'accounts:employee_create' %}">{% trans "Add the first one" %}</a>
                         {% endif %}

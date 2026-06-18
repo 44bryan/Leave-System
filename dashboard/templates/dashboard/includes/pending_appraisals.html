@@ -1,12 +1,13 @@
+{% load i18n %}
 {% if pending_appraisals %}
 <div class="card animate-in mb-4" id="pendingAppraisalsCard" style="border-left:4px solid #31b8cf;">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:#e0f7fa;">
         <span class="fw-bold" style="color:#0A4D68;">
             <i class="bi bi-clipboard2-pulse me-2" style="color:#31b8cf;"></i>
-            Appraisals Requiring Your Action
+            {% trans "Appraisals Requiring Your Action" %}
             <span class="badge ms-2" style="background:#31b8cf;color:#fff;">{{ pending_appraisals|length }}</span>
         </span>
-        <button type="button" id="dismissAppraisalsBtn" title="Dismiss" onclick="dismissAppraisalsCard()"
+        <button type="button" id="dismissAppraisalsBtn" title="{% trans "Dismiss" %}" onclick="dismissAppraisalsCard()"
             style="background:none;border:none;cursor:pointer;color:#6b7a8d;font-size:1.1rem;padding:0 4px;line-height:1;">
             <i class="bi bi-x-lg"></i>
         </button>
@@ -16,9 +17,9 @@
             <table class="table table-hover mb-0" style="font-size:.88rem;">
                 <thead class="table-light">
                     <tr>
-                        <th>Employee</th>
-                        <th>Cycle</th>
-                        <th>Your Role</th>
+                        <th>{% trans "Employee" %}</th>
+                        <th>{% trans "Cycle" %}</th>
+                        <th>{% trans "Your Role" %}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -27,7 +28,7 @@
                 <tr>
                     <td class="fw-semibold">
                         {% if rec.employee == employee %}
-                            <i class="bi bi-person-fill me-1 text-primary"></i>You (Self-Assessment)
+                            <i class="bi bi-person-fill me-1 text-primary"></i>{% trans "You (Self-Assessment)" %}
                         {% else %}
                             {{ rec.employee.get_full_name }}
                         {% endif %}
@@ -35,43 +36,43 @@
                     <td class="text-muted">{{ rec.cycle }}</td>
                     <td>
                         {% if rec.status == 'employee' and rec.employee == employee %}
-                            <span class="badge bg-warning text-dark">Fill Self-Assessment</span>
+                            <span class="badge bg-warning text-dark">{% trans "Fill Self-Assessment" %}</span>
                         {% elif rec.status == 'unit_head' %}
-                            <span class="badge" style="background:#0A4D68;color:#fff;">Supervisor Comment</span>
+                            <span class="badge" style="background:#0A4D68;color:#fff;">{% trans "Supervisor Comment" %}</span>
                         {% elif rec.status == 'manager' %}
-                            <span class="badge bg-primary">Manager Rating & Grades</span>
+                            <span class="badge bg-primary">{% trans "Manager Rating & Grades" %}</span>
                         {% elif rec.status == 'hr' %}
-                            <span class="badge bg-success">HR Review</span>
+                            <span class="badge bg-success">{% trans "HR Review" %}</span>
                         {% elif rec.status == 'director' %}
-                            <span class="badge" style="background:#7c3aed;color:#fff;">Director Comment</span>
+                            <span class="badge" style="background:#7c3aed;color:#fff;">{% trans "Director Comment" %}</span>
                         {% elif rec.status == 'ceo' %}
-                            <span class="badge" style="background:#0a2d45;color:#fff;">CEO Comment</span>
+                            <span class="badge" style="background:#0a2d45;color:#fff;">{% trans "CEO Comment" %}</span>
                         {% endif %}
                     </td>
                     <td class="text-end">
                         {% if rec.status == 'employee' and rec.employee == employee %}
                             <a href="{% url 'appraisals:employee_fill' rec.pk %}" class="btn btn-sm btn-warning">
-                                <i class="bi bi-pencil-square me-1"></i>Fill Now
+                                <i class="bi bi-pencil-square me-1"></i>{% trans "Fill Now" %}
                             </a>
                         {% elif rec.status == 'unit_head' %}
                             <a href="{% url 'appraisals:unit_head_fill' rec.pk %}" class="btn btn-sm btn-dark">
-                                <i class="bi bi-pen me-1"></i>Review
+                                <i class="bi bi-pen me-1"></i>{% trans "Review" %}
                             </a>
                         {% elif rec.status == 'manager' %}
                             <a href="{% url 'appraisals:manager_fill' rec.pk %}" class="btn btn-sm btn-primary">
-                                <i class="bi bi-star me-1"></i>Rate & Comment
+                                <i class="bi bi-star me-1"></i>{% trans "Rate & Comment" %}
                             </a>
                         {% elif rec.status == 'hr' %}
                             <a href="{% url 'appraisals:hr_fill' rec.pk %}" class="btn btn-sm btn-success">
-                                <i class="bi bi-clipboard2-check me-1"></i>Review
+                                <i class="bi bi-clipboard2-check me-1"></i>{% trans "Review" %}
                             </a>
                         {% elif rec.status == 'director' %}
                             <a href="{% url 'appraisals:director_fill' rec.pk %}" class="btn btn-sm" style="background:#7c3aed;color:#fff;">
-                                <i class="bi bi-pen me-1"></i>Comment
+                                <i class="bi bi-pen me-1"></i>{% trans "Comment" %}
                             </a>
                         {% elif rec.status == 'ceo' %}
                             <a href="{% url 'appraisals:ceo_fill' rec.pk %}" class="btn btn-sm" style="background:#0a2d45;color:#fff;">
-                                <i class="bi bi-pen me-1"></i>Final Comment
+                                <i class="bi bi-pen me-1"></i>{% trans "Final Comment" %}
                             </a>
                         {% endif %}
                     </td>

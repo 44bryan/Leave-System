@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Delete Employee — AEF HRM{% endblock %}
-{% block page_title %}Delete Employee{% endblock %}
-{% block page_subtitle %}This action cannot be undone{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Delete Employee" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Delete Employee" %}{% endblock %}
+{% block page_subtitle %}{% trans "This action cannot be undone" %}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-lg-5">
         <div class="card animate-in" style="border: 2px solid #e53e3e;">
             <div class="card-header" style="background: #fff5f5; color: #e53e3e;">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>{% trans "Confirm Deletion" %}
             </div>
             <div class="card-body p-4 text-center">
                 <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#2db4c3,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.4rem;margin: 0 auto 16px;">
@@ -16,19 +17,19 @@
                 </div>
                 <h5 class="fw-bold mb-1">{{ employee.get_full_name }}</h5>
                 <div class="text-muted small mb-1">{{ employee.employee_id }}</div>
-                <div class="text-muted small mb-4">{{ employee.department|default:"No department" }} · {{ employee.get_role_display }}</div>
+                <div class="text-muted small mb-4">{{ employee.department|default:"{% trans 'No department' %}" }} · {{ employee.get_role_display }}</div>
 
                 <div class="alert alert-danger text-start py-2 mb-4">
                     <i class="bi bi-info-circle me-2"></i>
-                    Deleting this employee will permanently remove their account, all leave requests, and leave balances.
+                    {% trans "Deleting this employee will permanently remove their account, all leave requests, and leave balances." %}
                 </div>
 
                 <form method="post" class="d-flex gap-2 justify-content-center">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger px-4">
-                        <i class="bi bi-trash me-2"></i>Yes, Delete
+                        <i class="bi bi-trash me-2"></i>{% trans "Yes, Delete" %}
                     </button>
-                    <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary px-4">{% trans "Cancel" %}</a>
                 </form>
             </div>
         </div>

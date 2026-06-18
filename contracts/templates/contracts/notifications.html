@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Contract Notifications — AEF HRM{% endblock %}
-{% block page_title %}Contract Notifications{% endblock %}
+{% block title %}{% trans "Contract Notifications" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Contract Notifications" %}{% endblock %}
 {% block nav_my_contract %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'contracts:my_contract' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> My Contract
+    <i class="bi bi-arrow-left me-1"></i> {% trans "My Contract" %}
 </a>
 {% endblock %}
 
 {% block content %}
 <div class="card animate-in">
     <div class="card-header">
-        <i class="bi bi-bell me-2"></i>All Contract Notifications
+        <i class="bi bi-bell me-2"></i>{% trans "All Contract Notifications" %}
     </div>
 
     {% if notifications %}
@@ -42,7 +42,7 @@
                     <div style="font-size:.72rem;color:#9ab4c0;margin-top:4px;">
                         <i class="bi bi-calendar3 me-1"></i>{{ n.created_at|date:"d F Y, H:i" }}
                         &nbsp;·&nbsp;
-                        <a href="{% url 'contracts:detail' n.contract.pk %}" style="color:#2db4c3;">View Contract</a>
+                        <a href="{% url 'contracts:detail' n.contract.pk %}" style="color:#2db4c3;">{% trans "View Contract" %}</a>
                     </div>
                 </div>
             </div>
@@ -52,8 +52,8 @@
     {% else %}
     <div class="card-body text-center py-5">
         <i class="bi bi-bell-slash fs-1 d-block mb-3" style="color:#9ab4c0;"></i>
-        <h5 class="fw-bold mb-1">No Notifications</h5>
-        <p class="text-muted mb-0" style="font-size:.875rem;">You have no contract notifications yet.</p>
+        <h5 class="fw-bold mb-1">{% trans "No Notifications" %}</h5>
+        <p class="text-muted mb-0" style="font-size:.875rem;">{% trans "You have no contract notifications yet." %}</p>
     </div>
     {% endif %}
 </div>

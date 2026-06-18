@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}System Settings — AEF HRM{% endblock %}
-{% block page_title %}System Settings{% endblock %}
+{% block title %}{% trans "System Settings" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "System Settings" %}{% endblock %}
 {% block nav_dashboard %}{% endblock %}
 
 {% block topbar_actions %}
@@ -22,25 +22,25 @@
         <div class="card animate-in">
             <div class="card-header" style="background:#e8f4fd;border-color:#90caf9;">
                 <i class="bi bi-toggles me-2" style="color:#0a4d68;"></i>
-                <strong>Module Activation</strong>
-                <span class="text-muted ms-2" style="font-size:.82rem;">Enable or disable optional system modules</span>
+                <strong>{% trans "Module Activation" %}</strong>
+                <span class="text-muted ms-2" style="font-size:.82rem;">{% trans "Enable or disable optional system modules" %}</span>
             </div>
             <div class="card-body p-4">
                 <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background:#f8fbff;border:1px solid #dce8f5;">
                     <div>
-                        <div class="fw-600" style="color:#0a4d68;"><i class="bi bi-cash-stack me-2"></i>Payroll &amp; Payslips</div>
-                        <div style="font-size:.82rem;color:#6c7a8a;">Allow HR to upload payslips and employees to view their pay history.</div>
+                        <div class="fw-600" style="color:#0a4d68;"><i class="bi bi-cash-stack me-2"></i>{% trans "Payroll & Payslips" %}</div>
+                        <div style="font-size:.82rem;color:#6c7a8a;">{% trans "Allow HR to upload payslips and employees to view their pay history." %}</div>
                     </div>
                     <form method="post" action="{% url 'dashboard:toggle_module' %}" class="ms-4">
                         {% csrf_token %}
                         <input type="hidden" name="module" value="payroll">
                         {% if system_settings.payroll_enabled %}
                         <button type="submit" class="btn btn-sm btn-success" style="min-width:90px;">
-                            <i class="bi bi-check-circle me-1"></i> Active
+                            <i class="bi bi-check-circle me-1"></i> {% trans "Active" %}
                         </button>
                         {% else %}
                         <button type="submit" class="btn btn-sm btn-outline-secondary" style="min-width:90px;">
-                            <i class="bi bi-slash-circle me-1"></i> Inactive
+                            <i class="bi bi-slash-circle me-1"></i> {% trans "Inactive" %}
                         </button>
                         {% endif %}
                     </form>
@@ -54,50 +54,49 @@
         <div class="card animate-in">
             <div class="card-header" style="background:#f0fdf4;border-color:#6ee7b7;">
                 <i class="bi bi-award-fill me-2" style="color:#059669;"></i>
-                <strong>Auto-Set Leave by Seniority</strong>
-                <span class="text-muted ms-2" style="font-size:.82rem;">Applies Cameroonian Labour Code entitlement based on each employee's date of hire</span>
+                <strong>{% trans "Auto-Set Leave by Seniority" %}</strong>
+                <span class="text-muted ms-2" style="font-size:.82rem;">{% trans "Applies Cameroonian Labour Code entitlement based on each employee's date of hire" %}</span>
             </div>
             <div class="card-body p-4">
                 <div class="row g-3 mb-4">
                     <div class="col-sm-4">
                         <div class="p-3 rounded text-center" style="background:#f0fdf4;border:1px solid #6ee7b7;">
                             <div style="font-size:1.6rem;font-weight:800;color:#059669;">18</div>
-                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">days</div>
-                            <div style="font-size:.75rem;color:#6b7a8d;">0 – 5 years of service</div>
+                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">{% trans "days" %}</div>
+                            <div style="font-size:.75rem;color:#6b7a8d;">{% trans "0 – 5 years of service" %}</div>
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="p-3 rounded text-center" style="background:#eff6ff;border:1px solid #93c5fd;">
                             <div style="font-size:1.6rem;font-weight:800;color:#1d4ed8;">20</div>
-                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">days</div>
-                            <div style="font-size:.75rem;color:#6b7a8d;">6 – 10 years of service</div>
+                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">{% trans "days" %}</div>
+                            <div style="font-size:.75rem;color:#6b7a8d;">{% trans "6 – 10 years of service" %}</div>
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <div class="p-3 rounded text-center" style="background:#fdf4ff;border:1px solid #d8b4fe;">
                             <div style="font-size:1.6rem;font-weight:800;color:#7e22ce;">22</div>
-                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">days</div>
-                            <div style="font-size:.75rem;color:#6b7a8d;">11+ years of service</div>
+                            <div style="font-size:.78rem;color:#6b7a8d;font-weight:600;">{% trans "days" %}</div>
+                            <div style="font-size:.75rem;color:#6b7a8d;">{% trans "11+ years of service" %}</div>
                         </div>
                     </div>
                 </div>
                 <p style="font-size:.82rem;color:#4a6b7c;margin-bottom:16px;">
-                    Calculates each employee's entitlement from their <strong>date of hire</strong> and applies it automatically.
-                    Employees without a hire date are skipped. You can still override individual balances below.
+                    {% trans "Calculates each employee's entitlement from their date of hire and applies it automatically. Employees without a hire date are skipped. You can still override individual balances below." %}
                 </p>
                 <form method="post" action="{% url 'dashboard:seniority_entitlements' %}"
-                      onsubmit="return confirm('Apply seniority-based entitlements to ALL active employees for ' + document.getElementById('senYear').value + '?');">
+                      onsubmit="return confirm('{% trans "Apply seniority-based entitlements to ALL active employees?" %}');">
                     {% csrf_token %}
                     <div class="d-flex align-items-center gap-3">
                         <div>
-                            <label class="form-label mb-1" style="font-size:.82rem;">Year</label>
+                            <label class="form-label mb-1" style="font-size:.82rem;">{% trans "Year" %}</label>
                             <select name="year" id="senYear" class="form-select form-select-sm" style="width:110px;">
                                 {% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
                             </select>
                         </div>
                         <div class="mt-3">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-award me-1"></i> Apply Seniority Entitlements
+                                <i class="bi bi-award me-1"></i> {% trans "Apply Seniority Entitlements" %}
                             </button>
                         </div>
                     </div>
@@ -111,29 +110,28 @@
         <div class="card animate-in">
             <div class="card-header" style="background:#f0fdf4;border-color:#86efac;">
                 <i class="bi bi-people-fill me-2" style="color:#059669;"></i>
-                <strong>Bulk Set Leave Entitlement</strong>
+                <strong>{% trans "Bulk Set Leave Entitlement" %}</strong>
             </div>
             <div class="card-body p-4">
                 <p style="font-size:.875rem;color:#4a6b7c;">
-                    Set a <strong>custom annual entitlement</strong> for all active employees at once.
-                    Useful when a policy change (e.g. 20 days for a new year) differs from the 18-day default.
+                    {% trans "Set a custom annual entitlement for all active employees at once. Useful when a policy change (e.g. 20 days for a new year) differs from the 18-day default." %}
                 </p>
                 <form method="post" action="{% url 'dashboard:bulk_set_entitlement' %}"
-                      onsubmit="return confirm('Set entitlement to ' + document.getElementById('bulkDays').value + ' days for ALL active employees in ' + document.getElementById('bulkYear').value + '?');">
+                      onsubmit="return confirm('{% trans "Set this entitlement for ALL active employees? This cannot be undone." %}');">
                     {% csrf_token %}
                     <div class="row g-2 mb-3">
                         <div class="col-sm-5">
-                            <label class="form-label" style="font-size:.82rem;">Year</label>
+                            <label class="form-label" style="font-size:.82rem;">{% trans "Year" %}</label>
                             <select name="year" id="bulkYear" class="form-select form-select-sm">
                                 {% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
                             </select>
                         </div>
                         <div class="col-sm-5">
-                            <label class="form-label" style="font-size:.82rem;">Days</label>
+                            <label class="form-label" style="font-size:.82rem;">{% trans "Days" %}</label>
                             <input type="number" name="days" id="bulkDays" class="form-control form-control-sm" min="0" max="365" value="18" required>
                         </div>
                         <div class="col-sm-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-success btn-sm w-100">Apply</button>
+                            <button type="submit" class="btn btn-success btn-sm w-100">{% trans "Apply" %}</button>
                         </div>
                     </div>
                 </form>
@@ -146,24 +144,22 @@
         <div class="card animate-in">
             <div class="card-header" style="background:#fff8e1;border-color:#fcd34d;">
                 <i class="bi bi-arrow-counterclockwise me-2" style="color:#b45309;"></i>
-                <strong>Reset Leave Balances</strong>
+                <strong>{% trans "Reset Leave Balances" %}</strong>
             </div>
             <div class="card-body p-4">
                 <p style="font-size:.875rem;color:#4a6b7c;">
-                    This will reset every active employee's <strong>annual entitlement back to 18 days</strong> for the selected year.
-                    Leave request history is <strong>not deleted</strong> — only the entitlement ceiling is restored.
+                    {% trans "This will reset every active employee's annual entitlement back to 18 days for the selected year. Leave request history is not deleted — only the entitlement ceiling is restored." %}
                 </p>
                 <div class="alert" style="background:#fff3cd;border-color:#ffc107;border-left:4px solid #f57f17;font-size:.82rem;border-radius:10px;">
                     <i class="bi bi-exclamation-triangle me-2" style="color:#b45309;"></i>
-                    Affects <strong>{{ balances|length }} employees</strong> for year <strong>{{ year }}</strong>.
-                    This cannot be undone.
+                    {% blocktrans with count=balances|length year=year %}Affects <strong>{{ count }} employees</strong> for year <strong>{{ year }}</strong>. This cannot be undone.{% endblocktrans %}
                 </div>
                 <form method="post" action="{% url 'dashboard:reset_balances' %}"
-                      onsubmit="return confirm('Reset all leave balances to 18 days for {{ year }}?  This cannot be undone.');">
+                      onsubmit="return confirm('{% trans "Reset all leave balances to 18 days? This cannot be undone." %}');">
                     {% csrf_token %}
                     <input type="hidden" name="year" value="{{ year }}">
                     <button type="submit" class="btn btn-warning px-4">
-                        <i class="bi bi-arrow-counterclockwise me-2"></i>Reset All Balances — {{ year }}
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>{% trans "Reset All Balances" %} — {{ year }}
                     </button>
                 </form>
             </div>
@@ -173,25 +169,22 @@
         <div class="card animate-in delay-1 mt-3">
             <div class="card-header" style="background:#e0f2fe;border-color:#7dd3fc;">
                 <i class="bi bi-arrow-right-circle-fill me-2" style="color:#2db4c3;"></i>
-                <strong>Year-End: Carry Forward Accumulated Leave</strong>
+                <strong>{% trans "Year-End: Carry Forward Accumulated Leave" %}</strong>
             </div>
             <div class="card-body p-4">
                 <p style="font-size:.875rem;color:#4a6b7c;">
-                    Transfer each employee's <strong>unused deductible leave</strong> from one year into the
-                    next year as <strong>accumulated (carried-forward) leave</strong>. This is added on top
-                    of the standard annual entitlement for that year.
+                    {% trans "Transfer each employee's unused deductible leave from one year into the next year as accumulated (carried-forward) leave. This is added on top of the standard annual entitlement for that year." %}
                 </p>
                 <div class="alert" style="background:#e0f2fe;border-color:#7dd3fc;border-left:4px solid #2db4c3;font-size:.82rem;border-radius:10px;">
                     <i class="bi bi-info-circle me-2" style="color:#2db4c3;"></i>
-                    Example: If an employee has <strong>4 days remaining in 2025</strong>, running carry-forward
-                    will add <strong>4 days accumulated</strong> to their 2026 balance (18 + 4 = 22 days total).
+                    {% trans "Example: If an employee has 4 days remaining in 2025, running carry-forward will add 4 days accumulated to their 2026 balance (18 + 4 = 22 days total)." %}
                 </div>
                 <form method="post" action="{% url 'dashboard:carry_forward' %}"
-                      onsubmit="return confirm('Carry forward unused leave from ' + document.getElementById('cfFromYear').value + ' to the next year? This will overwrite any existing carry-forward for the destination year.');">
+                      onsubmit="return confirm('{% trans "Carry forward unused leave? This will overwrite any existing carry-forward for the destination year." %}');">
                     {% csrf_token %}
                     <div class="d-flex align-items-end gap-3 flex-wrap">
                         <div>
-                            <label class="form-label" style="font-size:.82rem;font-weight:600;">Carry forward FROM year</label>
+                            <label class="form-label" style="font-size:.82rem;font-weight:600;">{% trans "Carry forward FROM year" %}</label>
                             <select name="from_year" id="cfFromYear" class="form-select form-select-sm" style="width:120px;">
                                 {% for y in years %}
                                 <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
@@ -203,7 +196,7 @@
                             <span style="font-size:.82rem;color:#2db4c3;font-weight:600;" id="cfToYearLabel">{{ year|add:1 }}</span>
                         </div>
                         <button type="submit" class="btn btn-primary px-4" style="background:#0A4D68;border-color:#0A4D68;">
-                            <i class="bi bi-arrow-right-circle me-2"></i>Run Carry Forward
+                            <i class="bi bi-arrow-right-circle me-2"></i>{% trans "Run Carry Forward" %}
                         </button>
                     </div>
                 </form>
@@ -213,20 +206,20 @@
         <!-- Current balances preview -->
         <div class="card animate-in delay-2 mt-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-table me-2"></i>Current Balances — {{ year }}</span>
+                <span><i class="bi bi-table me-2"></i>{% trans "Current Balances" %} — {{ year }}</span>
                 <span class="badge bg-primary">{{ balances|length }}</span>
             </div>
             <div style="max-height:320px;overflow-y:auto;">
                 <table class="table table-sm mb-0">
                     <thead>
                         <tr>
-                            <th>Employee</th>
-                            <th class="text-center">Annual</th>
-                            <th class="text-center">Carried</th>
-                            <th class="text-center">Total</th>
-                            <th class="text-center">Used</th>
-                            <th class="text-center">Remaining</th>
-                            <th class="text-center">Actions</th>
+                            <th>{% trans "Employee" %}</th>
+                            <th class="text-center">{% trans "Annual" %}</th>
+                            <th class="text-center">{% trans "Carried" %}</th>
+                            <th class="text-center">{% trans "Total" %}</th>
+                            <th class="text-center">{% trans "Used" %}</th>
+                            <th class="text-center">{% trans "Remaining" %}</th>
+                            <th class="text-center">{% trans "Actions" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -255,27 +248,27 @@
                                 <div class="d-flex gap-1 justify-content-center align-items-center flex-wrap">
                                     <!-- Reset to 18 -->
                                     <form method="post" action="{% url 'dashboard:reset_single_balance' item.employee.pk %}"
-                                          onsubmit="return confirm('Reset {{ item.employee.get_full_name }} to 18 days for {{ year }}?');"
+                                          onsubmit="return confirm('{% trans "Reset this employee to 18 days?" %}');"
                                           style="display:inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="year" value="{{ year }}">
                                         <button type="submit" class="btn btn-xs btn-warning"
-                                                style="font-size:.7rem;padding:2px 8px;" title="Reset to 18 days">
-                                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                                style="font-size:.7rem;padding:2px 8px;" title="{% trans "Reset to 18 days" %}">
+                                            <i class="bi bi-arrow-counterclockwise"></i> {% trans "Reset" %}
                                         </button>
                                     </form>
                                     <!-- Adjust entitlement -->
                                     <button class="btn btn-xs btn-outline-primary"
                                             style="font-size:.7rem;padding:2px 8px;"
-                                            title="Set custom entitlement"
+                                            title="{% trans "Set custom entitlement" %}"
                                             onclick="openAdjust({{ item.employee.pk }}, '{{ item.employee.get_full_name|escapejs }}', {{ item.balance.total_entitlement }})">
-                                        <i class="bi bi-pencil"></i> Adjust
+                                        <i class="bi bi-pencil"></i> {% trans "Adjust" %}
                                     </button>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="7" class="text-center text-muted py-3">No employees found.</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted py-3">{% trans "No employees found." %}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -290,29 +283,28 @@
         <div class="card animate-in delay-2 mb-4">
             <div class="card-header" style="background:#e8f5e9;border-color:#86efac;">
                 <i class="bi bi-cloud-download me-2" style="color:#1a8fa0;"></i>
-                <strong>Export / Backup</strong>
+                <strong>{% trans "Export / Backup" %}</strong>
             </div>
             <div class="card-body p-4">
                 <p style="font-size:.875rem;color:#4a6b7c;">
-                    Download a complete JSON backup of the system including all employees, departments,
-                    leave types, balances, and leave requests.
+                    {% trans "Download a complete JSON backup of the system including all employees, departments, leave types, balances, and leave requests." %}
                 </p>
                 <div class="d-flex gap-2 flex-wrap mb-3">
                     <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">
-                        <i class="bi bi-people me-1"></i>Employees
+                        <i class="bi bi-people me-1"></i>{% trans "Employees" %}
                     </div>
                     <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">
-                        <i class="bi bi-building me-1"></i>Departments
+                        <i class="bi bi-building me-1"></i>{% trans "Departments" %}
                     </div>
                     <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">
-                        <i class="bi bi-calendar-check me-1"></i>Leave Requests
+                        <i class="bi bi-calendar-check me-1"></i>{% trans "Leave Requests" %}
                     </div>
                     <div style="font-size:.78rem;padding:6px 12px;border-radius:8px;background:#e8f5e9;color:#1a8fa0;border:1px solid #86efac;">
-                        <i class="bi bi-bar-chart me-1"></i>Balances
+                        <i class="bi bi-bar-chart me-1"></i>{% trans "Balances" %}
                     </div>
                 </div>
                 <a href="{% url 'dashboard:export_data' %}" class="btn px-4" style="background:#1a8fa0;color:white;border:none;">
-                    <i class="bi bi-download me-2"></i>Download Backup (.json)
+                    <i class="bi bi-download me-2"></i>{% trans "Download Backup (.json)" %}
                 </a>
             </div>
         </div>
@@ -321,23 +313,22 @@
         <div class="card animate-in delay-3">
             <div class="card-header" style="background:#fff3e0;border-color:#ffcc80;">
                 <i class="bi bi-cloud-upload me-2" style="color:#d97706;"></i>
-                <strong>Import / Restore</strong>
+                <strong>{% trans "Import / Restore" %}</strong>
             </div>
             <div class="card-body p-4">
                 <div class="alert" style="background:#fce4ec;border-color:#f48fb1;border-left:4px solid #e53e3e;font-size:.82rem;border-radius:10px;margin-bottom:16px;">
                     <i class="bi bi-exclamation-triangle me-2" style="color:#c62828;"></i>
-                    <strong>Warning:</strong> Importing will overwrite existing records with matching IDs.
-                    Only import a backup file generated by this system. Create a fresh backup first.
+                    <strong>{% trans "Warning:" %}</strong> {% trans "Importing will overwrite existing records with matching IDs. Only import a backup file generated by this system. Create a fresh backup first." %}
                 </div>
                 <form method="post" action="{% url 'dashboard:import_data' %}" enctype="multipart/form-data"
-                      onsubmit="return confirm('Import this backup? Existing data with matching IDs will be overwritten.');">
+                      onsubmit="return confirm('{% trans "Import this backup? Existing data with matching IDs will be overwritten." %}');">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label" style="font-size:.82rem;font-weight:600;">Select Backup File (.json)</label>
+                        <label class="form-label" style="font-size:.82rem;font-weight:600;">{% trans "Select Backup File (.json)" %}</label>
                         <input type="file" name="backup_file" accept=".json" class="form-control" required>
                     </div>
                     <button type="submit" class="btn btn-danger px-4">
-                        <i class="bi bi-upload me-2"></i>Import Backup
+                        <i class="bi bi-upload me-2"></i>{% trans "Import Backup" %}
                     </button>
                 </form>
             </div>
@@ -352,12 +343,11 @@
         <div class="card" style="border:2px solid #dc2626;">
             <div class="card-header" style="background:#fef2f2;border-color:#dc2626;">
                 <i class="bi bi-exclamation-octagon-fill me-2" style="color:#dc2626;"></i>
-                <strong style="color:#dc2626;">Danger Zone — Factory Reset</strong>
+                <strong style="color:#dc2626;">{% trans "Danger Zone — Factory Reset" %}</strong>
             </div>
             <div class="card-body p-4">
                 <p style="font-size:.85rem;color:#4a6b7c;margin-bottom:20px;">
-                    These actions are <strong>irreversible</strong>. Create a backup first.
-                    Both options require you to type a confirmation phrase exactly before proceeding.
+                    {% trans "These actions are irreversible. Create a backup first. Both options require you to type a confirmation phrase exactly before proceeding." %}
                 </p>
                 <div class="row g-4">
 
@@ -368,23 +358,20 @@
                                 <div style="flex:1;min-width:280px;">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="bi bi-rocket-takeoff-fill fs-5" style="color:#0a4d68;"></i>
-                                        <strong style="color:#0a4d68;font-size:1rem;">Go-Live Reset — Clear Test Data</strong>
-                                        <span class="badge" style="background:#0a4d68;font-size:.7rem;">Recommended before launch</span>
+                                        <strong style="color:#0a4d68;font-size:1rem;">{% trans "Go-Live Reset — Clear Test Data" %}</strong>
+                                        <span class="badge" style="background:#0a4d68;font-size:.7rem;">{% trans "Recommended before launch" %}</span>
                                     </div>
                                     <p style="font-size:.82rem;color:#4a6b7c;margin-bottom:8px;">
-                                        Clears all test activity while keeping your real employee and contract data intact.
+                                        {% trans "Clears all test activity while keeping your real employee and contract data intact." %}
                                     </p>
                                     <div class="row g-2" style="font-size:.78rem;">
                                         <div class="col-sm-6">
-                                            <div style="color:#dc2626;font-weight:600;margin-bottom:4px;"><i class="bi bi-x-circle me-1"></i>Cleared:</div>
-                                            <div style="color:#6b7a8d;">Appraisals &amp; cycles, Leave requests &amp; balances,
-                                            Discipline records, Notifications, Payslips, Audit logs,
-                                            Onboarding checklists (reset to unchecked), Login attempt logs</div>
+                                            <div style="color:#dc2626;font-weight:600;margin-bottom:4px;"><i class="bi bi-x-circle me-1"></i>{% trans "Cleared:" %}</div>
+                                            <div style="color:#6b7a8d;">{% trans "Appraisals & cycles, Leave requests & balances, Discipline records, Notifications, Payslips, Audit logs, Onboarding checklists (reset to unchecked), Login attempt logs" %}</div>
                                         </div>
                                         <div class="col-sm-6">
-                                            <div style="color:#059669;font-weight:600;margin-bottom:4px;"><i class="bi bi-check-circle me-1"></i>Kept:</div>
-                                            <div style="color:#6b7a8d;">All employees &amp; user accounts, Departments,
-                                            Contracts, Employee documents, Leave types, System settings</div>
+                                            <div style="color:#059669;font-weight:600;margin-bottom:4px;"><i class="bi bi-check-circle me-1"></i>{% trans "Kept:" %}</div>
+                                            <div style="color:#6b7a8d;">{% trans "All employees & user accounts, Departments, Contracts, Employee documents, Leave types, System settings" %}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -393,14 +380,14 @@
                                       style="min-width:220px;">
                                     {% csrf_token %}
                                     <label class="form-label" style="font-size:.8rem;font-weight:600;">
-                                        Type <code>GO LIVE</code> to confirm
+                                        {% trans "Type" %} <code>GO LIVE</code> {% trans "to confirm" %}
                                     </label>
                                     <input type="text" name="confirm_text" class="form-control mb-2"
                                            placeholder="GO LIVE" autocomplete="off"
                                            style="font-size:.85rem;border-color:#2db4c3;">
                                     <button type="submit" class="btn w-100"
                                             style="background:#0a4d68;color:white;border:none;font-size:.85rem;">
-                                        <i class="bi bi-rocket-takeoff me-1"></i> Run Go-Live Reset
+                                        <i class="bi bi-rocket-takeoff me-1"></i> {% trans "Run Go-Live Reset" %}
                                     </button>
                                 </form>
                             </div>
@@ -412,26 +399,25 @@
                         <div style="border:1px solid #fde68a;border-radius:12px;padding:20px;background:#fffdf0;height:100%;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="bi bi-calendar-check-fill fs-5" style="color:#92400e;"></i>
-                                <strong style="color:#92400e;">Year-End Reset</strong>
+                                <strong style="color:#92400e;">{% trans "Year-End Reset" %}</strong>
                             </div>
                             <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
-                                Clears all <strong>leave requests</strong> and <strong>leave balances</strong> only.<br>
-                                Use this at the start of a new leave year so every employee begins fresh.<br>
-                                <span style="color:#059669;font-weight:600;">Keeps:</span>
-                                staff, contracts, discipline records, notifications, departments, leave types.
+                                {% trans "Clears all leave requests and leave balances only. Use this at the start of a new leave year so every employee begins fresh." %}<br>
+                                <span style="color:#059669;font-weight:600;">{% trans "Keeps:" %}</span>
+                                {% trans "staff, contracts, discipline records, notifications, departments, leave types." %}
                             </p>
                             <form method="post" action="{% url 'dashboard:factory_reset_yearend' %}"
                                   onsubmit="return validateReset(this, 'NEW YEAR RESET');">
                                 {% csrf_token %}
                                 <label class="form-label" style="font-size:.8rem;font-weight:600;">
-                                    Type <code>NEW YEAR RESET</code> to confirm
+                                    {% trans "Type" %} <code>NEW YEAR RESET</code> {% trans "to confirm" %}
                                 </label>
                                 <input type="text" name="confirm_text" class="form-control mb-3"
                                        placeholder="NEW YEAR RESET" autocomplete="off"
                                        style="font-size:.85rem;border-color:#fde68a;">
                                 <button type="submit" class="btn w-100"
                                         style="background:#92400e;color:white;border:none;font-size:.85rem;">
-                                    <i class="bi bi-calendar-check me-1"></i>Year-End Reset
+                                    <i class="bi bi-calendar-check me-1"></i>{% trans "Year-End Reset" %}
                                 </button>
                             </form>
                         </div>
@@ -442,26 +428,24 @@
                         <div style="border:1px solid #fca5a5;border-radius:12px;padding:20px;background:#fff8f8;height:100%;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="bi bi-eraser-fill fs-5" style="color:#b91c1c;"></i>
-                                <strong style="color:#b91c1c;">Soft Reset — Clear All Activity</strong>
+                                <strong style="color:#b91c1c;">{% trans "Soft Reset — Clear All Activity" %}</strong>
                             </div>
                             <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
-                                Deletes all <strong>leave requests</strong>, <strong>leave balances</strong>,
-                                <strong>discipline records</strong>, <strong>contracts</strong>, and <strong>notifications</strong>.<br>
-                                Use this before going live after testing, or for a full activity wipe.<br>
-                                <span style="color:#059669;font-weight:600;">Keeps:</span>
-                                all user accounts, employee profiles, departments, and leave types.
+                                {% trans "Deletes all leave requests, leave balances, discipline records, contracts, and notifications. Use this before going live after testing, or for a full activity wipe." %}<br>
+                                <span style="color:#059669;font-weight:600;">{% trans "Keeps:" %}</span>
+                                {% trans "all user accounts, employee profiles, departments, and leave types." %}
                             </p>
                             <form method="post" action="{% url 'dashboard:factory_reset_soft' %}"
                                   onsubmit="return validateReset(this, 'RESET LEAVE DATA');">
                                 {% csrf_token %}
                                 <label class="form-label" style="font-size:.8rem;font-weight:600;">
-                                    Type <code>RESET LEAVE DATA</code> to confirm
+                                    {% trans "Type" %} <code>RESET LEAVE DATA</code> {% trans "to confirm" %}
                                 </label>
                                 <input type="text" name="confirm_text" class="form-control mb-3"
                                        placeholder="RESET LEAVE DATA" autocomplete="off"
                                        style="font-size:.85rem;border-color:#fca5a5;">
                                 <button type="submit" class="btn btn-danger w-100" style="font-size:.85rem;">
-                                    <i class="bi bi-eraser me-1"></i>Clear All Activity Data
+                                    <i class="bi bi-eraser me-1"></i>{% trans "Clear All Activity Data" %}
                                 </button>
                             </form>
                         </div>
@@ -472,26 +456,23 @@
                         <div style="border:2px solid #dc2626;border-radius:12px;padding:20px;background:#fff1f2;height:100%;">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="bi bi-fire fs-5" style="color:#7f1d1d;"></i>
-                                <strong style="color:#7f1d1d;">Full Factory Reset</strong>
+                                <strong style="color:#7f1d1d;">{% trans "Full Factory Reset" %}</strong>
                             </div>
                             <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
-                                Deletes <strong>everything</strong> — all employees, departments,
-                                leave data, and all user accounts except the admin.<br>
-                                Admin username and password are reset to <code>admin</code> / <code>admin</code>.
-                                You will be forced to change the password on first login.
+                                {% trans "Deletes everything — all employees, departments, leave data, and all user accounts except the admin. Admin username and password are reset to admin / admin." %}
                             </p>
                             <form method="post" action="{% url 'dashboard:factory_reset_full' %}"
                                   onsubmit="return validateReset(this, 'RESET EVERYTHING');">
                                 {% csrf_token %}
                                 <label class="form-label" style="font-size:.8rem;font-weight:600;">
-                                    Type <code>RESET EVERYTHING</code> to confirm
+                                    {% trans "Type" %} <code>RESET EVERYTHING</code> {% trans "to confirm" %}
                                 </label>
                                 <input type="text" name="confirm_text" class="form-control mb-3"
                                        placeholder="RESET EVERYTHING" autocomplete="off"
                                        style="font-size:.85rem;border-color:#dc2626;">
                                 <button type="submit" class="btn w-100"
                                         style="background:#7f1d1d;color:white;border:none;font-size:.85rem;">
-                                    <i class="bi bi-fire me-1"></i>Full Factory Reset
+                                    <i class="bi bi-fire me-1"></i>{% trans "Full Factory Reset" %}
                                 </button>
                             </form>
                         </div>
@@ -508,7 +489,7 @@
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header" style="background:#f0f9ff;border-color:#bae6fd;">
-                <h6 class="modal-title" id="adjustModalLabel"><i class="bi bi-pencil me-2"></i>Adjust Entitlement</h6>
+                <h6 class="modal-title" id="adjustModalLabel"><i class="bi bi-pencil me-2"></i>{% trans "Adjust Entitlement" %}</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="adjustForm" method="post" action="">
@@ -516,13 +497,13 @@
                 <div class="modal-body">
                     <p id="adjustEmployeeName" style="font-size:.85rem;font-weight:600;margin-bottom:12px;"></p>
                     <input type="hidden" name="year" value="{{ year }}">
-                    <label class="form-label" style="font-size:.82rem;font-weight:600;">New Entitlement (days)</label>
+                    <label class="form-label" style="font-size:.82rem;font-weight:600;">{% trans "New Entitlement (days)" %}</label>
                     <input type="number" name="entitlement" id="adjustValue" class="form-control" min="0" max="365" required>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
                     <button type="submit" class="btn btn-sm btn-primary">
-                        <i class="bi bi-check-lg me-1"></i>Save
+                        <i class="bi bi-check-lg me-1"></i>{% trans "Save" %}
                     </button>
                 </div>
             </form>
@@ -545,11 +526,11 @@ document.getElementById('cfFromYear').addEventListener('change', function () {
 function validateReset(form, expected) {
     var typed = form.querySelector('[name="confirm_text"]').value.trim();
     if (typed !== expected) {
-        alert('Confirmation text does not match. Reset cancelled.\n\nYou must type: ' + expected);
+        alert('{% trans "Confirmation text does not match. Reset cancelled." %}\n\n{% trans "You must type:" %} ' + expected);
         return false;
     }
     return confirm(
-        'THIS CANNOT BE UNDONE.\n\nAre you absolutely sure you want to proceed with this reset?'
+        '{% trans "THIS CANNOT BE UNDONE. Are you absolutely sure you want to proceed with this reset?" %}'
     );
 }
 </script>

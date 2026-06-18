@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Org Chart — AEF HRM{% endblock %}
-{% block page_title %}Organisation Chart{% endblock %}
+{% block title %}{% trans "Org Chart" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Organisation Chart" %}{% endblock %}
 {% block nav_org_chart %}active{% endblock %}
 
 {% block topbar_actions %}
 <form method="get" class="d-flex gap-2">
   <select name="dept" class="form-select form-select-sm" style="width:200px;" onchange="this.form.submit()">
-    <option value="">All Departments</option>
+    <option value="">{% trans "All Departments" %}</option>
     {% for dept in departments %}
     <option value="{{ dept.pk }}" {% if dept_filter == dept.pk|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
     {% endfor %}
@@ -61,7 +61,7 @@
   {% else %}
   <div class="text-center py-5">
     <i class="bi bi-diagram-3 fs-1 d-block mb-3" style="color:#cde8ef;"></i>
-    <div style="font-size:.95rem;font-weight:600;color:#6b7a8d;">No employees found</div>
+    <div style="font-size:.95rem;font-weight:600;color:#6b7a8d;">{% trans "No employees found" %}</div>
   </div>
   {% endif %}
 </div>

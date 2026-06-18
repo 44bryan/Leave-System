@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Discipline Statistics{% endblock %}
-{% block page_title %}Discipline Statistics{% endblock %}
+{% block title %}{% trans "Discipline Statistics" %}{% endblock %}
+{% block page_title %}{% trans "Discipline Statistics" %}{% endblock %}
 {% block nav_discipline_stats %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> All Records
+    <i class="bi bi-arrow-left me-1"></i> {% trans "All Records" %}
 </a>
 {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_manager %}
 <a href="{% url 'discipline:issue' %}" class="btn btn-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-plus-circle me-1"></i> Issue Notice
+    <i class="bi bi-plus-circle me-1"></i> {% trans "Issue Notice" %}
 </a>
 {% endif %}
 {% endblock %}
@@ -25,7 +26,7 @@
                     <i class="bi bi-exclamation-triangle-fill"></i>
                 </div>
                 <div class="stat-value" style="color:#d97706;">{{ warned_count }}</div>
-                <div class="stat-label">Employees with Warnings</div>
+                <div class="stat-label">{% trans "Employees with Warnings" %}</div>
             </div>
         </div>
         <div class="col-sm-4">
@@ -34,7 +35,7 @@
                     <i class="bi bi-person-slash"></i>
                 </div>
                 <div class="stat-value" style="color:#374151;">{{ suspended_count }}</div>
-                <div class="stat-label">Suspended / Upcoming</div>
+                <div class="stat-label">{% trans "Suspended / Upcoming" %}</div>
             </div>
         </div>
         <div class="col-sm-4">
@@ -43,7 +44,7 @@
                     <i class="bi bi-person-x-fill"></i>
                 </div>
                 <div class="stat-value" style="color:#dc2626;">{{ dismissed_count }}</div>
-                <div class="stat-label">Dismissals</div>
+                <div class="stat-label">{% trans "Dismissals" %}</div>
             </div>
         </div>
     </div>
@@ -54,7 +55,7 @@
         <div class="col-lg-4">
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center gap-2" style="color:#d97706;">
-                    <i class="bi bi-exclamation-triangle-fill"></i> Warned Employees
+                    <i class="bi bi-exclamation-triangle-fill"></i> {% trans "Warned Employees" %}
                     <span class="badge ms-auto" style="background:#fff8e1; color:#d97706;">{{ warned_count }}</span>
                 </div>
                 <div class="card-body p-0">
@@ -67,12 +68,12 @@
                                 </div>
                                 <div>
                                     <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
-                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"No dept" }}</div>
+                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
                                 </div>
                             </div>
                         </li>
                         {% empty %}
-                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">No warned employees</li>
+                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">{% trans "No warned employees" %}</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -83,7 +84,7 @@
         <div class="col-lg-4">
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center gap-2" style="color:#374151;">
-                    <i class="bi bi-person-slash"></i> Suspended / Upcoming
+                    <i class="bi bi-person-slash"></i> {% trans "Suspended / Upcoming" %}
                     <span class="badge bg-dark ms-auto">{{ suspended_count }}</span>
                 </div>
                 <div class="card-body p-0">
@@ -96,12 +97,12 @@
                                 </div>
                                 <div>
                                     <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
-                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"No dept" }}</div>
+                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
                                 </div>
                             </div>
                         </li>
                         {% empty %}
-                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">No suspended employees</li>
+                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">{% trans "No suspended employees" %}</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -112,7 +113,7 @@
         <div class="col-lg-4">
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center gap-2 text-danger">
-                    <i class="bi bi-person-x-fill"></i> Dismissals
+                    <i class="bi bi-person-x-fill"></i> {% trans "Dismissals" %}
                     <span class="badge bg-danger ms-auto">{{ dismissed_count }}</span>
                 </div>
                 <div class="card-body p-0">
@@ -125,15 +126,15 @@
                                 </div>
                                 <div style="flex:1;">
                                     <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
-                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"No dept" }}</div>
+                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
                                 </div>
                                 <a href="{% url 'accounts:employee_edit' emp.pk %}" class="btn btn-sm btn-outline-danger" style="font-size:0.72rem;">
-                                    <i class="bi bi-person-x me-1"></i>Deactivate
+                                    <i class="bi bi-person-x me-1"></i>{% trans "Deactivate" %}
                                 </a>
                             </div>
                         </li>
                         {% empty %}
-                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">No dismissals on record</li>
+                        <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">{% trans "No dismissals on record" %}</li>
                         {% endfor %}
                     </ul>
                 </div>

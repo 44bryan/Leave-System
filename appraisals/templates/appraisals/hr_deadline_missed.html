@@ -1,26 +1,27 @@
 {% extends 'base.html' %}
-{% block title %}Missed Deadline — Appraisals{% endblock %}
-{% block page_title %}Missed Deadline — Employee Appraisals{% endblock %}
-{% block page_subtitle %}Employees who have not submitted past their cycle deadline{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Missed Deadline" %} — {% trans "Appraisals" %}{% endblock %}
+{% block page_title %}{% trans "Missed Deadline — Employee Appraisals" %}{% endblock %}
+{% block page_subtitle %}{% trans "Employees who have not submitted past their cycle deadline" %}{% endblock %}
 
 {% block content %}
 {% if records %}
 <div class="card animate-in">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-exclamation-circle-fill text-danger me-2"></i>{{ records|length }} overdue submission{{ records|length|pluralize }}</span>
-        <small class="text-muted">As of {{ today|date:"d M Y" }}</small>
+        <span><i class="bi bi-exclamation-circle-fill text-danger me-2"></i>{{ records|length }} {% blocktrans count n=records|length %}overdue submission{% plural %}overdue submissions{% endblocktrans %}</span>
+        <small class="text-muted">{% trans "As of" %} {{ today|date:"d M Y" }}</small>
     </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0" style="font-size:.9rem;">
             <thead class="table-light">
                 <tr>
-                    <th>Employee</th>
-                    <th>Department</th>
-                    <th>Cycle</th>
-                    <th class="text-center">Deadline</th>
-                    <th class="text-center">Days Overdue</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-center">Action</th>
+                    <th>{% trans "Employee" %}</th>
+                    <th>{% trans "Department" %}</th>
+                    <th>{% trans "Cycle" %}</th>
+                    <th class="text-center">{% trans "Deadline" %}</th>
+                    <th class="text-center">{% trans "Days Overdue" %}</th>
+                    <th class="text-center">{% trans "Status" %}</th>
+                    <th class="text-center">{% trans "Action" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,19 +43,19 @@
                 </td>
                 <td class="text-center">
                     {% if r.hr_unlocked %}
-                        <span class="badge bg-warning text-dark"><i class="bi bi-unlock-fill me-1"></i>Unlocked by HR</span>
+                        <span class="badge bg-warning text-dark"><i class="bi bi-unlock-fill me-1"></i>{% trans "Unlocked by HR" %}</span>
                     {% else %}
-                        <span class="badge bg-danger">Locked</span>
+                        <span class="badge bg-danger">{% trans "Locked" %}</span>
                     {% endif %}
                 </td>
                 <td class="text-center">
                     {% if not r.hr_unlocked %}
                     <a href="{% url 'appraisals:hr_unlock_employee' r.pk %}"
                        class="btn btn-sm btn-warning">
-                        <i class="bi bi-unlock me-1"></i>Open for Employee
+                        <i class="bi bi-unlock me-1"></i>{% trans "Open for Employee" %}
                     </a>
                     {% else %}
-                    <span class="text-muted small">Already unlocked</span>
+                    <span class="text-muted small">{% trans "Already unlocked" %}</span>
                     {% endif %}
                 </td>
             </tr>
@@ -68,10 +69,10 @@
 <div class="card animate-in">
     <div class="card-body text-center py-5">
         <i class="bi bi-check-circle-fill text-success" style="font-size:2.5rem;"></i>
-        <h5 class="mt-3 fw-bold">No overdue submissions</h5>
-        <p class="text-muted">All employees have submitted within the deadline, or no deadlines are set yet.</p>
+        <h5 class="mt-3 fw-bold">{% trans "No overdue submissions" %}</h5>
+        <p class="text-muted">{% trans "All employees have submitted within the deadline, or no deadlines are set yet." %}</p>
         <a href="{% url 'appraisals:hr_dashboard' %}" class="btn btn-outline-secondary mt-2">
-            <i class="bi bi-arrow-left me-1"></i>Back to HR Dashboard
+            <i class="bi bi-arrow-left me-1"></i>{% trans "Back to HR Dashboard" %}
         </a>
     </div>
 </div>
@@ -79,7 +80,7 @@
 
 <div class="mt-3">
     <a href="{% url 'appraisals:hr_dashboard' %}" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-arrow-left me-1"></i>Back to HR Dashboard
+        <i class="bi bi-arrow-left me-1"></i>{% trans "Back to HR Dashboard" %}
     </a>
 </div>
 {% endblock %}

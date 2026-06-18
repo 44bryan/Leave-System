@@ -35,12 +35,12 @@
                         <div class="col-md-6">
                             <label class="form-label">{% trans "Username" %} *</label>
                             {{ form.username }}
-                            <div class="form-text">Auto-generated. You may edit if needed.</div>
+                            <div class="form-text">{% trans "Auto-generated. You may edit if needed." %}</div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Default Password</label>
+                            <label class="form-label">{% trans "Default Password" %}</label>
                             {{ form.password }}
-                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>Default: <strong>Micei2021</strong> — employee must change at first login.</div>
+                            <div class="form-text"><i class="bi bi-info-circle me-1"></i>{% trans "Default" %}: <strong>Micei2021</strong> — {% trans "employee must change at first login." %}</div>
                         </div>
                     </div>
                     {% else %}
@@ -128,7 +128,7 @@
                                 <div class="searchable-select-dropdown"></div>
                             </div>
                             {{ form.unit_head }}
-                            <div class="form-text text-muted">Optional — leave blank if this employee has no unit head above their manager.</div>
+                            <div class="form-text text-muted">{% trans "Optional — leave blank if this employee has no unit head above their manager." %}</div>
                         </div>
                         <div class="col-md-12 optional-field">
                             <div class="form-check p-3 rounded border mb-2" style="background:#fff8f0;">
@@ -136,8 +136,8 @@
                                 <label class="form-check-label ms-2" for="{{ form.reports_to_director.id_for_label }}">
                                     <strong>{% trans "Reports directly to Administration Director" %}</strong>
                                     <div class="form-text text-muted mt-1">
-                                        Leave skips Unit Head &amp; Manager — goes to HR then Admin Director.
-                                        <strong>HR staff</strong> leaves go straight to Admin Director only.
+                                        {% trans "Leave skips Unit Head & Manager — goes to HR then Admin Director." %}
+                                        <strong>{% trans "HR staff" %}</strong> {% trans "leaves go straight to Admin Director only." %}
                                     </div>
                                 </label>
                             </div>
@@ -146,8 +146,8 @@
                                 <label class="form-check-label ms-2" for="{{ form.reports_to_ceo.id_for_label }}">
                                     <strong>{% trans "Reports directly to CEO" %}</strong>
                                     <div class="form-text text-muted mt-1">
-                                        Leave skips ALL steps — CEO is the sole approver.
-                                        Automatically applies to <strong>Admin Director</strong> and <strong>Medical Director</strong> roles.
+                                        {% trans "Leave skips ALL steps — CEO is the sole approver." %}
+                                        {% trans "Automatically applies to" %} <strong>{% trans "Admin Director" %}</strong> {% trans "and" %} <strong>{% trans "Medical Director" %}</strong> {% trans "roles." %}
                                     </div>
                                 </label>
                             </div>
@@ -156,7 +156,7 @@
                                 <label class="form-check-label ms-2" for="{{ form.reports_to_hr.id_for_label }}">
                                     <strong>{% trans "Reports directly to HR (HR is final approver)" %}</strong>
                                     <div class="form-text text-muted mt-1">
-                                        Leave skips Unit Head &amp; Manager — HR approves as final authority. No Director step.
+                                        {% trans "Leave skips Unit Head & Manager — HR approves as final authority. No Director step." %}
                                     </div>
                                 </label>
                             </div>
@@ -170,14 +170,14 @@
                             {{ form.date_joined_company }}
                         </div>
                         <div class="col-md-6 optional-field">
-                            <label class="form-label">Contract Number</label>
+                            <label class="form-label">{% trans "Contract Number" %}</label>
                             {{ form.contract_number }}
-                            <div class="form-text">Official reference number (optional)</div>
+                            <div class="form-text">{% trans "Official reference number (optional)" %}</div>
                         </div>
                         <div class="col-12 optional-field">
-                            <label class="form-label">Qualifications</label>
+                            <label class="form-label">{% trans "Qualifications" %}</label>
                             {{ form.qualifications }}
-                            <div class="form-text">Academic / professional qualifications</div>
+                            <div class="form-text">{% trans "Academic / professional qualifications" %}</div>
                         </div>
                     </div>
 
@@ -185,19 +185,19 @@
                     <div id="intern-fields-section" class="d-none">
                         <hr class="my-3">
                         <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2db4c3;font-weight:700;margin-bottom:14px;">
-                            <i class="bi bi-mortarboard me-1"></i> Internship Details
+                            <i class="bi bi-mortarboard me-1"></i> {% trans "Internship Details" %}
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">School / University</label>
+                                <label class="form-label">{% trans "School / University" %}</label>
                                 {{ form.school_name }}
-                                <div class="form-text">Name of institution the intern is from</div>
+                                <div class="form-text">{% trans "Name of institution the intern is from" %}</div>
                                 {% for error in form.school_name.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Field of Study / Speciality</label>
+                                <label class="form-label">{% trans "Field of Study / Speciality" %}</label>
                                 {{ form.speciality }}
-                                <div class="form-text">e.g. Medicine, Nursing, Ophthalmology</div>
+                                <div class="form-text">{% trans "e.g. Medicine, Nursing, Ophthalmology" %}</div>
                                 {% for error in form.speciality.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
@@ -220,28 +220,28 @@
 
                     <!-- Initial Contract section label -->
                     <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2db4c3;font-weight:700;margin-bottom:14px;">
-                        <i class="bi bi-file-earmark-text me-1"></i> Initial Contract
+                        <i class="bi bi-file-earmark-text me-1"></i> {% trans "Initial Contract" %}
                     </div>
                     <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.82rem;border-left:3px solid #2db4c3;background:#f0f9ff;border-radius:8px;">
                         <i class="bi bi-info-circle me-1"></i>
-                        A contract is required to activate the employee account. The employee will be notified automatically.
+                        {% trans "A contract is required to activate the employee account. The employee will be notified automatically." %}
                     </div>
 
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label">Contract Type *</label>
+                            <label class="form-label">{% trans "Contract Type" %} *</label>
                             {{ form.contract_type }}
                             {% for error in form.contract_type.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Start Date *</label>
+                            <label class="form-label">{% trans "Start Date" %} *</label>
                             {{ form.contract_start_date }}
                             {% for error in form.contract_start_date.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                         </div>
                         <div class="col-md-4" id="end-date-wrap">
-                            <label class="form-label">End Date <span id="end-required-star">*</span></label>
+                            <label class="form-label">{% trans "End Date" %} <span id="end-required-star">*</span></label>
                             {{ form.contract_end_date }}
-                            <div class="form-text">Required for CDD / INTERN / WACS.</div>
+                            <div class="form-text">{% trans "Required for CDD / INTERN / WACS." %}</div>
                             {% for error in form.contract_end_date.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ error }}</div>{% endfor %}
                         </div>
                     </div>
@@ -277,11 +277,11 @@
     <div class="col-lg-9">
         <div class="card animate-in delay-1">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-file-earmark-text me-2"></i>Contract Management</span>
+                <span><i class="bi bi-file-earmark-text me-2"></i>{% trans "Contract Management" %}</span>
                 <a href="{% url 'contracts:issue' %}?employee={{ employee.pk }}"
                    class="btn btn-primary btn-sm">
                     <i class="bi bi-plus-circle me-1"></i>
-                    {% if active_contract %}Change / Renew Contract{% else %}Issue Contract{% endif %}
+                    {% if active_contract %}{% trans "Change / Renew Contract" %}{% else %}{% trans "Issue Contract" %}{% endif %}
                 </a>
             </div>
             <div class="card-body p-4">

@@ -288,17 +288,17 @@ def generate_contract_pdf(contract):
     c.setFont("Helvetica-Bold", 9)
     c.setFillColorRGB(*_LABEL)
     c.drawString(col2_x, sig_y, "Employee / Recipient")
-    c.setFont("Helvetica", 8.5)
-    c.setFillColorRGB(*_DARK)
-    c.drawString(col2_x, sig_y - 5*mm, emp.get_full_name())
 
     sig_y -= 22*mm
     c.line(col2_x, sig_y, col2_x + line_w, sig_y)
+    c.setFont("Helvetica", 8.5)
+    c.setFillColorRGB(*_DARK)
+    c.drawString(col2_x, sig_y - 5*mm, emp.get_full_name())
     c.setFont("Helvetica", 8)
     c.setFillColorRGB(0.5, 0.5, 0.5)
-    c.drawString(col2_x, sig_y - 4*mm, "Signature")
-    c.drawString(col2_x, sig_y - 8*mm, "Name: ___________________________")
-    c.drawString(col2_x, sig_y - 13*mm, "Date:  ___________________________")
+    c.drawString(col2_x, sig_y - 10*mm, "Signature")
+    c.drawString(col2_x, sig_y - 15*mm, "Name: ___________________________")
+    c.drawString(col2_x, sig_y - 20*mm, "Date:  ___________________________")
 
     _footer(c, 1, W)
     c.save()

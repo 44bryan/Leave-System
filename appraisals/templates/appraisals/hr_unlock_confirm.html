@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}Re-open Appraisal — {{ record.employee.get_full_name }}{% endblock %}
-{% block page_title %}Re-open Employee Appraisal{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Re-open Appraisal" %} — {{ record.employee.get_full_name }}{% endblock %}
+{% block page_title %}{% trans "Re-open Employee Appraisal" %}{% endblock %}
 {% block page_subtitle %}{{ record.cycle }}{% endblock %}
 
 {% block content %}
@@ -8,33 +9,33 @@
 <div class="col-lg-5">
     <div class="card animate-in" style="border-top:4px solid #d97706;">
         <div class="card-header fw-bold">
-            <i class="bi bi-unlock-fill me-2 text-warning"></i>Re-open Appraisal for Employee
+            <i class="bi bi-unlock-fill me-2 text-warning"></i>{% trans "Re-open Appraisal for Employee" %}
         </div>
         <div class="card-body p-4">
             <div class="mb-3">
                 <div class="fw-bold" style="font-size:1.05rem;">{{ record.employee.get_full_name }}</div>
                 <div class="text-muted small">{{ record.employee.position|default:"" }} · {{ record.employee.department|default:"" }}</div>
-                <div class="text-muted small mt-1">Cycle: {{ record.cycle }}</div>
-                <div class="text-muted small">Deadline was: <strong class="text-danger">{{ record.cycle.employee_deadline|date:"d M Y" }}</strong></div>
+                <div class="text-muted small mt-1">{% trans "Cycle:" %} {{ record.cycle }}</div>
+                <div class="text-muted small">{% trans "Deadline was:" %} <strong class="text-danger">{{ record.cycle.employee_deadline|date:"d M Y" }}</strong></div>
             </div>
 
             <div class="alert alert-warning py-2 px-3 mb-3" style="font-size:.88rem;">
                 <i class="bi bi-info-circle me-1"></i>
-                The employee will receive an instant notification and can submit their appraisal section immediately after you unlock it.
+                {% trans "The employee will receive an instant notification and can submit their appraisal section immediately after you unlock it." %}
             </div>
 
             <form method="post">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Reason / Note <span class="text-muted small">(optional)</span></label>
+                    <label class="form-label fw-semibold">{% trans "Reason / Note" %} <span class="text-muted small">({% trans "optional" %})</span></label>
                     <input type="text" name="note" class="form-control" maxlength="300"
-                           placeholder="e.g. Employee was on sick leave during deadline period">
+                           placeholder="{% trans "e.g. Employee was on sick leave during deadline period" %}">
                 </div>
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-warning px-4">
-                        <i class="bi bi-unlock me-2"></i>Unlock & Notify Employee
+                        <i class="bi bi-unlock me-2"></i>{% trans "Unlock & Notify Employee" %}
                     </button>
-                    <a href="{% url 'appraisals:hr_deadline_missed' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{% url 'appraisals:hr_deadline_missed' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
                 </div>
             </form>
         </div>

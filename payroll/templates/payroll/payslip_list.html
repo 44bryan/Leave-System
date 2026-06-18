@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Payroll — AEF HRM{% endblock %}
-{% block page_title %}{% if is_hr %}All Payslips{% else %}My Payslips{% endif %}{% endblock %}
+{% block title %}{% trans "Payroll" %} — AEF HRM{% endblock %}
+{% block page_title %}{% if is_hr %}{% trans "All Payslips" %}{% else %}{% trans "My Payslips" %}{% endif %}{% endblock %}
 {% block nav_payroll %}active{% endblock %}
 
 {% block topbar_actions %}
 {% if is_hr %}
 <a href="{% url 'payroll:create' %}" class="btn btn-primary btn-sm">
-    <i class="bi bi-plus-lg me-1"></i> New Payslip
+    <i class="bi bi-plus-lg me-1"></i> {% trans "New Payslip" %}
 </a>
 {% endif %}
 {% endblock %}
@@ -20,9 +20,9 @@
     <form method="get" class="row g-2 align-items-end">
       {% if is_hr %}
       <div class="col-sm-4">
-        <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">Employee</label>
+        <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">{% trans "Employee" %}</label>
         <select name="employee" class="form-select form-select-sm">
-          <option value="">All Employees</option>
+          <option value="">{% trans "All Employees" %}</option>
           {% for emp in employees %}
           <option value="{{ emp.pk }}" {% if emp_filter == emp.pk|stringformat:"s" %}selected{% endif %}>
             {{ emp.user.get_full_name }}
@@ -32,25 +32,25 @@
       </div>
       {% endif %}
       <div class="col-sm-2">
-        <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">Month</label>
+        <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">{% trans "Month" %}</label>
         <select name="month" class="form-select form-select-sm">
-          <option value="">All Months</option>
+          <option value="">{% trans "All Months" %}</option>
           {% for val, name in months %}
           <option value="{{ val }}" {% if month_filter == val|stringformat:"s" %}selected{% endif %}>{{ name }}</option>
           {% endfor %}
         </select>
       </div>
       <div class="col-sm-2">
-        <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">Year</label>
+        <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">{% trans "Year" %}</label>
         <select name="year" class="form-select form-select-sm">
-          <option value="">All Years</option>
+          <option value="">{% trans "All Years" %}</option>
           {% for y in years %}
           <option value="{{ y }}" {% if year_filter == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
           {% endfor %}
         </select>
       </div>
       <div class="col-sm-2 d-flex gap-2">
-        <button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+        <button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
         <a href="{% url 'payroll:list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
       </div>
     </form>
@@ -64,12 +64,12 @@
     <table class="table table-hover align-middle mb-0" style="font-size:.85rem;">
       <thead style="background:#f0f9fb;">
         <tr>
-          {% if is_hr %}<th class="ps-4" style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Employee</th>{% endif %}
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Period</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Gross</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Deductions</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">Net Salary</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">File</th>
+          {% if is_hr %}<th class="ps-4" style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Employee" %}</th>{% endif %}
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Period" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Gross" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Deductions" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Net Salary" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "File" %}</th>
           <th></th>
         </tr>
       </thead>
@@ -93,10 +93,10 @@
           <td>
             {% if slip.payslip_file %}
             <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size:.75rem;">
-              <i class="bi bi-file-pdf me-1"></i> View
+              <i class="bi bi-file-pdf me-1"></i> {% trans "View" %}
             </a>
             {% else %}
-            <span style="font-size:.78rem;color:#9ab4c0;">No file</span>
+            <span style="font-size:.78rem;color:#9ab4c0;">{% trans "No file" %}</span>
             {% endif %}
           </td>
           <td>
@@ -105,7 +105,7 @@
                 <i class="bi bi-eye"></i>
               </a>
               {% if is_hr %}
-              <form method="post" action="{% url 'payroll:delete' slip.pk %}" onsubmit="return confirm('Delete this payslip?')">
+              <form method="post" action="{% url 'payroll:delete' slip.pk %}" onsubmit="return confirm('{% trans "Delete this payslip?" %}')">
                 {% csrf_token %}
                 <button class="btn btn-sm btn-outline-danger" style="font-size:.75rem;"><i class="bi bi-trash"></i></button>
               </form>
@@ -119,16 +119,16 @@
   </div>
   {% if page_obj.has_other_pages %}
   <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top" style="background:#fafafa;">
-    <div style="font-size:.8rem;color:#6b7a8d;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</div>
+    <div style="font-size:.8rem;color:#6b7a8d;">{% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}Page {{ page }} of {{ total }}{% endblocktrans %}</div>
     <div class="d-flex gap-1">
       {% if page_obj.has_previous %}
       <a href="?page={{ page_obj.previous_page_number }}&year={{ year_filter }}&month={{ month_filter }}&employee={{ emp_filter }}" class="btn btn-sm btn-outline-secondary">
-        <i class="bi bi-chevron-left"></i> Prev
+        <i class="bi bi-chevron-left"></i> {% trans "Prev" %}
       </a>
       {% endif %}
       {% if page_obj.has_next %}
       <a href="?page={{ page_obj.next_page_number }}&year={{ year_filter }}&month={{ month_filter }}&employee={{ emp_filter }}" class="btn btn-sm btn-outline-secondary">
-        Next <i class="bi bi-chevron-right"></i>
+        {% trans "Next" %} <i class="bi bi-chevron-right"></i>
       </a>
       {% endif %}
     </div>
@@ -137,10 +137,10 @@
   {% else %}
   <div class="text-center py-5">
     <i class="bi bi-receipt fs-1 d-block mb-3" style="color:#cde8ef;"></i>
-    <div style="font-size:.95rem;font-weight:600;color:#6b7a8d;">No payslips found</div>
+    <div style="font-size:.95rem;font-weight:600;color:#6b7a8d;">{% trans "No payslips found" %}</div>
     {% if is_hr %}
     <a href="{% url 'payroll:create' %}" class="btn btn-primary btn-sm mt-3">
-      <i class="bi bi-plus-lg me-1"></i> Create First Payslip
+      <i class="bi bi-plus-lg me-1"></i> {% trans "Create First Payslip" %}
     </a>
     {% endif %}
   </div>

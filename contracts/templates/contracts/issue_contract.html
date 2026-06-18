@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Issue Contract — AEF HRM{% endblock %}
-{% block page_title %}Issue Contract{% endblock %}
+{% block title %}{% trans "Issue Contract" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Issue Contract" %}{% endblock %}
 {% block nav_contracts %}active{% endblock %}
 
 {% block topbar_actions %}
 {% if preselect_employee %}
 <a href="{% url 'accounts:employee_edit' preselect_employee.pk %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> Back to Employee
+    <i class="bi bi-arrow-left me-1"></i> {% trans "Back to Employee" %}
 </a>
 {% else %}
 <a href="{% url 'contracts:list' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-arrow-left me-1"></i> All Contracts
+    <i class="bi bi-arrow-left me-1"></i> {% trans "All Contracts" %}
 </a>
 {% endif %}
 {% endblock %}
@@ -23,15 +23,14 @@
 <div class="card animate-in">
     <div class="card-header">
         <i class="bi bi-file-earmark-plus me-2" style="color:#2db4c3;"></i>
-        {% if preselect_employee %}Change / Renew Contract — {{ preselect_employee.get_full_name }}{% else %}Issue New Contract{% endif %}
+        {% if preselect_employee %}{% blocktrans with name=preselect_employee.get_full_name %}Change / Renew Contract — {{ name }}{% endblocktrans %}{% else %}{% trans "Issue New Contract" %}{% endif %}
     </div>
     <div class="card-body p-4">
         {% if preselect_employee %}
         <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.82rem;border-left:3px solid #2db4c3;background:#f0f9ff;border-radius:8px;">
             <i class="bi bi-person-fill me-1"></i>
-            Issuing contract for <strong>{{ preselect_employee.get_full_name }}</strong>
-            ({{ preselect_employee.employee_id }}){% if preselect_employee.department %} — {{ preselect_employee.department }}{% endif %}.
-            Any existing active contract will be automatically marked as <em>renewed</em>.
+            {% blocktrans with name=preselect_employee.get_full_name eid=preselect_employee.employee_id %}Issuing contract for <strong>{{ name }}</strong> ({{ eid }}){% endblocktrans %}{% if preselect_employee.department %} — {{ preselect_employee.department }}{% endif %}.
+            {% trans "Any existing active contract will be automatically marked as" %} <em>{% trans "renewed" %}</em>.
         </div>
         {% endif %}
         <form method="post">
@@ -40,9 +39,9 @@
             <input type="hidden" name="employee" value="{{ preselect_employee.pk }}">
             {% else %}
             <div class="mb-3">
-                <label class="form-label fw-600">Employee <span class="text-danger">*</span></label>
+                <label class="form-label fw-600">{% trans "Employee" %} <span class="text-danger">*</span></label>
                 <select name="employee" class="form-select" required>
-                    <option value="">— Select Employee —</option>
+                    <option value="">{% trans "— Select Employee —" %}</option>
                     {% for emp in employees %}
                     <option value="{{ emp.pk }}">
                         {{ emp.get_full_name }} ({{ emp.employee_id }}){% if emp.department %} — {{ emp.department }}{% endif %}
@@ -53,13 +52,13 @@
             {% endif %}
 
             <div class="mb-3">
-                <label class="form-label fw-600">Contract Type <span class="text-danger">*</span></label>
+                <label class="form-label fw-600">{% trans "Contract Type" %} <span class="text-danger">*</span></label>
                 <div class="row g-2">
                     <div class="col-sm-6">
                         <div class="form-check p-3 rounded border" style="background:#f8fafc;">
                             <input class="form-check-input" type="radio" name="contract_type" id="type_cdd" value="CDD" checked onchange="updateContractForm()">
                             <label class="form-check-label" for="type_cdd">
-                                <strong>CDD</strong> — Fixed Term <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                                <strong>CDD</strong> — {% trans "Fixed Term" %} <span class="text-muted" style="font-size:.8rem;">({% trans "has end date" %})</span>
                             </label>
                         </div>
                     </div>
@@ -67,7 +66,7 @@
                         <div class="form-check p-3 rounded border" style="background:#f8fafc;">
                             <input class="form-check-input" type="radio" name="contract_type" id="type_cdi" value="CDI" onchange="updateContractForm()">
                             <label class="form-check-label" for="type_cdi">
-                                <strong>CDI</strong> — Permanent <span class="text-muted" style="font-size:.8rem;">(no end date)</span>
+                                <strong>CDI</strong> — {% trans "Permanent" %} <span class="text-muted" style="font-size:.8rem;">({% trans "no end date" %})</span>
                             </label>
                         </div>
                     </div>
@@ -75,7 +74,7 @@
                         <div class="form-check p-3 rounded border" style="background:#f0fdf4;">
                             <input class="form-check-input" type="radio" name="contract_type" id="type_intern" value="INTERN" onchange="updateContractForm()">
                             <label class="form-check-label" for="type_intern">
-                                <strong>INTERN</strong> — Internship <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                                <strong>INTERN</strong> — {% trans "Internship" %} <span class="text-muted" style="font-size:.8rem;">({% trans "has end date" %})</span>
                             </label>
                         </div>
                     </div>
@@ -83,7 +82,7 @@
                         <div class="form-check p-3 rounded border" style="background:#fdf4ff;">
                             <input class="form-check-input" type="radio" name="contract_type" id="type_wacs" value="WACS" onchange="updateContractForm()">
                             <label class="form-check-label" for="type_wacs">
-                                <strong>WACS</strong> — Residents <span class="text-muted" style="font-size:.8rem;">(has end date)</span>
+                                <strong>WACS</strong> — {% trans "Residents" %} <span class="text-muted" style="font-size:.8rem;">({% trans "has end date" %})</span>
                             </label>
                         </div>
                     </div>
@@ -92,61 +91,61 @@
 
             <!-- Internship type dropdown — only shown for INTERN -->
             <div class="mb-3 d-none" id="internship-type-wrap">
-                <label class="form-label fw-600">Internship Type <span class="text-danger">*</span></label>
+                <label class="form-label fw-600">{% trans "Internship Type" %} <span class="text-danger">*</span></label>
                 <select name="internship_type" id="internship-type-select" class="form-select">
-                    <option value="">— Select Internship Type —</option>
-                    <option value="academic">Academic Internship</option>
-                    <option value="pre_employment">Pre-Employment Internship</option>
-                    <option value="professional">Professional Internship</option>
-                    <option value="vocational">Vocational / Technical Internship</option>
-                    <option value="observation">Observation / Discovery Internship</option>
-                    <option value="other">Other</option>
+                    <option value="">{% trans "— Select Internship Type —" %}</option>
+                    <option value="academic">{% trans "Academic Internship" %}</option>
+                    <option value="pre_employment">{% trans "Pre-Employment Internship" %}</option>
+                    <option value="professional">{% trans "Professional Internship" %}</option>
+                    <option value="vocational">{% trans "Vocational / Technical Internship" %}</option>
+                    <option value="observation">{% trans "Observation / Discovery Internship" %}</option>
+                    <option value="other">{% trans "Other" %}</option>
                 </select>
             </div>
 
             <!-- Working department — shown for INTERN and WACS -->
             <div class="mb-3 d-none" id="working-dept-wrap">
-                <label class="form-label fw-600">Working Department <span class="text-danger">*</span></label>
+                <label class="form-label fw-600">{% trans "Working Department" %} <span class="text-danger">*</span></label>
                 <select name="working_department" id="working-dept-select" class="form-select">
-                    <option value="">— Select Department —</option>
+                    <option value="">{% trans "— Select Department —" %}</option>
                     {% for dept in all_departments %}
                     <option value="{{ dept.pk }}">{{ dept.name }}</option>
                     {% endfor %}
                 </select>
-                <div class="form-text text-muted">The department where this intern or resident will be placed.</div>
+                <div class="form-text text-muted">{% trans "The department where this intern or resident will be placed." %}</div>
             </div>
 
             <div class="row g-3 mb-3">
                 <div class="col-sm-6">
-                    <label class="form-label fw-600">Start Date <span class="text-danger">*</span></label>
+                    <label class="form-label fw-600">{% trans "Start Date" %} <span class="text-danger">*</span></label>
                     <input type="text" name="start_date" class="form-control" required
-                           placeholder="DD/MM/YYYY or YYYY-MM-DD"
+                           placeholder="{% trans "DD/MM/YYYY or YYYY-MM-DD" %}"
                            autocomplete="off">
                     <div class="form-text text-muted" style="font-size:0.75rem;">
-                        <i class="bi bi-info-circle me-1"></i>Enter the actual employment start date (may be in the past).
+                        <i class="bi bi-info-circle me-1"></i>{% trans "Enter the actual employment start date (may be in the past)." %}
                     </div>
                 </div>
                 <div class="col-sm-6" id="end-date-wrap">
-                    <label class="form-label fw-600">End Date <span class="text-danger">*</span> <small class="text-muted fw-normal" id="end-date-label">(CDD / INTERN / WACS)</small></label>
+                    <label class="form-label fw-600">{% trans "End Date" %} <span class="text-danger">*</span> <small class="text-muted fw-normal" id="end-date-label">({% trans "CDD / INTERN / WACS" %})</small></label>
                     <input type="text" name="end_date" id="end-date-input" class="form-control"
-                           placeholder="DD/MM/YYYY or YYYY-MM-DD"
+                           placeholder="{% trans "DD/MM/YYYY or YYYY-MM-DD" %}"
                            autocomplete="off">
                 </div>
             </div>
 
             <div class="mb-4">
-                <label class="form-label fw-600">Notes <small class="text-muted fw-normal">(optional)</small></label>
-                <textarea name="notes" class="form-control" rows="3" placeholder="Any additional notes about this contract…"></textarea>
+                <label class="form-label fw-600">{% trans "Notes" %} <small class="text-muted fw-normal">({% trans "optional" %})</small></label>
+                <textarea name="notes" class="form-control" rows="3" placeholder="{% trans "Any additional notes about this contract…" %}"></textarea>
             </div>
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-file-earmark-check me-1"></i>Issue Contract
+                    <i class="bi bi-file-earmark-check me-1"></i>{% trans "Issue Contract" %}
                 </button>
                 {% if preselect_employee %}
-                <a href="{% url 'accounts:employee_edit' preselect_employee.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                <a href="{% url 'accounts:employee_edit' preselect_employee.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
                 {% else %}
-                <a href="{% url 'contracts:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                <a href="{% url 'contracts:list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
                 {% endif %}
             </div>
         </form>
@@ -169,7 +168,7 @@ function updateContractForm() {
     wrap.style.opacity = isCDI ? '0.4' : '1';
     input.required  = !isCDI;
     input.disabled  = isCDI;
-    input.placeholder = isCDI ? 'Not applicable for CDI' : 'DD/MM/YYYY or YYYY-MM-DD';
+    input.placeholder = isCDI ? '{% trans "Not applicable for CDI" %}' : '{% trans "DD/MM/YYYY or YYYY-MM-DD" %}';
     if (isCDI) input.value = '';
 
     // Internship type dropdown — only for INTERN

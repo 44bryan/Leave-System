@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Create Payslip — AEF HRM{% endblock %}
-{% block page_title %}Create Payslip{% endblock %}
+{% block title %}{% trans "Create Payslip" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Create Payslip" %}{% endblock %}
 {% block nav_payroll %}active{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'payroll:list' %}" class="btn btn-outline-primary btn-sm">
-  <i class="bi bi-arrow-left me-1"></i> All Payslips
+  <i class="bi bi-arrow-left me-1"></i> {% trans "All Payslips" %}
 </a>
 {% endblock %}
 
@@ -20,20 +20,20 @@
   <div class="col-lg-4">
     <div class="card animate-in">
       <div class="card-header">
-        <i class="bi bi-person me-2" style="color:#2db4c3;"></i>Employee & Period
+        <i class="bi bi-person me-2" style="color:#2db4c3;"></i>{% trans "Employee & Period" %}
       </div>
       <div class="card-body p-4">
         <div class="mb-3">
-          <label class="form-label fw-600">Employee <span class="text-danger">*</span></label>
+          <label class="form-label fw-600">{% trans "Employee" %} <span class="text-danger">*</span></label>
           <select name="employee" class="form-select" required>
-            <option value="">— Select Employee —</option>
+            <option value="">— {% trans "Select Employee" %} —</option>
             {% for emp in employees %}
             <option value="{{ emp.pk }}">{{ emp.user.get_full_name }} ({{ emp.employee_id }})</option>
             {% endfor %}
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-600">Month <span class="text-danger">*</span></label>
+          <label class="form-label fw-600">{% trans "Month" %} <span class="text-danger">*</span></label>
           <select name="period_month" class="form-select" required>
             {% for val, name in months %}
             <option value="{{ val }}" {% if val == current_month %}selected{% endif %}>{{ name }}</option>
@@ -41,7 +41,7 @@
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-600">Year <span class="text-danger">*</span></label>
+          <label class="form-label fw-600">{% trans "Year" %} <span class="text-danger">*</span></label>
           <select name="period_year" class="form-select" required>
             {% for y in years %}
             <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>{{ y }}</option>
@@ -49,13 +49,13 @@
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-600">Notes <small class="text-muted fw-normal">(optional)</small></label>
-          <textarea name="notes" class="form-control" rows="3" placeholder="Any notes..."></textarea>
+          <label class="form-label fw-600">{% trans "Notes" %} <small class="text-muted fw-normal">({% trans "optional" %})</small></label>
+          <textarea name="notes" class="form-control" rows="3" placeholder="{% trans "Any notes..." %}"></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-600">Upload PDF <small class="text-muted fw-normal">(optional)</small></label>
+          <label class="form-label fw-600">{% trans "Upload PDF" %} <small class="text-muted fw-normal">({% trans "optional" %})</small></label>
           <input type="file" name="payslip_file" class="form-control" accept=".pdf">
-          <div class="form-text">Upload signed payslip PDF if available.</div>
+          <div class="form-text">{% trans "Upload signed payslip PDF if available." %}</div>
         </div>
       </div>
     </div>
@@ -65,55 +65,55 @@
   <div class="col-lg-8">
     <div class="card animate-in">
       <div class="card-header">
-        <i class="bi bi-cash-stack me-2" style="color:#2db4c3;"></i>Salary Breakdown
+        <i class="bi bi-cash-stack me-2" style="color:#2db4c3;"></i>{% trans "Salary Breakdown" %}
       </div>
       <div class="card-body p-4">
 
         <div class="mb-3">
-          <label class="form-label fw-600">Gross Salary (XAF) <span class="text-danger">*</span></label>
+          <label class="form-label fw-600">{% trans "Gross Salary (XAF)" %} <span class="text-danger">*</span></label>
           <input type="number" name="gross_salary" id="grossSalary" class="form-control" step="1" min="0" required oninput="calcNet()">
         </div>
-        <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="autoCalc()" title="Estimate CNPS (4.2%) and IRPP based on Cameroonian tax rules">
-          <i class="bi bi-calculator me-1"></i> Auto-calculate CNPS & Tax
+        <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="autoCalc()" title="{% trans "Estimate CNPS (4.2%) and IRPP based on Cameroonian tax rules" %}">
+          <i class="bi bi-calculator me-1"></i> {% trans "Auto-calculate CNPS & Tax" %}
         </button>
 
         <hr class="my-3">
         <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:#059669;letter-spacing:.06em;" class="mb-2">
-          <i class="bi bi-plus-circle me-1"></i>Allowances
+          <i class="bi bi-plus-circle me-1"></i>{% trans "Allowances" %}
         </div>
         <div class="row g-3 mb-3">
           <div class="col-sm-4">
-            <label class="form-label" style="font-size:.8rem;">Transport Allowance</label>
+            <label class="form-label" style="font-size:.8rem;">{% trans "Transport Allowance" %}</label>
             <input type="number" name="transport_allowance" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
           </div>
           <div class="col-sm-4">
-            <label class="form-label" style="font-size:.8rem;">Housing Allowance</label>
+            <label class="form-label" style="font-size:.8rem;">{% trans "Housing Allowance" %}</label>
             <input type="number" name="housing_allowance" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
           </div>
           <div class="col-sm-4">
-            <label class="form-label" style="font-size:.8rem;">Other Allowances</label>
+            <label class="form-label" style="font-size:.8rem;">{% trans "Other Allowances" %}</label>
             <input type="number" name="other_allowances" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
-            <input type="text" name="other_allowances_label" class="form-control form-control-sm mt-1" placeholder="Label (optional)">
+            <input type="text" name="other_allowances_label" class="form-control form-control-sm mt-1" placeholder="{% trans "Label (optional)" %}">
           </div>
         </div>
 
         <hr class="my-3">
         <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;color:#dc2626;letter-spacing:.06em;" class="mb-2">
-          <i class="bi bi-dash-circle me-1"></i>Deductions
+          <i class="bi bi-dash-circle me-1"></i>{% trans "Deductions" %}
         </div>
         <div class="row g-3 mb-4">
           <div class="col-sm-4">
-            <label class="form-label" style="font-size:.8rem;">CNPS</label>
+            <label class="form-label" style="font-size:.8rem;">{% trans "CNPS" %}</label>
             <input type="number" name="cnps" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
           </div>
           <div class="col-sm-4">
-            <label class="form-label" style="font-size:.8rem;">Income Tax</label>
+            <label class="form-label" style="font-size:.8rem;">{% trans "Income Tax" %}</label>
             <input type="number" name="income_tax" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
           </div>
           <div class="col-sm-4">
-            <label class="form-label" style="font-size:.8rem;">Other Deductions</label>
+            <label class="form-label" style="font-size:.8rem;">{% trans "Other Deductions" %}</label>
             <input type="number" name="other_deductions" class="form-control form-control-sm" step="1" min="0" value="0" oninput="calcNet()">
-            <input type="text" name="other_deductions_label" class="form-control form-control-sm mt-1" placeholder="Label (optional)">
+            <input type="text" name="other_deductions_label" class="form-control form-control-sm mt-1" placeholder="{% trans "Label (optional)" %}">
           </div>
         </div>
 
@@ -121,14 +121,14 @@
         <!-- Net display -->
         <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background:#f0fdf4;border:1.5px solid #bbf7d0;">
           <div>
-            <div style="font-size:.75rem;text-transform:uppercase;color:#059669;font-weight:700;">Net Salary</div>
-            <div style="font-size:.75rem;color:#6b7a8d;">Gross + Allowances − Deductions</div>
+            <div style="font-size:.75rem;text-transform:uppercase;color:#059669;font-weight:700;">{% trans "Net Salary" %}</div>
+            <div style="font-size:.75rem;color:#6b7a8d;">{% trans "Gross + Allowances − Deductions" %}</div>
           </div>
           <div id="netDisplay" style="font-size:1.5rem;font-weight:800;color:#059669;">0 XAF</div>
         </div>
 
         <button type="submit" class="btn btn-primary w-100 mt-4">
-          <i class="bi bi-save me-1"></i> Save Payslip
+          <i class="bi bi-save me-1"></i> {% trans "Save Payslip" %}
         </button>
       </div>
     </div>
@@ -156,7 +156,7 @@ function autoCalc() {
      IRPP: progressive brackets on taxable income = gross - CNPS - professional deduction (30% of gross, max 500,000/yr = 41,667/mo)
   */
   const gross = v('gross_salary');
-  if (!gross) { alert('Enter the gross salary first.'); return; }
+  if (!gross) { alert('{% trans "Enter the gross salary first." %}'); return; }
 
   const transport = v('transport_allowance');
   // CNPS base = gross (transport exempt up to 26,250 XAF)
