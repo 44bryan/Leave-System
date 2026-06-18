@@ -274,7 +274,7 @@ def generate_contract_pdf(contract):
     c.drawString(col1_x, sig_y - 5*mm, "Magrabi ICO Cameroon Eye Institute")
 
     sig_y -= 22*mm
-    c.setStrokeColorRGB(*_BORDER)
+    c.setStrokeColorRGB(*_CYAN)
     c.setLineWidth(0.8)
     c.line(col1_x, sig_y, col1_x + line_w, sig_y)
     c.setFont("Helvetica", 8)
@@ -283,22 +283,24 @@ def generate_contract_pdf(contract):
     c.drawString(col1_x, sig_y - 8*mm, "Name: ___________________________")
     c.drawString(col1_x, sig_y - 13*mm, "Date:  ___________________________")
 
-    # Employee side
-    sig_y = y + 22*mm
+    # Employee side — same starting Y as employer heading
+    sig_y = y
     c.setFont("Helvetica-Bold", 9)
     c.setFillColorRGB(*_LABEL)
     c.drawString(col2_x, sig_y, "Employee / Recipient")
-
-    sig_y -= 22*mm
-    c.line(col2_x, sig_y, col2_x + line_w, sig_y)
     c.setFont("Helvetica", 8.5)
     c.setFillColorRGB(*_DARK)
     c.drawString(col2_x, sig_y - 5*mm, emp.get_full_name())
+
+    sig_y -= 22*mm
+    c.setStrokeColorRGB(*_CYAN)
+    c.setLineWidth(0.8)
+    c.line(col2_x, sig_y, col2_x + line_w, sig_y)
     c.setFont("Helvetica", 8)
     c.setFillColorRGB(0.5, 0.5, 0.5)
-    c.drawString(col2_x, sig_y - 10*mm, "Signature")
-    c.drawString(col2_x, sig_y - 15*mm, "Name: ___________________________")
-    c.drawString(col2_x, sig_y - 20*mm, "Date:  ___________________________")
+    c.drawString(col2_x, sig_y - 4*mm, "Signature")
+    c.drawString(col2_x, sig_y - 8*mm, "Name: ___________________________")
+    c.drawString(col2_x, sig_y - 13*mm, "Date:  ___________________________")
 
     _footer(c, 1, W)
     c.save()
