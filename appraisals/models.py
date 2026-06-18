@@ -285,9 +285,11 @@ class AppraisalRecord(models.Model):
     def discipline_deductions(self):
         from discipline.models import DisciplineRecord
         from datetime import date
+        import calendar
         year, trim = self.cycle.year, self.cycle.trimester
         if trim == 1:
-            from_date, to_date = date(year - 1, 11, 1), date(year, 2, 28)
+            feb_last = calendar.monthrange(year, 2)[1]
+            from_date, to_date = date(year - 1, 11, 1), date(year, 2, feb_last)
         elif trim == 2:
             from_date, to_date = date(year, 3, 1), date(year, 6, 30)
         else:

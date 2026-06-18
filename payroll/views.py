@@ -101,7 +101,7 @@ def payslip_create(request):
 
         try:
             employee = Employee.objects.get(pk=emp_pk)
-        except Employee.DoesNotExist:
+        except (Employee.DoesNotExist, ValueError, TypeError):
             messages.error(request, "Employee not found.")
             return redirect('payroll:create')
 
