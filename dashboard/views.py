@@ -2234,6 +2234,63 @@ def toggle_module(request):
 
 
 @login_required
+def run_auto_lock(request):
+    """Superuser: run the contract auto-lock logic immediately from the browser."""
+    if not request.user.is_superuser:
+        from django.contrib import messages as _msg
+        _msg.error(request, "Access denied.")
+        return redirect('dashboard:admin_settings')
+    if request.method != 'POST':
+        return redirect('dashboard:admin_settings')
+
+    from datetime import date as _date, timedelta
+    from .models import SystemSettings
+    from contracts.models import Contract
+
+    ss = SystemSettings.get()
+    grace_days = ss.contract_auto_lock_grace_days
+    cutoff = _date.today() - timedelta(days=grace_days)
+
+    locked_count   = 0
+    unlocked_count = 0
+
+    for emp in Employee.objects.filter(is_active=True).select_related('user'):
+        contracts = emp.contracts.filter(contract_type__in=('CDD', 'INTERN', 'WACS'))
+        if not contracts.exists():
+            continue
+
+        if contracts.filter(status='active').exists():
+            # Has active contract — make sure account is unlocked
+            if not emp.user.is_active:
+                emp.user.is_active = True
+                emp.user.save(update_fields=['is_active'])
+                unlocked_count += 1
+            continue
+
+        latest = contracts.order_by('-end_date').first()
+        if not latest or not latest.end_date:
+            continue
+
+        if latest.end_date < cutoff and emp.user.is_active:
+            emp.user.is_active = False
+            emp.user.save(update_fields=['is_active'])
+            locked_count += 1
+
+    from django.contrib import messages as _msg
+    parts = []
+    if locked_count:
+        parts.append(f"{locked_count} account{'s' if locked_count != 1 else ''} locked")
+    if unlocked_count:
+        parts.append(f"{unlocked_count} account{'s' if unlocked_count != 1 else ''} unlocked")
+    if parts:
+        _msg.success(request, "Auto-lock completed: " + ", ".join(parts) + ".")
+    else:
+        _msg.info(request, f"Auto-lock ran — no accounts needed to be changed (grace period: {grace_days} days).")
+
+    return redirect('dashboard:admin_settings')
+
+
+@login_required
 def org_chart(request):
     """Visual org chart of the reporting hierarchy."""
     employees = (
