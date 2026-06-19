@@ -232,7 +232,14 @@ def contract_list(request):
     if filter_type:
         contracts = contracts.filter(contract_type=filter_type)
     if filter_status:
-        contracts = contracts.filter(status=filter_status)
+        if filter_status == 'expired':
+            today = date.today()
+            contracts = contracts.filter(
+                Q(status='expired') |
+                Q(status='active', end_date__isnull=False, end_date__lt=today)
+            )
+        else:
+            contracts = contracts.filter(status=filter_status)
     if filter_dept:
         contracts = contracts.filter(employee__department_id=filter_dept)
     if filter_emp:
