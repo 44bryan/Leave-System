@@ -910,6 +910,35 @@ def bulk_renew_contracts(request):
 
 
 @login_required
+def delete_contract(request, pk):
+    """Permanently delete a contract record — superuser only."""
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied. System admin only.")
+        return redirect('dashboard:home')
+
+    contract = get_object_or_404(Contract, pk=pk)
+
+    if request.method == 'POST':
+        emp_name = contract.employee.get_full_name()
+        ct_display = contract.get_contract_type_display()
+        start = contract.start_date
+        employee_pk = contract.employee.pk
+        contract.delete()
+        messages.success(request, f"Contract ({ct_display}, {start}) for {emp_name} has been permanently deleted.")
+        try:
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_CONTRACT,
+                f"Permanently deleted contract ({ct_display}, {start}) for {emp_name}",
+            )
+        except Exception:
+            pass
+        return redirect('contracts:list')
+
+    return redirect('contracts:detail', pk=pk)
+
+
+@login_required
 def contract_pdf(request, pk):
     """Download a contract as a PDF letter."""
     contract = get_object_or_404(Contract, pk=pk)
