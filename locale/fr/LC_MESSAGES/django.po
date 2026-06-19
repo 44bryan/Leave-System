@@ -7150,8 +7150,8 @@ msgstr "Total des jours cette année"
 #| msgid "Today!"
 msgid "day"
 msgid_plural "days"
-msgstr[0] "Aujourd'hui !"
-msgstr[1] "Aujourd'hui !"
+msgstr[0] "jour"
+msgstr[1] "jours"
 
 #: .\leaves\templates\leaves\employee_leave_summary.html:90
 #, python-format
@@ -8307,3 +8307,52 @@ msgstr ""
 
 #~ msgid "No department"
 #~ msgstr "Aucun département"
+
+#: contracts/templates/contracts/contract_detail.html
+msgid "Delete Contract"
+msgstr "Supprimer le Contrat"
+
+#: contracts/templates/contracts/contract_detail.html
+msgid "Permanently Delete"
+msgstr "Supprimer Définitivement"
+
+#: contracts/templates/contracts/contract_detail.html
+msgid "Are you sure you want to permanently delete this contract?"
+msgstr "Êtes-vous sûr de vouloir supprimer définitivement ce contrat ?"
+
+#: contracts/templates/contracts/contract_detail.html
+msgid "This action cannot be undone. All contract data will be permanently removed."
+msgstr "Cette action est irréversible. Toutes les données du contrat seront définitivement supprimées."
+
+#: accounts/templates/accounts/password_reset_form.html
+msgid "Confirm your email"
+msgstr "Confirmez votre adresse e-mail"
+
+#: accounts/templates/accounts/password_reset_form.html
+msgid "We found your account. The email on file is:"
+msgstr "Nous avons trouvé votre compte. L'adresse e-mail enregistrée est :"
+
+#: accounts/templates/accounts/password_reset_form.html
+msgid "Enter your full email address to verify your identity. A reset link will be sent to that address."
+msgstr "Saisissez votre adresse e-mail complète pour vérifier votre identité. Un lien de réinitialisation vous sera envoyé."
+
+#: accounts/templates/accounts/password_reset_form.html
+msgid "Your email address"
+msgstr "Votre adresse e-mail"
+
+#: accounts/templates/accounts/password_reset_form.html
+msgid "Use a different username"
+msgstr "Utiliser un autre nom d'utilisateur"
+
+#: accounts/templates/accounts/password_reset_form.html
+msgid "No account found with that username."
+msgstr "Aucun compte trouvé avec ce nom d'utilisateur."
+
+#: accounts/templates/accounts/password_reset_form.html
+msgid "The email you entered does not match the email on this account. Please try again."
+msgstr "L'adresse e-mail saisie ne correspond pas à l'adresse enregistrée sur ce compte. Veuillez réessayer."
+
+#: accounts/templates/accounts/password_reset_form.html
+msgid "This account has no email address on file. Please contact HR."
+msgstr "Ce compte ne possède pas d'adresse e-mail enregistrée. Veuillez contacter les RH."
+
