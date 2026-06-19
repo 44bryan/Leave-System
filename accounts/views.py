@@ -442,6 +442,86 @@ def profile_save_signature(request):
     return redirect('accounts:profile')
 
 
+def _mask_email(email):
+    """Return a masked email: john.doe@company.com → j***e@company.com"""
+    try:
+        local, domain = email.split('@', 1)
+        if len(local) <= 2:
+            masked_local = local[0] + '***'
+        elif len(local) <= 4:
+            masked_local = local[0] + '***' + local[-1]
+        else:
+            masked_local = local[0] + local[1] + '***' + local[-2] + local[-1]
+        return f"{masked_local}@{domain}"
+    except Exception:
+        return '***@***.***'
+
+
+def password_reset_view(request):
+    """
+    2-step secure password reset:
+      Step 1 — enter username
+      Step 2 — system shows masked email; user must type the full email to confirm
+    Wrong email at step 2 → hard fail.
+    """
+    from django.contrib.auth import get_user_model
+    from django.contrib.auth.forms import PasswordResetForm
+
+    User = get_user_model()
+    step = request.POST.get('step', '1')
+
+    if request.method == 'POST':
+        if step == '1':
+            username = request.POST.get('username', '').strip()
+            try:
+                user = User.objects.get(username=username)
+                if not user.email:
+                    return render(request, 'accounts/password_reset_form.html', {
+                        'step': '1',
+                        'error': 'This account has no email address on file. Please contact HR.',
+                    })
+                return render(request, 'accounts/password_reset_form.html', {
+                    'step': '2',
+                    'username': username,
+                    'masked_email': _mask_email(user.email),
+                })
+            except User.DoesNotExist:
+                return render(request, 'accounts/password_reset_form.html', {
+                    'step': '1',
+                    'error': 'No account found with that username.',
+                })
+
+        elif step == '2':
+            username = request.POST.get('username', '').strip()
+            email_input = request.POST.get('email', '').strip().lower()
+            try:
+                user = User.objects.get(username=username)
+                if user.email.lower() != email_input:
+                    return render(request, 'accounts/password_reset_form.html', {
+                        'step': '2',
+                        'username': username,
+                        'masked_email': _mask_email(user.email),
+                        'error': 'The email you entered does not match the email on this account. Please try again.',
+                    })
+                # Email confirmed — send the reset link via Django's built-in form
+                form = PasswordResetForm({'email': email_input})
+                if form.is_valid():
+                    form.save(
+                        request=request,
+                        use_https=request.is_secure(),
+                        email_template_name='accounts/password_reset_email.html',
+                        subject_template_name='accounts/password_reset_subject.txt',
+                    )
+                return redirect('accounts:password_reset_done')
+            except User.DoesNotExist:
+                return render(request, 'accounts/password_reset_form.html', {
+                    'step': '1',
+                    'error': 'No account found with that username.',
+                })
+
+    return render(request, 'accounts/password_reset_form.html', {'step': '1'})
+
+
 @login_required
 def change_password(request):
     """Allows any logged-in user to change their own password."""
