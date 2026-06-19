@@ -6,11 +6,6 @@
 {% block nav_my_contract %}active{% endblock %}
 
 {% block topbar_actions %}
-{% if contract %}
-<a href="{% url 'contracts:pdf' contract.pk %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download Contract PDF" %}
-</a>
-{% endif %}
 {% if unread_count > 0 %}
 <a href="{% url 'contracts:notifications' %}" class="btn btn-outline-primary btn-sm position-relative">
     <i class="bi bi-bell me-1"></i>{% trans "Notifications" %}
@@ -459,7 +454,6 @@
                     <th>{% trans "Start Date" %}</th>
                     <th>{% trans "End Date" %}</th>
                     <th>{% trans "Status" %}</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -492,11 +486,6 @@
                         {% else %}
                         <span class="badge bg-success">{% trans "Active" %}</span>
                         {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'contracts:pdf' c.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Download PDF' %}">
-                            <i class="bi bi-file-earmark-pdf"></i>
-                        </a>
                     </td>
                 </tr>
                 {% endfor %}
