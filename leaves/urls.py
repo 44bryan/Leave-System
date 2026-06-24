@@ -32,4 +32,8 @@ urlpatterns = [
     path('leave-types/restore-defaults/', views.restore_default_leave_types, name='restore_default_leave_types'),
     path('hr/backfill-signatures/', views.backfill_signatures, name='backfill_signatures'),
     path('set-entitlement/', views.set_leave_entitlement, name='set_entitlement'),
+    # Private consultation (seek guidance before deciding)
+    path('<int:leave_pk>/seek-guidance/', views.seek_consultation, name='seek_consultation'),
+    path('consultation/<int:pk>/respond/', views.respond_consultation, name='respond_consultation'),
+    path('consultations/', views.my_consultations, name='my_consultations'),
 ]

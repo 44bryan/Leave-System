@@ -225,3 +225,35 @@ class LeaveBalance(models.Model):
             .filter(status='approved', start_date__year=self.year, leave_type__is_deductible=False)
             .aggregate(total=Sum('total_days'))['total'] or 0
         )
+
+
+class LeaveConsultation(models.Model):
+    """Private guidance request from an approver to a senior colleague before deciding on a leave."""
+    STATUS_PENDING = 'pending'
+    STATUS_PROCEED = 'proceed'
+    STATUS_HOLD    = 'hold'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Awaiting Response'),
+        (STATUS_PROCEED, 'Proceed — Approve'),
+        (STATUS_HOLD,    'Hold — Do Not Approve Yet'),
+    ]
+
+    leave_request  = models.ForeignKey(LeaveRequest, on_delete=models.CASCADE,
+                                       related_name='consultations')
+    requested_by   = models.ForeignKey(Employee, on_delete=models.CASCADE,
+                                       related_name='consultations_sent')
+    consulted_with = models.ForeignKey(Employee, on_delete=models.CASCADE,
+                                       related_name='consultations_received')
+    private_note   = models.TextField(help_text='Private note — NOT visible to the employee.')
+    status         = models.CharField(max_length=20, choices=STATUS_CHOICES,
+                                      default=STATUS_PENDING)
+    response_note  = models.TextField(blank=True)
+    created_at     = models.DateTimeField(auto_now_add=True)
+    responded_at   = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return (f'Consultation #{self.pk}: {self.requested_by} → {self.consulted_with} '
+                f'[{self.leave_request}] ({self.status})')

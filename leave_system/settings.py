@@ -198,6 +198,14 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='AEF HRM <pm@hr.micei.
 # Public URL used in email notification links
 SITE_URL = config('SITE_URL', default='https://hr.micei.org')
 
+# ── WhatsApp / Twilio Configuration ─────────────────────────────────────────
+# Set WHATSAPP_NOTIFICATIONS_ENABLED=True and configure Twilio env vars.
+# TWILIO_WHATSAPP_FROM: your Twilio WhatsApp sender (e.g. whatsapp:+14155238886)
+WHATSAPP_NOTIFICATIONS_ENABLED = config('WHATSAPP_NOTIFICATIONS_ENABLED', default=False, cast=bool)
+TWILIO_ACCOUNT_SID   = config('TWILIO_ACCOUNT_SID',   default='')
+TWILIO_AUTH_TOKEN    = config('TWILIO_AUTH_TOKEN',     default='')
+TWILIO_WHATSAPP_FROM = config('TWILIO_WHATSAPP_FROM',  default='whatsapp:+14155238886')
+
 # ── Authentication ───────────────────────────────────────────────────────────
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',

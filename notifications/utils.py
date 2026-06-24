@@ -22,7 +22,7 @@ _TYPE_COLOR = {
 
 
 def notify(recipient_user, title, message, notification_type='system', url=''):
-    """Create an in-app notification and send an email in a background thread."""
+    """Create an in-app notification, send email, and send WhatsApp — all in background threads."""
     Notification.objects.create(
         recipient=recipient_user,
         title=title,
@@ -30,12 +30,16 @@ def notify(recipient_user, title, message, notification_type='system', url=''):
         notification_type=notification_type,
         url=url,
     )
-    t = threading.Thread(
+    threading.Thread(
         target=_send_email,
         args=(recipient_user, title, message, notification_type, url),
         daemon=True,
-    )
-    t.start()
+    ).start()
+    threading.Thread(
+        target=_send_whatsapp,
+        args=(recipient_user, title, message, url),
+        daemon=True,
+    ).start()
 
 
 def _send_email(user, title, message, notification_type='system', url=''):
@@ -217,4 +221,67 @@ def _send_email(user, title, message, notification_type='system', url=''):
 
     except Exception as e:
         logger.error('Unexpected error in _send_email for user %s: %s',
+                     getattr(user, 'username', '?'), e)
+
+
+def _send_whatsapp(user, title, message, url=''):
+    """Send a WhatsApp message via Twilio REST API if WHATSAPP_NOTIFICATIONS_ENABLED=True."""
+    try:
+        from django.conf import settings
+        if not getattr(settings, 'WHATSAPP_NOTIFICATIONS_ENABLED', False):
+            return
+
+        account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', '')
+        auth_token  = getattr(settings, 'TWILIO_AUTH_TOKEN', '')
+        from_number = getattr(settings, 'TWILIO_WHATSAPP_FROM', '')
+
+        if not (account_sid and auth_token and from_number):
+            logger.warning('WhatsApp skipped: Twilio credentials not configured.')
+            return
+
+        # Get phone from Employee profile
+        try:
+            phone = user.employee_profile.phone.strip()
+        except Exception:
+            phone = ''
+
+        if not phone:
+            logger.debug('WhatsApp skipped: user "%s" has no phone number.', user.username)
+            return
+
+        # Ensure E.164 format (e.g. +237612345678)
+        if not phone.startswith('+'):
+            phone = '+' + phone
+
+        site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
+        app_url   = (site_base + url) if (url and url.startswith('/')) else url
+
+        first_name = user.first_name or user.username
+        body = (
+            f"*AEF HRM — {title}*\n\n"
+            f"Dear {first_name},\n\n"
+            f"{message}"
+            + (f"\n\n🔗 {app_url}" if app_url else "")
+            + "\n\n_Africa Eye Foundation — Automated notification_"
+        )
+
+        import requests as req
+        resp = req.post(
+            f'https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json',
+            auth=(account_sid, auth_token),
+            data={
+                'From': from_number,
+                'To':   f'whatsapp:{phone}',
+                'Body': body,
+            },
+            timeout=10,
+        )
+        if resp.status_code in (200, 201):
+            logger.info('WhatsApp sent to %s: "%s"', phone, title)
+        else:
+            logger.error('WhatsApp failed for %s ("%s"): %s %s',
+                         phone, title, resp.status_code, resp.text[:200])
+
+    except Exception as e:
+        logger.error('Unexpected error in _send_whatsapp for user %s: %s',
                      getattr(user, 'username', '?'), e)

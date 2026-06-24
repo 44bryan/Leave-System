@@ -1160,6 +1160,12 @@
                     <i class="bi bi-journal-text"></i> {% trans "My Requests" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:my_consultations' %}" class="nav-link-sidebar {% block nav_my_consultations %}{% endblock %}">
+                    <i class="bi bi-shield-lock"></i> {% trans "Private Guidance" %}
+                    {% if pending_consultations_count > 0 %}<span class="nav-badge">{{ pending_consultations_count }}</span>{% endif %}
+                </a>
+            </li>
             {% if not user.employee.is_intern %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:my_notices' %}" class="nav-link-sidebar {% block nav_my_discipline %}{% endblock %}">

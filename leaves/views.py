@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.urls import reverse
 from datetime import date
-from .models import LeaveRequest, LeaveBalance, LeaveType
+from .models import LeaveRequest, LeaveBalance, LeaveType, LeaveConsultation
 from .forms import LeaveRequestForm, ApprovalForm
 from .seniority import seniority_entitlement
 from accounts.models import Employee
@@ -1459,3 +1459,131 @@ def set_leave_entitlement(request):
         )
 
     return redirect(request.POST.get('next') or 'dashboard:tracker')
+
+
+# ── Leave Consultation (Private Seek-Guidance) ────────────────────────────────
+
+@login_required
+def seek_consultation(request, leave_pk):
+    """Approver seeks private guidance from a senior colleague before deciding."""
+    employee = get_employee(request)
+    if not employee:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    leave = get_object_or_404(LeaveRequest, pk=leave_pk)
+
+    # Only approvers who currently have authority on this leave may open a consultation
+    is_approver = (
+        request.user.is_superuser or
+        employee.is_hr() or
+        employee.is_director() or
+        employee.is_ceo() or
+        (employee.is_unit_head() and leave.employee.unit_head == employee) or
+        (employee.is_manager() and leave.employee.supervisor == employee)
+    )
+    if not is_approver:
+        messages.error(request, "Only approvers may seek guidance on a leave request.")
+        return redirect('leaves:detail', pk=leave_pk)
+
+    # Eligible consultees: any active employee except the leave.employee and the current user
+    candidates = Employee.objects.filter(
+        is_active=True
+    ).exclude(pk=employee.pk).exclude(pk=leave.employee.pk).select_related('user').order_by('user__last_name')
+
+    if request.method == 'POST':
+        consulted_pk = request.POST.get('consulted_with')
+        private_note = request.POST.get('private_note', '').strip()
+        if not consulted_pk or not private_note:
+            messages.error(request, "Please select a person and write a note.")
+        else:
+            consulted = get_object_or_404(Employee, pk=consulted_pk)
+            consultation = LeaveConsultation.objects.create(
+                leave_request=leave,
+                requested_by=employee,
+                consulted_with=consulted,
+                private_note=private_note,
+            )
+            notify(
+                consulted.user,
+                f'Private Guidance Request — {leave.employee.get_full_name()}',
+                f'{employee.get_full_name()} is seeking your private guidance on a leave request '
+                f'from {leave.employee.get_full_name()} ({leave.leave_type}, '
+                f'{leave.start_date} – {leave.end_date}). '
+                f'Please log in to respond privately.',
+                notification_type='system',
+                url=f'/leaves/consultation/{consultation.pk}/respond/',
+            )
+            messages.success(request, f"Guidance request sent privately to {consulted.get_full_name()}.")
+            return redirect('leaves:detail', pk=leave_pk)
+
+    existing = LeaveConsultation.objects.filter(leave_request=leave, requested_by=employee)
+    return render(request, 'leaves/seek_consultation.html', {
+        'leave': leave,
+        'candidates': candidates,
+        'existing': existing,
+    })
+
+
+@login_required
+def respond_consultation(request, pk):
+    """The consulted person reads the private note and responds: proceed or hold."""
+    employee = get_employee(request)
+    consultation = get_object_or_404(LeaveConsultation, pk=pk)
+
+    if not employee or consultation.consulted_with != employee:
+        messages.error(request, "Access denied — this consultation is not addressed to you.")
+        return redirect('dashboard:home')
+
+    if consultation.status != LeaveConsultation.STATUS_PENDING:
+        messages.info(request, "You have already responded to this consultation.")
+        return render(request, 'leaves/respond_consultation.html', {'consultation': consultation})
+
+    if request.method == 'POST':
+        status = request.POST.get('response_status')
+        note   = request.POST.get('response_note', '').strip()
+        if status not in (LeaveConsultation.STATUS_PROCEED, LeaveConsultation.STATUS_HOLD):
+            messages.error(request, "Please choose Proceed or Hold.")
+        else:
+            consultation.status        = status
+            consultation.response_note = note
+            consultation.responded_at  = timezone.now()
+            consultation.save()
+            notify(
+                consultation.requested_by.user,
+                f'Guidance Response — {consultation.leave_request.employee.get_full_name()}',
+                f'{employee.get_full_name()} has responded to your guidance request: '
+                f'{"✅ Proceed" if status == LeaveConsultation.STATUS_PROCEED else "⏸ Hold"}. '
+                + (f'Note: {note}' if note else ''),
+                notification_type='system',
+                url=f'/leaves/action/{consultation.leave_request.pk}/',
+            )
+            messages.success(request, "Your response has been sent privately.")
+            return redirect('dashboard:home')
+
+    return render(request, 'leaves/respond_consultation.html', {'consultation': consultation})
+
+
+@login_required
+def my_consultations(request):
+    """List consultations awaiting the current user's response."""
+    employee = get_employee(request)
+    if not employee:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    pending = LeaveConsultation.objects.filter(
+        consulted_with=employee,
+        status=LeaveConsultation.STATUS_PENDING,
+    ).select_related('leave_request__employee__user', 'requested_by__user')
+
+    past = LeaveConsultation.objects.filter(
+        consulted_with=employee,
+    ).exclude(status=LeaveConsultation.STATUS_PENDING).select_related(
+        'leave_request__employee__user', 'requested_by__user'
+    )[:20]
+
+    return render(request, 'leaves/my_consultations.html', {
+        'pending': pending,
+        'past': past,
+    })

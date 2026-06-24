@@ -15,6 +15,7 @@ def notifications_ctx(request):
         pending_leave_count = 0
         pending_discipline_proposals = 0
         pending_appraisals_count = 0
+        pending_consultations_count = 0
 
         try:
             emp = request.user.employee
@@ -91,6 +92,13 @@ def notifications_ctx(request):
                     employee__unit_head=emp,
                 ).count()
 
+            # Pending consultations sent to this user
+            from leaves.models import LeaveConsultation
+            pending_consultations_count = LeaveConsultation.objects.filter(
+                consulted_with=emp,
+                status=LeaveConsultation.STATUS_PENDING,
+            ).count()
+
         except Exception:
             pass
 
@@ -103,6 +111,7 @@ def notifications_ctx(request):
             'pending_leave_count': pending_leave_count,
             'pending_discipline_proposals': pending_discipline_proposals,
             'pending_appraisals_count': pending_appraisals_count,
+            'pending_consultations_count': pending_consultations_count,
         }
     except Exception:
         return {
@@ -114,4 +123,5 @@ def notifications_ctx(request):
             'pending_leave_count': 0,
             'pending_discipline_proposals': 0,
             'pending_appraisals_count': 0,
+            'pending_consultations_count': 0,
         }

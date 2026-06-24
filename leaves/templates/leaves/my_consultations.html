@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Private Guidance Requests — AEF HRM{% endblock %}
+{% block page_title %}Private Guidance Requests{% endblock %}
+{% block page_subtitle %}Requests sent to you for private guidance on leave decisions{% endblock %}
+
+{% block content %}
+
+{% if pending %}
+<div class="card mb-4 animate-in">
+  <div class="card-header fw-semibold" style="background:#1a3d4f;color:#fff;">
+    <i class="bi bi-shield-lock me-2"></i>Awaiting Your Response
+    <span class="badge bg-danger ms-2">{{ pending|length }}</span>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr><th>Leave Request</th><th>Requested By</th><th>Received</th><th></th></tr>
+      </thead>
+      <tbody>
+      {% for c in pending %}
+      <tr>
+        <td>
+          <div class="fw-semibold">{{ c.leave_request.employee.get_full_name }}</div>
+          <div class="text-muted small">{{ c.leave_request.leave_type }} · {{ c.leave_request.start_date }} – {{ c.leave_request.end_date }}</div>
+        </td>
+        <td>{{ c.requested_by.get_full_name }}</td>
+        <td class="text-muted small">{{ c.created_at|date:"d M Y H:i" }}</td>
+        <td>
+          <a href="{% url 'leaves:respond_consultation' c.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-reply me-1"></i>Respond
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-success border-0 animate-in">
+  <i class="bi bi-check-circle me-2"></i>No pending guidance requests. You are all caught up.
+</div>
+{% endif %}
+
+{% if past %}
+<div class="card animate-in">
+  <div class="card-header fw-semibold"><i class="bi bi-clock-history me-2"></i>Previous Responses</div>
+  <div class="card-body p-0">
+    <table class="table table-sm align-middle mb-0">
+      <thead class="table-light">
+        <tr><th>Leave Request</th><th>Requested By</th><th>Your Response</th><th>Responded</th></tr>
+      </thead>
+      <tbody>
+      {% for c in past %}
+      <tr>
+        <td>
+          <div class="fw-semibold small">{{ c.leave_request.employee.get_full_name }}</div>
+          <div class="text-muted" style="font-size:.78rem;">{{ c.leave_request.leave_type }}</div>
+        </td>
+        <td class="small">{{ c.requested_by.get_full_name }}</td>
+        <td>
+          {% if c.status == 'proceed' %}
+            <span class="badge bg-success">Proceed</span>
+          {% else %}
+            <span class="badge bg-danger">Hold</span>
+          {% endif %}
+        </td>
+        <td class="text-muted small">{{ c.responded_at|date:"d M Y" }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

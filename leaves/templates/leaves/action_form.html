@@ -101,6 +101,44 @@
         </div>
         {% endif %}
 
+        <!-- Private Guidance (Consultation) -->
+        <div class="card mb-4 animate-in delay-2" style="border-color:#1a3d4f;">
+            <div class="card-header fw-semibold small" style="background:#1a3d4f;color:#fff;">
+                <i class="bi bi-shield-lock me-2"></i>Private Guidance
+                <span class="fw-normal ms-2">— Ask a colleague privately before deciding. The employee will NOT see this.</span>
+            </div>
+            <div class="card-body p-3">
+                {% with consultations=leave.consultations.all %}
+                {% if consultations %}
+                <table class="table table-sm mb-2">
+                    <thead class="table-light"><tr><th>Asked</th><th>To</th><th>Response</th><th>Note</th></tr></thead>
+                    <tbody>
+                    {% for c in consultations %}
+                    <tr>
+                        <td class="small text-muted">{{ c.created_at|date:"d M H:i" }}</td>
+                        <td class="small fw-semibold">{{ c.consulted_with.get_full_name }}</td>
+                        <td>
+                            {% if c.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Awaiting</span>
+                            {% elif c.status == 'proceed' %}
+                                <span class="badge bg-success">Proceed</span>
+                            {% else %}
+                                <span class="badge bg-danger">Hold</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ c.response_note|default:"—"|truncatechars:60 }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+                <a href="{% url 'leaves:seek_consultation' leave.pk %}" class="btn btn-sm btn-outline-dark">
+                    <i class="bi bi-person-plus me-1"></i>Seek Private Guidance
+                </a>
+                {% endwith %}
+            </div>
+        </div>
+
         <!-- Decision Form -->
         <div class="card animate-in delay-2">
             <div class="card-header">
