@@ -613,6 +613,11 @@ def employee_history(request, pk):
     from accounts.models import EmployeeDocument
     documents = EmployeeDocument.objects.filter(employee=employee).select_related("uploaded_by")
 
+    from appraisals.models import AppraisalRecord
+    appraisals = AppraisalRecord.objects.filter(employee=employee).select_related('cycle').order_by('-cycle__year', '-cycle__trimester')
+
+    dependants = employee.health_dependants.all()
+
     return render(request, 'accounts/employee_history.html', {
         'employee': employee,
         'contracts': contracts,
@@ -622,6 +627,8 @@ def employee_history(request, pk):
         'today': today,
         'documents': documents,
         'is_privileged': is_privileged,
+        'appraisals': appraisals,
+        'dependants': dependants,
     })
 
 

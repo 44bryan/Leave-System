@@ -164,6 +164,18 @@
             {% if documents %}<span class="badge bg-secondary ms-1">{{ documents|length }}</span>{% endif %}
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-appraisals">
+            <i class="bi bi-star me-1"></i>{% trans "Appraisals" %}
+            {% if appraisals %}<span class="badge bg-secondary ms-1">{{ appraisals|length }}</span>{% endif %}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tab-health">
+            <i class="bi bi-heart-pulse me-1"></i>{% trans "Health Ins." %}
+            {% if dependants %}<span class="badge bg-secondary ms-1">{{ dependants|length }}</span>{% endif %}
+        </a>
+    </li>
 </ul>
 
 <div class="tab-content">
@@ -559,6 +571,125 @@
                             </td>
                         </tr>
                         {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ── TAB: Appraisals ── -->
+    <div class="tab-pane fade" id="tab-appraisals">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-star me-2" style="color:#f59e0b;"></i>{% trans "Appraisal History" %}</span>
+                <span class="badge bg-secondary">{{ appraisals|length }}</span>
+            </div>
+            {% if not appraisals %}
+            <div class="card-body text-center py-5 text-muted">
+                <i class="bi bi-star fs-2 d-block mb-2"></i>
+                {% trans "No appraisal records." %}
+            </div>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Cycle" %}</th>
+                            <th>{% trans "Year" %}</th>
+                            <th>{% trans "Trimester" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ap in appraisals %}
+                        <tr>
+                            <td style="font-size:.85rem;">{{ ap.cycle }}</td>
+                            <td style="font-size:.85rem;">{{ ap.cycle.year }}</td>
+                            <td style="font-size:.82rem;color:#6b7a8d;">{{ ap.cycle.get_trimester_dates }}</td>
+                            <td>
+                                {% if ap.status == 'done' %}
+                                <span class="badge bg-success">{% trans "Complete" %}</span>
+                                {% elif ap.status == 'employee' %}
+                                <span class="badge bg-warning text-dark">{% trans "Awaiting Employee" %}</span>
+                                {% elif ap.status == 'hr' %}
+                                <span class="badge bg-primary">{% trans "Awaiting HR" %}</span>
+                                {% elif ap.status == 'director' %}
+                                <span class="badge bg-info text-dark">{% trans "Awaiting Director" %}</span>
+                                {% elif ap.status == 'ceo' %}
+                                <span class="badge bg-dark">{% trans "Awaiting CEO" %}</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ ap.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'appraisals:detail' ap.pk %}" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:2px 8px;">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ── TAB: Health Insurance ── -->
+    <div class="tab-pane fade" id="tab-health">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span><i class="bi bi-heart-pulse me-2" style="color:#0A4D68;"></i>{% trans "Health Insurance Dependants" %}</span>
+                {% if is_privileged %}
+                <a href="{% url 'accounts:health_insurance_edit' employee.pk %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil me-1"></i>{% trans "Edit" %}
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="text-muted small">{% trans "Marital Status:" %}</span>
+                    <strong class="ms-1">{{ employee.get_marital_status_display }}</strong>
+                </div>
+                {% if not dependants %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-people fs-2 d-block mb-2"></i>
+                    {% trans "No dependants on record." %}
+                </div>
+                {% else %}
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Relation" %}</th>
+                                <th>{% trans "Full Name" %}</th>
+                                <th>{% trans "Date of Birth" %}</th>
+                                <th>{% trans "Age" %}</th>
+                                <th>{% trans "Status" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in dependants %}
+                            <tr>
+                                <td style="font-size:.85rem;">{{ d.get_relation_display }}</td>
+                                <td style="font-weight:600;">{{ d.full_name }}</td>
+                                <td style="font-size:.82rem;">{{ d.date_of_birth|date:"d M Y"|default:"—" }}</td>
+                                <td style="font-size:.82rem;">{% if d.date_of_birth %}{{ d.age }} {% trans "yrs" %}{% else %}—{% endif %}</td>
+                                <td>
+                                    {% if d.insurance_active %}
+                                    <span class="badge bg-success">{% trans "Active" %}</span>
+                                    {% elif d.relation == 'child_other' %}
+                                    <span class="badge bg-secondary">N/A</span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark">{% trans "Aged out" %}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
