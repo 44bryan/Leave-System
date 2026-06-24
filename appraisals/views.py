@@ -225,10 +225,64 @@ def hr_deadline_missed(request):
         'cycle__year', 'cycle__trimester', 'employee__user__last_name'
     )
 
+    warnings_sent = request.session.pop('warnings_sent', None)
     return render(request, 'appraisals/hr_deadline_missed.html', {
         'records': records,
         'today': today,
+        'warnings_sent': warnings_sent,
     })
+
+
+@login_required
+def send_appraisal_warnings_now(request):
+    """HR triggers the appraisal warning letters immediately from the dashboard."""
+    emp = get_employee(request)
+    if not emp or (not emp.is_hr() and not request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if request.method != 'POST':
+        return redirect('appraisals:hr_deadline_missed')
+
+    from datetime import date
+    from notifications.utils import notify as _notify
+
+    today = date.today()
+    missed = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_EMPLOYEE,
+        hr_unlocked=False,
+        warning_sent=False,
+        cycle__employee_deadline__lt=today,
+        cycle__is_distributed=False,
+    ).select_related('employee__user', 'cycle')
+
+    count = 0
+    for record in missed:
+        e = record.employee
+        cycle = record.cycle
+        deadline_str = cycle.employee_deadline.strftime('%d %B %Y')
+        _notify(
+            e.user,
+            'Appraisal Deadline Missed — Please Report to HR',
+            (
+                f'Dear {e.user.first_name},\n\n'
+                f'You did not complete your self-assessment for the appraisal cycle '
+                f'"{cycle}" before the deadline of {deadline_str}.\n\n'
+                f'Your appraisal section has been locked. You are required to report '
+                f'to the HR Office as soon as possible to address this matter.\n\n'
+                f'This is an automated notice. Please do not ignore it.'
+            ),
+            notification_type='appraisal_warning',
+            url='/appraisals/my/',
+        )
+        record.warning_sent = True
+        record.save(update_fields=['warning_sent'])
+        count += 1
+
+    if count:
+        messages.success(request, f"Warning letters sent to {count} employee(s).")
+    else:
+        messages.info(request, "No pending warnings to send — all eligible employees already notified.")
+    return redirect('appraisals:hr_deadline_missed')
 
 
 @login_required

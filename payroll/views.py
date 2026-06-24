@@ -205,6 +205,99 @@ def payslip_delete(request, pk):
 
 
 @login_required
+def bulk_upload_payslips(request):
+    """HR: upload a ZIP of PDFs named by employee ID and distribute to each employee."""
+    if not _payroll_enabled() and not request.user.is_superuser:
+        messages.error(request, "The Payroll module is not currently active.")
+        return redirect('dashboard:home')
+    if not _is_hr_or_above(request.user):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        import zipfile, io
+        from django.core.files.base import ContentFile
+        from notifications.utils import notify
+
+        zip_file = request.FILES.get('payslip_zip')
+        period_month = request.POST.get('period_month', '')
+        period_year  = request.POST.get('period_year', '')
+
+        if not zip_file or not period_month or not period_year:
+            messages.error(request, "Please provide the ZIP file, month, and year.")
+            return redirect('payroll:bulk_upload')
+
+        try:
+            period_month = int(period_month)
+            period_year  = int(period_year)
+        except ValueError:
+            messages.error(request, "Invalid month or year.")
+            return redirect('payroll:bulk_upload')
+
+        if not zipfile.is_zipfile(zip_file):
+            messages.error(request, "Uploaded file is not a valid ZIP archive.")
+            return redirect('payroll:bulk_upload')
+
+        matched, skipped, errors = [], [], []
+
+        with zipfile.ZipFile(zip_file) as zf:
+            for name in zf.namelist():
+                # Only process PDF files; strip path prefix and extension
+                if not name.lower().endswith('.pdf'):
+                    continue
+                filename = name.split('/')[-1].split('\\')[-1]  # basename
+                emp_id = filename[:-4]  # strip .pdf
+
+                try:
+                    emp = Employee.objects.get(employee_id=emp_id)
+                except Employee.DoesNotExist:
+                    skipped.append(filename)
+                    continue
+                except Exception as e:
+                    errors.append(f"{filename}: {e}")
+                    continue
+
+                pdf_data = zf.read(name)
+                slip, created = Payslip.objects.get_or_create(
+                    employee=emp,
+                    period_month=period_month,
+                    period_year=period_year,
+                    defaults={'gross_salary': 0, 'uploaded_by': request.user},
+                )
+                slip.payslip_file.save(filename, ContentFile(pdf_data), save=False)
+                slip.uploaded_by = request.user
+                slip.save()
+
+                # Notify employee
+                month_name = dict(MONTH_CHOICES).get(period_month, str(period_month))
+                notify(
+                    emp.user,
+                    f'Your Payslip for {month_name} {period_year} is Ready',
+                    f'Dear {emp.user.first_name},\n\nYour payslip for {month_name} {period_year} '
+                    f'is now available. You can view and download it from your account.',
+                    notification_type='payslip',
+                    url='/payroll/my/',
+                )
+                matched.append(emp.get_full_name())
+
+        summary_parts = [f"{len(matched)} payslip(s) distributed successfully."]
+        if skipped:
+            summary_parts.append(f"{len(skipped)} file(s) skipped (no matching employee ID): {', '.join(skipped)}.")
+        if errors:
+            summary_parts.append(f"{len(errors)} error(s): {'; '.join(errors)}.")
+        messages.success(request, ' '.join(summary_parts))
+        return redirect('payroll:list')
+
+    years = list(range(date.today().year, 2015, -1))
+    return render(request, 'payroll/bulk_upload.html', {
+        'months': MONTH_CHOICES,
+        'years': years,
+        'current_month': date.today().month,
+        'current_year': date.today().year,
+    })
+
+
+@login_required
 def my_payslips(request):
     """Employee self-service: view own payslip history."""
     if not _payroll_enabled() and not request.user.is_superuser:

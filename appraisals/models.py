@@ -175,6 +175,9 @@ class AppraisalRecord(models.Model):
     director_score_changes = models.JSONField(null=True, blank=True, default=None)
     ceo_score_changes      = models.JSONField(null=True, blank=True, default=None)
 
+    # Automated warning — set True once the system sends the missed-deadline warning letter
+    warning_sent     = models.BooleanField(default=False)
+
     # HR deadline override — HR can re-open an employee's section after the cycle deadline
     hr_unlocked      = models.BooleanField(default=False)
     hr_unlock_note   = models.CharField(max_length=300, blank=True)

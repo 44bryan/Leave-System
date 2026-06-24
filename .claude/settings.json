@@ -2,7 +2,21 @@
   "permissions": {
     "allow": [
       "Bash(python manage.py shell -c \"from leaves.models import LeaveType; [print\\(f''{lt.name} | Deductible={lt.is_deductible}''\\) for lt in LeaveType.objects.all\\(\\)]\")",
-      "Bash(taskkill /F /IM python.exe)"
+      "Bash(taskkill /F /IM python.exe)",
+      "Bash(start \"\" \"C:\\\\Users\\\\bry30\\\\Desktop\\\\leave_system\\\\AEF_HRM_Enterprise_Budget.pdf\")",
+      "Bash(grep -E \"\\\\.html$\")",
+      "Bash(netstat -ano)",
+      "Bash(python manage.py showmigrations --list)",
+      "Bash(pkill -f \"manage.py runserver\")",
+      "Bash(taskkill //F //IM python.exe)",
+      "Bash(taskkill //F //IM gunicorn.exe)",
+      "Bash(python3 -)",
+      "WebSearch",
+      "Bash(python manage.py runserver)",
+      "Bash(where python3)",
+      "Bash(where py)",
+      "Bash(where python)",
+      "Bash(python3 manage.py runserver)"
     ]
   }
 }

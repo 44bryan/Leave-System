@@ -1,0 +1,147 @@
+AEF115|Eposi A Assiang Daisy|CDI|2021-01-01||active
+AEF133|Engonga Abada Olivier Philippe|CDI|2023-01-01||active
+AEF034|Bongajum Abel Keelen|CDI|2017-04-01||active
+AEF178|Beyene Abondo Salome Clemence|CDD|2025-07-01|2026-07-01|active
+AEF061|Ngoumou Ada Edwige|CDI|2018-04-01||active
+WACS006|Ngaroua Adam Esdras|CDD|2026-08-01|2027-08-01|renewed
+AEF175|Mvondo Ambani Amour Mauzard|CDD|2025-07-01|2026-07-01|active
+AEF082|Mbida Amougou Georges Fabrice|CDI|2019-01-01||active
+AEF109|Noah Asse Claire Viviane|CDI|2020-01-01||active
+AEF063|Essama Atangana Thomas D'aquin|CDI|2018-01-01||active
+AEF173|Ngolo Ateba Gabiel Serge|CDD|2026-06-01|2027-06-01|active
+AEF064|Eyebe Awana Joseph|CDI|2018-01-01||active
+AEF072|Michael Ayuk Ndifon|CDI|2018-02-01||active
+MICEI052|Nungha Babila Bless|INTERN|2026-06-04|2026-07-03|active
+AEF191|Mbeng Basil Nkwain|CDD|2026-01-01|2027-01-01|active
+AEF160|Chin Basile Sahnyuy|CDI|2024-01-01||active
+AEF131|Awono Belibi Joseph Fabrice|CDI|2023-01-01||active
+WACS013|Kouam Berenice|CDD|2026-06-01|2027-06-01|renewed
+MICEI 050|Ngo Biboum Ruth Victoire|INTERN|2026-06-03|2026-07-02|active
+AEF187|Mokom Bikola Guy Arnaud|CDD|2026-01-01|2027-01-01|active
+AEF169|Bei Blandine Nkeng|CDD|2026-01-01|2027-01-01|active
+AEF002|Eva Laetitia Bodo M'boa|CDI|2016-10-10||active
+AEF095|Fathan Brigitte|CDI|2019-05-01||active
+AEF167|Besong Bryan Ebai|CDD|2026-01-01|2026-12-31|renewed
+AEF180|Yamguet Carine Zita|CDD|2026-07-01|2027-07-01|active
+MICEI060|Mbuh Christbel Nah|INTERN|2026-06-04|2026-07-03|active
+AEF193|Makoge Christelle Senge|CDD|2026-01-01|2027-01-01|active
+AEF161|Ngamfon Chung Noel|CDI|2024-01-01||active
+AEF091|Meh Clara Ezia|CDI|2019-01-01||active
+AEF137|Diom Clarence Kimbi|CDI|2023-01-01||active
+AEF093|Helles Colette Armelle Gaelle|CDI|2019-05-01||active
+AEF037|Ngwemukum Constance|CDI|2017-04-17||active
+AEF138|Nfor Cosmas Linwe|CDI|2023-01-01||active
+AEF147|Ambanasom Cyril Awah|CDI|2023-04-01||active
+AEF159|Temdemnou Dadji Joel Idriss|CDI|2024-01-01||active
+MICEI017|Doffio Darman Kevin|CDD|2026-06-01|2027-06-01|renewed
+AEF070|Bitom David René|CDI|2018-07-01||renewed
+AEF008|Tahnteng Delphine Nchehmi|CDI|2016-10-10||active
+AEF121|Noah Dieudonne Noel|CDI|2021-01-01||active
+AEF116|Jibia Djomo Epse Fossouo Gaelle|CDI|2021-04-01||active
+AEF177|Taato Douanla Boris|CDD|2025-07-01|2026-07-01|active
+AEF157|Etoa Ebode Blaise Ernest|CDI|2024-01-01||active
+AEF030|Henry Ebong Nkumbe|CDI|2017-01-01||active
+WACS010|Nnanga Edjimbi Yvana Rose|WACS|2026-06-01|2027-06-01|active
+AEF050|Ndon-Akou Elad Adeline|CDI|2017-10-01||active
+AEF012|Ndonkou Elat Bernadette|CDI|2016-10-10||active
+AEF145|Awah Emmanuel|CDI|2023-01-01||active
+AEF129|Abamboh Emmanuel Nyangwen|CDI|2023-01-01||active
+WACS004|Mfonyoumdi Epse Mani Aloa Claire Alexandra|CDD|2026-08-01|2027-08-01|renewed
+AEF146|Yong Eric Mbangsi|CDI|2023-02-13||active
+AEF182|Alice Erim Ebai|CDD|2025-07-01|2026-07-01|active
+AEF074|Mendah Ernest Kelese|CDI|2018-05-01||active
+AEF154|Neme Essimi Christian Godwill|CDI|2024-01-01||active
+AEF001|Afetane Evina Ted Grimbert|CDI|2016-10-10||active
+AEF189|Ransom Ewang Nziege|CDD|2026-01-01|2027-01-01|active
+AEF040|Ngninkeu Fadimatou Maeva|CDI|2017-10-01||active
+AEF015|Ebot Ferdinand Ayamba|CDI|2016-10-10||active
+AEF053|Temgoua Flora Ingrid|CDI|2018-01-01||active
+AEF190|Batogno Florent Junoir|CDD|2026-01-01|2027-01-01|active
+AEF148|Norbert Fofeyin Ndifon|CDI|2023-04-01||active
+AEF039|Kully Fole Pega|CDI|2017-10-01||active
+AEF066|Amogo Fouda Marie Charlotte|CDI|2018-07-01||active
+AEF172|Fonweban Frank Nkfusai|CDD|2026-06-01|2027-06-01|active
+AEF024|Ebaiarrey Fritzelen Eyere|CDI|2016-10-10||active
+AEF068|Meyongo Gaston Aristide|CDI|2018-07-01||active
+AEF122|Tata Godwin Anong|CDI|2021-01-01||active
+AEF081|Antoine Guy Njoh Essobe|CDI|2019-01-01||active
+AEF071|Ndzi Hilda Ginje|CDI|2018-07-01||active
+AEF165|Hadidja Hilfa Ahmadou|CDD|2026-01-01|2027-01-01|active
+AEF069|Metta Ivo Mokwe|CDI|2018-07-01||active
+AEF032|Machiba Jean Paul|CDI|2017-02-01||active
+AEF035|Yande John Tah|CDI|2017-04-01||active
+AEF106|Matheus Joseph  Hermes|CDI|2020-01-01||active
+AEF004|Muke Judith Alobwede|CDI|2016-10-10||active
+MICEI063|Njanko Kaminissi Adolph Casimir|INTERN|2026-06-04|2026-07-03|active
+AEF181|Enongene Kange Essambe Rufus|CDD|2025-07-01|2026-07-01|active
+AEF174|Ndi Kennedy Ngi|CDD|2025-07-01|2026-07-01|active
+AEF128|Emade Ketchemen Nerice Francine|CDI|2022-07-18||active
+AEF176|Lambe Lambe|CDD|2025-07-01|2026-07-01|active
+AEF118|Muluh Laura Mengwi|CDI|2021-01-01||active
+MICEI054|Abouang Lea Brigitte Ornella|INTERN|2026-06-04|2026-07-03|active
+AEF170|Atanga Lovert Funye|CDD|2026-01-01|2027-01-01|active
+AEF135|Acha Lovette Ngo|CDI|2023-02-01||active
+AEF080|Anapa Mah Alexia|CDI|2019-01-01||active
+AEF044|Makendi Marie Josiane|CDI|2017-10-01||active
+WACS007|Ovozobo Marie Leger|CDD|2026-06-01|2027-06-01|renewed
+AEF155|Mbala Mbala Yannick|CDI|2024-01-01||active
+AEF144|Alima Mball Yves Martial|CDI|2023-01-01||active
+MICEI059|Ngono Mbezele Marie|INTERN|2026-06-04|2026-07-03|active
+AEF140|Gendron Mbida Felix|CDI|2023-01-01||active
+AEF184|Maninang Mbogni Alessa|CDD|2026-08-01|2027-08-01|active
+AEF102|Domkem Mbougueng Sandrine|CDI|2020-01-01||active
+AEF059|Enow Mbu James|CDI|2017-08-14||active
+AEF127|Mebune Mechane Martha|CDI|2022-04-18||active
+AEF195|Nlende Mengalle Britha|CDD|2026-01-01|2027-01-01|active
+AEF166|Ilyassa Moussa|CDD|2026-01-01|2027-01-01|active
+AEF194|Fru Mukete Arnold Mofor|CDD|2026-01-01|2027-01-01|active
+MICEI058|Sylvie Munsi|INTERN|2026-06-04|2026-07-03|active
+AEF049|Essengue Murielle Gwladys|CDI|2017-10-01||active
+AEF143|Nke Mvondo Olivier Brice|CDI|2023-01-01||active
+AEF179|Bakoh Ndingkokhar|CDD|2025-07-01|2026-07-01|active
+AEF113|Tchuindem Ndjinga Stéphanie Flaviette|CDI|2020-02-01||active
+AEF100|Ndzobo Ndongo Anselme Anicet|CDI|2020-01-01||active
+MICEI062|Mandela Nelson|INTERN|2026-06-04|2026-07-03|active
+MICEI053|Zibi Nga Ekono Brice|INTERN|2026-06-04|2026-07-03|active
+AEF094|David Ngome Njabe|CDI|2019-08-01||active
+MICEI055|Abeng Ngono Genevieve Popina|INTERN|2026-06-04|2026-07-03|active
+WACS009|Adawiyatou Nguerbela Nana|WACS|2026-06-01|2027-06-01|active
+AEF158|Mvondo Nicolas Steve Paefait|CDI|2024-01-01||active
+AEF046|Bose Nicoline Biy|CDI|2017-10-01||active
+WACS005|Tcheda Njakou Myleine Justine|WACS|2026-08-01|2027-08-01|active
+AEF130|Njoya Njankouo Abdel Gaphar|CDI|2023-01-01||active
+AEF005|Wilson Njila Benlah|CDI|2016-10-10||active
+AEF105|Bofia Nkama Xaverie Laure|CDI|2020-01-01||active
+AEF168|Ombala Nke Hyacinthe Junior|CDD|2026-01-01|2027-01-01|active
+AEF141|Edoa Nomo Boniface Donadi|CDI|2023-01-01||active
+AEF136|Miyoh Noukoumi Valerie Sylvie|CDI|2023-01-01||active
+AEF163|Eloundou Okoa Celestine|CDI|2024-01-01||active
+AEF048|Messanga Olivier Georges|CDI|2017-10-01||active
+AEF099|Nkoa Onana Nkoa Christ|CDI|2020-01-01||active
+AEF192|Ayuk-Etang Ornella Enow -Vekok|CDD|2026-01-01|2027-01-01|active
+AEF085|Onana Ottou Jean Pierre|CDI|2019-01-01||active
+AEF067|Simo Ouabo Lucie Flore|CDI|2018-07-01||active
+AEF149|Ngolle Pascal|CDI|2023-05-15||active
+AEF142|Gocheda Paul|CDI|2023-01-01||active
+WACS012|Ngoche Pevetmi Isabelle|WACS|2026-06-01|2027-06-01|active
+MICEI057|Tchoffo Pitio Emelda|INTERN|2026-06-04|2026-07-03|active
+AEF090|Nkumbe Priscillia Senge|CDI|2019-01-01||active
+AEF020|Agwe Roland Choo|CDI|2017-10-10||active
+AEF010|Mbang Ruben Ledoux|CDI|2016-10-10||active
+AEF171|Mukthar Salim Yakubu|CDD|2026-06-01|2027-06-01|active
+WACS008|Waani Salmana Jean|WACS|2026-06-01|2027-06-01|active
+AEF029|Notuom Signe Arlette Josiane|CDI|2016-12-01||active
+AEF119|Onana Stevie Leonel|CDI|2021-01-01||active
+AEF150|Ewang Sube Simon|CDI|2023-06-01||active
+AEF041|Forche Sylvie Buswine|CDI|2017-10-01||active
+MICEI056|Mbroh Tahu Livinus|INTERN|2026-06-04|2026-07-03|active
+AEF065|Tchamako Tchoua Epse Njofang Cathy Anneke|CDI|2018-01-10||active
+AEF110|Kouatcho Tchuidjang Virginia|CDI|2020-01-01||active
+AEF089|Deng Theresia Musi|CDI|2019-01-01||active
+AEF026|Tchouyo Tougnia Martin Olivier|CDI|2016-11-21||active
+AEF186|Mvondo Tsanga Richard Francisque|CDD|2026-09-01|2027-09-01|active
+MICEI061|Echu Valentine Anang|INTERN|2026-06-04|2026-07-03|active
+AEF153|Gabva Vanel Sama|CDD|2025-12-01|2026-12-01|active
+WACS011|Agapele Wassouo Prosper|WACS|2026-06-01|2027-06-01|active
+AEF101|Youmen Yomba Ghislaine|CDI|2020-01-01||active
+AEF188|Essomba Zoa Christian|CDD|2026-01-01|2027-01-01|active

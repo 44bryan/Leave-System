@@ -17,6 +17,10 @@ class Notification(models.Model):
         ('account_activated',      'Account Activated'),
         ('contract_expiry',        'Contract Expiry Alert'),
         ('birthday',               'Birthday Greeting'),
+        ('appraisal_warning',      'Appraisal Warning'),
+        ('appraisal',              'Appraisal'),
+        ('payslip',                'Payslip Available'),
+        ('reminder',               'Pending Action Reminder'),
         ('system',                 'System'),
     ]
 
@@ -51,6 +55,10 @@ class Notification(models.Model):
             'account_activated':      'bi-person-check-fill',
             'contract_expiry':        'bi-calendar-x-fill',
             'birthday':               'bi-cake2',
+            'appraisal_warning':      'bi-exclamation-circle-fill',
+            'appraisal':              'bi-clipboard-check',
+            'payslip':                'bi-cash-stack',
+            'reminder':               'bi-alarm-fill',
             'system':                 'bi-bell',
         }.get(self.notification_type, 'bi-bell')
 
@@ -69,5 +77,9 @@ class Notification(models.Model):
             'account_activated':      '#059669',
             'contract_expiry':        '#dc2626',
             'birthday':               '#f59e0b',
+            'appraisal_warning':      '#dc2626',
+            'appraisal':              '#0891b2',
+            'payslip':                '#059669',
+            'reminder':               '#d97706',
             'system':                 '#374151',
         }.get(self.notification_type, '#374151')

@@ -32,7 +32,8 @@ urlpatterns = [
     path('hr/',                               views.hr_dashboard,       name='hr_dashboard'),
     path('hr/initiate/',                      views.hr_initiate,        name='hr_initiate'),
     path('hr/deadline-missed/',               views.hr_deadline_missed,  name='hr_deadline_missed'),
-    path('hr/unlock/<int:record_pk>/',        views.hr_unlock_employee,  name='hr_unlock_employee'),
+    path('hr/unlock/<int:record_pk>/',        views.hr_unlock_employee,          name='hr_unlock_employee'),
+    path('hr/send-warnings/',                 views.send_appraisal_warnings_now, name='send_warnings'),
     path('cycles/<int:cycle_pk>/',            views.cycle_records,       name='cycle_records'),
     path('cycles/<int:cycle_pk>/distribute/', views.distribute,          name='distribute'),
 ]
