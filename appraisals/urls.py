@@ -16,6 +16,8 @@ urlpatterns = [
     path('hr-review/<int:record_pk>/',   views.hr_fill,           name='hr_fill'),
     path('director/<int:record_pk>/',    views.director_fill,     name='director_fill'),
     path('ceo/<int:record_pk>/',         views.ceo_fill,          name='ceo_fill'),
+    path('ceo/review/<int:record_pk>/',  views.ceo_review,        name='ceo_review'),
+    path('ceo/past-cycles/',             views.ceo_past_cycles,   name='ceo_past_cycles'),
 
     # Pending queues
     path('pending/coworker/',            views.pending_coworker,  name='pending_coworker'),

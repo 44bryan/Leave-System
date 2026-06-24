@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}CEO Appraisal Dashboard — AEF HRM{% endblock %}
+{% block page_title %}CEO Appraisal Dashboard{% endblock %}
+{% block page_subtitle %}Priority flagged records + current queue{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'appraisals:ceo_past_cycles' %}" class="btn btn-outline-secondary btn-sm">
+  <i class="bi bi-clock-history me-1"></i>Browse Past Cycles
+</a>
+{% endblock %}
+
+{% block content %}
+
+{# ── Flagged for Priority Review ─────────────────────────────────────────── #}
+<div class="card mb-4 animate-in" style="border-color:#b45309;">
+  <div class="card-header fw-bold" style="background:#b45309;color:#fff;">
+    <i class="bi bi-flag-fill me-2"></i>Priority Review — Flagged Scores
+    <span class="text-warning ms-2 small fw-normal">(score &lt; 12 or &gt; 17 as rated by Admin Director)</span>
+    {% if flagged or flagged_pending %}<span class="badge bg-white text-danger ms-2">{{ flagged.count|add:flagged_pending.count }}</span>{% endif %}
+  </div>
+  <div class="card-body p-0">
+    {% with all_flagged=flagged_pending|length|add:flagged|length %}
+    {% if flagged_pending or flagged %}
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Employee</th><th>Cycle</th><th>Director Score</th><th>Status</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for rec in flagged_pending %}
+      <tr style="background:#fff8f0;">
+        <td>
+          <div class="fw-semibold">{{ rec.employee.get_full_name }}</div>
+          <div class="text-muted small">{{ rec.employee.employee_id }} · {{ rec.employee.position|default:"—" }}</div>
+        </td>
+        <td class="small">{{ rec.cycle }}</td>
+        <td>
+          {% with ds=rec.director_stage_total %}
+          {% if ds is not None %}
+            <span class="badge {% if ds < 12 %}bg-danger{% else %}bg-warning text-dark{% endif %} fs-6">{{ ds }} / 20</span>
+          {% else %}—{% endif %}
+          {% endwith %}
+        </td>
+        <td><span class="badge bg-warning text-dark">Awaiting CEO</span></td>
+        <td>
+          <a href="{% url 'appraisals:ceo_fill' rec.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pen me-1"></i>Review &amp; Rate
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+      {% for rec in flagged %}
+      {% if rec.status != 'ceo' %}
+      <tr style="background:#fff8f0;">
+        <td>
+          <div class="fw-semibold">{{ rec.employee.get_full_name }}</div>
+          <div class="text-muted small">{{ rec.employee.employee_id }} · {{ rec.employee.position|default:"—" }}</div>
+        </td>
+        <td class="small">{{ rec.cycle }}</td>
+        <td>
+          {% with ds=rec.director_stage_total %}
+          {% if ds is not None %}
+            <span class="badge {% if ds < 12 %}bg-danger{% else %}bg-warning text-dark{% endif %} fs-6">{{ ds }} / 20</span>
+          {% else %}—{% endif %}
+          {% endwith %}
+        </td>
+        <td><span class="badge bg-secondary">{{ rec.get_status_display }}</span></td>
+        <td>
+          <a href="{% url 'appraisals:ceo_review' rec.pk %}" class="btn btn-outline-warning btn-sm">
+            <i class="bi bi-pencil-square me-1"></i>Late Review
+          </a>
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="p-4 text-muted text-center">
+      <i class="bi bi-check-circle-fill text-success me-2"></i>No flagged records pending your review.
+    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+</div>
+
+{# ── Regular Queue (not flagged, currently at CEO stage) ──────────────────── #}
+<div class="card animate-in">
+  <div class="card-header fw-semibold">
+    <i class="bi bi-person-lines-fill me-2"></i>Regular Queue — Current Cycle
+    {% if regular %}<span class="badge bg-primary ms-2">{{ regular|length }}</span>{% endif %}
+  </div>
+  <div class="card-body p-0">
+    {% if regular %}
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr><th>Employee</th><th>Cycle</th><th>Director Score</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+      {% for rec in regular %}
+      <tr>
+        <td>
+          <div class="fw-semibold">{{ rec.employee.get_full_name }}</div>
+          <div class="text-muted small">{{ rec.employee.employee_id }} · {{ rec.employee.position|default:"—" }}</div>
+        </td>
+        <td class="small">{{ rec.cycle }}</td>
+        <td>
+          {% with ds=rec.director_stage_total %}
+          {% if ds is not None %}
+            <span class="badge bg-info text-dark">{{ ds }} / 20</span>
+          {% else %}—{% endif %}
+          {% endwith %}
+        </td>
+        <td>
+          <a href="{% url 'appraisals:ceo_fill' rec.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pen me-1"></i>Review &amp; Rate
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="p-4 text-muted text-center">
+      <i class="bi bi-check-circle me-2"></i>No records in current queue.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

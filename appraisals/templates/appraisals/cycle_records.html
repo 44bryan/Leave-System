@@ -31,11 +31,21 @@
                             {{ record.get_status_display }}
                         </span>
                     </td>
-                    <td class="fw-bold">{{ record.total_score|default:"—" }}{% if record.total_score is not None %} / 20{% endif %}</td>
+                    <td class="fw-bold">
+                        {{ record.total_score|default:"—" }}{% if record.total_score is not None %} / 20{% endif %}
+                        {% if record.is_flagged_for_ceo %}
+                        <span class="badge bg-warning text-dark ms-1" title="Flagged for CEO review"><i class="bi bi-flag-fill"></i></span>
+                        {% endif %}
+                    </td>
                     <td class="text-end">
                         <a href="{% url 'appraisals:detail' record.pk %}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye me-1"></i>View
                         </a>
+                        {% if is_ceo_view %}
+                        <a href="{% url 'appraisals:ceo_review' record.pk %}" class="btn btn-sm btn-outline-warning ms-1">
+                            <i class="bi bi-pencil-square me-1"></i>Rate
+                        </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

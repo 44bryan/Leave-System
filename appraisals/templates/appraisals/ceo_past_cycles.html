@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}CEO — Past Appraisal Cycles — AEF HRM{% endblock %}
+{% block page_title %}All Appraisal Cycles{% endblock %}
+{% block page_subtitle %}Browse any cycle to review, rate, and comment on employee appraisals{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'appraisals:pending_ceo' %}" class="btn btn-outline-secondary btn-sm">
+  <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+</a>
+{% endblock %}
+
+{% block content %}
+{% if cycles %}
+<div class="card animate-in">
+  <div class="card-body p-0">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr><th>Cycle</th><th>Year</th><th>Records</th><th>Status</th><th>Distributed</th><th></th></tr>
+      </thead>
+      <tbody>
+      {% for cycle in cycles %}
+      <tr>
+        <td class="fw-semibold">{{ cycle }}</td>
+        <td>{{ cycle.year }}</td>
+        <td>
+          <span class="badge bg-secondary">{{ cycle.records.count }} total</span>
+          {% with flagged=cycle.records.filter %}
+          {% endwith %}
+        </td>
+        <td>
+          {% if cycle.is_distributed %}
+            <span class="badge bg-success">Distributed</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">In Progress</span>
+          {% endif %}
+        </td>
+        <td class="text-muted small">
+          {% if cycle.distributed_at %}{{ cycle.distributed_at|date:"d M Y" }}{% else %}—{% endif %}
+        </td>
+        <td>
+          <a href="{% url 'appraisals:cycle_records' cycle.pk %}?view=ceo" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye me-1"></i>View &amp; Rate Records
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-info border-0">No appraisal cycles found.</div>
+{% endif %}
+{% endblock %}

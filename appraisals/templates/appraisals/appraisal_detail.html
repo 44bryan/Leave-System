@@ -129,6 +129,48 @@
 </div>
 {% endif %}
 
+<!-- Rater Score Comparison Table -->
+{% if any_ind %}
+<div class="card animate-in mb-4" style="border-color:#7c3aed;">
+    <div class="card-header fw-bold" style="background:#7c3aed;color:#fff;"><i class="bi bi-bar-chart-steps me-2"></i>{% trans "Scores by Rater" %}</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm align-middle text-center mb-0" style="font-size:.83rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-start">{% trans "Factor" %}</th>
+                        <th>{% trans "Line Mgr" %}</th>
+                        <th>{% trans "HR" %}</th>
+                        <th>{% trans "Director" %}</th>
+                        <th>CEO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in score_rows %}
+                <tr>
+                    <td class="text-start">{{ row.label }}</td>
+                    <td>{{ row.mgr|default:"—" }}</td>
+                    <td>{{ row.hr|default:"—" }}</td>
+                    <td>{{ row.dir|default:"—" }}</td>
+                    <td>{{ row.ceo|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot class="table-light fw-bold">
+                    <tr>
+                        <td class="text-start">{% trans "Total" %} / 20</td>
+                        <td>{{ record.total_score|default:"—" }}</td>
+                        <td>{% with s=record.hr_ind_total %}{{ s|default:"—" }}{% endwith %}</td>
+                        <td>{% with s=record.dir_ind_total %}{{ s|default:"—" }}{% endwith %}</td>
+                        <td>{% with s=record.ceo_ind_total %}{{ s|default:"—" }}{% endwith %}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Total Score -->
 {% if record.status == 'done' or record.mgr_performance_score is not None %}
 <div class="card animate-in mb-4" style="border-color:#31b8cf;">

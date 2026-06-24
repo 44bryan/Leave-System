@@ -176,7 +176,10 @@ class AppraisalRecord(models.Model):
     ceo_score_changes      = models.JSONField(null=True, blank=True, default=None)
 
     # Automated warning — set True once the system sends the missed-deadline warning letter
-    warning_sent     = models.BooleanField(default=False)
+    warning_sent       = models.BooleanField(default=False)
+
+    # CEO priority flag — auto-set when Admin Director submits if score < 12 or > 17
+    is_flagged_for_ceo = models.BooleanField(default=False)
 
     # ── Independent scores per reviewer level (each role grades independently) ──
     # HR Manager independent scores
@@ -359,6 +362,20 @@ class AppraisalRecord(models.Model):
             return None
         return round(pf + aa + self.discipline_deductions()['deduction'] + self.award_bonus, 2)
 
+    @property
+    def director_stage_total(self):
+        """Score at director stage used for CEO flagging.
+        Uses Admin Director's independent scores if set, else falls back to final score."""
+        pf = self._ind_pf_score('dir_ind')
+        aa = self._ind_aa_score('dir_ind')
+        if pf is not None and aa is not None:
+            return round(pf + aa, 2)
+        pf = self.final_performance_score
+        aa = self.final_attitude_score
+        if pf is not None and aa is not None:
+            return round(pf + aa, 2)
+        return None
+
     # ── Independent score summaries for PDF display ───────────────────────────
     _IND_PF = ['pf_quality_of_work', 'pf_quantity_of_work',
                'pf_knowledge_techniques', 'pf_ability_to_learn']
@@ -383,6 +400,25 @@ class AppraisalRecord(models.Model):
         if any(v is None for v in vals):
             return None
         return round((sum(vals) / 30) * 7.5, 2)
+
+    def _ind_total(self, prefix):
+        pf = self._ind_pf_score(prefix)
+        aa = self._ind_aa_score(prefix)
+        if pf is not None and aa is not None:
+            return round(pf + aa, 2)
+        return None
+
+    @property
+    def hr_ind_total(self):
+        return self._ind_total('hr_ind')
+
+    @property
+    def dir_ind_total(self):
+        return self._ind_total('dir_ind')
+
+    @property
+    def ceo_ind_total(self):
+        return self._ind_total('ceo_ind')
 
     @property
     def has_any_independent_scores(self):

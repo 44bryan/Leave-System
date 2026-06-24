@@ -166,8 +166,9 @@ def cycle_records(request, cycle_pk):
 
     cycle   = get_object_or_404(AppraisalCycle, pk=cycle_pk)
     records = cycle.records.select_related('employee__user', 'employee__department')
+    is_ceo_view = request.GET.get('view') == 'ceo' or (emp and emp.is_ceo())
     return render(request, 'appraisals/cycle_records.html', {
-        'cycle': cycle, 'records': records,
+        'cycle': cycle, 'records': records, 'is_ceo_view': is_ceo_view,
     })
 
 
@@ -295,6 +296,11 @@ def distribute(request, cycle_pk):
 
     cycle = get_object_or_404(AppraisalCycle, pk=cycle_pk)
     if request.method == 'POST':
+        # Auto-complete any records still at STATUS_CEO (CEO review is optional)
+        cycle.records.filter(
+            status=AppraisalRecord.STATUS_CEO
+        ).update(status=AppraisalRecord.STATUS_DONE)
+
         cycle.is_distributed = True
         cycle.distributed_at = timezone.now()
         cycle.save()
@@ -856,6 +862,10 @@ def director_fill(request, record_pk):
         record.director_signed_at = timezone.now()
         _save_sig(record, 'director_sig_b64', request.POST.get('signature_data', ''))
         record.status = AppraisalRecord.STATUS_CEO
+        # Auto-flag for CEO priority review if score < 12 or > 17
+        stage_total = record.director_stage_total
+        if stage_total is not None and (stage_total < 12 or stage_total > 17):
+            record.is_flagged_for_ceo = True
         record.save()
 
         for ceo_emp in Employee.objects.filter(role='ceo', is_active=True):
@@ -918,7 +928,7 @@ def ceo_fill(request, record_pk):
                 url=f'/appraisals/cycles/{record.cycle.pk}/',
             )
         messages.success(request, "CEO comment submitted. Appraisal chain complete.")
-        return redirect('dashboard:home')
+        return redirect('appraisals:pending_ceo')
 
     return render(request, 'appraisals/ceo_fill.html', {
         'record': record,
@@ -929,6 +939,63 @@ def ceo_fill(request, record_pk):
         'ind_color': '#b45309',
         **_score_form_ctx(record),
     })
+
+
+# ── CEO Retroactive Review (rate/comment on any record, even after distribution) ─
+
+@login_required
+def ceo_review(request, record_pk):
+    """CEO rates and comments on a record from any cycle — even after distribution."""
+    emp = get_employee(request)
+    if not emp or not emp.is_ceo():
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    record = get_object_or_404(AppraisalRecord, pk=record_pk)
+
+    if request.method == 'POST':
+        _apply_score_override(request.POST, record, emp, role='ceo')
+        _save_independent_scores(request.POST, record, 'ceo_ind')
+        try:
+            record.award_bonus_points = max(0, int(request.POST.get('award_bonus_points',
+                                                                      record.award_bonus_points)
+                                                     or record.award_bonus_points))
+        except (ValueError, TypeError):
+            pass
+        record.ceo_comment   = request.POST.get('ceo_comment', '').strip()
+        record.ceo_signed_by = emp
+        record.ceo_signed_at = timezone.now()
+        _save_sig(record, 'ceo_sig_b64', request.POST.get('signature_data', ''))
+        # If still in STATUS_CEO workflow, advance to DONE; otherwise keep current status
+        if record.status == AppraisalRecord.STATUS_CEO:
+            record.status = AppraisalRecord.STATUS_DONE
+        record.save()
+
+        messages.success(request, f"CEO review saved for {record.employee.get_full_name()}.")
+        return redirect('appraisals:pending_ceo')
+
+    return render(request, 'appraisals/ceo_fill.html', {
+        'record': record,
+        'current_sig_b64': emp.signature_b64 or '',
+        'discipline_data': record.discipline_deductions(),
+        'ind_vals': {f: getattr(record, f'ceo_ind_{f}') for f in _IND_SCORE_FNAMES},
+        'ind_label': 'CEO',
+        'ind_color': '#b45309',
+        'is_retroactive': True,
+        **_score_form_ctx(record),
+    })
+
+
+@login_required
+def ceo_past_cycles(request):
+    """CEO browses all past cycles to review any records."""
+    emp = get_employee(request)
+    if not emp or not emp.is_ceo():
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    cycles = AppraisalCycle.objects.all().order_by('-year', '-trimester')
+    return render(request, 'appraisals/ceo_past_cycles.html', {'cycles': cycles})
 
 
 # ── Appraisal Detail (read-only view visible to all in the chain) ─────────────
@@ -953,9 +1020,40 @@ def appraisal_detail(request, record_pk):
         return redirect('dashboard:home')
 
     discipline_data = record.discipline_deductions()
+
+    # Build per-rater score rows for comparison table
+    _pf_aa = [
+        ('pf_quality_of_work',      'Quality of Work'),
+        ('pf_quantity_of_work',     'Quantity of Work'),
+        ('pf_knowledge_techniques', 'Knowledge of Techniques'),
+        ('pf_ability_to_learn',     'Ability / Interest to Learn'),
+        ('aa_motivation',           'Motivation and Initiative'),
+        ('aa_attitude_colleagues',  'Attitude towards Colleagues'),
+        ('aa_relations_patients',   'Relations with Patients'),
+        ('aa_judgment_team',        'Judgment / Team Spirit'),
+        ('aa_punctuality',          'Punctuality'),
+        ('aa_presentation',         'Presentation / Appearance'),
+    ]
+    score_rows = [
+        {
+            'label': label,
+            'mgr': getattr(record, f'mgr_{fname}'),
+            'hr':  getattr(record, f'hr_ind_{fname}'),
+            'dir': getattr(record, f'dir_ind_{fname}'),
+            'ceo': getattr(record, f'ceo_ind_{fname}'),
+        }
+        for fname, label in _pf_aa
+    ]
+    any_ind = any(
+        row['hr'] is not None or row['dir'] is not None or row['ceo'] is not None
+        for row in score_rows
+    )
+
     return render(request, 'appraisals/appraisal_detail.html', {
         'record': record,
         'discipline_data': discipline_data,
+        'score_rows': score_rows,
+        'any_ind': any_ind,
     })
 
 
@@ -1052,13 +1150,29 @@ def pending_ceo(request):
     if not emp or not emp.is_ceo():
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
-    records = AppraisalRecord.objects.filter(
+
+    # Regular queue: awaiting CEO in current workflow
+    regular = AppraisalRecord.objects.filter(
         status=AppraisalRecord.STATUS_CEO,
-    ).select_related('employee__user', 'cycle')
-    return render(request, 'appraisals/pending_list.html', {
-        'records': records, 'role': 'ceo',
-        'action_url_name': 'appraisals:ceo_fill',
-        'title': 'Appraisals Awaiting CEO Comment',
+        is_flagged_for_ceo=False,
+    ).select_related('employee__user', 'cycle').order_by('-cycle__year', '-cycle__trimester')
+
+    # Flagged: any cycle — CEO hasn't yet reviewed (ceo_signed_at IS NULL)
+    flagged = AppraisalRecord.objects.filter(
+        is_flagged_for_ceo=True,
+        ceo_signed_at__isnull=True,
+    ).select_related('employee__user', 'cycle').order_by('-cycle__year', '-cycle__trimester')
+
+    # Also include flagged records already in STATUS_CEO in the regular queue for clarity
+    flagged_pending = AppraisalRecord.objects.filter(
+        status=AppraisalRecord.STATUS_CEO,
+        is_flagged_for_ceo=True,
+    ).select_related('employee__user', 'cycle').order_by('-cycle__year', '-cycle__trimester')
+
+    return render(request, 'appraisals/ceo_dashboard.html', {
+        'regular': regular,
+        'flagged': flagged,
+        'flagged_pending': flagged_pending,
     })
 
 
