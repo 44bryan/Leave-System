@@ -5,7 +5,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0024_employeedocument_expiry'),
+        ('accounts', '0025_alter_employee_reports_to_director'),
     ]
 
     operations = [
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('relation', models.CharField(
                     choices=[
                         ('spouse',      'Spouse'),
-                        ('child_ben',   'Child — Beneficiary (≤18 yrs)'),
+                        ('child_ben',   'Child — Beneficiary (\u226418 yrs)'),
                         ('child_other', 'Child — Non-Beneficiary'),
                     ],
                     max_length=15,
