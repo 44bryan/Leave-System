@@ -1,0 +1,55 @@
+{% load i18n appraisal_tags %}
+{# Independent score bar for a reviewer level.
+   Context vars used: ind_vals (dict), ind_label (str), ind_color (str)
+   pf_fields and aa_fields come from the outer _score_form_ctx context. #}
+<div class="card animate-in mb-4" style="border-color:{{ ind_color }};">
+    <div class="card-header fw-bold" style="background:{{ ind_color }};color:#fff;">
+        <i class="bi bi-bar-chart-line me-2"></i>{{ ind_label }} — {% trans "Independent Score" %}
+        <span class="fw-normal small ms-2">— {% trans "Your own rating, independent of the manager's scores" %}</span>
+    </div>
+    <div class="card-body p-4">
+        <p class="text-muted small mb-3">1 = Does not meet · 2 = Some difficulties · 3 = Meets requirements · 4 = Exceeds · 5 = Greatly exceeds</p>
+
+        <h6 class="fw-bold mb-2">{% trans "Performance Factors" %}</h6>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle text-center" style="font-size:.88rem;">
+                <thead class="table-light">
+                    <tr><th class="text-start">{% trans "Factor" %}</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+                </thead>
+                <tbody>
+                {% for fname, label in pf_fields %}
+                <tr>
+                    <td class="text-start">{{ label }}</td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="1" {% radio_checked ind_vals fname 1 %}></td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="2" {% radio_checked ind_vals fname 2 %}></td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="3" {% radio_checked ind_vals fname 3 %}></td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="4" {% radio_checked ind_vals fname 4 %}></td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="5" {% radio_checked ind_vals fname 5 %}></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h6 class="fw-bold mb-2">{% trans "Attitude & Aptitude Factors" %}</h6>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center" style="font-size:.88rem;">
+                <thead class="table-light">
+                    <tr><th class="text-start">{% trans "Factor" %}</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+                </thead>
+                <tbody>
+                {% for fname, label in aa_fields %}
+                <tr>
+                    <td class="text-start">{{ label }}</td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="1" {% radio_checked ind_vals fname 1 %}></td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="2" {% radio_checked ind_vals fname 2 %}></td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="3" {% radio_checked ind_vals fname 3 %}></td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="4" {% radio_checked ind_vals fname 4 %}></td>
+                    <td><input type="radio" name="ind_{{ fname }}" value="5" {% radio_checked ind_vals fname 5 %}></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

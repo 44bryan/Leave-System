@@ -446,6 +446,109 @@ class Builder:
 
         self.y = y - 1 * mm
 
+    # ── independent scores comparison table ───────────────────────────────────
+
+    def ind_scores_table(self):
+        """Comparative independent scores — Manager, HR, Admin Director, CEO."""
+        rec = self.rec
+        INDIGO  = (0.298, 0.137, 0.569)
+        LINDIGO = (0.937, 0.929, 0.980)
+
+        all_factors = PF_ROWS + AA_ROWS
+        rows_data = [{
+            'label':    label,
+            'manager':  getattr(rec, f'mgr_{fname}'),
+            'hr':       getattr(rec, f'hr_ind_{fname}'),
+            'director': getattr(rec, f'dir_ind_{fname}'),
+            'ceo':      getattr(rec, f'ceo_ind_{fname}'),
+        } for fname, label in all_factors]
+
+        show_hr  = any(r['hr']       is not None for r in rows_data)
+        show_dir = any(r['director'] is not None for r in rows_data)
+        show_ceo = any(r['ceo']      is not None for r in rows_data)
+
+        if not (show_hr or show_dir or show_ceo):
+            return
+
+        n_score_cols = 1 + sum([show_hr, show_dir, show_ceo])
+        RH      = 6.5 * mm
+        HDR     = 6   * mm
+        lbl_w   = CW * 0.42
+        score_w = (CW - lbl_w) / n_score_cols
+
+        self.need(HDR + RH + len(rows_data) * RH + RH + 8 * mm)
+        y = self.y
+
+        # Header bar
+        self._rect(LM, y, CW, HDR, INDIGO)
+        self._text('INDEPENDENT SCORES BY REVIEWER LEVEL',
+                   LM + 3 * mm, y - HDR + 1.5 * mm, 'Helvetica-Bold', 8, WHITE)
+        y -= HDR
+
+        # Column headers
+        self._rect(LM, y, CW, RH, LCYAN, BORD, 0.3)
+        x = LM
+        self._text('Factor', x + 2 * mm, y - RH + 2 * mm, 'Helvetica-Bold', 7, LABEL)
+        x += lbl_w
+        self._text('Manager', x + score_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 7, LABEL, 'C')
+        x += score_w
+        if show_hr:
+            self._text('HR Mgr', x + score_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 7, LABEL, 'C')
+            x += score_w
+        if show_dir:
+            self._text('Admin Dir.', x + score_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 7, LABEL, 'C')
+            x += score_w
+        if show_ceo:
+            self._text('CEO', x + score_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 7, LABEL, 'C')
+        y -= RH
+
+        # Data rows
+        for idx, row in enumerate(rows_data):
+            bg = LINDIGO if idx % 2 else WHITE
+            self._rect(LM, y, CW, RH, bg, BORD, 0.3)
+            x = LM
+            disp = row['label'] if len(row['label']) <= 36 else row['label'][:33] + '…'
+            self._text(disp, x + 2 * mm, y - RH + 2 * mm, sz=7, col=DARK)
+            x += lbl_w
+
+            def _cell(val, xp, _y=y, _sw=score_w):
+                s   = str(val) if val is not None else '—'
+                col = INDIGO if val is not None else LABEL
+                fn  = 'Helvetica-Bold' if val is not None else 'Helvetica'
+                self._text(s, xp + _sw / 2, _y - RH + 2 * mm, fn, 9, col, 'C')
+
+            _cell(row['manager'],  x); x += score_w
+            if show_hr:  _cell(row['hr'],       x); x += score_w
+            if show_dir: _cell(row['director'],  x); x += score_w
+            if show_ceo: _cell(row['ceo'],       x)
+            y -= RH
+
+        # Totals row (combined score)
+        self._rect(LM, y, CW, RH, LCYAN, BORD, 0.4)
+        self._text('Score  (PF /12.5 + AA /7.5):', LM + 2 * mm, y - RH + 2 * mm,
+                   'Helvetica-Bold', 7.5, LABEL)
+        x = LM + lbl_w
+
+        def _tot(pf_s, aa_s):
+            if pf_s is None or aa_s is None:
+                return '—'
+            return f'{round(pf_s + aa_s, 1)}'
+
+        self._text(_tot(rec.mgr_performance_score, rec.mgr_attitude_score),
+                   x + score_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 9, INDIGO, 'C'); x += score_w
+        if show_hr:
+            self._text(_tot(rec._ind_pf_score('hr_ind'), rec._ind_aa_score('hr_ind')),
+                       x + score_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 9, INDIGO, 'C'); x += score_w
+        if show_dir:
+            self._text(_tot(rec._ind_pf_score('dir_ind'), rec._ind_aa_score('dir_ind')),
+                       x + score_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 9, INDIGO, 'C'); x += score_w
+        if show_ceo:
+            self._text(_tot(rec._ind_pf_score('ceo_ind'), rec._ind_aa_score('ceo_ind')),
+                       x + score_w / 2, y - RH + 2 * mm, 'Helvetica-Bold', 9, INDIGO, 'C')
+        y -= RH
+
+        self.y = y - 3 * mm
+
     # ── total ratings table ───────────────────────────────────────────────────
 
     def total_table(self, disc):
@@ -578,6 +681,9 @@ def generate_appraisal_pdf(record):
 
     # ── Section 4b: Score modifications — only shown when scores were changed ─
     b.override_diff_table()
+
+    # ── Section 4c: Independent scores by reviewer level ─────────────────────
+    b.ind_scores_table()
 
     # ── Section 5: Goals ─────────────────────────────────────────────────────
     b.bar('5.  GOALS TO REACH  (Agreed Action Points)')

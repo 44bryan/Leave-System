@@ -577,6 +577,21 @@ def _apply_score_override(post, record, by_emp, role='hr'):
             )
 
 
+_IND_SCORE_FNAMES = [
+    'pf_quality_of_work', 'pf_quantity_of_work',
+    'pf_knowledge_techniques', 'pf_ability_to_learn',
+    'aa_motivation', 'aa_attitude_colleagues', 'aa_relations_patients',
+    'aa_judgment_team', 'aa_punctuality', 'aa_presentation',
+]
+
+
+def _save_independent_scores(post, record, prefix):
+    """Save independent scores for a reviewer level (hr_ind, dir_ind, ceo_ind)."""
+    for fname in _IND_SCORE_FNAMES:
+        v = _int_or_none(post.get(f'ind_{fname}'))
+        setattr(record, f'{prefix}_{fname}', v)
+
+
 def _score_form_ctx(record):
     """Context for the optional override rating form in HR/Director/CEO templates."""
     pf_fields = [
@@ -789,6 +804,7 @@ def hr_fill(request, record_pk):
 
     if request.method == 'POST':
         _apply_score_override(request.POST, record, emp, role='hr')
+        _save_independent_scores(request.POST, record, 'hr_ind')
         record.hr_comment   = request.POST.get('hr_comment', '').strip()
         record.hr_signed_by = emp
         record.hr_signed_at = timezone.now()
@@ -804,6 +820,9 @@ def hr_fill(request, record_pk):
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
         'discipline_data': record.discipline_deductions(),
+        'ind_vals': {f: getattr(record, f'hr_ind_{f}') for f in _IND_SCORE_FNAMES},
+        'ind_label': 'HR Manager',
+        'ind_color': '#0891b2',
         **_score_form_ctx(record),
     })
 
@@ -827,6 +846,7 @@ def director_fill(request, record_pk):
 
     if request.method == 'POST':
         _apply_score_override(request.POST, record, emp, role='director')
+        _save_independent_scores(request.POST, record, 'dir_ind')
         try:
             record.award_bonus_points = max(0, int(request.POST.get('award_bonus_points', record.award_bonus_points) or record.award_bonus_points))
         except (ValueError, TypeError):
@@ -853,6 +873,9 @@ def director_fill(request, record_pk):
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
         'discipline_data': record.discipline_deductions(),
+        'ind_vals': {f: getattr(record, f'dir_ind_{f}') for f in _IND_SCORE_FNAMES},
+        'ind_label': 'Administrative Director',
+        'ind_color': '#7c3aed',
         **_score_form_ctx(record),
     })
 
@@ -872,6 +895,7 @@ def ceo_fill(request, record_pk):
 
     if request.method == 'POST':
         _apply_score_override(request.POST, record, emp, role='ceo')
+        _save_independent_scores(request.POST, record, 'ceo_ind')
         try:
             record.award_bonus_points = max(0, int(request.POST.get('award_bonus_points', record.award_bonus_points) or record.award_bonus_points))
         except (ValueError, TypeError):
@@ -900,6 +924,9 @@ def ceo_fill(request, record_pk):
         'record': record,
         'current_sig_b64': emp.signature_b64 or '',
         'discipline_data': record.discipline_deductions(),
+        'ind_vals': {f: getattr(record, f'ceo_ind_{f}') for f in _IND_SCORE_FNAMES},
+        'ind_label': 'CEO',
+        'ind_color': '#b45309',
         **_score_form_ctx(record),
     })
 

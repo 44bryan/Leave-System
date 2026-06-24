@@ -178,6 +178,43 @@ class AppraisalRecord(models.Model):
     # Automated warning — set True once the system sends the missed-deadline warning letter
     warning_sent     = models.BooleanField(default=False)
 
+    # ── Independent scores per reviewer level (each role grades independently) ──
+    # HR Manager independent scores
+    hr_ind_pf_quality_of_work      = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_pf_quantity_of_work     = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_pf_knowledge_techniques = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_pf_ability_to_learn     = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_aa_motivation           = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_aa_attitude_colleagues  = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_aa_relations_patients   = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_aa_judgment_team        = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_aa_punctuality          = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    hr_ind_aa_presentation         = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+
+    # Admin Director independent scores
+    dir_ind_pf_quality_of_work      = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_pf_quantity_of_work     = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_pf_knowledge_techniques = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_pf_ability_to_learn     = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_aa_motivation           = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_aa_attitude_colleagues  = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_aa_relations_patients   = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_aa_judgment_team        = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_aa_punctuality          = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    dir_ind_aa_presentation         = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+
+    # CEO independent scores
+    ceo_ind_pf_quality_of_work      = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_pf_quantity_of_work     = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_pf_knowledge_techniques = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_pf_ability_to_learn     = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_aa_motivation           = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_aa_attitude_colleagues  = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_aa_relations_patients   = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_aa_judgment_team        = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_aa_punctuality          = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+    ceo_ind_aa_presentation         = models.PositiveSmallIntegerField(null=True, blank=True, choices=MASTERY_CHOICES)
+
     # HR deadline override — HR can re-open an employee's section after the cycle deadline
     hr_unlocked      = models.BooleanField(default=False)
     hr_unlock_note   = models.CharField(max_length=300, blank=True)
@@ -321,3 +358,36 @@ class AppraisalRecord(models.Model):
         if pf is None or aa is None:
             return None
         return round(pf + aa + self.discipline_deductions()['deduction'] + self.award_bonus, 2)
+
+    # ── Independent score summaries for PDF display ───────────────────────────
+    _IND_PF = ['pf_quality_of_work', 'pf_quantity_of_work',
+               'pf_knowledge_techniques', 'pf_ability_to_learn']
+    _IND_AA = ['aa_motivation', 'aa_attitude_colleagues', 'aa_relations_patients',
+               'aa_judgment_team', 'aa_punctuality', 'aa_presentation']
+
+    def _ind_score_dict(self, prefix):
+        """Return {fname: value} for a reviewer prefix (hr_ind, dir_ind, ceo_ind)."""
+        result = {}
+        for f in self._IND_PF + self._IND_AA:
+            result[f] = getattr(self, f'{prefix}_{f}', None)
+        return result
+
+    def _ind_pf_score(self, prefix):
+        vals = [getattr(self, f'{prefix}_{f}', None) for f in self._IND_PF]
+        if any(v is None for v in vals):
+            return None
+        return round((sum(vals) / 20) * 12.5, 2)
+
+    def _ind_aa_score(self, prefix):
+        vals = [getattr(self, f'{prefix}_{f}', None) for f in self._IND_AA]
+        if any(v is None for v in vals):
+            return None
+        return round((sum(vals) / 30) * 7.5, 2)
+
+    @property
+    def has_any_independent_scores(self):
+        for prefix in ('hr_ind', 'dir_ind', 'ceo_ind'):
+            if any(getattr(self, f'{prefix}_{f}', None) is not None
+                   for f in self._IND_PF + self._IND_AA):
+                return True
+        return False
