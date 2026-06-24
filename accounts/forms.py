@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
-from .models import Employee, Department
+from .models import Employee, Department, HealthDependant
 
 
 class LoginForm(AuthenticationForm):
@@ -162,37 +162,42 @@ class EmployeeEditForm(forms.ModelForm):
 
 
 class EmployeeSelfEditForm(forms.ModelForm):
-    """Fields an employee can edit on their own profile."""
-    first_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    last_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    """Fields an employee can edit on their own profile (phone + email only)."""
     email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Employee
-        fields = ['phone', 'date_of_birth', 'profile_photo']
+        fields = ['phone']
         widgets = {
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
-            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'profile_photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
-            self.fields['first_name'].initial = self.instance.user.first_name
-            self.fields['last_name'].initial = self.instance.user.last_name
             self.fields['email'].initial = self.instance.user.email
 
     def save(self, commit=True):
         employee = super().save(commit=False)
-        employee.user.first_name = self.cleaned_data['first_name']
-        employee.user.last_name = self.cleaned_data['last_name']
         if self.cleaned_data.get('email'):
             employee.user.email = self.cleaned_data['email']
         if commit:
             employee.user.save()
             employee.save()
         return employee
+
+
+class HealthDependantForm(forms.ModelForm):
+    """Single dependant row — used inside a formset."""
+
+    class Meta:
+        model = HealthDependant
+        fields = ['relation', 'full_name', 'date_of_birth']
+        widgets = {
+            'relation':      forms.Select(attrs={'class': 'form-select form-select-sm'}),
+            'full_name':     forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Full name'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control form-control-sm', 'type': 'date'}),
+        }
 
 
 class ChangePasswordForm(forms.Form):

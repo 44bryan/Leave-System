@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from django.urls import reverse
-from .models import Employee, Department
-from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm, EmployeeSelfEditForm
+from .models import Employee, Department, HealthDependant
+from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm, EmployeeSelfEditForm, HealthDependantForm
 from .signature_utils import process_signature
 
 
@@ -37,26 +37,46 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
+    from django.forms import modelformset_factory
     try:
         employee = request.user.employee
     except Employee.DoesNotExist:
         messages.error(request, "No employee profile found.")
         return redirect('dashboard:home')
 
-    change_form = ChangePasswordForm(request.user)
+    HealthFS = modelformset_factory(HealthDependant, form=HealthDependantForm,
+                                    extra=1, can_delete=True)
+
+    change_form   = ChangePasswordForm(request.user)
     self_edit_form = EmployeeSelfEditForm(instance=employee)
+    health_fs      = HealthFS(queryset=employee.health_dependants.all(), prefix='health')
 
     if request.method == 'POST' and 'self_edit' in request.POST:
-        self_edit_form = EmployeeSelfEditForm(request.POST, request.FILES, instance=employee)
+        self_edit_form = EmployeeSelfEditForm(request.POST, instance=employee)
         if self_edit_form.is_valid():
             self_edit_form.save()
             messages.success(request, "Profile updated successfully.")
             return redirect('accounts:profile')
 
+    elif request.method == 'POST' and 'health_save' in request.POST:
+        health_fs = HealthFS(request.POST, queryset=employee.health_dependants.all(), prefix='health')
+        if health_fs.is_valid():
+            instances = health_fs.save(commit=False)
+            for obj in instances:
+                obj.employee = employee
+                obj.save()
+            for obj in health_fs.deleted_objects:
+                obj.delete()
+            messages.success(request, "Health insurance information saved.")
+            return redirect('accounts:profile')
+
+    dependants = employee.health_dependants.all()
     return render(request, 'accounts/profile.html', {
         'employee': employee,
         'change_form': change_form,
         'self_edit_form': self_edit_form,
+        'health_fs': health_fs,
+        'dependants': dependants,
     })
 
 
@@ -1515,3 +1535,213 @@ def onboarding_update(request, pk):
         return redirect('accounts:onboarding_list')
 
     return render(request, 'accounts/onboarding_detail.html', {'checklist': checklist})
+
+
+# ── Health Insurance ──────────────────────────────────────────────────────────
+
+@login_required
+def health_insurance_edit(request, pk):
+    """HR or the employee themselves can manage health insurance dependants."""
+    from django.forms import modelformset_factory
+    target = get_object_or_404(Employee, pk=pk)
+    # Access: HR/superuser or the employee themselves
+    try:
+        viewer = request.user.employee
+    except Employee.DoesNotExist:
+        viewer = None
+    is_hr = request.user.is_superuser or (viewer and (viewer.is_hr() or viewer.is_director() or viewer.is_ceo()))
+    if not is_hr and (viewer is None or viewer != target):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    HealthFS = modelformset_factory(HealthDependant, form=HealthDependantForm,
+                                    extra=1, can_delete=True)
+
+    # Also let HR update marital_status inline
+    if request.method == 'POST':
+        marital = request.POST.get('marital_status', '')
+        if marital in ('single', 'married'):
+            target.marital_status = marital
+            target.save(update_fields=['marital_status'])
+
+        fs = HealthFS(request.POST, queryset=target.health_dependants.all(), prefix='health')
+        if fs.is_valid():
+            instances = fs.save(commit=False)
+            for obj in instances:
+                obj.employee = target
+                obj.save()
+            for obj in fs.deleted_objects:
+                obj.delete()
+            messages.success(request, "Health insurance information saved.")
+            return redirect('accounts:health_insurance_edit', pk=pk)
+    else:
+        fs = HealthFS(queryset=target.health_dependants.all(), prefix='health')
+
+    return render(request, 'accounts/health_insurance_edit.html', {
+        'target': target,
+        'health_fs': fs,
+        'is_hr': is_hr,
+    })
+
+
+@login_required
+def health_insurance_pdf(request, pk):
+    """PDF report for a single employee's health insurance dependants."""
+    from io import BytesIO
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from django.http import HttpResponse
+    from datetime import date
+
+    emp = get_object_or_404(Employee, pk=pk)
+    # Access: HR/superuser or the employee
+    try:
+        viewer = request.user.employee
+    except Employee.DoesNotExist:
+        viewer = None
+    is_hr = request.user.is_superuser or (viewer and (viewer.is_hr() or viewer.is_director() or viewer.is_ceo()))
+    if not is_hr and (viewer is None or viewer != emp):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    buf = BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4,
+                            leftMargin=15*mm, rightMargin=15*mm,
+                            topMargin=18*mm, bottomMargin=18*mm)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('title', parent=styles['Heading1'],
+                                 fontSize=14, textColor=colors.HexColor('#0A4D68'), spaceAfter=4)
+    sub_style = ParagraphStyle('sub', parent=styles['Normal'], fontSize=9,
+                               textColor=colors.grey, spaceAfter=10)
+    story = []
+
+    story.append(Paragraph("AEF Health Insurance — Dependant Record", title_style))
+    story.append(Paragraph(
+        f"Employee: {emp.get_full_name()} | ID: {emp.employee_id} | "
+        f"Department: {emp.department or '—'} | "
+        f"Marital Status: {emp.get_marital_status_display()} | "
+        f"Generated: {date.today().strftime('%d %B %Y')}",
+        sub_style))
+    story.append(Spacer(1, 4*mm))
+
+    dependants = emp.health_dependants.all()
+    if dependants:
+        headers = ['#', 'Relation', 'Full Name', 'Date of Birth', 'Age', 'Status']
+        rows = [headers]
+        for i, d in enumerate(dependants, 1):
+            dob_str = d.date_of_birth.strftime('%d/%m/%Y') if d.date_of_birth else '—'
+            age_str = str(d.age) if d.age is not None else '—'
+            if d.relation == HealthDependant.SPOUSE:
+                status = 'Active'
+            elif d.relation == HealthDependant.CHILD_BEN:
+                status = 'Eligible' if d.insurance_active else 'Aged out (>18)'
+            else:
+                status = 'Non-beneficiary'
+            rows.append([str(i), d.get_relation_display(), d.full_name, dob_str, age_str, status])
+
+        col_w = [8*mm, 40*mm, 65*mm, 28*mm, 14*mm, 30*mm]
+        t = Table(rows, colWidths=col_w, repeatRows=1)
+        t.setStyle(TableStyle([
+            ('BACKGROUND',  (0, 0), (-1, 0), colors.HexColor('#0A4D68')),
+            ('TEXTCOLOR',   (0, 0), (-1, 0), colors.white),
+            ('FONTSIZE',    (0, 0), (-1, 0), 9),
+            ('FONTSIZE',    (0, 1), (-1, -1), 8),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f9ff')]),
+            ('GRID',        (0, 0), (-1, -1), 0.4, colors.HexColor('#cde8ef')),
+            ('VALIGN',      (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING',  (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ]))
+        story.append(t)
+    else:
+        story.append(Paragraph("No dependants recorded.", styles['Normal']))
+
+    doc.build(story)
+    buf.seek(0)
+    resp = HttpResponse(buf, content_type='application/pdf')
+    resp['Content-Disposition'] = f'inline; filename="health_insurance_{emp.employee_id}.pdf"'
+    return resp
+
+
+@login_required
+def health_insurance_pdf_bulk(request):
+    """PDF report listing ALL employees with their health insurance dependants."""
+    from io import BytesIO
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from django.http import HttpResponse
+    from datetime import date
+
+    if not (_is_hr_or_superuser(request.user)):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    buf = BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4,
+                            leftMargin=15*mm, rightMargin=15*mm,
+                            topMargin=18*mm, bottomMargin=18*mm)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('title', parent=styles['Heading1'],
+                                 fontSize=13, textColor=colors.HexColor('#0A4D68'), spaceAfter=3)
+    sub_style = ParagraphStyle('sub', parent=styles['Normal'], fontSize=8,
+                               textColor=colors.grey, spaceAfter=8)
+    emp_style = ParagraphStyle('emp', parent=styles['Heading2'],
+                               fontSize=10, textColor=colors.HexColor('#0A4D68'),
+                               spaceBefore=6, spaceAfter=2)
+    story = []
+
+    story.append(Paragraph("AEF Health Insurance — All Employees Report", title_style))
+    story.append(Paragraph(f"Generated: {date.today().strftime('%d %B %Y')}", sub_style))
+    story.append(Spacer(1, 4*mm))
+
+    employees = Employee.objects.filter(is_active=True).prefetch_related('health_dependants')
+    headers = ['Relation', 'Full Name', 'Date of Birth', 'Age', 'Status']
+
+    for emp in employees:
+        story.append(Paragraph(
+            f"{emp.get_full_name()} ({emp.employee_id}) — {emp.department or '—'} — "
+            f"{emp.get_marital_status_display()}",
+            emp_style))
+        dependants = emp.health_dependants.all()
+        if dependants:
+            rows = [headers]
+            for d in dependants:
+                dob_str = d.date_of_birth.strftime('%d/%m/%Y') if d.date_of_birth else '—'
+                age_str = str(d.age) if d.age is not None else '—'
+                if d.relation == HealthDependant.SPOUSE:
+                    status = 'Active'
+                elif d.relation == HealthDependant.CHILD_BEN:
+                    status = 'Eligible' if d.insurance_active else 'Aged out'
+                else:
+                    status = 'Non-beneficiary'
+                rows.append([d.get_relation_display(), d.full_name, dob_str, age_str, status])
+            col_w = [38*mm, 62*mm, 28*mm, 14*mm, 30*mm]
+            t = Table(rows, colWidths=col_w, repeatRows=1)
+            t.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#31b8cf')),
+                ('TEXTCOLOR',  (0, 0), (-1, 0), colors.white),
+                ('FONTSIZE',   (0, 0), (-1, 0), 8),
+                ('FONTSIZE',   (0, 1), (-1, -1), 7.5),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f9ff')]),
+                ('GRID',       (0, 0), (-1, -1), 0.4, colors.HexColor('#cde8ef')),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+            ]))
+            story.append(t)
+        else:
+            story.append(Paragraph("No dependants recorded.", ParagraphStyle('nd', parent=styles['Normal'],
+                                                                              fontSize=8, textColor=colors.grey,
+                                                                              spaceAfter=4)))
+        story.append(Spacer(1, 3*mm))
+
+    doc.build(story)
+    buf.seek(0)
+    resp = HttpResponse(buf, content_type='application/pdf')
+    resp['Content-Disposition'] = 'inline; filename="health_insurance_all_employees.pdf"'
+    return resp

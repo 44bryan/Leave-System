@@ -13,6 +13,9 @@
 <a href="{% url 'accounts:export_credentials' %}" class="btn btn-outline-secondary btn-sm">
     <i class="bi bi-download me-1"></i>{% trans "Export Credentials" %}
 </a>
+<a href="{% url 'accounts:health_insurance_pdf_bulk' %}" class="btn btn-outline-info btn-sm" target="_blank">
+    <i class="bi bi-heart-pulse me-1"></i>{% trans "Health Insurance PDF" %}
+</a>
 {% endif %}
 {% endblock %}
 
@@ -168,6 +171,9 @@
                             {% if user.is_superuser or user.employee.is_hr %}
                             <a href="{% url 'accounts:employee_edit' emp.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
                                 <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'accounts:health_insurance_edit' emp.pk %}" class="btn btn-sm btn-outline-info" title="Health Insurance">
+                                <i class="bi bi-heart-pulse"></i>
                             </a>
                             <a href="{% url 'accounts:reset_credentials' emp.pk %}" class="btn btn-sm btn-outline-warning" title="Reset Password / Username">
                                 <i class="bi bi-key"></i>

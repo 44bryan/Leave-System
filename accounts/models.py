@@ -86,6 +86,10 @@ class Employee(models.Model):
     totp_secret = models.CharField(max_length=64, blank=True, default='', help_text='TOTP secret for 2FA')
     totp_enabled = models.BooleanField(default=False, help_text='2FA enabled for this account')
 
+    # Health Insurance
+    MARITAL_CHOICES = [('single', 'Single'), ('married', 'Married')]
+    marital_status = models.CharField(max_length=10, choices=MARITAL_CHOICES, default='single', blank=True)
+
     class Meta:
         ordering = ['user__last_name', 'user__first_name']
 
@@ -315,3 +319,47 @@ class DepartmentHistory(models.Model):
         frm = self.from_department or '(none)'
         to  = self.to_department or '(none)'
         return f'{self.employee.get_full_name()} — {frm} → {to} on {self.changed_at}'
+
+
+class HealthDependant(models.Model):
+    """Spouse or child linked to an employee for health insurance purposes."""
+    SPOUSE      = 'spouse'
+    CHILD_BEN   = 'child_ben'
+    CHILD_OTHER = 'child_other'
+    RELATION_CHOICES = [
+        ('spouse',      'Spouse'),
+        ('child_ben',   'Child — Beneficiary (≤18 yrs)'),
+        ('child_other', 'Child — Non-Beneficiary'),
+    ]
+
+    employee       = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='health_dependants')
+    relation       = models.CharField(max_length=15, choices=RELATION_CHOICES)
+    full_name      = models.CharField(max_length=200)
+    date_of_birth  = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['relation', 'full_name']
+
+    def __str__(self):
+        return f'{self.get_relation_display()} — {self.full_name} ({self.employee.get_full_name()})'
+
+    @property
+    def age(self):
+        if not self.date_of_birth:
+            return None
+        from datetime import date
+        today = date.today()
+        years = today.year - self.date_of_birth.year
+        if (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day):
+            years -= 1
+        return years
+
+    @property
+    def insurance_active(self):
+        """True for spouses always; for child_ben only while age < 18."""
+        if self.relation == self.SPOUSE:
+            return True
+        if self.relation == self.CHILD_BEN:
+            a = self.age
+            return a is not None and a < 18
+        return False

@@ -54,4 +54,9 @@ urlpatterns = [
     path('2fa/setup/', views.setup_2fa, name='setup_2fa'),
     path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
     path('documents/expiring/', views.expiring_documents, name='expiring_documents'),
+
+    # Health Insurance
+    path('employees/<int:pk>/health-insurance/', views.health_insurance_edit, name='health_insurance_edit'),
+    path('employees/<int:pk>/health-insurance/pdf/', views.health_insurance_pdf, name='health_insurance_pdf'),
+    path('employees/health-insurance/pdf/bulk/', views.health_insurance_pdf_bulk, name='health_insurance_pdf_bulk'),
 ]
