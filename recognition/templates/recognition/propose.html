@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Propose Recognition" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Propose Staff Recognition" %}{% endblock %}
+{% block page_subtitle %}{% trans "Nominate an employee for a recognition award" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card animate-in">
+            <div class="card-header">
+                <i class="bi bi-award me-2" style="color:#0A4D68;"></i>{% trans "Recognition Proposal" %}
+            </div>
+            <div class="card-body p-4">
+                <form method="post" id="proposeForm">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Employee to Recognise" %} <span class="text-danger">*</span></label>
+                        <select name="employee" class="form-select" required>
+                            <option value="">— {% trans "Select employee" %} —</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.pk }}" {% if post.employee == emp.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ emp.get_full_name }} ({{ emp.employee_id }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Recognition Type" %} <span class="text-danger">*</span></label>
+                        <select name="recognition_type" class="form-select" required id="recTypeSelect">
+                            <option value="">— {% trans "Select type" %} —</option>
+                            {% for val, label in TYPE_CHOICES %}
+                            <option value="{{ val }}" {% if post.recognition_type == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="customTitleDiv" style="display:none;">
+                        <label class="form-label fw-semibold">{% trans "Custom Title" %} <span class="text-danger">*</span></label>
+                        <input type="text" name="custom_title" class="form-control"
+                               value="{{ post.custom_title|default:'' }}"
+                               placeholder="e.g. Best Mentor Award, Special Project Recognition…">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">{% trans "Reason / Description" %} <span class="text-danger">*</span></label>
+                        <textarea name="description" class="form-control" rows="5" required
+                                  placeholder="Explain in detail why this employee deserves this recognition…">{{ post.description|default:'' }}</textarea>
+                        <div class="form-text">{% trans "Be specific. Your comments will be visible to HR and the hierarchy." %}</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>{% trans "Submit Proposal" %}
+                        </button>
+                        <a href="{% url 'recognition:list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var sel = document.getElementById('recTypeSelect');
+    var div = document.getElementById('customTitleDiv');
+    function toggle() { div.style.display = sel.value === 'other' ? '' : 'none'; }
+    sel.addEventListener('change', toggle);
+    toggle();
+})();
+</script>
+{% endblock %}

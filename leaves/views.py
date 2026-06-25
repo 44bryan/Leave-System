@@ -1239,6 +1239,185 @@ def admin_edit_leave(request, pk):
     return redirect('leaves:detail', pk=pk)
 
 
+# ── Leave Reversal (HR + Superadmin) ────────────────────────────────────────
+
+@login_required
+def leave_reversal(request, pk):
+    """HR and superadmin: reverse (cancel) or modify an approved leave with full audit trail."""
+    from accounts.models import Employee as _Employee
+    viewer = None
+    try:
+        viewer = request.user.employee
+    except Exception:
+        pass
+
+    is_hr_or_admin = request.user.is_superuser or (viewer and viewer.is_hr())
+    if not is_hr_or_admin:
+        messages.error(request, "Access denied. HR or System Admin only.")
+        return redirect('dashboard:home')
+
+    leave = get_object_or_404(
+        LeaveRequest.objects.select_related('employee__user', 'employee__supervisor__user',
+                                            'leave_type'),
+        pk=pk
+    )
+
+    from .models import LeaveReversal as _LR
+    from datetime import datetime as _dt
+
+    if request.method == 'POST':
+        action_type = request.POST.get('action_type', '').strip()
+        reason      = request.POST.get('reason', '').strip()
+        new_start   = request.POST.get('new_start', '').strip()
+        new_end     = request.POST.get('new_end', '').strip()
+
+        if action_type not in (_LR.ACTION_REVERSE, _LR.ACTION_MODIFIED):
+            messages.error(request, "Invalid action type.")
+            return redirect('leaves:leave_reversal', pk=pk)
+        if not reason:
+            messages.error(request, "A reason is required.")
+            return redirect('leaves:leave_reversal', pk=pk)
+
+        # Snapshot before change
+        original_status = leave.status
+        original_start  = leave.start_date
+        original_end    = leave.end_date
+        original_days   = leave.total_days
+
+        if action_type == _LR.ACTION_REVERSE:
+            leave.status = LeaveRequest.STATUS_CANCELLED
+            leave.director_remarks = (
+                f"[REVERSED by {request.user.get_full_name()} — {date.today()}] {reason}"
+            )
+            LeaveRequest.objects.filter(pk=pk).update(
+                status=leave.status,
+                director_remarks=leave.director_remarks,
+            )
+            _LR.objects.create(
+                leave_request=leave,
+                action_type=_LR.ACTION_REVERSE,
+                reason=reason,
+                reversed_by=request.user,
+                original_status=original_status,
+                original_start_date=original_start,
+                original_end_date=original_end,
+                original_total_days=original_days,
+            )
+            messages.success(request, f"Leave #{pk} reversed and cancelled. Audit record saved.")
+
+        else:  # modified
+            try:
+                p_start = _dt.strptime(new_start, '%Y-%m-%d').date()
+                p_end   = _dt.strptime(new_end,   '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, "Invalid dates for modification.")
+                return redirect('leaves:leave_reversal', pk=pk)
+            if p_start > p_end:
+                messages.error(request, "Start date must be before end date.")
+                return redirect('leaves:leave_reversal', pk=pk)
+
+            new_days = LeaveRequest._count_working_days(p_start, p_end)
+            LeaveRequest.objects.filter(pk=pk).update(
+                start_date=p_start,
+                end_date=p_end,
+                total_days=new_days,
+                director_remarks=(
+                    f"[MODIFIED by {request.user.get_full_name()} — {date.today()}] {reason}"
+                ),
+            )
+            _LR.objects.create(
+                leave_request=leave,
+                action_type=_LR.ACTION_MODIFIED,
+                reason=reason,
+                reversed_by=request.user,
+                original_status=original_status,
+                original_start_date=original_start,
+                original_end_date=original_end,
+                original_total_days=original_days,
+                new_start_date=p_start,
+                new_end_date=p_end,
+                new_total_days=new_days,
+            )
+            messages.success(request, f"Leave #{pk} modified: {p_start} → {p_end} ({new_days} days). Audit record saved.")
+
+        # Notify all parties
+        from notifications.utils import notify as _notify
+        emp = leave.employee
+        notify_users = [emp.user]
+        if emp.supervisor:
+            notify_users.append(emp.supervisor.user)
+        if emp.unit_head:
+            notify_users.append(emp.unit_head.user)
+        try:
+            from accounts.models import Employee as _E
+            hr_users = _E.objects.filter(role='hr', is_active=True).select_related('user')
+            for hr in hr_users:
+                if hr.user not in notify_users:
+                    notify_users.append(hr.user)
+        except Exception:
+            pass
+
+        action_label = "reversed/cancelled" if action_type == _LR.ACTION_REVERSE else "dates modified"
+        for u in notify_users:
+            if u != request.user:
+                _notify(
+                    u,
+                    f"Leave #{pk} {action_label} — {emp.get_full_name()}",
+                    (
+                        f"The leave request #{pk} for {emp.get_full_name()} "
+                        f"({leave.leave_type}) has been {action_label} by HR.\n\n"
+                        f"Reason: {reason}"
+                    ),
+                    notification_type='leave_cancelled',
+                    url=f'/leaves/detail/{pk}/',
+                )
+
+        return redirect('leaves:detail', pk=pk)
+
+    # GET — show form
+    reversals = _LR.objects.filter(leave_request=leave).select_related('reversed_by')
+    return render(request, 'leaves/reversal_form.html', {
+        'leave': leave,
+        'reversals': reversals,
+    })
+
+
+@login_required
+def leave_reversals_report(request):
+    """HR/superadmin: audit log of all leave reversals."""
+    viewer = None
+    try:
+        viewer = request.user.employee
+    except Exception:
+        pass
+    if not (request.user.is_superuser or (viewer and viewer.is_hr())):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    from .models import LeaveReversal as _LR
+    reversals = _LR.objects.select_related(
+        'leave_request__employee__user', 'leave_request__leave_type', 'reversed_by'
+    ).all()
+
+    # Filters
+    emp_q    = request.GET.get('employee', '').strip()
+    action_q = request.GET.get('action', '').strip()
+    if emp_q:
+        reversals = reversals.filter(
+            leave_request__employee__user__first_name__icontains=emp_q
+        ) | reversals.filter(
+            leave_request__employee__user__last_name__icontains=emp_q
+        )
+    if action_q:
+        reversals = reversals.filter(action_type=action_q)
+
+    return render(request, 'leaves/reversals_report.html', {
+        'reversals': reversals,
+        'emp_q': emp_q,
+        'action_q': action_q,
+    })
+
+
 # ── Leave Type Management (superuser only) ──────────────────────────────────
 
 DEFAULT_LEAVE_TYPES = [

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Staff Recognition" %} — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Staff Recognition" %}{% endblock %}
+{% block page_subtitle %}{% trans "Recognition proposals and awards" %}{% endblock %}
+{% block nav_recognition %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <select name="status" class="form-select form-select-sm" style="min-width:160px;" onchange="this.form.submit()">
+                <option value="">{% trans "All Statuses" %}</option>
+                {% for val, label in STATUS_CHOICES %}
+                <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% if status_filter %}
+            <a href="{% url 'recognition:list' %}" class="btn btn-outline-secondary btn-sm">{% trans "Clear" %}</a>
+            {% endif %}
+        </form>
+    </div>
+    <a href="{% url 'recognition:propose' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-award me-1"></i>{% trans "Propose Recognition" %}
+    </a>
+</div>
+
+<div class="card animate-in">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-award me-2" style="color:#0A4D68;"></i>{% trans "Recognition Proposals" %}</span>
+        <span class="badge bg-secondary">{{ proposals|length }}</span>
+    </div>
+    {% if not proposals %}
+    <div class="card-body text-center py-5 text-muted">
+        <i class="bi bi-award fs-2 d-block mb-2"></i>{% trans "No recognition proposals yet." %}
+    </div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Employee" %}</th>
+                    <th>{% trans "Recognition" %}</th>
+                    <th>{% trans "Proposed By" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th>{% trans "Date" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in proposals %}
+                <tr>
+                    <td>
+                        <div class="fw-semibold" style="font-size:.85rem;">{{ p.employee.get_full_name }}</div>
+                        <div style="font-size:.72rem;color:#9ab4c0;">{{ p.employee.employee_id }}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-info text-dark">{{ p.get_display_title }}</span>
+                    </td>
+                    <td style="font-size:.82rem;">{{ p.proposed_by.get_full_name|default:"—" }}</td>
+                    <td>
+                        {% if p.status == 'executed' %}
+                        <span class="badge bg-success">{% trans "Executed" %}</span>
+                        {% elif p.status == 'endorsed' %}
+                        <span class="badge bg-primary">{% trans "Endorsed" %}</span>
+                        {% elif p.status == 'rejected' %}
+                        <span class="badge bg-danger">{% trans "Rejected" %}</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">{% trans "Proposed" %}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size:.78rem;color:#6b7a8d;white-space:nowrap;">{{ p.created_at|date:"d M Y" }}</td>
+                    <td>
+                        <a href="{% url 'recognition:detail' p.pk %}" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:2px 8px;">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

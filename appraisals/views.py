@@ -598,6 +598,25 @@ def _save_independent_scores(post, record, prefix):
         setattr(record, f'{prefix}_{fname}', v)
 
 
+def _check_flag_ceo(record, stage_total, stage_label):
+    """Flag record for CEO priority review if stage total is <12 or >18, and notify CEO."""
+    if stage_total is None:
+        return
+    if stage_total < 12 or stage_total > 18:
+        record.is_flagged_for_ceo = True
+        record.save(update_fields=['is_flagged_for_ceo'])
+        direction = 'low' if stage_total < 12 else 'high'
+        for ceo_emp in Employee.objects.filter(role='ceo', is_active=True):
+            notify(
+                ceo_emp.user,
+                f'Appraisal Flagged for Review — {record.employee.get_full_name()}',
+                f'{record.employee.get_full_name()}\'s appraisal ({record.cycle}) has been flagged for CEO review '
+                f'due to a {direction} score of {stage_total:.1f} at the {stage_label} stage.',
+                notification_type='warning',
+                url=f'/appraisals/ceo-dashboard/',
+            )
+
+
 def _score_form_ctx(record):
     """Context for the optional override rating form in HR/Director/CEO templates."""
     pf_fields = [
@@ -759,6 +778,7 @@ def manager_fill(request, record_pk):
         _save_sig(record, 'manager_sig_b64', p.get('signature_data', ''))
         record.status = AppraisalRecord.STATUS_HR
         record.save()
+        _check_flag_ceo(record, record.total_score, 'Manager')
 
         for hr_emp in Employee.objects.filter(role='hr', is_active=True):
             notify(
@@ -817,6 +837,7 @@ def hr_fill(request, record_pk):
         _save_sig(record, 'hr_sig_b64', request.POST.get('signature_data', ''))
         record.status = AppraisalRecord.STATUS_DIRECTOR
         record.save()
+        _check_flag_ceo(record, record.total_score, 'HR')
 
         _notify_director(record)
         messages.success(request, "HR comment submitted.")
@@ -862,11 +883,8 @@ def director_fill(request, record_pk):
         record.director_signed_at = timezone.now()
         _save_sig(record, 'director_sig_b64', request.POST.get('signature_data', ''))
         record.status = AppraisalRecord.STATUS_CEO
-        # Auto-flag for CEO priority review if score < 12 or > 17
-        stage_total = record.director_stage_total
-        if stage_total is not None and (stage_total < 12 or stage_total > 17):
-            record.is_flagged_for_ceo = True
         record.save()
+        _check_flag_ceo(record, record.director_stage_total, 'Director')
 
         for ceo_emp in Employee.objects.filter(role='ceo', is_active=True):
             notify(

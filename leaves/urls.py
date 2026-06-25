@@ -36,4 +36,7 @@ urlpatterns = [
     path('<int:leave_pk>/seek-guidance/', views.seek_consultation, name='seek_consultation'),
     path('consultation/<int:pk>/respond/', views.respond_consultation, name='respond_consultation'),
     path('consultations/', views.my_consultations, name='my_consultations'),
+    # Leave Reversal / Modification (HR + Superadmin)
+    path('<int:pk>/reversal/', views.leave_reversal, name='leave_reversal'),
+    path('reversals/report/', views.leave_reversals_report, name='reversals_report'),
 ]

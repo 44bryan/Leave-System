@@ -257,3 +257,41 @@ class LeaveConsultation(models.Model):
     def __str__(self):
         return (f'Consultation #{self.pk}: {self.requested_by} → {self.consulted_with} '
                 f'[{self.leave_request}] ({self.status})')
+
+
+class LeaveReversal(models.Model):
+    """Audit trail for every HR-initiated leave reversal or modification."""
+    ACTION_REVERSE  = 'reversed'
+    ACTION_MODIFIED = 'modified'
+    ACTION_CHOICES = [
+        (ACTION_REVERSE,  'Leave Reversed / Cancelled'),
+        (ACTION_MODIFIED, 'Leave Dates Modified'),
+    ]
+
+    leave_request    = models.ForeignKey(LeaveRequest, on_delete=models.CASCADE,
+                                         related_name='reversals')
+    action_type      = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    reason           = models.TextField(help_text='Mandatory reason for this reversal/modification.')
+    reversed_by      = models.ForeignKey('django.contrib.auth.models.User',
+                                         on_delete=models.SET_NULL, null=True,
+                                         related_name='leave_reversals_made')
+    reversed_at      = models.DateTimeField(auto_now_add=True)
+
+    # Snapshot of values BEFORE the change
+    original_status      = models.CharField(max_length=30)
+    original_start_date  = models.DateField()
+    original_end_date    = models.DateField()
+    original_total_days  = models.PositiveIntegerField()
+
+    # New values — only populated for modifications
+    new_start_date  = models.DateField(null=True, blank=True)
+    new_end_date    = models.DateField(null=True, blank=True)
+    new_total_days  = models.PositiveIntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-reversed_at']
+
+    def __str__(self):
+        return (f'{self.get_action_type_display()} — '
+                f'{self.leave_request.employee.get_full_name()} '
+                f'(#{self.leave_request.pk}) by {self.reversed_by}')

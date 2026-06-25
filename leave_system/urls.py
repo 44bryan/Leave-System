@@ -17,5 +17,6 @@ urlpatterns = [
     path('notifications/', include('notifications.urls')),
     path('appraisals/', include('appraisals.urls')),
     path('payroll/', include('payroll.urls')),
+    path('recognition/', include('recognition.urls')),
     path('', lambda request: redirect('dashboard:home'), name='home'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

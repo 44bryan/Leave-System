@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Recognition Proposal" %} #{{ proposal.pk }} — AEF HRM{% endblock %}
+{% block page_title %}{{ proposal.get_display_title }}{% endblock %}
+{% block page_subtitle %}{{ proposal.employee.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Main column -->
+    <div class="col-lg-8">
+
+        <!-- Status banner -->
+        {% if proposal.status == 'executed' %}
+        <div class="mb-4 p-4 rounded-3 d-flex gap-3 align-items-start"
+             style="background:linear-gradient(135deg,#065f46,#047857);color:#fff;">
+            <i class="bi bi-trophy-fill fs-2 flex-shrink-0"></i>
+            <div>
+                <div class="fw-bold fs-5">{% trans "Recognition Executed" %}</div>
+                <div style="opacity:.85;font-size:.9rem;">
+                    {% trans "This recognition has been formally awarded to" %} {{ proposal.employee.get_full_name }}
+                    {% if proposal.executed_at %}{% trans "on" %} {{ proposal.executed_at|date:"d M Y" }}{% endif %}
+                    {% if proposal.executed_by %}{% trans "by" %} {{ proposal.executed_by.get_full_name }}{% endif %}.
+                </div>
+                {% if proposal.execution_note %}
+                <div class="mt-2" style="background:rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;font-size:.85rem;">
+                    {{ proposal.execution_note }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% elif proposal.status == 'rejected' %}
+        <div class="mb-4 p-4 rounded-3 d-flex gap-3 align-items-start"
+             style="background:linear-gradient(135deg,#7f1d1d,#991b1b);color:#fff;">
+            <i class="bi bi-x-circle-fill fs-2 flex-shrink-0"></i>
+            <div>
+                <div class="fw-bold fs-5">{% trans "Proposal Rejected" %}</div>
+                {% if proposal.rejection_reason %}
+                <div style="opacity:.85;font-size:.88rem;margin-top:4px;">{{ proposal.rejection_reason }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% elif proposal.status == 'endorsed' %}
+        <div class="mb-4 p-3 rounded-3 d-flex gap-3 align-items-center"
+             style="background:#eff6ff;border:1px solid #bfdbfe;">
+            <i class="bi bi-hand-thumbs-up-fill fs-4" style="color:#1d4ed8;"></i>
+            <div style="font-size:.9rem;color:#1e40af;">{% trans "This proposal has been endorsed and is awaiting HR execution." %}</div>
+        </div>
+        {% endif %}
+
+        <!-- Proposal card -->
+        <div class="card animate-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-award me-2" style="color:#0A4D68;"></i>{% trans "Proposal Details" %}</span>
+                {% if proposal.status == 'proposed' %}
+                <span class="badge bg-warning text-dark">{% trans "Proposed" %}</span>
+                {% elif proposal.status == 'endorsed' %}
+                <span class="badge bg-primary">{% trans "Endorsed" %}</span>
+                {% elif proposal.status == 'executed' %}
+                <span class="badge bg-success">{% trans "Executed" %}</span>
+                {% else %}
+                <span class="badge bg-danger">{% trans "Rejected" %}</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Employee" %}</div>
+                        <div class="fw-bold">{{ proposal.employee.get_full_name }}</div>
+                        <div class="text-muted small">{{ proposal.employee.employee_id }} · {{ proposal.employee.get_role_display }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Recognition Type" %}</div>
+                        <span class="badge bg-info text-dark fs-6">{{ proposal.get_display_title }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Proposed By" %}</div>
+                        <div class="fw-semibold">{{ proposal.proposed_by.get_full_name|default:"—" }}</div>
+                        <div class="text-muted small">{{ proposal.created_at|date:"d M Y H:i" }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Reason / Description" %}</div>
+                        <div style="background:#f8fafc;border-radius:10px;padding:14px 16px;line-height:1.7;">
+                            {{ proposal.description }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="card animate-in mt-4">
+            <div class="card-header">
+                <i class="bi bi-chat-left-text me-2" style="color:#0A4D68;"></i>{% trans "Comments & Opinions" %}
+                <span class="badge bg-secondary ms-2">{{ comments|length }}</span>
+            </div>
+            <div class="card-body p-4">
+                {% if not comments %}
+                <div class="text-center py-3 text-muted" style="font-size:.9rem;">
+                    <i class="bi bi-chat-left d-block mb-2 fs-4"></i>{% trans "No comments yet. Share your opinion below." %}
+                </div>
+                {% else %}
+                {% for comment in comments %}
+                <div class="d-flex gap-3 mb-4">
+                    <div class="flex-shrink-0"
+                         style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0A4D68,#2db4c3);
+                                display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;font-weight:700;">
+                        {{ comment.author.first_name|first|upper }}{{ comment.author.last_name|first|upper }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold" style="font-size:.88rem;">{{ comment.author.get_full_name|default:"Unknown" }}</span>
+                            <span class="text-muted" style="font-size:.72rem;">{{ comment.created_at|date:"d M Y H:i" }}</span>
+                        </div>
+                        <div style="background:#f8fafc;border-radius:0 10px 10px 10px;padding:10px 14px;font-size:.88rem;line-height:1.6;">
+                            {{ comment.body }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if can_comment and proposal.status not in 'executed,rejected' %}
+                <form method="post" class="mt-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="comment">
+                    <div class="mb-2">
+                        <textarea name="body" class="form-control" rows="3"
+                                  placeholder="{% trans 'Share your opinion on this proposal…' %}" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-send me-1"></i>{% trans "Post Comment" %}
+                    </button>
+                </form>
+                {% elif not can_comment %}
+                <div class="mt-3 text-muted" style="font-size:.82rem;">
+                    <i class="bi bi-info-circle me-1"></i>{% trans "Only managers, HR, and senior staff can comment on recognition proposals." %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions sidebar -->
+    <div class="col-lg-4">
+        <div class="card animate-in">
+            <div class="card-header"><i class="bi bi-arrow-left-circle me-2"></i>{% trans "Actions" %}</div>
+            <div class="card-body p-4">
+                <a href="{% url 'recognition:list' %}" class="btn btn-outline-secondary w-100 mb-2">
+                    <i class="bi bi-arrow-left me-1"></i>{% trans "Back to List" %}
+                </a>
+            </div>
+        </div>
+
+        {% if is_hr_or_admin and proposal.status in 'proposed,endorsed' %}
+        <div class="card animate-in mt-3" style="border-color:#bbf7d0;">
+            <div class="card-header" style="background:#f0fdf4;border-color:#bbf7d0;">
+                <i class="bi bi-check2-circle me-2" style="color:#16a34a;"></i>
+                <strong style="color:#16a34a;">{% trans "HR Actions" %}</strong>
+            </div>
+            <div class="card-body p-4">
+                {% if proposal.status == 'proposed' %}
+                <form method="post" class="mb-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="endorse">
+                    <button type="submit" class="btn btn-primary w-100 mb-2" style="font-size:.85rem;">
+                        <i class="bi bi-hand-thumbs-up me-1"></i>{% trans "Endorse Proposal" %}
+                    </button>
+                </form>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="execute">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600;">{% trans "Execution Note" %} <span class="text-muted" style="font-weight:400;">({% trans "optional" %})</span></label>
+                        <textarea name="execution_note" class="form-control" rows="3" style="font-size:.82rem;"
+                                  placeholder="How was the recognition delivered? (ceremony, letter, etc.)"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100" style="font-size:.85rem;"
+                            onclick="return confirm('Mark this recognition as executed and notify the employee?')">
+                        <i class="bi bi-trophy me-1"></i>{% trans "Execute Recognition" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card animate-in mt-3" style="border-color:#fca5a5;">
+            <div class="card-header" style="background:#fff1f2;border-color:#fca5a5;">
+                <i class="bi bi-x-circle me-2" style="color:#b91c1c;"></i>
+                <strong style="color:#b91c1c;">{% trans "Reject Proposal" %}</strong>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reject">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600;">{% trans "Reason for rejection" %}</label>
+                        <textarea name="rejection_reason" class="form-control" rows="2" style="font-size:.82rem;"
+                                  placeholder="Explain why this proposal is being rejected…"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100" style="font-size:.85rem;"
+                            onclick="return confirm('Reject this proposal and notify the proposer?')">
+                        <i class="bi bi-x-octagon me-1"></i>{% trans "Reject Proposal" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

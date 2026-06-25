@@ -167,6 +167,31 @@
             </div>
         </div>
 
+        <!-- HR Reversal Panel -->
+        {% if request.user.is_superuser or request.user.employee.is_hr %}
+        {% if leave.status != 'cancelled' %}
+        <div class="card animate-in delay-2 mt-3" style="border-color:#fdba74;">
+            <div class="card-header" style="background:#fff7ed;border-color:#fdba74;">
+                <i class="bi bi-arrow-repeat me-2" style="color:#c2410c;"></i>
+                <strong style="color:#c2410c;">{% trans "HR Leave Reversal" %}</strong>
+            </div>
+            <div class="card-body p-4">
+                <p style="font-size:.8rem;color:#6b7a8d;margin-bottom:14px;">
+                    {% trans "Reverse, cancel, or modify the dates of this leave. A mandatory reason is required and all parties will be notified. All actions are logged in the audit trail." %}
+                </p>
+                <a href="{% url 'leaves:leave_reversal' leave.pk %}" class="btn btn-warning w-100" style="font-size:.85rem;">
+                    <i class="bi bi-arrow-repeat me-1"></i>{% trans "Reverse / Modify Leave" %}
+                </a>
+                {% if leave.reversals.exists %}
+                <div class="mt-2 text-center" style="font-size:.75rem;color:#9ab4c0;">
+                    <i class="bi bi-clock-history me-1"></i>{{ leave.reversals.count }} reversal record{{ leave.reversals.count|pluralize }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
         <!-- Admin Override Panel -->
         {% if request.user.is_superuser %}
         {% if leave.status != 'cancelled' %}

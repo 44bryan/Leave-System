@@ -1216,6 +1216,11 @@
                 </a>
             </li>
             {% endif %}
+            <li class="nav-item-sidebar">
+                <a href="{% url 'recognition:list' %}" class="nav-link-sidebar {% block nav_recognition %}{% endblock %}">
+                    <i class="bi bi-award"></i> {% trans "Recognition" %}
+                </a>
+            </li>
         </ul>
     </div>
 
@@ -1307,6 +1312,16 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_hr' %}" class="nav-link-sidebar {% block nav_hr_appraisals_pending %}{% endblock %}">
                     <i class="bi bi-clipboard2-check"></i> {% trans "Appraisal Reviews" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:reversals_report' %}" class="nav-link-sidebar {% block nav_reversals_report %}{% endblock %}">
+                    <i class="bi bi-arrow-repeat"></i> {% trans "Leave Reversals Log" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'recognition:list' %}" class="nav-link-sidebar {% block nav_recognition_hr %}{% endblock %}">
+                    <i class="bi bi-award"></i> {% trans "Staff Recognition" %}
                 </a>
             </li>
         </ul>
