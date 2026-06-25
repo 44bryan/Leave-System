@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q
 from datetime import date
 
 from accounts.models import Employee
@@ -72,7 +71,7 @@ def payslip_list(request):
 
 @login_required
 def payslip_create(request):
-    """HR only: create a payslip for an employee."""
+    """HR only: upload a payslip for an employee."""
     if not _payroll_enabled() and not request.user.is_superuser:
         messages.error(request, "The Payroll module is not currently active.")
         return redirect('dashboard:home')
@@ -87,15 +86,6 @@ def payslip_create(request):
         emp_pk = request.POST.get('employee')
         month = request.POST.get('period_month')
         year = request.POST.get('period_year')
-        gross = request.POST.get('gross_salary', '0')
-        transport = request.POST.get('transport_allowance', '0')
-        housing = request.POST.get('housing_allowance', '0')
-        other_allow = request.POST.get('other_allowances', '0')
-        other_allow_label = request.POST.get('other_allowances_label', '')
-        cnps = request.POST.get('cnps', '0')
-        income_tax = request.POST.get('income_tax', '0')
-        other_ded = request.POST.get('other_deductions', '0')
-        other_ded_label = request.POST.get('other_deductions_label', '')
         notes = request.POST.get('notes', '')
         payslip_file = request.FILES.get('payslip_file')
 
@@ -110,19 +100,7 @@ def payslip_create(request):
                 employee=employee,
                 period_month=int(month),
                 period_year=int(year),
-                defaults={
-                    'gross_salary': float(gross or 0),
-                    'transport_allowance': float(transport or 0),
-                    'housing_allowance': float(housing or 0),
-                    'other_allowances': float(other_allow or 0),
-                    'other_allowances_label': other_allow_label,
-                    'cnps': float(cnps or 0),
-                    'income_tax': float(income_tax or 0),
-                    'other_deductions': float(other_ded or 0),
-                    'other_deductions_label': other_ded_label,
-                    'notes': notes,
-                    'uploaded_by': request.user,
-                },
+                defaults={'notes': notes, 'uploaded_by': request.user},
             )
             if payslip_file:
                 slip.payslip_file = payslip_file
@@ -137,7 +115,7 @@ def payslip_create(request):
                 title=f"Payslip Available — {slip.get_period_month_display()} {slip.period_year}",
                 message=(
                     f"Your payslip for {slip.get_period_month_display()} {slip.period_year} "
-                    f"is now available. Net salary: {slip.net_salary:,.0f} XAF."
+                    f"is now available. You can view and download it from your account."
                 ),
                 notification_type='system',
                 url=f'/payroll/{slip.pk}/',
@@ -172,7 +150,6 @@ def payslip_detail(request, pk):
         return redirect('dashboard:home')
     slip = get_object_or_404(Payslip, pk=pk)
 
-    # Employees can only see their own
     if not _is_hr_or_above(request.user):
         try:
             if slip.employee != request.user.employee:
@@ -215,7 +192,7 @@ def bulk_upload_payslips(request):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        import zipfile, io
+        import zipfile
         from django.core.files.base import ContentFile
         from notifications.utils import notify
 
@@ -242,10 +219,9 @@ def bulk_upload_payslips(request):
 
         with zipfile.ZipFile(zip_file) as zf:
             for name in zf.namelist():
-                # Only process PDF files; strip path prefix and extension
                 if not name.lower().endswith('.pdf'):
                     continue
-                filename = name.split('/')[-1].split('\\')[-1]  # basename
+                filename = name.split('/')[-1].split('\\')[-1]
                 emp_id = filename[:-4]  # strip .pdf
 
                 try:
@@ -262,13 +238,12 @@ def bulk_upload_payslips(request):
                     employee=emp,
                     period_month=period_month,
                     period_year=period_year,
-                    defaults={'gross_salary': 0, 'uploaded_by': request.user},
+                    defaults={'uploaded_by': request.user},
                 )
                 slip.payslip_file.save(filename, ContentFile(pdf_data), save=False)
                 slip.uploaded_by = request.user
                 slip.save()
 
-                # Notify employee
                 month_name = dict(MONTH_CHOICES).get(period_month, str(period_month))
                 notify(
                     emp.user,

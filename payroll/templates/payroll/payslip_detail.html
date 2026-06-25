@@ -2,106 +2,62 @@
 {% load i18n %}
 
 {% block title %}{% trans "Payslip" %} — {{ slip.get_period_month_display }} {{ slip.period_year }} — AEF HRM{% endblock %}
-{% block page_title %}{% trans "Payslip Detail" %}{% endblock %}
+{% block page_title %}{% trans "Payslip" %} — {{ slip.get_period_month_display }} {{ slip.period_year }}{% endblock %}
 {% block nav_payroll %}active{% endblock %}
 
 {% block topbar_actions %}
-<a href="{% url 'payroll:list' %}" class="btn btn-outline-primary btn-sm">
+<a href="{% url 'payroll:list' %}" class="btn btn-outline-secondary btn-sm">
   <i class="bi bi-arrow-left me-1"></i> {% trans "Back" %}
 </a>
 {% if slip.payslip_file %}
-<a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-primary btn-sm">
+<a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm ms-1" style="background:#0A4D68;color:#fff;">
   <i class="bi bi-download me-1"></i> {% trans "Download PDF" %}
 </a>
 {% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="row g-4">
-  <div class="col-lg-5">
+<div class="row justify-content-center">
+  <div class="col-lg-6">
     <div class="card animate-in">
-      <div class="card-header"><i class="bi bi-person me-2" style="color:#2db4c3;"></i>{% trans "Employee" %}</div>
-      <div class="card-body p-4">
-        <div class="fw-600" style="font-size:1.05rem;color:#0A4D68;">{{ slip.employee.user.get_full_name }}</div>
-        <div style="font-size:.85rem;color:#6b7a8d;">{{ slip.employee.employee_id }} · {{ slip.employee.position|default:"—" }}</div>
-        <div style="font-size:.85rem;color:#6b7a8d;">{{ slip.employee.department|default:"—" }}</div>
-        <hr>
-        <div style="font-size:.85rem;"><strong>{% trans "Period" %}:</strong> {{ slip.get_period_month_display }} {{ slip.period_year }}</div>
-        {% if slip.notes %}
-        <div class="mt-2" style="font-size:.82rem;color:#6b7a8d;">{{ slip.notes }}</div>
-        {% endif %}
-        <div class="mt-3" style="font-size:.75rem;color:#9ab4c0;">
-          {% trans "Created" %} {{ slip.created_at|date:"d M Y" }}
-          {% if slip.uploaded_by %}· {% trans "by" %} {{ slip.uploaded_by.get_full_name|default:slip.uploaded_by.username }}{% endif %}
-        </div>
+      <div class="card-header" style="background:#0A4D68;color:#fff;">
+        <i class="bi bi-receipt me-2"></i>{% trans "Payslip Details" %}
       </div>
-    </div>
-  </div>
-
-  <div class="col-lg-7">
-    <div class="card animate-in">
-      <div class="card-header"><i class="bi bi-cash-stack me-2" style="color:#2db4c3;"></i>{% trans "Salary Breakdown" %}</div>
       <div class="card-body p-4">
+        <div class="mb-3">
+          <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Employee" %}</div>
+          <div class="fw-bold" style="color:#0A4D68;">{{ slip.employee.user.get_full_name }}</div>
+          <div class="text-muted small">{{ slip.employee.employee_id }} · {{ slip.employee.position|default:"—" }}</div>
+          <div class="text-muted small">{{ slip.employee.department|default:"—" }}</div>
+        </div>
 
-        <table class="table table-sm mb-0" style="font-size:.88rem;">
-          <tbody>
-            <tr>
-              <td class="text-muted">{% trans "Gross Salary" %}</td>
-              <td class="text-end fw-600">{{ slip.gross_salary|floatformat:0 }} XAF</td>
-            </tr>
+        <div class="mb-3">
+          <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Period" %}</div>
+          <div class="fw-semibold">{{ slip.get_period_month_display }} {{ slip.period_year }}</div>
+        </div>
 
-            {% if slip.transport_allowance %}
-            <tr>
-              <td class="text-muted ps-3">+ {% trans "Transport Allowance" %}</td>
-              <td class="text-end" style="color:#059669;">{{ slip.transport_allowance|floatformat:0 }} XAF</td>
-            </tr>
-            {% endif %}
-            {% if slip.housing_allowance %}
-            <tr>
-              <td class="text-muted ps-3">+ {% trans "Housing Allowance" %}</td>
-              <td class="text-end" style="color:#059669;">{{ slip.housing_allowance|floatformat:0 }} XAF</td>
-            </tr>
-            {% endif %}
-            {% if slip.other_allowances %}
-            <tr>
-              <td class="text-muted ps-3">+ {{ slip.other_allowances_label|default:_("Other Allowances") }}</td>
-              <td class="text-end" style="color:#059669;">{{ slip.other_allowances|floatformat:0 }} XAF</td>
-            </tr>
-            {% endif %}
+        {% if slip.notes %}
+        <div class="mb-3">
+          <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Notes" %}</div>
+          <div style="background:#f8fafc;border-radius:8px;padding:10px 14px;font-size:.88rem;">{{ slip.notes }}</div>
+        </div>
+        {% endif %}
 
-            <tr class="border-top">
-              <td class="text-muted fw-600">{% trans "Total Allowances" %}</td>
-              <td class="text-end fw-600" style="color:#059669;">+ {{ slip.total_allowances|floatformat:0 }} XAF</td>
-            </tr>
+        <div class="mb-3">
+          <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Payslip File" %}</div>
+          {% if slip.payslip_file %}
+          <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm" style="background:#0A4D68;color:#fff;">
+            <i class="bi bi-file-pdf me-1"></i> {% trans "View / Download PDF" %}
+          </a>
+          {% else %}
+          <span class="text-muted" style="font-size:.88rem;">{% trans "No file uploaded yet." %}</span>
+          {% endif %}
+        </div>
 
-            {% if slip.cnps %}
-            <tr class="border-top">
-              <td class="text-muted ps-3">− {% trans "CNPS" %}</td>
-              <td class="text-end" style="color:#dc2626;">{{ slip.cnps|floatformat:0 }} XAF</td>
-            </tr>
-            {% endif %}
-            {% if slip.income_tax %}
-            <tr>
-              <td class="text-muted ps-3">− {% trans "Income Tax" %}</td>
-              <td class="text-end" style="color:#dc2626;">{{ slip.income_tax|floatformat:0 }} XAF</td>
-            </tr>
-            {% endif %}
-            {% if slip.other_deductions %}
-            <tr>
-              <td class="text-muted ps-3">− {{ slip.other_deductions_label|default:_("Other Deductions") }}</td>
-              <td class="text-end" style="color:#dc2626;">{{ slip.other_deductions|floatformat:0 }} XAF</td>
-            </tr>
-            {% endif %}
-            <tr class="border-top">
-              <td class="text-muted fw-600">{% trans "Total Deductions" %}</td>
-              <td class="text-end fw-600" style="color:#dc2626;">− {{ slip.total_deductions|floatformat:0 }} XAF</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="mt-3 p-3 rounded d-flex justify-content-between align-items-center" style="background:#f0fdf4;border:1.5px solid #bbf7d0;">
-          <div style="font-size:.85rem;font-weight:700;color:#059669;">{% trans "NET SALARY" %}</div>
-          <div style="font-size:1.6rem;font-weight:800;color:#059669;">{{ slip.net_salary|floatformat:0 }} XAF</div>
+        <hr>
+        <div class="text-muted" style="font-size:.75rem;">
+          {% trans "Uploaded" %} {{ slip.created_at|date:"d M Y H:i" }}
+          {% if slip.uploaded_by %}· {% trans "by" %} {{ slip.uploaded_by.get_full_name|default:slip.uploaded_by.username }}{% endif %}
         </div>
       </div>
     </div>

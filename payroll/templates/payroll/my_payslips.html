@@ -6,30 +6,35 @@
 {% block nav_my_payslips %}active{% endblock %}
 
 {% block content %}
-<form method="get" class="mb-4 d-flex gap-2 align-items-end">
-  <div>
-    <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">{% trans "Filter by Year" %}</label>
-    <select name="year" class="form-select form-select-sm" style="width:130px;">
-      <option value="">{% trans "All Years" %}</option>
-      {% for y in years %}
-      <option value="{{ y }}" {% if year_filter == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
-      {% endfor %}
-    </select>
+<div class="card animate-in mb-3">
+  <div class="card-body py-3">
+    <form method="get" class="d-flex gap-2 align-items-end">
+      <div>
+        <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">{% trans "Filter by Year" %}</label>
+        <select name="year" class="form-select form-select-sm" style="width:130px;">
+          <option value="">{% trans "All Years" %}</option>
+          {% for y in years %}
+          <option value="{{ y }}" {% if year_filter == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-sm" style="background:#0A4D68;color:#fff;"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
+      <a href="{% url 'payroll:my_payslips' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+    </form>
   </div>
-  <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
-  <a href="{% url 'payroll:my_payslips' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
-</form>
+</div>
 
 <div class="card animate-in">
+  <div class="card-header" style="background:#0A4D68;color:#fff;">
+    <i class="bi bi-receipt me-2"></i>{% trans "My Payslips" %}
+  </div>
   {% if payslips %}
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0" style="font-size:.88rem;">
       <thead style="background:#f0f9fb;">
         <tr>
           <th class="ps-4" style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Period" %}</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Gross" %}</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Deductions" %}</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Net Salary" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Uploaded" %}</th>
           <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "PDF" %}</th>
           <th></th>
         </tr>
@@ -37,27 +42,29 @@
       <tbody>
         {% for slip in payslips %}
         <tr>
-          <td class="ps-4 fw-600">{{ slip.get_period_month_display }} {{ slip.period_year }}</td>
-          <td>{{ slip.gross_salary|floatformat:0 }} XAF</td>
-          <td style="color:#dc2626;">- {{ slip.total_deductions|floatformat:0 }} XAF</td>
-          <td><span class="fw-600" style="color:#059669;font-size:.95rem;">{{ slip.net_salary|floatformat:0 }} XAF</span></td>
+          <td class="ps-4 fw-semibold">{{ slip.get_period_month_display }} {{ slip.period_year }}</td>
+          <td style="font-size:.78rem;color:#6b7a8d;">{{ slip.created_at|date:"d M Y" }}</td>
           <td>
             {% if slip.payslip_file %}
-            <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size:.75rem;">
+            <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm" style="background:#0A4D68;color:#fff;font-size:.75rem;">
               <i class="bi bi-file-pdf me-1"></i>{% trans "Download" %}
             </a>
             {% else %}
             <span style="font-size:.78rem;color:#9ab4c0;">—</span>
             {% endif %}
           </td>
-          <td><a href="{% url 'payroll:detail' slip.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a></td>
+          <td>
+            <a href="{% url 'payroll:detail' slip.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans "Details" %}">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% else %}
-  <div class="text-center py-5">
+  <div class="card-body text-center py-5">
     <i class="bi bi-receipt fs-1 d-block mb-3" style="color:#cde8ef;"></i>
     <div style="font-size:.95rem;font-weight:600;color:#6b7a8d;">{% trans "No payslips available yet" %}</div>
     <div style="font-size:.82rem;color:#9ab4c0;margin-top:6px;">{% trans "Your payslips will appear here once HR uploads them." %}</div>

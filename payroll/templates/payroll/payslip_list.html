@@ -7,11 +7,11 @@
 
 {% block topbar_actions %}
 {% if is_hr %}
-<a href="{% url 'payroll:bulk_upload' %}" class="btn btn-success btn-sm">
-    <i class="bi bi-cloud-upload-fill me-1"></i> {% trans "Bulk Upload Payslips" %}
+<a href="{% url 'payroll:bulk_upload' %}" class="btn btn-sm" style="background:#0A4D68;color:#fff;">
+    <i class="bi bi-cloud-upload-fill me-1"></i> {% trans "Bulk Upload" %}
 </a>
-<a href="{% url 'payroll:create' %}" class="btn btn-primary btn-sm">
-    <i class="bi bi-plus-lg me-1"></i> {% trans "New Payslip" %}
+<a href="{% url 'payroll:create' %}" class="btn btn-sm ms-1" style="background:#0A4D68;color:#fff;">
+    <i class="bi bi-plus-lg me-1"></i> {% trans "Upload Payslip" %}
 </a>
 {% endif %}
 {% endblock %}
@@ -53,7 +53,7 @@
         </select>
       </div>
       <div class="col-sm-2 d-flex gap-2">
-        <button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
+        <button type="submit" class="btn btn-sm w-100" style="background:#0A4D68;color:#fff;"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
         <a href="{% url 'payroll:list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
       </div>
     </form>
@@ -62,6 +62,10 @@
 
 <!-- Table -->
 <div class="card animate-in">
+  <div class="card-header" style="background:#0A4D68;color:#fff;">
+    <i class="bi bi-receipt me-2"></i>{% trans "Payslips" %}
+    {% if page_obj %}<span class="badge bg-light text-dark ms-2">{{ page_obj.paginator.count }}</span>{% endif %}
+  </div>
   {% if page_obj %}
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0" style="font-size:.85rem;">
@@ -69,9 +73,7 @@
         <tr>
           {% if is_hr %}<th class="ps-4" style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Employee" %}</th>{% endif %}
           <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Period" %}</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Gross" %}</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Deductions" %}</th>
-          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Net Salary" %}</th>
+          <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "Uploaded" %}</th>
           <th style="font-size:.7rem;text-transform:uppercase;color:#6b7a8d;font-weight:700;">{% trans "File" %}</th>
           <th></th>
         </tr>
@@ -81,22 +83,19 @@
         <tr>
           {% if is_hr %}
           <td class="ps-4">
-            <div class="fw-600" style="color:#0A4D68;">{{ slip.employee.user.get_full_name }}</div>
-            <div style="font-size:.75rem;color:#9ab4c0;">{{ slip.employee.department|default:"—" }}</div>
+            <div class="fw-semibold" style="color:#0A4D68;">{{ slip.employee.user.get_full_name }}</div>
+            <div style="font-size:.75rem;color:#9ab4c0;">{{ slip.employee.employee_id }} · {{ slip.employee.department|default:"—" }}</div>
           </td>
           {% endif %}
-          <td>
-            <div class="fw-600">{{ slip.get_period_month_display }} {{ slip.period_year }}</div>
-          </td>
-          <td style="color:#374151;">{{ slip.gross_salary|floatformat:0 }} XAF</td>
-          <td style="color:#dc2626;">- {{ slip.total_deductions|floatformat:0 }} XAF</td>
-          <td>
-            <span class="fw-600" style="color:#059669;font-size:.95rem;">{{ slip.net_salary|floatformat:0 }} XAF</span>
+          <td><div class="fw-semibold">{{ slip.get_period_month_display }} {{ slip.period_year }}</div></td>
+          <td style="font-size:.78rem;color:#6b7a8d;">
+            {{ slip.created_at|date:"d M Y" }}
+            {% if slip.uploaded_by %}<br><span style="color:#9ab4c0;">{{ slip.uploaded_by.get_full_name }}</span>{% endif %}
           </td>
           <td>
             {% if slip.payslip_file %}
-            <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size:.75rem;">
-              <i class="bi bi-file-pdf me-1"></i> {% trans "View" %}
+            <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary" style="font-size:.75rem;">
+              <i class="bi bi-file-pdf me-1"></i> {% trans "View PDF" %}
             </a>
             {% else %}
             <span style="font-size:.78rem;color:#9ab4c0;">{% trans "No file" %}</span>
@@ -104,13 +103,13 @@
           </td>
           <td>
             <div class="d-flex gap-1">
-              <a href="{% url 'payroll:detail' slip.pk %}" class="btn btn-sm btn-outline-secondary" style="font-size:.75rem;">
+              <a href="{% url 'payroll:detail' slip.pk %}" class="btn btn-sm btn-outline-secondary" style="font-size:.75rem;" title="{% trans "Details" %}">
                 <i class="bi bi-eye"></i>
               </a>
               {% if is_hr %}
               <form method="post" action="{% url 'payroll:delete' slip.pk %}" onsubmit="return confirm('{% trans "Delete this payslip?" %}')">
                 {% csrf_token %}
-                <button class="btn btn-sm btn-outline-danger" style="font-size:.75rem;"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-danger" style="font-size:.75rem;" title="{% trans "Delete" %}"><i class="bi bi-trash"></i></button>
               </form>
               {% endif %}
             </div>
@@ -138,12 +137,12 @@
   </div>
   {% endif %}
   {% else %}
-  <div class="text-center py-5">
+  <div class="card-body text-center py-5">
     <i class="bi bi-receipt fs-1 d-block mb-3" style="color:#cde8ef;"></i>
     <div style="font-size:.95rem;font-weight:600;color:#6b7a8d;">{% trans "No payslips found" %}</div>
     {% if is_hr %}
-    <a href="{% url 'payroll:create' %}" class="btn btn-primary btn-sm mt-3">
-      <i class="bi bi-plus-lg me-1"></i> {% trans "Create First Payslip" %}
+    <a href="{% url 'payroll:create' %}" class="btn btn-sm mt-3" style="background:#0A4D68;color:#fff;">
+      <i class="bi bi-upload me-1"></i> {% trans "Upload First Payslip" %}
     </a>
     {% endif %}
   </div>
