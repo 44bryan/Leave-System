@@ -350,56 +350,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <p class="text-muted small mb-3">{% trans "No dependants recorded yet." %}</p>
         {% endif %}
 
-        <!-- Edit form (collapsible) -->
-        <div>
-            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#healthInsuranceForm">
-                <i class="bi bi-pencil me-1"></i>{% trans "Edit Dependants" %}
-            </button>
-        </div>
-        <div class="collapse mt-3" id="healthInsuranceForm">
-            <form method="post" action="{% url 'accounts:profile' %}" novalidate>
-                {% csrf_token %}
-                <input type="hidden" name="health_save" value="1">
-                {{ health_fs.management_form }}
-                <div class="mb-2 small text-muted">
-                    {% trans "Marital status and detailed settings are managed by HR. You can add/update dependant names and dates of birth." %}
-                </div>
-                <div id="healthFormRows">
-                {% for form in health_fs %}
-                <div class="row g-2 align-items-end mb-2 health-row">
-                    {{ form.id }}
-                    <div class="col-sm-3">
-                        <label class="form-label small mb-1">{% trans "Relation" %}</label>
-                        {{ form.relation }}
-                    </div>
-                    <div class="col-sm-4">
-                        <label class="form-label small mb-1">{% trans "Full Name" %}</label>
-                        {{ form.full_name }}
-                    </div>
-                    <div class="col-sm-3">
-                        <label class="form-label small mb-1">{% trans "Date of Birth" %}</label>
-                        {{ form.date_of_birth }}
-                    </div>
-                    {% if health_fs.can_delete %}
-                    <div class="col-sm-2 d-flex align-items-end">
-                        <div class="form-check">
-                            {{ form.DELETE }}
-                            <label class="form-check-label small text-danger">{% trans "Remove" %}</label>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-                </div>
-                <div class="mt-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary">
-                        <i class="bi bi-check-circle me-1"></i>{% trans "Save" %}
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#healthInsuranceForm">
-                        {% trans "Cancel" %}
-                    </button>
-                </div>
-            </form>
+        <div class="mt-2" style="font-size:.78rem;color:#9ab4c0;">
+            <i class="bi bi-info-circle me-1"></i>
+            {% trans "Health insurance details are managed by HR. Contact HR to update your dependants." %}
         </div>
     </div>
 </div>

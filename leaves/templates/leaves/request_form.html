@@ -72,18 +72,23 @@
 
                     <div class="mb-4">
                         <label class="form-label">{% trans "Back-up Employee" %} <span class="text-danger">*</span></label>
-                        <input type="text" id="backupSearch" class="form-control mb-1" placeholder="Type a name to search all staff…" autocomplete="off" style="font-size:.88rem;">
-                        <select name="backup_employee" id="id_backup_employee" class="form-select" required>
-                            <option value="">— Select who will cover you —</option>
-                            {% for emp in backup_choices %}
-                            <option value="{{ emp.id }}"
-                                data-unavailable="{{ emp.unavailable|yesno:'true,false' }}"
-                                data-name="{{ emp.name|lower }} {{ emp.dept|lower }}">
-                                {{ emp.name }}{% if emp.dept %} · {{ emp.dept }}{% endif %}{% if emp.unavailable %} (On Leave){% endif %}
-                            </option>
-                            {% endfor %}
-                        </select>
-                        <div class="form-text">Required. Staff currently on leave are marked. You may choose anyone in the organisation.</div>
+                        <!-- AJAX autocomplete backup picker -->
+                        <div class="position-relative" id="backupPickerWrap">
+                            <input type="text" id="backupSearch" class="form-control" autocomplete="off"
+                                   placeholder="{% trans 'Type a name to search…' %}" style="font-size:.88rem;">
+                            <div id="backupDropdown"
+                                 style="display:none;position:absolute;top:100%;left:0;right:0;z-index:1000;
+                                        background:#fff;border:1px solid #cde8ef;border-radius:0 0 8px 8px;
+                                        max-height:240px;overflow-y:auto;box-shadow:0 4px 12px rgba(10,77,104,.12);">
+                            </div>
+                        </div>
+                        <!-- Hidden field holds the selected employee PK -->
+                        <input type="hidden" name="backup_employee" id="backupValue" required>
+                        <div id="backupSelected" class="mt-1" style="font-size:.82rem;color:#0A4D68;display:none;">
+                            <i class="bi bi-person-check me-1"></i><span id="backupSelectedName"></span>
+                            <a href="#" id="backupClear" style="margin-left:8px;color:#dc2626;font-size:.78rem;">{% trans "Change" %}</a>
+                        </div>
+                        <div class="form-text">{% trans "Required. Start typing the employee's name to search." %}</div>
                     </div>
 
                     <div class="mb-4">
@@ -390,17 +395,76 @@ updateDays();
     });
 })();
 
-// Backup employee live search
+// Backup employee AJAX autocomplete
 (function () {
-    var search = document.getElementById('backupSearch');
-    var sel    = document.getElementById('id_backup_employee');
-    if (!search || !sel) return;
-    var opts = Array.from(sel.options);
-    search.addEventListener('input', function () {
-        var term = this.value.toLowerCase().trim();
-        opts.forEach(function (o) {
-            o.hidden = term ? !o.dataset.name.includes(term) : false;
-        });
+    var searchInput  = document.getElementById('backupSearch');
+    var dropdown     = document.getElementById('backupDropdown');
+    var hiddenVal    = document.getElementById('backupValue');
+    var selectedDiv  = document.getElementById('backupSelected');
+    var selectedName = document.getElementById('backupSelectedName');
+    var clearBtn     = document.getElementById('backupClear');
+    if (!searchInput) return;
+
+    var debounceTimer = null;
+
+    function showDropdown(results) {
+        dropdown.innerHTML = '';
+        if (!results.length) {
+            dropdown.innerHTML = '<div style="padding:10px 14px;color:#9ab4c0;font-size:.82rem;">{% trans "No results found." %}</div>';
+        } else {
+            results.forEach(function (emp) {
+                var item = document.createElement('div');
+                item.style.cssText = 'padding:8px 14px;cursor:pointer;font-size:.85rem;border-bottom:1px solid #f0f9fb;';
+                item.innerHTML = '<span style="font-weight:600;color:#0A4D68;">' + emp.name + '</span>' +
+                    ' <span style="color:#9ab4c0;font-size:.75rem;">' + emp.emp_id +
+                    (emp.dept ? ' · ' + emp.dept : '') + '</span>';
+                item.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    selectEmployee(emp);
+                });
+                item.addEventListener('mouseover', function () { this.style.background = '#eff6ff'; });
+                item.addEventListener('mouseout',  function () { this.style.background = ''; });
+                dropdown.appendChild(item);
+            });
+        }
+        dropdown.style.display = 'block';
+    }
+
+    function selectEmployee(emp) {
+        hiddenVal.value = emp.id;
+        searchInput.value = '';
+        searchInput.style.display = 'none';
+        dropdown.style.display = 'none';
+        selectedName.textContent = emp.name + ' (' + emp.emp_id + ')';
+        selectedDiv.style.display = 'block';
+    }
+
+    clearBtn && clearBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        hiddenVal.value = '';
+        searchInput.value = '';
+        searchInput.style.display = '';
+        searchInput.focus();
+        selectedDiv.style.display = 'none';
+    });
+
+    searchInput.addEventListener('input', function () {
+        var q = this.value.trim();
+        clearTimeout(debounceTimer);
+        if (q.length < 2) { dropdown.style.display = 'none'; return; }
+        debounceTimer = setTimeout(function () {
+            fetch('/accounts/employee-search/?q=' + encodeURIComponent(q))
+                .then(function (r) { return r.json(); })
+                .then(function (data) { showDropdown(data.results); })
+                .catch(function () { dropdown.style.display = 'none'; });
+        }, 220);
+    });
+
+    searchInput.addEventListener('blur', function () {
+        setTimeout(function () { dropdown.style.display = 'none'; }, 200);
+    });
+    searchInput.addEventListener('focus', function () {
+        if (this.value.trim().length >= 2) dropdown.style.display = 'block';
     });
 })();
 </script>

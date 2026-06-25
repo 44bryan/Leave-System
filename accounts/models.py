@@ -90,6 +90,15 @@ class Employee(models.Model):
     MARITAL_CHOICES = [('single', 'Single'), ('married', 'Married')]
     marital_status = models.CharField(max_length=10, choices=MARITAL_CHOICES, default='single', blank=True)
 
+    # Acting/Delegation — set automatically when this employee covers for someone on leave
+    acting_role = models.CharField(max_length=20, blank=True, default='',
+                                   help_text='Temporary role held while covering for a colleague on leave')
+    acting_for = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='acting_delegates',
+                                   help_text='The colleague this employee is currently covering for')
+    acting_since = models.DateField(null=True, blank=True)
+    acting_until = models.DateField(null=True, blank=True)
+
     class Meta:
         ordering = ['user__last_name', 'user__first_name']
 
@@ -100,26 +109,27 @@ class Employee(models.Model):
         return self.user.get_full_name() or self.user.username
 
     def is_hr(self):
-        return self.role == 'hr'
+        return self.role == 'hr' or self.acting_role == 'hr'
 
     def is_unit_head(self):
-        return self.role == 'unit_head'
+        return self.role == 'unit_head' or self.acting_role == 'unit_head'
 
     def is_manager(self):
-        return self.role == 'manager'
+        return self.role == 'manager' or self.acting_role == 'manager'
 
     def is_director(self):
         """Admin Director and Finance Director share the same operational role."""
-        return self.role in ('admin_director', 'finance_director')
+        return self.role in ('admin_director', 'finance_director') or \
+               self.acting_role in ('admin_director', 'finance_director')
 
     def is_finance_director(self):
-        return self.role == 'finance_director'
+        return self.role == 'finance_director' or self.acting_role == 'finance_director'
 
     def is_medical_director(self):
-        return self.role == 'medical_director'
+        return self.role == 'medical_director' or self.acting_role == 'medical_director'
 
     def is_ceo(self):
-        return self.role == 'ceo'
+        return self.role == 'ceo' or self.acting_role == 'ceo'
 
     def is_intern(self):
         return self.role == 'intern'

@@ -3,6 +3,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
+from django.http import JsonResponse
+from django.db.models import Q
 from django.urls import reverse
 from .models import Employee, Department, HealthDependant
 from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentForm, ChangePasswordForm, AdminResetCredentialsForm, EmployeeSelfEditForm, HealthDependantForm
@@ -1800,3 +1802,28 @@ def health_insurance_pdf_bulk(request):
     resp = HttpResponse(buf, content_type='application/pdf')
     resp['Content-Disposition'] = 'inline; filename="health_insurance_all_employees.pdf"'
     return resp
+
+
+@login_required
+def employee_search_api(request):
+    """AJAX endpoint: search employees by name or employee_id. Returns JSON."""
+    q = request.GET.get('q', '').strip()
+    results = []
+    if len(q) >= 2:
+        qs = Employee.objects.filter(
+            Q(user__first_name__icontains=q) |
+            Q(user__last_name__icontains=q) |
+            Q(employee_id__icontains=q),
+            is_active=True,
+        ).exclude(user=request.user).select_related('user', 'department')[:12]
+        results = [
+            {
+                'id': e.pk,
+                'name': e.get_full_name(),
+                'emp_id': e.employee_id,
+                'dept': str(e.department) if e.department else '',
+                'role': e.get_role_display(),
+            }
+            for e in qs
+        ]
+    return JsonResponse({'results': results})
