@@ -9,7 +9,7 @@
 {% if user.is_superuser or user.employee.is_hr %}
 <div class="col-lg-6">
 <div class="card animate-in">
-    <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-clipboard2-plus me-2"></i>{% trans "New Appraisal Cycle" %}</div>
+    <div class="card-header"><i class="bi bi-clipboard2-plus me-2"></i>{% trans "New Appraisal Cycle" %}</div>
     <div class="card-body p-4">
         <div class="alert alert-warning small mb-4">
             <i class="bi bi-exclamation-triangle me-1"></i>
@@ -55,7 +55,7 @@
 
 <div class="col-lg-6">
 <div class="card animate-in delay-1">
-    <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-clock-history me-2"></i>{% trans "Previous Cycles" %}</div>
+    <div class="card-header"><i class="bi bi-clock-history me-2"></i>{% trans "Previous Cycles" %}</div>
     <div class="card-body p-0">
         {% if not cycles %}
         <div class="text-center py-4 text-muted small">{% trans "No cycles yet." %}</div>

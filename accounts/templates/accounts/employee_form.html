@@ -8,7 +8,7 @@
 <div class="row justify-content-center">
     <div class="col-lg-9">
         <div class="card animate-in">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-person-fill me-2"></i>{{ title }}</div>
+            <div class="card-header"><i class="bi bi-person-fill me-2"></i>{{ title }}</div>
             <div class="card-body p-4">
                 <form method="post" enctype="multipart/form-data" novalidate id="employee-form">
                     {% csrf_token %}
@@ -280,7 +280,7 @@
 <div class="row justify-content-center mt-4">
     <div class="col-lg-9">
         <div class="card animate-in delay-1">
-            <div class="card-header d-flex align-items-center justify-content-between" style="background:#2db4c3;color:#fff;">
+            <div class="card-header d-flex align-items-center justify-content-between">
                 <span><i class="bi bi-file-earmark-text me-2"></i>{% trans "Contract Management" %}</span>
                 <a href="{% url 'contracts:issue' %}?employee={{ employee.pk }}"
                    class="btn btn-sm" style="background:#0A4D68;color:#fff;">

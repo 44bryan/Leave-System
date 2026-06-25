@@ -19,7 +19,7 @@
 
 <!-- Current Leave Summary -->
 <div class="card mb-4 animate-in" style="border-top:3px solid #0A4D68;">
-    <div class="card-header" style="background:#2db4c3;color:#fff;">
+    <div class="card-header">
         <i class="bi bi-file-text me-2"></i>{% trans "Current Leave Details" %}
     </div>
     <div class="card-body">
@@ -55,7 +55,7 @@
 
 <!-- Action Form -->
 <div class="card animate-in">
-    <div class="card-header" style="background:#2db4c3;color:#fff;">
+    <div class="card-header">
         <i class="bi bi-arrow-counterclockwise me-2"></i>{% trans "Reversal / Modification Form" %}
     </div>
     <div class="card-body p-4">
@@ -125,7 +125,7 @@
 <!-- Reversal History -->
 <div class="col-lg-5">
     <div class="card animate-in delay-1">
-        <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-clock-history me-2"></i>{% trans "Reversal History" %}</div>
+        <div class="card-header"><i class="bi bi-clock-history me-2"></i>{% trans "Reversal History" %}</div>
         {% if not reversals %}
         <div class="card-body text-center py-4 text-muted">
             <i class="bi bi-shield-check fs-2 d-block mb-2 text-success"></i>

@@ -10,7 +10,7 @@
 
   <!-- Leave info -->
   <div class="card mb-4 animate-in">
-    <div class="card-header fw-semibold" style="background:#2db4c3;color:#fff;"><i class="bi bi-file-text me-2"></i>Leave Request Details</div>
+    <div class="card-header fw-semibold"><i class="bi bi-file-text me-2"></i>Leave Request Details</div>
     <div class="card-body p-4">
       <div class="row g-3">
         <div class="col-sm-6">
@@ -50,7 +50,7 @@
   <!-- Response form or already responded -->
   {% if consultation.status == 'pending' %}
   <div class="card animate-in">
-    <div class="card-header fw-semibold" style="background:#2db4c3;color:#fff;"><i class="bi bi-reply me-2"></i>Your Response</div>
+    <div class="card-header fw-semibold"><i class="bi bi-reply me-2"></i>Your Response</div>
     <div class="card-body p-4">
       <form method="post" novalidate>
         {% csrf_token %}

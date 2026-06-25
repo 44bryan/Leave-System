@@ -233,7 +233,7 @@
 <div class="row g-4 mb-4 animate-in">
     <div class="col-lg-5">
         <div class="card h-100">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-diagram-3 me-2" style="color:#2db4c3;"></i>{% trans "Staff Category Distribution" %}</div>
+            <div class="card-header"><i class="bi bi-diagram-3 me-2" style="color:#2db4c3;"></i>{% trans "Staff Category Distribution" %}</div>
             <div class="card-body p-3">
                 {% if staff_category_groups %}
                 <canvas id="staffCatChart" style="max-height:220px;"></canvas>
@@ -255,7 +255,7 @@
     </div>
     <div class="col-lg-7">
         <div class="card h-100">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-building me-2" style="color:#059669;"></i>{% trans "Contracts by Department" %}</div>
+            <div class="card-header"><i class="bi bi-building me-2" style="color:#059669;"></i>{% trans "Contracts by Department" %}</div>
             <div class="card-body p-3">
                 {% if contract_dept_breakdown %}
                 <canvas id="contractDeptChart" style="max-height:280px;"></canvas>
@@ -271,7 +271,7 @@
 <div class="row g-4 mb-4 animate-in">
     <div class="col-lg-6">
         <div class="card">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-trophy-fill me-2" style="color:#d97706;"></i>{% trans "Longest-Serving Staff" %}</div>
+            <div class="card-header"><i class="bi bi-trophy-fill me-2" style="color:#d97706;"></i>{% trans "Longest-Serving Staff" %}</div>
             {% if contract_long_service %}
             <div class="list-group list-group-flush">
                 {% for emp in contract_long_service %}
@@ -298,7 +298,7 @@
     </div>
     <div class="col-lg-6">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-activity me-2" style="color:#2db4c3;"></i>{% trans "Recent Contract Activity" %}</span>
                 <a href="{% url 'contracts:list' %}" class="btn btn-sm btn-outline-primary">{% trans "All Contracts" %}</a>
             </div>

@@ -136,7 +136,7 @@
             {% endif %}
 
             <div class="card mb-4">
-                <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-person me-2"></i>{% trans "Employee Details" %}</div>
+                <div class="card-header"><i class="bi bi-person me-2"></i>{% trans "Employee Details" %}</div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-sm-6">
@@ -160,7 +160,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-file-text me-2"></i>{% trans "Notice Details" %}</div>
+                <div class="card-header"><i class="bi bi-file-text me-2"></i>{% trans "Notice Details" %}</div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-sm-6">
@@ -419,7 +419,7 @@
             {% if record.notes %}
             {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or record.issued_by == request.user %}
             <div class="card mb-4">
-                <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-lock me-2"></i>{% trans "Internal Notes" %} <small class="text-muted fw-normal">({% trans "not visible to employee" %})</small></div>
+                <div class="card-header"><i class="bi bi-lock me-2"></i>{% trans "Internal Notes" %} <small class="text-muted fw-normal">({% trans "not visible to employee" %})</small></div>
                 <div class="card-body">
                     <p style="font-size:0.9rem; color:#4a6b7c; margin:0;">{{ record.notes|linebreaks }}</p>
                 </div>

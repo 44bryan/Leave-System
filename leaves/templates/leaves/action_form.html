@@ -9,7 +9,7 @@
     <div class="col-lg-7">
         <!-- Request Details Card -->
         <div class="card mb-4 animate-in">
-            <div class="card-header" style="background:#2db4c3;color:#fff;">
+            <div class="card-header">
                 <i class="bi bi-file-text me-2"></i>{% trans "Leave Request Details" %}
                 <span class="badge bg-{{ leave.get_status_badge }} ms-2">{{ leave.get_status_display }}</span>
             </div>
@@ -69,7 +69,7 @@
 
         {% if action_type == 'hr' and leave.manager_remarks %}
         <div class="card mb-4 animate-in delay-1">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-person-check me-2"></i>{% trans "Manager Remarks" %}</div>
+            <div class="card-header"><i class="bi bi-person-check me-2"></i>{% trans "Manager Remarks" %}</div>
             <div class="card-body p-4">
                 <blockquote style="border-left: 3px solid #088395; padding-left: 12px; color: #6b7a8d; font-style: italic;">
                     {{ leave.manager_remarks }}
@@ -81,7 +81,7 @@
 
         {% if action_type == 'director' %}
         <div class="card mb-4 animate-in delay-1">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-people me-2"></i>{% trans "Prior Approvals" %}</div>
+            <div class="card-header"><i class="bi bi-people me-2"></i>{% trans "Prior Approvals" %}</div>
             <div class="card-body p-4">
                 {% if leave.manager_action_by %}
                 <div class="mb-3">
@@ -141,7 +141,7 @@
 
         <!-- Decision Form -->
         <div class="card animate-in delay-2">
-            <div class="card-header" style="background:#2db4c3;color:#fff;">
+            <div class="card-header">
                 <i class="bi bi-check2-square me-2"></i>{% trans "Your Decision" %}
             </div>
             <div class="card-body p-4">
@@ -225,7 +225,7 @@
     <!-- Employee Info Sidebar -->
     <div class="col-lg-5">
         <div class="card animate-in delay-1">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-person-circle me-2"></i>{% trans "Employee Info" %}</div>
+            <div class="card-header"><i class="bi bi-person-circle me-2"></i>{% trans "Employee Info" %}</div>
             <div class="card-body p-4">
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#2db4c3,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.2rem;flex-shrink:0;">

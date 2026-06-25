@@ -21,7 +21,7 @@
 <div class="row justify-content-center">
 <div class="col-lg-7">
 <div class="card animate-in">
-    <div class="card-header" style="background:#2db4c3;color:#fff;">
+    <div class="card-header">
         <i class="bi bi-file-earmark-plus me-2" style="color:#2db4c3;"></i>
         {% if preselect_employee %}{% blocktrans with name=preselect_employee.get_full_name %}Change / Renew Contract — {{ name }}{% endblocktrans %}{% else %}{% trans "Issue New Contract" %}{% endif %}
     </div>
