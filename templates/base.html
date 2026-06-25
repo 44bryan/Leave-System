@@ -1481,8 +1481,8 @@
             </li>
             {% if user.is_superuser or user.employee.is_hr %}
             <li class="nav-item-sidebar">
-                <a href="{% url 'payroll:create' %}" class="nav-link-sidebar">
-                    <i class="bi bi-plus-circle"></i> {% trans "New Payslip" %}
+                <a href="{% url 'payroll:bulk_upload' %}" class="nav-link-sidebar">
+                    <i class="bi bi-cloud-upload"></i> {% trans "Distribute Payslips" %}
                 </a>
             </li>
             {% endif %}
@@ -1913,6 +1913,94 @@ if (typeof Chart !== 'undefined') {
 }
 </script>
 {% block extra_js %}{% endblock %}
+
+<!-- ── Global AJAX Employee Picker ──────────────────────────────────── -->
+<style>
+.emp-ajax-wrap { position:relative; }
+.emp-ajax-dropdown {
+    display:none; position:absolute; top:calc(100% + 2px); left:0; right:0; z-index:1000;
+    background:#fff; border:1.5px solid #2db4c3; border-radius:0 0 8px 8px;
+    max-height:230px; overflow-y:auto; box-shadow:0 6px 18px rgba(10,77,104,.14);
+}
+.emp-ajax-dropdown.open { display:block; }
+.emp-ajax-item {
+    padding:9px 14px; cursor:pointer; font-size:.875rem;
+    border-bottom:1px solid #f0f4f8; transition:background .1s;
+}
+.emp-ajax-item:last-child { border-bottom:none; }
+.emp-ajax-item:hover { background:#e0f7fa; color:#0A4D68; }
+.emp-ajax-empty { padding:10px 14px; font-size:.82rem; color:#9ab4c0; }
+</style>
+<script>
+(function () {
+    document.querySelectorAll('.emp-ajax-wrap').forEach(function (wrap) {
+        var input    = wrap.querySelector('.emp-ajax-input');
+        var dropdown = wrap.querySelector('.emp-ajax-dropdown');
+        var hidden   = wrap.querySelector('.emp-ajax-value');
+        var selDiv   = wrap.querySelector('.emp-ajax-selected');
+        var selName  = wrap.querySelector('.emp-ajax-name');
+        var clearBtn = wrap.querySelector('.emp-ajax-clear');
+        if (!input || !hidden) return;
+
+        var timer;
+        function showDropdown(results) {
+            dropdown.innerHTML = '';
+            if (!results || !results.length) {
+                var empty = document.createElement('div');
+                empty.className = 'emp-ajax-empty';
+                empty.textContent = 'No results found.';
+                dropdown.appendChild(empty);
+            } else {
+                results.forEach(function (r) {
+                    var item = document.createElement('div');
+                    item.className = 'emp-ajax-item';
+                    item.textContent = r.label;
+                    item.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        hidden.value = r.id;
+                        input.style.display = 'none';
+                        dropdown.classList.remove('open');
+                        if (selDiv && selName) {
+                            selName.textContent = r.label;
+                            selDiv.style.display = '';
+                        }
+                    });
+                    dropdown.appendChild(item);
+                });
+            }
+            dropdown.classList.add('open');
+        }
+
+        input.addEventListener('input', function () {
+            var q = this.value.trim();
+            clearTimeout(timer);
+            if (q.length < 2) { dropdown.classList.remove('open'); return; }
+            timer = setTimeout(function () {
+                fetch('/accounts/employee-search/?q=' + encodeURIComponent(q))
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) { showDropdown(d.results); })
+                    .catch(function () { dropdown.classList.remove('open'); });
+            }, 220);
+        });
+
+        input.addEventListener('blur', function () {
+            setTimeout(function () { dropdown.classList.remove('open'); }, 200);
+        });
+        input.addEventListener('focus', function () {
+            if (this.value.trim().length >= 2) dropdown.classList.add('open');
+        });
+
+        clearBtn && clearBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            hidden.value = '';
+            input.value = '';
+            input.style.display = '';
+            input.focus();
+            if (selDiv) selDiv.style.display = 'none';
+        });
+    });
+})();
+</script>
 
 {% if user.is_authenticated and notif_unread > 0 or user.is_authenticated and pending_leave_count > 0 or user.is_authenticated and pending_appraisals_count > 0 %}
 <!-- ── Pending Actions Popup ────────────────────────────────────────── -->

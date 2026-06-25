@@ -40,14 +40,18 @@
             {% else %}
             <div class="mb-3">
                 <label class="form-label fw-600">{% trans "Employee" %} <span class="text-danger">*</span></label>
-                <select name="employee" class="form-select" required>
-                    <option value="">{% trans "— Select Employee —" %}</option>
-                    {% for emp in employees %}
-                    <option value="{{ emp.pk }}">
-                        {{ emp.get_full_name }} ({{ emp.employee_id }}){% if emp.department %} — {{ emp.department }}{% endif %}
-                    </option>
-                    {% endfor %}
-                </select>
+                <div class="emp-ajax-wrap">
+                    <input type="text" class="form-control emp-ajax-input"
+                           placeholder="{% trans 'Type name to search…' %}" autocomplete="off">
+                    <div class="emp-ajax-dropdown"></div>
+                    <input type="hidden" name="employee" class="emp-ajax-value" required>
+                    <div class="emp-ajax-selected mt-1" style="display:none;font-size:.85rem;color:#0A4D68;">
+                        <i class="bi bi-person-check me-1"></i>
+                        <span class="emp-ajax-name"></span>
+                        <a href="#" class="emp-ajax-clear ms-2 text-danger" style="font-size:.78rem;">{% trans "Change" %}</a>
+                    </div>
+                </div>
+                <div class="form-text">{% trans "Start typing the employee's name to search." %}</div>
             </div>
             {% endif %}
 

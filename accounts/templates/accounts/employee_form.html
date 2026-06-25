@@ -263,10 +263,15 @@
                     </div>
                     {% endif %}
 
-                    <div class="d-flex gap-2 mt-4">
+                    <div class="d-flex gap-2 mt-4 flex-wrap">
                         <button type="submit" class="btn px-4" style="background:#0A4D68;color:#fff;">
                             <i class="bi bi-save me-1"></i>{% trans "Save" %}
                         </button>
+                        {% if employee %}
+                        <a href="{% url 'accounts:health_insurance_edit' employee.pk %}" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-heart-pulse me-1"></i>{% trans "Health Insurance" %}
+                        </a>
+                        {% endif %}
                         <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary px-4">{% trans "Cancel" %}</a>
                     </div>
                 </form>

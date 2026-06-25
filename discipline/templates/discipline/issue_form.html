@@ -74,40 +74,24 @@
                         </div>
                         {% endif %}
 
-                        <!-- Step 1: Department -->
+                        <!-- Step 1: Employee -->
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <span class="badge bg-primary me-2" style="font-size:0.72rem;">1</span>
-                                {% trans "Department" %}
-                            </label>
-                            <select id="deptSelect" class="form-select">
-                                <option value="">— {% trans "All Departments" %} —</option>
-                                {% for dept in departments %}
-                                <option value="{{ dept.pk }}">{{ dept.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="form-text">{% trans "Select a department to filter employees below." %}</div>
-                        </div>
-
-                        <!-- Step 2: Employee -->
-                        <div class="mb-4">
-                            <label class="form-label fw-600">
-                                <span class="badge bg-primary me-2" style="font-size:0.72rem;">2</span>
                                 {% trans "Employee" %} <span class="text-danger">*</span>
                             </label>
-                            <select name="employee" class="form-select" required id="employeeSelect">
-                                <option value="">— {% trans "Select employee" %} —</option>
-                                {% for e in employees %}
-                                <option value="{{ e.pk }}"
-                                    data-dept="{{ e.department.pk|default:'' }}"
-                                    {% if prefill_employee == e.pk|stringformat:"s" %}selected{% endif %}>
-                                    {{ e.get_full_name }}{% if e.department %} — {{ e.department }}{% endif %}
-                                </option>
-                                {% endfor %}
-                            </select>
-                            <div id="noEmployeesMsg" class="form-text text-warning" style="display:none;">
-                                <i class="bi bi-exclamation-triangle me-1"></i>{% trans "No employees found in this department." %}
+                            <div class="emp-ajax-wrap">
+                                <input type="text" class="form-control emp-ajax-input"
+                                       placeholder="{% trans 'Type name to search…' %}" autocomplete="off">
+                                <div class="emp-ajax-dropdown"></div>
+                                <input type="hidden" name="employee" class="emp-ajax-value" required>
+                                <div class="emp-ajax-selected mt-1" style="display:none;font-size:.85rem;color:#0A4D68;">
+                                    <i class="bi bi-person-check me-1"></i>
+                                    <span class="emp-ajax-name"></span>
+                                    <a href="#" class="emp-ajax-clear ms-2 text-danger" style="font-size:.78rem;">{% trans "Change" %}</a>
+                                </div>
                             </div>
+                            <div class="form-text">{% trans "Start typing the employee's name to search." %}</div>
                         </div>
 
                         <!-- Step 3: Notice Type -->
@@ -195,21 +179,6 @@
     </div>
 
 <script>
-// ── Department → Employee Filter ──
-const deptSelect = document.getElementById('deptSelect');
-const employeeSelect = document.getElementById('employeeSelect');
-const noEmployeesMsg = document.getElementById('noEmployeesMsg');
-const allOptions = Array.from(employeeSelect.querySelectorAll('option[value]')).filter(o => o.value);
-
-deptSelect.addEventListener('change', function () {
-    const deptId = this.value;
-    employeeSelect.value = '';
-    allOptions.forEach(opt => opt.remove());
-    const filtered = deptId ? allOptions.filter(opt => opt.dataset.dept === deptId) : allOptions;
-    filtered.forEach(opt => employeeSelect.appendChild(opt));
-    noEmployeesMsg.style.display = filtered.length === 0 && deptId ? 'block' : 'none';
-});
-
 // ── Notice Type Description + Suspension Fields ──
 const typeDescriptions = {
     'verbal_warning':  { text: '{% trans "An informal recorded warning — first step before formal written action." %}', color: '#92400e', bg: '#fef3c7' },
