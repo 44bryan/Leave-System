@@ -30,9 +30,9 @@
 </div>
 
 <div class="card animate-in">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-journal-text me-2" style="color:#0A4D68;"></i>{% trans "Reversal Records" %}
-        <span class="badge bg-secondary ms-2">{{ reversals|length }}</span></span>
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#0A4D68;color:#fff;">
+        <span><i class="bi bi-journal-text me-2"></i>{% trans "Reversal Records" %}
+        <span class="badge bg-light text-dark ms-2">{{ reversals|length }}</span></span>
     </div>
     {% if not reversals %}
     <div class="card-body text-center py-5 text-muted">

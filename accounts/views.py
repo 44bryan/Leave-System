@@ -44,12 +44,8 @@ def profile_view(request):
         messages.error(request, "No employee profile found.")
         return redirect('dashboard:home')
 
-    HealthFS = modelformset_factory(HealthDependant, form=HealthDependantForm,
-                                    extra=1, can_delete=True)
-
     change_form   = ChangePasswordForm(request.user)
     self_edit_form = EmployeeSelfEditForm(instance=employee)
-    health_fs      = HealthFS(queryset=employee.health_dependants.all(), prefix='health')
 
     if request.method == 'POST' and 'self_edit' in request.POST:
         self_edit_form = EmployeeSelfEditForm(request.POST, instance=employee)
@@ -58,24 +54,11 @@ def profile_view(request):
             messages.success(request, "Profile updated successfully.")
             return redirect('accounts:profile')
 
-    elif request.method == 'POST' and 'health_save' in request.POST:
-        health_fs = HealthFS(request.POST, queryset=employee.health_dependants.all(), prefix='health')
-        if health_fs.is_valid():
-            instances = health_fs.save(commit=False)
-            for obj in instances:
-                obj.employee = employee
-                obj.save()
-            for obj in health_fs.deleted_objects:
-                obj.delete()
-            messages.success(request, "Health insurance information saved.")
-            return redirect('accounts:profile')
-
     dependants = employee.health_dependants.all()
     return render(request, 'accounts/profile.html', {
         'employee': employee,
         'change_form': change_form,
         'self_edit_form': self_edit_form,
-        'health_fs': health_fs,
         'dependants': dependants,
     })
 
@@ -1548,46 +1531,111 @@ def onboarding_update(request, pk):
 
 @login_required
 def health_insurance_edit(request, pk):
-    """HR or the employee themselves can manage health insurance dependants."""
-    from django.forms import modelformset_factory
+    """HR / superuser only — manage health insurance data for an employee."""
+    from datetime import date as _date
     target = get_object_or_404(Employee, pk=pk)
-    # Access: HR/superuser or the employee themselves
     try:
         viewer = request.user.employee
     except Employee.DoesNotExist:
         viewer = None
     is_hr = request.user.is_superuser or (viewer and (viewer.is_hr() or viewer.is_director() or viewer.is_ceo()))
-    if not is_hr and (viewer is None or viewer != target):
-        messages.error(request, "Access denied.")
+    if not is_hr:
+        messages.error(request, "Access denied. HR only.")
         return redirect('dashboard:home')
 
-    HealthFS = modelformset_factory(HealthDependant, form=HealthDependantForm,
-                                    extra=1, can_delete=True)
-
-    # Also let HR update marital_status inline
     if request.method == 'POST':
-        marital = request.POST.get('marital_status', '')
-        if marital in ('single', 'married'):
-            target.marital_status = marital
-            target.save(update_fields=['marital_status'])
+        p = request.POST
+        marital = p.get('marital_status', 'single')
+        if marital not in ('single', 'married'):
+            marital = 'single'
+        target.marital_status = marital
+        target.save(update_fields=['marital_status'])
 
-        fs = HealthFS(request.POST, queryset=target.health_dependants.all(), prefix='health')
-        if fs.is_valid():
-            instances = fs.save(commit=False)
-            for obj in instances:
-                obj.employee = target
-                obj.save()
-            for obj in fs.deleted_objects:
-                obj.delete()
-            messages.success(request, "Health insurance information saved.")
-            return redirect('accounts:health_insurance_edit', pk=pk)
-    else:
-        fs = HealthFS(queryset=target.health_dependants.all(), prefix='health')
+        # Clear existing dependants and rebuild from POST
+        target.health_dependants.all().delete()
+
+        today = _date.today()
+
+        # Spouse (married only)
+        if marital == 'married':
+            sp_name = p.get('spouse_name', '').strip()
+            sp_dob_str = p.get('spouse_dob', '').strip()
+            if sp_name:
+                sp_dob = None
+                if sp_dob_str:
+                    try:
+                        from datetime import datetime
+                        sp_dob = datetime.strptime(sp_dob_str, '%Y-%m-%d').date()
+                    except ValueError:
+                        pass
+                HealthDependant.objects.create(
+                    employee=target, relation=HealthDependant.SPOUSE,
+                    full_name=sp_name, date_of_birth=sp_dob,
+                )
+
+        # Beneficiary children (married + single female, max 3)
+        is_female = (target.sex == 'F')
+        if marital == 'married' or is_female:
+            for i in range(1, 4):
+                name = p.get(f'ben_child_{i}_name', '').strip()
+                dob_str = p.get(f'ben_child_{i}_dob', '').strip()
+                if not name:
+                    continue
+                dob = None
+                if dob_str:
+                    try:
+                        from datetime import datetime
+                        dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+                    except ValueError:
+                        pass
+                HealthDependant.objects.create(
+                    employee=target, relation=HealthDependant.CHILD_BEN,
+                    full_name=name, date_of_birth=dob,
+                )
+
+        # Non-beneficiary children (all statuses)
+        nb_count_str = p.get('non_ben_count', '0')
+        try:
+            nb_count = max(0, min(20, int(nb_count_str)))
+        except ValueError:
+            nb_count = 0
+        for i in range(1, nb_count + 1):
+            name = p.get(f'non_ben_{i}_name', '').strip()
+            dob_str = p.get(f'non_ben_{i}_dob', '').strip()
+            if not name:
+                continue
+            dob = None
+            if dob_str:
+                try:
+                    from datetime import datetime
+                    dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            HealthDependant.objects.create(
+                employee=target, relation=HealthDependant.CHILD_OTHER,
+                full_name=name, date_of_birth=dob,
+            )
+
+        messages.success(request, "Health insurance information saved.")
+        return redirect('accounts:health_insurance_edit', pk=pk)
+
+    dependants = target.health_dependants.all()
+    spouse = dependants.filter(relation=HealthDependant.SPOUSE).first()
+    ben_children = list(dependants.filter(relation=HealthDependant.CHILD_BEN))
+    non_ben_children = list(dependants.filter(relation=HealthDependant.CHILD_OTHER))
+
+    # Flag beneficiary children who are 18+
+    from datetime import date as _date2
+    today = _date2.today()
+    for child in ben_children:
+        child.is_overage = (child.age is not None and child.age >= 18)
 
     return render(request, 'accounts/health_insurance_edit.html', {
         'target': target,
-        'health_fs': fs,
         'is_hr': is_hr,
+        'spouse': spouse,
+        'ben_children': ben_children,
+        'non_ben_children': non_ben_children,
     })
 
 

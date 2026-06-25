@@ -602,10 +602,10 @@ def _check_flag_ceo(record, stage_total, stage_label):
     """Flag record for CEO priority review if stage total is <12 or >18, and notify CEO."""
     if stage_total is None:
         return
-    if stage_total < 12 or stage_total > 18:
+    if stage_total <= 12 or stage_total >= 17:
         record.is_flagged_for_ceo = True
         record.save(update_fields=['is_flagged_for_ceo'])
-        direction = 'low' if stage_total < 12 else 'high'
+        direction = 'low' if stage_total <= 12 else 'high'
         for ceo_emp in Employee.objects.filter(role='ceo', is_active=True):
             notify(
                 ceo_emp.user,

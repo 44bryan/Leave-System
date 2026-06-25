@@ -49,8 +49,8 @@
 
         <!-- Proposal card -->
         <div class="card animate-in">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-award me-2" style="color:#0A4D68;"></i>{% trans "Proposal Details" %}</span>
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:#0A4D68;color:#fff;">
+                <span><i class="bi bi-award me-2"></i>{% trans "Proposal Details" %}</span>
                 {% if proposal.status == 'proposed' %}
                 <span class="badge bg-warning text-dark">{% trans "Proposed" %}</span>
                 {% elif proposal.status == 'endorsed' %}
@@ -89,8 +89,8 @@
 
         <!-- Comments -->
         <div class="card animate-in mt-4">
-            <div class="card-header">
-                <i class="bi bi-chat-left-text me-2" style="color:#0A4D68;"></i>{% trans "Comments & Opinions" %}
+            <div class="card-header" style="background:#0A4D68;color:#fff;">
+                <i class="bi bi-chat-left-text me-2"></i>{% trans "Comments & Opinions" %}
                 <span class="badge bg-secondary ms-2">{{ comments|length }}</span>
             </div>
             <div class="card-body p-4">
@@ -143,7 +143,7 @@
     <!-- Actions sidebar -->
     <div class="col-lg-4">
         <div class="card animate-in">
-            <div class="card-header"><i class="bi bi-arrow-left-circle me-2"></i>{% trans "Actions" %}</div>
+            <div class="card-header" style="background:#0A4D68;color:#fff;"><i class="bi bi-arrow-left-circle me-2"></i>{% trans "Actions" %}</div>
             <div class="card-body p-4">
                 <a href="{% url 'recognition:list' %}" class="btn btn-outline-secondary w-100 mb-2">
                     <i class="bi bi-arrow-left me-1"></i>{% trans "Back to List" %}

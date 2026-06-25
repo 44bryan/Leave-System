@@ -8,11 +8,9 @@
 <a href="{% url 'accounts:health_insurance_pdf' target.pk %}" class="btn btn-sm btn-primary me-2" target="_blank">
     <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Individual PDF" %}
 </a>
-{% if is_hr %}
 <a href="{% url 'accounts:health_insurance_pdf_bulk' %}" class="btn btn-sm btn-outline-secondary me-2" target="_blank">
-    <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "All Employees PDF" %}
+    <i class="bi bi-people me-1"></i>{% trans "All Employees PDF" %}
 </a>
-{% endif %}
 <a href="{% url 'accounts:employee_list' %}" class="btn btn-sm btn-outline-secondary">
     <i class="bi bi-arrow-left me-1"></i>{% trans "Back" %}
 </a>
@@ -22,8 +20,9 @@
 <div class="row g-4">
 <div class="col-lg-8">
 
-<div class="card animate-in mb-4">
-    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;">
+<!-- Employee info card -->
+<div class="card animate-in mb-4" style="border-color:#0A4D68;">
+    <div class="card-header" style="background:#0A4D68;color:#fff;">
         <i class="bi bi-person-badge me-2"></i>{% trans "Employee" %}
     </div>
     <div class="card-body">
@@ -44,71 +43,114 @@
     </div>
 </div>
 
+<!-- Main form -->
 <div class="card animate-in">
-    <div class="card-header fw-bold" style="background:#0A4D68;color:#fff;">
+    <div class="card-header" style="background:#0A4D68;color:#fff;">
         <i class="bi bi-heart-pulse me-2"></i>{% trans "Health Insurance Dependants" %}
     </div>
-    <div class="card-body">
-        <form method="post" novalidate>
+    <div class="card-body p-4">
+        <form method="post" id="healthForm" novalidate>
             {% csrf_token %}
 
-            {% if is_hr %}
+            <!-- Marital Status -->
             <div class="mb-4">
-                <label class="form-label fw-semibold">{% trans "Marital Status" %}</label>
-                <select name="marital_status" class="form-select" style="max-width:220px;">
-                    <option value="single" {% if target.marital_status == 'single' %}selected{% endif %}>{% trans "Single" %}</option>
-                    <option value="married" {% if target.marital_status == 'married' %}selected{% endif %}>{% trans "Married" %}</option>
-                </select>
-                <div class="form-text">
-                    {% trans "Married or single female — children can be listed as beneficiaries (max 3)." %}<br>
-                    {% trans "Single male — only non-beneficiary dependent children." %}
+                <label class="form-label fw-semibold">{% trans "Marital Status" %} <span class="text-danger">*</span></label>
+                <div class="d-flex gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="marital_status" id="ms_single"
+                               value="single" {% if target.marital_status != 'married' %}checked{% endif %} onchange="toggleSections()">
+                        <label class="form-check-label" for="ms_single">{% trans "Single" %}</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="marital_status" id="ms_married"
+                               value="married" {% if target.marital_status == 'married' %}checked{% endif %} onchange="toggleSections()">
+                        <label class="form-check-label" for="ms_married">{% trans "Married" %}</label>
+                    </div>
                 </div>
             </div>
-            <hr>
-            {% endif %}
 
-            {{ health_fs.management_form }}
-
-            <div class="mb-3">
-                <div class="row g-2 fw-semibold small text-muted mb-1 d-none d-sm-flex">
-                    <div class="col-sm-3">{% trans "Relation" %}</div>
-                    <div class="col-sm-4">{% trans "Full Name" %}</div>
-                    <div class="col-sm-3">{% trans "Date of Birth" %}</div>
-                    <div class="col-sm-2">{% trans "Remove" %}</div>
+            <!-- Spouse section (married only) -->
+            <div id="spouseSection" class="mb-4 p-3 rounded-3" style="background:#f0f9ff;border:1px solid #bae6fd;">
+                <div class="fw-semibold mb-3" style="color:#0A4D68;">
+                    <i class="bi bi-person-heart me-1"></i>{% trans "Spouse" %}
                 </div>
-                <div id="healthFormRows">
-                {% for form in health_fs %}
-                <div class="row g-2 align-items-end mb-2 health-row">
-                    {{ form.id }}
-                    <div class="col-sm-3">
-                        <label class="form-label small d-sm-none mb-1">{% trans "Relation" %}</label>
-                        {{ form.relation }}
-                        {% if form.relation.errors %}<div class="text-danger small">{{ form.relation.errors.0 }}</div>{% endif %}
+                <div class="row g-3">
+                    <div class="col-sm-7">
+                        <label class="form-label small fw-semibold">{% trans "Spouse Full Name" %}</label>
+                        <input type="text" name="spouse_name" class="form-control"
+                               value="{{ spouse.full_name|default:'' }}"
+                               placeholder="{% trans 'Full name of spouse' %}">
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="form-label small fw-semibold">{% trans "Spouse Date of Birth" %}</label>
+                        <input type="date" name="spouse_dob" class="form-control"
+                               value="{{ spouse.date_of_birth|date:'Y-m-d'|default:'' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beneficiary children section (married + single female) -->
+            <div id="benChildrenSection" class="mb-4 p-3 rounded-3" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+                <div class="fw-semibold mb-1" style="color:#166534;">
+                    <i class="bi bi-people me-1"></i>{% trans "Beneficiary Children" %}
+                    <span class="text-muted fw-normal" style="font-size:.8rem;">({% trans "maximum 3, age ≤ 18" %})</span>
+                </div>
+                <div class="text-muted mb-3" style="font-size:.78rem;">
+                    {% trans "List up to 3 children who will benefit from health insurance. Children aged 18 or older cannot be beneficiaries." %}
+                </div>
+
+                {% for slot in "123" %}
+                {% with idx=forloop.counter0 %}
+                <div class="row g-3 mb-3 align-items-end">
+                    <div class="col-auto" style="width:42px;padding-top:28px;">
+                        <span class="badge" style="background:#0A4D68;">{{ forloop.counter }}</span>
+                    </div>
+                    <div class="col">
+                        <label class="form-label small fw-semibold">{% trans "Full Name" %}</label>
+                        <input type="text" name="ben_child_{{ forloop.counter }}_name" class="form-control"
+                               value="{% for c in ben_children %}{% if forloop.counter0 == idx %}{{ c.full_name }}{% endif %}{% endfor %}"
+                               placeholder="{% trans 'Child full name' %}">
                     </div>
                     <div class="col-sm-4">
-                        <label class="form-label small d-sm-none mb-1">{% trans "Full Name" %}</label>
-                        {{ form.full_name }}
-                        {% if form.full_name.errors %}<div class="text-danger small">{{ form.full_name.errors.0 }}</div>{% endif %}
+                        <label class="form-label small fw-semibold">{% trans "Date of Birth" %}</label>
+                        <input type="date" name="ben_child_{{ forloop.counter }}_dob" class="form-control"
+                               value="{% for c in ben_children %}{% if forloop.counter0 == idx %}{{ c.date_of_birth|date:'Y-m-d'|default:'' }}{% endif %}{% endfor %}">
                     </div>
-                    <div class="col-sm-3">
-                        <label class="form-label small d-sm-none mb-1">{% trans "Date of Birth" %}</label>
-                        {{ form.date_of_birth }}
-                        {% if form.date_of_birth.errors %}<div class="text-danger small">{{ form.date_of_birth.errors.0 }}</div>{% endif %}
+                    {% for c in ben_children %}{% if forloop.counter0 == idx and c.is_overage %}
+                    <div class="col-12">
+                        <div class="alert alert-warning py-1 px-2 mb-0" style="font-size:.78rem;">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            {% trans "This child is 18 or older and cannot be a health insurance beneficiary." %}
+                        </div>
                     </div>
-                    {% if health_fs.can_delete %}
-                    <div class="col-sm-2 d-flex align-items-center gap-1">
-                        {{ form.DELETE }}
-                        <label class="form-check-label small text-danger">{% trans "Delete" %}</label>
-                    </div>
-                    {% endif %}
+                    {% endif %}{% endfor %}
                 </div>
+                {% endwith %}
                 {% endfor %}
+            </div>
+
+            <!-- Non-beneficiary children (all statuses) -->
+            <div class="mb-4 p-3 rounded-3" style="background:#fafafa;border:1px solid #e5e7eb;">
+                <div class="fw-semibold mb-1" style="color:#374151;">
+                    <i class="bi bi-people me-1"></i>{% trans "Non-Beneficiary Children" %}
+                    <span class="text-muted fw-normal" style="font-size:.8rem;">({% trans "staying with you, not on insurance" %})</span>
                 </div>
+                <div class="text-muted mb-3" style="font-size:.78rem;">
+                    {% trans "Children who live with you but will not benefit from health insurance." %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">{% trans "Number of non-beneficiary children" %}</label>
+                    <input type="number" name="non_ben_count" id="nonBenCount" class="form-control"
+                           style="max-width:120px;" min="0" max="20"
+                           value="{{ non_ben_children|length }}"
+                           oninput="buildNonBenRows()">
+                </div>
+                <div id="nonBenRows"></div>
             </div>
 
             <div class="d-flex gap-2 mt-3">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle me-1"></i>{% trans "Save" %}
+                    <i class="bi bi-check-circle me-1"></i>{% trans "Save Health Insurance Data" %}
                 </button>
                 <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
             </div>
@@ -118,47 +160,109 @@
 
 </div>
 
-<!-- Sidebar: current beneficiary status -->
+<!-- Sidebar -->
 <div class="col-lg-4">
-    <div class="card animate-in delay-1">
-        <div class="card-header"><i class="bi bi-info-circle me-2"></i>{% trans "Rules" %}</div>
+    <div class="card animate-in" style="border-color:#0A4D68;">
+        <div class="card-header" style="background:#0A4D68;color:#fff;">
+            <i class="bi bi-info-circle me-2"></i>{% trans "Rules" %}
+        </div>
         <div class="card-body p-3" style="font-size:.83rem;">
             <ul class="mb-0 ps-3">
-                <li>{% trans "Married employee: spouse + up to 3 beneficiary children + other dependants." %}</li>
-                <li>{% trans "Single female: up to 3 beneficiary children + other dependants." %}</li>
-                <li>{% trans "Single male: non-beneficiary dependant children only." %}</li>
-                <li>{% trans "Beneficiary children aged 18+ automatically show as 'Aged out'." %}</li>
+                <li>{% trans "Married: spouse + up to 3 beneficiary children + non-beneficiary children." %}</li>
+                <li>{% trans "Single female: up to 3 beneficiary children + non-beneficiary children (no spouse)." %}</li>
+                <li>{% trans "Single male: non-beneficiary dependent children only." %}</li>
+                <li>{% trans "Beneficiary children aged 18+ are flagged and cannot benefit." %}</li>
+                <li>{% trans "Maximum 3 beneficiary children regardless of family size." %}</li>
             </ul>
         </div>
     </div>
 
-    {% with deps=target.health_dependants.all %}
-    {% if deps %}
-    <div class="card animate-in delay-2 mt-3">
-        <div class="card-header"><i class="bi bi-people me-2"></i>{% trans "Current Dependants" %}</div>
+    {% if spouse or ben_children or non_ben_children %}
+    <div class="card animate-in mt-3" style="border-color:#0A4D68;">
+        <div class="card-header" style="background:#0A4D68;color:#fff;">
+            <i class="bi bi-people me-2"></i>{% trans "Current Dependants" %}
+        </div>
         <div class="card-body p-0">
             <ul class="list-group list-group-flush" style="font-size:.82rem;">
-            {% for d in deps %}
+            {% if spouse %}
             <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2">
                 <span>
-                    <span class="fw-semibold">{{ d.full_name }}</span>
-                    <div class="text-muted">{{ d.get_relation_display }}{% if d.date_of_birth %} · {{ d.age }} yrs{% endif %}</div>
+                    <span class="fw-semibold">{{ spouse.full_name }}</span>
+                    <div class="text-muted">{% trans "Spouse" %}{% if spouse.date_of_birth %} · {{ spouse.age }} {% trans "yrs" %}{% endif %}</div>
                 </span>
-                {% if d.insurance_active %}
                 <span class="badge bg-success">{% trans "Active" %}</span>
-                {% elif d.relation == 'child_other' %}
-                <span class="badge bg-secondary">{% trans "N/A" %}</span>
-                {% else %}
+            </li>
+            {% endif %}
+            {% for child in ben_children %}
+            <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2">
+                <span>
+                    <span class="fw-semibold">{{ child.full_name }}</span>
+                    <div class="text-muted">{% trans "Beneficiary Child" %}{% if child.date_of_birth %} · {{ child.age }} {% trans "yrs" %}{% endif %}</div>
+                </span>
+                {% if child.is_overage %}
                 <span class="badge bg-warning text-dark">{% trans "Aged out" %}</span>
+                {% else %}
+                <span class="badge bg-success">{% trans "Eligible" %}</span>
                 {% endif %}
+            </li>
+            {% endfor %}
+            {% for child in non_ben_children %}
+            <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2">
+                <span>
+                    <span class="fw-semibold">{{ child.full_name }}</span>
+                    <div class="text-muted">{% trans "Non-beneficiary" %}{% if child.date_of_birth %} · {{ child.age }} {% trans "yrs" %}{% endif %}</div>
+                </span>
+                <span class="badge bg-secondary">{% trans "N/A" %}</span>
             </li>
             {% endfor %}
             </ul>
         </div>
     </div>
     {% endif %}
-    {% endwith %}
 </div>
 
 </div>
+
+<script>
+var existingNonBen = [
+    {% for child in non_ben_children %}{name:"{{ child.full_name|escapejs }}",dob:"{{ child.date_of_birth|date:'Y-m-d'|default:'' }}"}{% if not forloop.last %},{% endif %}{% endfor %}
+];
+var employeeSex = "{{ target.sex }}";
+
+function toggleSections() {
+    var isMarried = document.getElementById('ms_married').checked;
+    var showBen = isMarried || employeeSex === 'F';
+    document.getElementById('spouseSection').style.display = isMarried ? '' : 'none';
+    document.getElementById('benChildrenSection').style.display = showBen ? '' : 'none';
+}
+
+function buildNonBenRows() {
+    var count = parseInt(document.getElementById('nonBenCount').value) || 0;
+    var container = document.getElementById('nonBenRows');
+    container.innerHTML = '';
+    for (var i = 1; i <= count; i++) {
+        var ex = existingNonBen[i-1] || {};
+        var row = document.createElement('div');
+        row.className = 'row g-3 mb-3 align-items-end';
+        row.innerHTML =
+            '<div class="col-auto" style="width:42px;padding-top:28px;">' +
+                '<span class="badge bg-secondary">' + i + '</span>' +
+            '</div>' +
+            '<div class="col">' +
+                '<label class="form-label small fw-semibold">{% trans "Full Name" %}</label>' +
+                '<input type="text" name="non_ben_' + i + '_name" class="form-control" value="' + (ex.name||'') + '" placeholder="{% trans "Child full name" %}">' +
+            '</div>' +
+            '<div class="col-sm-4">' +
+                '<label class="form-label small fw-semibold">{% trans "Date of Birth" %}</label>' +
+                '<input type="date" name="non_ben_' + i + '_dob" class="form-control" value="' + (ex.dob||'') + '">' +
+            '</div>';
+        container.appendChild(row);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    toggleSections();
+    buildNonBenRows();
+});
+</script>
 {% endblock %}
