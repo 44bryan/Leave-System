@@ -7,15 +7,22 @@
 
 {% block topbar_actions %}
 {% if user.is_superuser or user.employee.is_hr %}
-<a href="{% url 'accounts:employee_create' %}" class="btn btn-primary btn-sm me-1">
+<a href="{% url 'accounts:employee_create' %}" class="btn btn-primary btn-sm">
     <i class="bi bi-person-plus me-1"></i>{% trans "Add Employee" %}
 </a>
-<a href="{% url 'accounts:export_credentials' %}" class="btn btn-outline-secondary btn-sm">
-    <i class="bi bi-download me-1"></i>{% trans "Export Credentials" %}
-</a>
-<a href="{% url 'accounts:health_insurance_pdf_bulk' %}" class="btn btn-outline-info btn-sm" target="_blank">
-    <i class="bi bi-heart-pulse me-1"></i>{% trans "Health Insurance PDF" %}
-</a>
+<div class="dropdown">
+    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" style="border-radius:12px;font-size:.85rem;">
+        <li><a class="dropdown-item" href="{% url 'accounts:export_credentials' %}">
+            <i class="bi bi-download me-2"></i>{% trans "Export Credentials" %}
+        </a></li>
+        <li><a class="dropdown-item" href="{% url 'accounts:health_insurance_pdf_bulk' %}" target="_blank">
+            <i class="bi bi-heart-pulse me-2"></i>{% trans "Health Insurance PDF" %}
+        </a></li>
+    </ul>
+</div>
 {% endif %}
 {% endblock %}
 
