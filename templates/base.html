@@ -137,13 +137,14 @@
         /* Logged-in user chip */
         .user-chip {
             height: 40px;
-            padding: 0 14px 0 8px;
+            width: 40px;
+            padding: 0;
             border-radius: 10px;
             border: 1.5px solid #cde8ef;
             background: white;
             display: flex;
             align-items: center;
-            gap: 9px;
+            justify-content: center;
             cursor: default;
         }
         .user-chip-avatar {
@@ -1025,8 +1026,42 @@
 
     <div class="logo-bar-right">
 
-        <!-- Mobile: language dropdown + search icon -->
+        <!-- Mobile: notifications + language + search -->
         <div class="d-flex align-items-center gap-2 d-lg-none">
+            <!-- Mobile notifications bell -->
+            <div class="dropdown">
+                <button class="mobile-search-btn position-relative" id="mobileNotifBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications" data-no-suspend>
+                    <i class="bi bi-bell"></i>
+                    {% if notif_unread > 0 %}<span class="notif-badge" style="top:4px;right:4px;">{{ notif_unread }}</span>{% endif %}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end notif-panel" aria-labelledby="mobileNotifBtn">
+                    <div class="notif-header">
+                        <span class="notif-header-title"><i class="bi bi-bell me-1"></i>Notifications{% if notif_unread > 0 %}<span class="badge bg-danger ms-1">{{ notif_unread }}</span>{% endif %}</span>
+                        {% if notif_unread > 0 %}
+                        <form method="post" action="{% url 'notifications:mark_all_read' %}" class="d-inline">
+                            {% csrf_token %}<button type="submit" class="btn btn-link btn-sm p-0" style="font-size:0.72rem;color:#9ab4c0;" data-no-suspend>{% trans "Mark all read" %}</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="notif-body">
+                        {% if notif_recent %}{% for n in notif_recent %}
+                        <a href="{% url 'notifications:mark_read' n.pk %}" class="notif-item{% if not n.is_read %} notif-unread{% endif %}" data-no-suspend>
+                            <div class="notif-icon" style="background:{{ n.badge_color }}20;color:{{ n.badge_color }};"><i class="bi {{ n.icon }}"></i></div>
+                            <div class="notif-text">
+                                <div class="notif-title">{{ n.title }}</div>
+                                <div class="notif-msg">{{ n.message|truncatechars:65 }}</div>
+                                <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+                            </div>
+                            {% if not n.is_read %}<span class="notif-dot"></span>{% endif %}
+                        </a>
+                        {% endfor %}{% else %}
+                        <div class="notif-empty"><i class="bi bi-bell-slash fs-2 d-block mb-2"></i><small>{% trans "No notifications yet" %}</small></div>
+                        {% endif %}
+                    </div>
+                    <div class="notif-footer"><a href="{% url 'notifications:list' %}" class="btn btn-sm btn-outline-primary w-100" style="font-size:0.8rem;" data-no-suspend>{% trans "View All Notifications" %}</a></div>
+                </div>
+            </div>
+            <!-- Mobile language toggle -->
             <div class="dropdown">
                 <button class="mobile-search-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
                         title="Language" style="width:auto;padding:0 10px;gap:4px;font-size:0.78rem;font-weight:700;">
