@@ -162,7 +162,7 @@
                 <form method="post" class="mb-3">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="endorse">
-                    <button type="submit" class="btn btn-primary w-100 mb-2" style="font-size:.85rem;">
+                    <button type="submit" class="btn w-100 mb-2" style="background:#0A4D68;color:#fff;font-size:.85rem;">
                         <i class="bi bi-hand-thumbs-up me-1"></i>{% trans "Endorse Proposal" %}
                     </button>
                 </form>
@@ -176,7 +176,7 @@
                         <textarea name="execution_note" class="form-control" rows="3" style="font-size:.82rem;"
                                   placeholder="How was the recognition delivered? (ceremony, letter, etc.)"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-success w-100" style="font-size:.85rem;"
+                    <button type="submit" class="btn w-100" style="background:#0A4D68;color:#fff;font-size:.85rem;"
                             onclick="return confirm('Mark this recognition as executed and notify the employee?')">
                         <i class="bi bi-trophy me-1"></i>{% trans "Execute Recognition" %}
                     </button>
