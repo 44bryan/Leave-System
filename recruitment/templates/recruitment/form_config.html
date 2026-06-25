@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Form Configuration" %} — {{ posting.title }}{% endblock %}
+{% block page_title %}{% trans "Application Form Configuration" %}{% endblock %}
+{% block page_subtitle %}{{ posting.title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    <a href="{% url 'recruitment:list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Postings" %}
+    </a>
+    <a href="{% url 'recruitment:scoring_config' posting.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-star me-1"></i>{% trans "Scoring Rules" %}
+    </a>
+    <a href="{% url 'recruitment:applicant_list' posting.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-people me-1"></i>{% trans "View Applicants" %}
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Current fields -->
+    <div class="col-lg-8">
+        <div class="card animate-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-sliders me-2"></i>{% trans "Form Fields" %}</span>
+                <small class="text-muted">{% trans "Drag order numbers to reorder" %}</small>
+            </div>
+            <div class="card-body p-0">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="save_fields">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead style="background:#f8f9fa;">
+                                <tr>
+                                    <th style="padding:.8rem 1rem;width:60px;">#</th>
+                                    <th>{% trans "Label" %}</th>
+                                    <th>{% trans "Type" %}</th>
+                                    <th class="text-center">{% trans "Enabled" %}</th>
+                                    <th class="text-center">{% trans "Required" %}</th>
+                                    <th>{% trans "Options / Placeholder" %}</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for field in fields %}
+                                <tr>
+                                    <td style="padding:.8rem 1rem;">
+                                        <input type="number" name="order_{{ field.pk }}" value="{{ field.field_order }}"
+                                               class="form-control form-control-sm" style="width:55px;">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="label_{{ field.pk }}" value="{{ field.label }}"
+                                               class="form-control form-control-sm" style="min-width:130px;">
+                                        <small class="text-muted">{{ field.field_name }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">{{ field.get_field_type_display }}</span>
+                                        {% if field.is_custom %}<span class="badge bg-info text-white ms-1">custom</span>{% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" name="enabled_{{ field.pk }}" class="form-check-input"
+                                               {% if field.is_enabled %}checked{% endif %}>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" name="required_{{ field.pk }}" class="form-check-input"
+                                               {% if field.is_required %}checked{% endif %}>
+                                    </td>
+                                    <td>
+                                        {% if field.field_type == 'select' %}
+                                        <input type="text" name="options_{{ field.pk }}" value="{{ field.options }}"
+                                               class="form-control form-control-sm" placeholder="A,B,C (comma-separated)"
+                                               style="min-width:180px;">
+                                        {% else %}
+                                        <input type="text" name="placeholder_{{ field.pk }}" value="{{ field.placeholder }}"
+                                               class="form-control form-control-sm" placeholder="Placeholder text…"
+                                               style="min-width:140px;">
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if field.is_custom %}
+                                        <form method="post" style="display:inline;" onsubmit="return confirm('Delete field: {{ field.label }}?')">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete_field">
+                                            <input type="hidden" name="field_pk" value="{{ field.pk }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-3 border-top">
+                        <button type="submit" class="btn" style="background:#0A4D68;color:#fff;">
+                            <i class="bi bi-save me-1"></i>{% trans "Save Field Configuration" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add custom field -->
+    <div class="col-lg-4">
+        <div class="card animate-in">
+            <div class="card-header">
+                <i class="bi bi-plus-circle me-2"></i>{% trans "Add Custom Field" %}
+            </div>
+            <div class="card-body p-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_custom">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Field Label" %} <span class="text-danger">*</span></label>
+                        <input type="text" name="new_label" class="form-control" placeholder="e.g. Specialization Area">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Field Type" %}</label>
+                        <select name="new_field_type" class="form-select" id="newFieldType">
+                            {% for val, label in FIELD_TYPE_CHOICES %}
+                            <option value="{{ val }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3" id="newOptionsDiv" style="display:none;">
+                        <label class="form-label fw-semibold">{% trans "Options" %}</label>
+                        <input type="text" name="new_options" class="form-control" placeholder="Option A,Option B,Option C">
+                        <div class="form-text">{% trans "Comma-separated list of choices" %}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Placeholder" %} <span class="text-muted fw-normal">({% trans "optional" %})</span></label>
+                        <input type="text" name="new_placeholder" class="form-control" placeholder="Hint shown inside the field">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="new_required" class="form-check-input" id="newRequired">
+                        <label class="form-check-label" for="newRequired">{% trans "Required" %}</label>
+                    </div>
+                    <button type="submit" class="btn w-100" style="background:#2db4c3;color:#fff;">
+                        <i class="bi bi-plus-lg me-1"></i>{% trans "Add Field" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body p-3">
+                <p class="mb-1 fw-semibold" style="font-size:.88rem;color:#0A4D68;"><i class="bi bi-info-circle me-1"></i>{% trans "Note" %}</p>
+                <p class="text-muted mb-0" style="font-size:.82rem;">
+                    {% trans "Name and Email are always collected. The fields listed here are additional. Disable a field to hide it from applicants. Only enabled fields are required for scoring." %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    var sel = document.getElementById('newFieldType');
+    var div = document.getElementById('newOptionsDiv');
+    function toggle(){ div.style.display = sel.value === 'select' ? '' : 'none'; }
+    sel.addEventListener('change', toggle);
+    toggle();
+})();
+</script>
+{% endblock %}

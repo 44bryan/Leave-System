@@ -1,0 +1,76 @@
+{% extends 'base_public.html' %}
+{% load i18n %}
+
+{% block title %}{{ posting.title }} — MICEI Careers{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'recruitment:job_board' %}" class="text-decoration-none" style="color:#0A4D68;">
+        <i class="bi bi-arrow-left me-1"></i> Back to all openings
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body p-4 p-lg-5">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge-type">{{ posting.get_employment_type_display }}</span>
+                    {% if posting.department %}
+                    <span class="badge-type"><i class="bi bi-building me-1"></i>{{ posting.department }}</span>
+                    {% endif %}
+                    {% if posting.location %}
+                    <span class="badge-type"><i class="bi bi-geo-alt me-1"></i>{{ posting.location }}</span>
+                    {% endif %}
+                </div>
+                <h1 style="color:#0A4D68;font-weight:700;font-size:1.7rem;">{{ posting.title }}</h1>
+
+                <hr>
+
+                <h5 class="fw-semibold mt-4 mb-2" style="color:#0A4D68;">About the Role</h5>
+                <div style="white-space:pre-wrap;line-height:1.7;">{{ posting.description }}</div>
+
+                {% if posting.requirements %}
+                <h5 class="fw-semibold mt-4 mb-2" style="color:#0A4D68;">Requirements</h5>
+                <div style="white-space:pre-wrap;line-height:1.7;">{{ posting.requirements }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body p-4">
+                <h6 class="fw-semibold mb-3" style="color:#0A4D68;">Position Details</h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted" style="font-size:.85rem;">Type</td>
+                        <td class="fw-semibold" style="font-size:.85rem;">{{ posting.get_employment_type_display }}</td>
+                    </tr>
+                    {% if posting.department %}
+                    <tr>
+                        <td class="text-muted" style="font-size:.85rem;">Department</td>
+                        <td class="fw-semibold" style="font-size:.85rem;">{{ posting.department }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if posting.location %}
+                    <tr>
+                        <td class="text-muted" style="font-size:.85rem;">Location</td>
+                        <td class="fw-semibold" style="font-size:.85rem;">{{ posting.location }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if posting.deadline %}
+                    <tr>
+                        <td class="text-muted" style="font-size:.85rem;">Deadline</td>
+                        <td class="fw-semibold" style="font-size:.85rem;">{{ posting.deadline|date:"d M Y" }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+                <a href="{% url 'recruitment:apply' posting.pk %}" class="btn btn-primary-pub w-100 mt-3">
+                    <i class="bi bi-send me-1"></i> Apply Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

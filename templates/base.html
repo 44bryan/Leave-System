@@ -1336,6 +1336,11 @@
                     <i class="bi bi-trophy-fill"></i> {% trans "Issue Direct Award" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'recruitment:list' %}" class="nav-link-sidebar {% block nav_recruitment %}{% endblock %}">
+                    <i class="bi bi-person-plus"></i> {% trans "Recruitment" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}

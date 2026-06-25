@@ -1,0 +1,112 @@
+{% extends 'base_public.html' %}
+{% load i18n %}
+
+{% block title %}Apply — {{ posting.title }}{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'recruitment:job_detail' posting.pk %}" class="text-decoration-none" style="color:#0A4D68;">
+        <i class="bi bi-arrow-left me-1"></i> Back to job details
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header" style="background:#0A4D68;color:#fff;border-radius:14px 14px 0 0;padding:1.2rem 1.5rem;">
+                <h5 class="mb-0 fw-semibold"><i class="bi bi-send me-2"></i>Apply for: {{ posting.title }}</h5>
+                {% if posting.department %}<small style="opacity:.75;">{{ posting.department }}</small>{% endif %}
+            </div>
+            <div class="card-body p-4 p-lg-5">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Always-collected core fields -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="applicant_name" class="form-control"
+                                   value="{{ post.applicant_name|default:'' }}" required
+                                   placeholder="Your full name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="applicant_email" class="form-control"
+                                   value="{{ post.applicant_email|default:'' }}" required
+                                   placeholder="your@email.com">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">CV / Résumé <span class="text-danger">*</span></label>
+                        <input type="file" name="cv_file" class="form-control" accept=".pdf,.doc,.docx" required>
+                        <div class="form-text">PDF, DOC or DOCX — max 10 MB</div>
+                    </div>
+
+                    <!-- Dynamic fields configured by HR -->
+                    {% for field in fields %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            {{ field.label }}
+                            {% if field.is_required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+
+                        {% if field.field_type == 'textarea' %}
+                        <textarea name="{{ field.field_name }}" class="form-control" rows="4"
+                                  {% if field.is_required %}required{% endif %}
+                                  placeholder="{{ field.placeholder }}">{{ post|default_if_none:'' }}</textarea>
+
+                        {% elif field.field_type == 'select' %}
+                        <select name="{{ field.field_name }}" class="form-select"
+                                {% if field.is_required %}required{% endif %}>
+                            <option value="">— Select —</option>
+                            {% for opt in field.get_options_list %}
+                            <option value="{{ opt }}" {% if post and post|default_if_none:'' == opt %}selected{% endif %}>{{ opt }}</option>
+                            {% endfor %}
+                        </select>
+
+                        {% elif field.field_type == 'yesno' %}
+                        <select name="{{ field.field_name }}" class="form-select"
+                                {% if field.is_required %}required{% endif %}>
+                            <option value="">— Select —</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+
+                        {% elif field.field_type == 'number' %}
+                        <input type="number" name="{{ field.field_name }}" class="form-control"
+                               {% if field.is_required %}required{% endif %}
+                               placeholder="{{ field.placeholder }}"
+                               value="{{ post|default_if_none:'' }}">
+
+                        {% elif field.field_type == 'date' %}
+                        <input type="date" name="{{ field.field_name }}" class="form-control"
+                               {% if field.is_required %}required{% endif %}
+                               value="{{ post|default_if_none:'' }}">
+
+                        {% elif field.field_type == 'file' %}
+                        <input type="file" name="{{ field.field_name }}" class="form-control"
+                               {% if field.is_required %}required{% endif %}>
+
+                        {% else %}
+                        <input type="text" name="{{ field.field_name }}" class="form-control"
+                               {% if field.is_required %}required{% endif %}
+                               placeholder="{{ field.placeholder }}"
+                               value="{{ post|default_if_none:'' }}">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <hr class="my-4">
+                    <div class="d-flex gap-3 align-items-center">
+                        <button type="submit" class="btn btn-primary-pub px-4 py-2">
+                            <i class="bi bi-send me-1"></i> Submit Application
+                        </button>
+                        <a href="{% url 'recruitment:job_detail' posting.pk %}" class="text-muted text-decoration-none">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

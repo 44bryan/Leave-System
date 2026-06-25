@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Recruitment — AEF HRM{% endblock %}
+{% block page_title %}{% trans "Recruitment" %}{% endblock %}
+{% block page_subtitle %}{% trans "Manage job postings and applicants" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+    <a href="{% url 'recruitment:create' %}" class="btn" style="background:#0A4D68;color:#fff;">
+        <i class="bi bi-plus-lg me-1"></i>{% trans "New Posting" %}
+    </a>
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{% url 'recruitment:job_board' %}" target="_blank">
+                <i class="bi bi-globe me-2"></i>{% trans "View Public Job Board" %}
+            </a></li>
+        </ul>
+    </div>
+
+    <!-- Status filter tabs -->
+    <div class="ms-auto d-flex gap-1 flex-wrap">
+        <a href="?" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="{% if not status_filter %}background:#0A4D68;border-color:#0A4D68;{% endif %}">All</a>
+        {% for val, label in STATUS_CHOICES %}
+        <a href="?status={{ val }}" class="btn btn-sm {% if status_filter == val %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="{% if status_filter == val %}background:#0A4D68;border-color:#0A4D68;{% endif %}">{{ label }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+{% if postings %}
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background:#f8f9fa;">
+                    <tr>
+                        <th style="padding:1rem 1.2rem;">{% trans "Position" %}</th>
+                        <th>{% trans "Department" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Deadline" %}</th>
+                        <th class="text-center">{% trans "Applicants" %}</th>
+                        <th>{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in postings %}
+                    <tr>
+                        <td style="padding:1rem 1.2rem;">
+                            <a href="{% url 'recruitment:applicant_list' job.pk %}" class="fw-semibold text-decoration-none" style="color:#0A4D68;">{{ job.title }}</a>
+                            {% if job.location %}<br><small class="text-muted"><i class="bi bi-geo-alt"></i> {{ job.location }}</small>{% endif %}
+                        </td>
+                        <td class="text-muted">{{ job.department|default:"—" }}</td>
+                        <td><span class="badge bg-light text-dark">{{ job.get_employment_type_display }}</span></td>
+                        <td>
+                            {% if job.status == 'open' %}
+                            <span class="badge bg-success">Open</span>
+                            {% elif job.status == 'draft' %}
+                            <span class="badge bg-secondary">Draft</span>
+                            {% else %}
+                            <span class="badge bg-dark">Closed</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">
+                            {% if job.deadline %}
+                            {{ job.deadline|date:"d M Y" }}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'recruitment:applicant_list' job.pk %}" class="fw-semibold text-decoration-none" style="color:#0A4D68;">
+                                {{ job.applicant_count }}
+                            </a>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'recruitment:applicant_list' job.pk %}" class="btn btn-sm btn-outline-primary" title="{% trans 'View Applicants' %}">
+                                    <i class="bi bi-people"></i>
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="{% url 'recruitment:edit' job.pk %}">
+                                            <i class="bi bi-pencil me-2"></i>{% trans "Edit Posting" %}
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{% url 'recruitment:form_config' job.pk %}">
+                                            <i class="bi bi-sliders me-2"></i>{% trans "Configure Form" %}
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{% url 'recruitment:scoring_config' job.pk %}">
+                                            <i class="bi bi-star me-2"></i>{% trans "Scoring Rules" %}
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{% url 'recruitment:job_detail' job.pk %}" target="_blank">
+                                            <i class="bi bi-eye me-2"></i>{% trans "Preview (Public)" %}
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form method="post" action="{% url 'recruitment:delete' job.pk %}"
+                                                  onsubmit="return confirm('Delete posting: {{ job.title }}?')">
+                                                {% csrf_token %}
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="bi bi-trash me-2"></i>{% trans "Delete" %}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-briefcase" style="font-size:3rem;color:#ccc;"></i>
+        <h5 class="mt-3 text-muted">{% trans "No job postings yet" %}</h5>
+        <p class="text-muted">{% trans "Create your first job posting to start receiving applications." %}</p>
+        <a href="{% url 'recruitment:create' %}" class="btn" style="background:#0A4D68;color:#fff;">
+            <i class="bi bi-plus-lg me-1"></i>{% trans "Create First Posting" %}
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ app.applicant_name }} — AEF HRM{% endblock %}
+{% block page_title %}{{ app.applicant_name }}{% endblock %}
+{% block page_subtitle %}{{ posting.title }} — {% trans "Application Review" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
+    <a href="{% url 'recruitment:applicant_list' posting.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Applicants" %}
+    </a>
+    <span class="badge bg-{{ app.get_status_color }} ms-1" style="font-size:.9rem;padding:.4em .8em;">
+        {{ app.get_status_display }}
+    </span>
+    <span class="ms-auto fw-bold" style="color:#0A4D68;font-size:1.1rem;">
+        <i class="bi bi-star-fill text-warning me-1"></i>Score: {{ app.score|floatformat:0 }} pts
+    </span>
+</div>
+
+<div class="row g-4">
+    <!-- Left: Application details -->
+    <div class="col-lg-7">
+        <div class="card animate-in mb-4">
+            <div class="card-header"><i class="bi bi-person me-2"></i>{% trans "Applicant Information" %}</div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="text-muted" style="font-size:.8rem;">{% trans "Full Name" %}</label>
+                        <p class="fw-semibold mb-0">{{ app.applicant_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted" style="font-size:.8rem;">{% trans "Email" %}</label>
+                        <p class="fw-semibold mb-0">
+                            <a href="mailto:{{ app.applicant_email }}">{{ app.applicant_email }}</a>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted" style="font-size:.8rem;">{% trans "Applied On" %}</label>
+                        <p class="fw-semibold mb-0">{{ app.submitted_at|date:"d M Y, H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted" style="font-size:.8rem;">{% trans "CV / Résumé" %}</label>
+                        <p class="mb-0">
+                            {% if app.cv_file %}
+                            <a href="{{ app.cv_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-person me-1"></i>{% trans "Download CV" %}
+                            </a>
+                            {% else %}
+                            <span class="text-muted">{% trans "No file" %}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                {% if field_answers %}
+                <hr>
+                <h6 class="fw-semibold mb-3" style="color:#0A4D68;">{% trans "Application Answers" %}</h6>
+                <div class="row g-3">
+                    {% for field, val in field_answers %}
+                    <div class="col-md-6">
+                        <label class="text-muted" style="font-size:.8rem;">{{ field.label }}</label>
+                        <p class="fw-semibold mb-0">{{ val|default:"—" }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- HR Notes -->
+        <div class="card animate-in">
+            <div class="card-header"><i class="bi bi-journal-text me-2"></i>{% trans "HR Notes" %}</div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="save_notes">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "General Notes" %}</label>
+                        <textarea name="hr_notes" class="form-control" rows="3"
+                                  placeholder="Internal notes about this applicant…">{{ app.hr_notes }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Interview Notes" %}</label>
+                        <textarea name="interview_notes" class="form-control" rows="3"
+                                  placeholder="Notes from the interview…">{{ app.interview_notes }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm" style="background:#0A4D68;color:#fff;">
+                        <i class="bi bi-save me-1"></i>{% trans "Save Notes" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Status controls -->
+    <div class="col-lg-5">
+        <div class="card animate-in mb-4">
+            <div class="card-header"><i class="bi bi-arrow-right-circle me-2"></i>{% trans "Update Status" %}</div>
+            <div class="card-body p-4">
+                <form method="post" id="statusForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_status">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Move to Status" %}</label>
+                        <select name="status" class="form-select" id="statusSel" onchange="toggleStatusFields()">
+                            {% for val, label in STATUS_CHOICES %}
+                            <option value="{{ val }}" {% if app.status == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div id="interviewDiv" style="display:none;" class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Interview Date & Time" %}</label>
+                        <input type="datetime-local" name="interview_date" class="form-control"
+                               value="{% if app.interview_date %}{{ app.interview_date|date:'Y-m-d' }}T{{ app.interview_date|time:'H:i' }}{% endif %}">
+                    </div>
+
+                    <div id="rejectDiv" style="display:none;" class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "Rejection Reason" %} <span class="text-muted fw-normal">({% trans "optional" %})</span></label>
+                        <textarea name="rejection_reason" class="form-control" rows="2"
+                                  placeholder="Brief reason for rejection…">{{ app.rejection_reason }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn w-100" style="background:#0A4D68;color:#fff;">
+                        <i class="bi bi-check-lg me-1"></i>{% trans "Update Status" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% if app.interview_date %}
+        <div class="card animate-in mb-4">
+            <div class="card-body p-3">
+                <p class="mb-1 text-muted" style="font-size:.8rem;">{% trans "Interview Scheduled" %}</p>
+                <p class="fw-semibold mb-0 text-success">
+                    <i class="bi bi-calendar-event me-1"></i>{{ app.interview_date|date:"d M Y, H:i" }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if app.rejection_reason %}
+        <div class="card animate-in">
+            <div class="card-body p-3">
+                <p class="mb-1 text-muted" style="font-size:.8rem;">{% trans "Rejection Reason" %}</p>
+                <p class="mb-0 text-danger">{{ app.rejection_reason }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleStatusFields() {
+    var sel = document.getElementById('statusSel');
+    var intDiv = document.getElementById('interviewDiv');
+    var rejDiv = document.getElementById('rejectDiv');
+    intDiv.style.display = sel.value === 'interview' ? '' : 'none';
+    rejDiv.style.display = sel.value === 'rejected'  ? '' : 'none';
+}
+toggleStatusFields();
+</script>
+{% endblock %}

@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'appraisals',
     'payroll',
     'recognition',
+    'recruitment',
 ]
 
 MIDDLEWARE = [

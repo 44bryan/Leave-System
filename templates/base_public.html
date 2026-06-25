@@ -1,0 +1,125 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Careers — AEF HRM{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'logo.jpg' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0A4D68;
+            --accent:  #2db4c3;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        .pub-navbar {
+            background: #0A4D68;
+            padding: 0.85rem 0;
+        }
+        .pub-navbar .brand {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .pub-navbar .brand img {
+            height: 36px;
+            width: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .pub-navbar .tagline {
+            color: rgba(255,255,255,0.65);
+            font-size: .82rem;
+            margin-left: auto;
+        }
+        .pub-main {
+            padding: 2.5rem 0 4rem;
+        }
+        .pub-footer {
+            background: #0A4D68;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 1.2rem 0;
+            font-size: .82rem;
+        }
+        .card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(0,0,0,.07);
+        }
+        .badge-type {
+            background: #e0f7fa;
+            color: #0A4D68;
+            font-weight: 600;
+            font-size: .75rem;
+            padding: .3em .7em;
+            border-radius: 20px;
+        }
+        .job-card:hover {
+            box-shadow: 0 4px 24px rgba(10,77,104,.13);
+            transform: translateY(-2px);
+            transition: all .2s;
+        }
+        .btn-primary-pub {
+            background: #0A4D68;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: .5rem 1.4rem;
+            font-weight: 600;
+        }
+        .btn-primary-pub:hover { background: #083d54; color: #fff; }
+        .form-control:focus, .form-select:focus {
+            border-color: #2db4c3;
+            box-shadow: 0 0 0 0.2rem rgba(45,180,195,.18);
+        }
+        {% block extra_style %}{% endblock %}
+    </style>
+</head>
+<body>
+
+<nav class="pub-navbar">
+    <div class="container d-flex align-items-center">
+        <a href="{% url 'recruitment:job_board' %}" class="brand">
+            <img src="{% static 'logo.jpg' %}" alt="logo">
+            MICEI Careers
+        </a>
+        <span class="tagline d-none d-md-inline">Magrabi ICO Cameroon Eye Institute</span>
+    </div>
+</nav>
+
+<div class="pub-main">
+    <div class="container">
+        {% if messages %}
+        <div class="mb-3">
+            {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<footer class="pub-footer">
+    &copy; {% now "Y" %} AEF / MICEI — All rights reserved &nbsp;|&nbsp; Powered by AEF HRM
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_script %}{% endblock %}
+</body>
+</html>
