@@ -10,13 +10,12 @@ from notifications.utils import notify
 
 
 def _can_propose(user):
-    """Only line managers and above (unit_head, manager, HR, director, CEO, superuser) can propose."""
+    """Only line managers and above (manager, HR, director, CEO, superuser) can propose."""
     if user.is_superuser:
         return True
     try:
         emp = user.employee
-        return (emp.is_hr() or emp.is_director() or emp.is_ceo() or
-                emp.is_manager() or emp.role == 'unit_head')
+        return emp.is_hr() or emp.is_director() or emp.is_ceo() or emp.is_manager()
     except Exception:
         return False
 
@@ -36,10 +35,10 @@ def proposal_list(request):
 
     if user.is_superuser or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo())):
         proposals = RecognitionProposal.objects.select_related('employee__user', 'proposed_by').all()
-    elif emp and (emp.is_manager() or emp.role == 'unit_head'):
-        # Managers/unit heads see proposals for their reports + their own
+    elif emp and emp.is_manager():
+        # Managers see proposals for their reports + their own
         proposals = RecognitionProposal.objects.filter(
-            Q(employee__supervisor=emp) | Q(employee__unit_head=emp) | Q(proposed_by=user)
+            Q(employee__supervisor=emp) | Q(proposed_by=user)
         ).distinct().select_related('employee__user', 'proposed_by')
     else:
         proposals = RecognitionProposal.objects.filter(

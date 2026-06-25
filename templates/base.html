@@ -338,18 +338,7 @@
 
         .sidebar-toggle { color: white !important; }
 
-        .topbar-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-        /* Actions second row — shown below main topbar row, hidden when empty */
-        .topbar-actions-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            width: 100%;
-            padding: 0 16px 10px;
-        }
-        .topbar-actions-bar:empty { display: none; }
+        .topbar-actions { display: flex; gap: 10px; align-items: center; }
 
         /* Topbar buttons adapt to teal background */
         .topbar .btn-primary {
@@ -820,10 +809,6 @@
             .sidebar.show { transform: translateX(0); }
             .main-content { margin-left: 0; }
             .sidebar-overlay.show { display: block; }
-
-            /* Topbar action buttons — smaller on mobile */
-            .topbar-actions-bar .btn { font-size: .78rem; padding: 4px 10px; }
-            .topbar-actions-bar { padding: 0 12px 8px; gap: 6px; }
 
             /* Tighter page padding on tablet and mobile */
             .page-content { padding: 16px; }
@@ -1587,14 +1572,14 @@
 
 <!-- ─── MAIN ─── -->
 <div class="main-content">
-    <div class="topbar" style="flex-wrap:wrap;row-gap:0;">
-        <div class="d-flex align-items-center gap-3" style="flex:1;min-width:0;">
+    <div class="topbar">
+        <div class="d-flex align-items-center gap-3">
             <button class="sidebar-toggle" onclick="toggleSidebar()">
                 <i class="bi bi-list"></i>
             </button>
-            <div class="topbar-title text-truncate">{% block page_title %}{% trans "Dashboard" %}{% endblock %}</div>
+            <div class="topbar-title">{% block page_title %}{% trans "Dashboard" %}{% endblock %}</div>
         </div>
-        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+        <div class="d-flex align-items-center gap-2">
             <!-- Notification Bell -->
             <div class="dropdown">
                 <button class="notif-btn" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications" data-no-suspend>
@@ -1645,10 +1630,10 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- Page Actions — full width second row on mobile when buttons exist -->
-        <div class="topbar-actions-bar">
-            {% block topbar_actions %}{% endblock %}
+            <!-- Page Actions -->
+            <div class="topbar-actions">
+                {% block topbar_actions %}{% endblock %}
+            </div>
         </div>
     </div>
 
