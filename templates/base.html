@@ -1945,15 +1945,50 @@ if (typeof Chart !== 'undefined') {
 .info-hint-box.expanded .info-hint-arrow { transform: rotate(90deg); }
 </style>
 <script>
-document.querySelectorAll('.info-hint-box').forEach(function(box) {
+function initInfoHint(box) {
     var content = box.querySelector('.info-hint-content');
     if (!content) return;
+    if (box.querySelector('.info-hint-trigger')) return; // already initialised
     var label = box.dataset.label || 'How it works';
     var trigger = document.createElement('span');
     trigger.className = 'info-hint-trigger';
-    trigger.innerHTML = '<i class="bi bi-info-circle-fill"></i>' + label + '<span class="info-hint-arrow">›</span>';
+    trigger.innerHTML = '<i class="bi bi-info-circle-fill"></i> ' + label + ' <span class="info-hint-arrow">›</span>';
     box.insertBefore(trigger, content);
     trigger.addEventListener('click', function() { box.classList.toggle('expanded'); });
+}
+
+// Explicit info-hint-box elements
+document.querySelectorAll('.info-hint-box').forEach(initInfoHint);
+
+// Auto-convert: large alert-info blocks in main content (not flash messages, not short notices)
+document.querySelectorAll('.main-content .alert-info, .main-content .alert.alert-info').forEach(function(el) {
+    if (el.closest('[id="messagesContainer"]') || el.closest('.messages') || el.closest('.modal')) return;
+    if (el.classList.contains('no-hint')) return;
+    if (el.textContent.trim().length < 80) return; // skip short notices
+    // Wrap in info-hint-box
+    var wrapper = document.createElement('div');
+    wrapper.className = 'info-hint-box';
+    var labelEl = el.querySelector('strong');
+    wrapper.dataset.label = (labelEl && labelEl.textContent.trim().replace(/:$/, '')) || 'How it works';
+    var content = document.createElement('div');
+    content.className = 'info-hint-content';
+    el.parentNode.insertBefore(wrapper, el);
+    content.appendChild(el);
+    wrapper.appendChild(content);
+    initInfoHint(wrapper);
+});
+
+// Auto-convert: custom info panels with background:#eff6ff or #f0f9ff (explicit data-hint attr)
+document.querySelectorAll('[data-hint]').forEach(function(el) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'info-hint-box';
+    wrapper.dataset.label = el.dataset.hint || 'How it works';
+    var content = document.createElement('div');
+    content.className = 'info-hint-content';
+    el.parentNode.insertBefore(wrapper, el);
+    content.appendChild(el);
+    wrapper.appendChild(content);
+    initInfoHint(wrapper);
 });
 </script>
 
