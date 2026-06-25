@@ -272,7 +272,7 @@ class LeaveReversal(models.Model):
                                          related_name='reversals')
     action_type      = models.CharField(max_length=20, choices=ACTION_CHOICES)
     reason           = models.TextField(help_text='Mandatory reason for this reversal/modification.')
-    reversed_by      = models.ForeignKey('django.contrib.auth.models.User',
+    reversed_by      = models.ForeignKey('auth.User',
                                          on_delete=models.SET_NULL, null=True,
                                          related_name='leave_reversals_made')
     reversed_at      = models.DateTimeField(auto_now_add=True)
