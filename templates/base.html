@@ -1911,7 +1911,7 @@ if (typeof Chart !== 'undefined') {
 </script>
 {% block extra_js %}{% endblock %}
 
-{% if user.is_authenticated and (notif_unread > 0 or pending_leave_count > 0 or pending_appraisals_count > 0) %}
+{% if user.is_authenticated and notif_unread > 0 or user.is_authenticated and pending_leave_count > 0 or user.is_authenticated and pending_appraisals_count > 0 %}
 <!-- ── Pending Actions Popup ────────────────────────────────────────── -->
 <div class="modal fade" id="pendingActionsModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" style="max-width:460px;">
