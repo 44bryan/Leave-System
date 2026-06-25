@@ -1088,14 +1088,11 @@
             <!-- Logged-in user chip -->
             <div class="user-chip">
                 <div class="user-chip-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
-                <div>
-                    <span class="user-chip-name">{{ user.get_full_name|default:user.username }}</span>
-                    {% if user.employee.acting_role %}
-                    <span style="display:block;font-size:.65rem;font-weight:700;color:#f59e0b;letter-spacing:.04em;text-transform:uppercase;">
-                        <i class="bi bi-person-badge-fill"></i> Acting {{ user.employee.acting_role|title|cut:"_" }}
-                    </span>
-                    {% endif %}
-                </div>
+                {% if user.employee.acting_role %}
+                <span style="font-size:.65rem;font-weight:700;color:#f59e0b;letter-spacing:.04em;text-transform:uppercase;">
+                    <i class="bi bi-person-badge-fill"></i> Acting {{ user.employee.acting_role|title|cut:"_" }}
+                </span>
+                {% endif %}
             </div>
 
             <!-- Settings dropdown -->
@@ -1246,11 +1243,6 @@
                 <a href="{% url 'appraisals:pending_unit_head' %}" class="nav-link-sidebar {% block nav_appraisals_unit_head %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
-                </a>
-            </li>
-            <li class="nav-item-sidebar">
-                <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
-                    <i class="bi bi-shield-plus"></i> {% trans "Propose Discipline" %}
                 </a>
             </li>
         </ul>
@@ -1913,6 +1905,40 @@ if (typeof Chart !== 'undefined') {
 }
 </script>
 {% block extra_js %}{% endblock %}
+
+<!-- ── Collapsible Info Hints ────────────────────────────────────────── -->
+<!-- Usage: wrap any info box in <div class="info-hint-box"> -->
+<style>
+.info-hint-box { cursor:pointer; }
+.info-hint-box .info-hint-content {
+    display: none;
+    margin-top: 6px;
+}
+.info-hint-box.expanded .info-hint-content { display: block; }
+.info-hint-trigger {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: .82rem; color: #1d4ed8; font-weight: 600;
+    padding: 5px 10px; border-radius: 20px;
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    cursor: pointer; user-select: none;
+    transition: background .15s;
+}
+.info-hint-trigger:hover { background: #dbeafe; }
+.info-hint-trigger .info-hint-arrow { transition: transform .2s; display:inline-block; }
+.info-hint-box.expanded .info-hint-arrow { transform: rotate(90deg); }
+</style>
+<script>
+document.querySelectorAll('.info-hint-box').forEach(function(box) {
+    var content = box.querySelector('.info-hint-content');
+    if (!content) return;
+    var label = box.dataset.label || 'How it works';
+    var trigger = document.createElement('span');
+    trigger.className = 'info-hint-trigger';
+    trigger.innerHTML = '<i class="bi bi-info-circle-fill"></i>' + label + '<span class="info-hint-arrow">›</span>';
+    box.insertBefore(trigger, content);
+    trigger.addEventListener('click', function() { box.classList.toggle('expanded'); });
+});
+</script>
 
 <!-- ── Global AJAX Employee Picker ──────────────────────────────────── -->
 <style>
