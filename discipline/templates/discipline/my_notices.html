@@ -73,8 +73,15 @@
                         <i class="bi bi-calendar3 me-1"></i>
                         {% trans "Issued on" %} <strong>{{ notice.date_issued|date:"d M Y" }}</strong>
                         &nbsp;·&nbsp;
+                        {% if notice.is_system_generated %}
+                        <i class="bi bi-robot me-1"></i>
+                        <span style="color:#0A4D68;font-weight:600;">AEF HRM System</span>
+                        &nbsp;·&nbsp;
+                        <span style="color:#059669;font-size:.75rem;font-weight:600;">{% trans "Does not affect appraisal score" %}</span>
+                        {% else %}
                         <i class="bi bi-person me-1"></i>
                         {% trans "By" %} {{ notice.issued_by.get_full_name|default:notice.issued_by.username }}
+                        {% endif %}
                     </div>
                     <div style="font-size:.88rem;color:#0d1b2a;">{{ notice.reason }}</div>
                     {% if notice.action_type == 'suspension' and notice.suspension_start %}

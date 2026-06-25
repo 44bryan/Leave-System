@@ -36,8 +36,23 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
 
+            <!-- System-Generated Banner -->
+            {% if record.is_system_generated %}
+            <div class="mb-4 p-4 rounded-3" style="background:linear-gradient(135deg,#0A4D68,#1a6b8a);color:#fff;">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-robot fs-2 flex-shrink-0"></i>
+                    <div>
+                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;opacity:.8;">{% trans "Automatically Issued by AEF HRM System" %}</div>
+                        <div style="font-size:1.05rem;font-weight:800;">{{ record.get_action_type_display }}</div>
+                        <div style="font-size:0.82rem;opacity:0.85;">
+                            {% blocktrans with date=record.date_issued|date:"d F Y" %}Issued on {{ date }} — does not affect appraisal score{% endblocktrans %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Proposal Banner (shown only for pending proposals) -->
-            {% if record.is_proposal %}
+            {% elif record.is_proposal %}
             <div class="mb-4 p-4 rounded-3" style="background:linear-gradient(135deg,#0A4D68,#088395);color:#fff;">
                 <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-hourglass-split fs-2 flex-shrink-0"></i>
@@ -150,7 +165,13 @@
                     <div class="row g-3">
                         <div class="col-sm-6">
                             <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Issued By" %}</div>
-                            <div class="mt-1">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</div>
+                            <div class="mt-1">
+                                {% if record.is_system_generated %}
+                                <span style="color:#0A4D68;font-weight:600;"><i class="bi bi-robot me-1"></i>AEF HRM System</span>
+                                {% else %}
+                                {{ record.issued_by.get_full_name|default:record.issued_by.username }}
+                                {% endif %}
+                            </div>
                         </div>
                         <div class="col-sm-6">
                             <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Date Issued" %}</div>

@@ -66,6 +66,12 @@ class DisciplineRecord(models.Model):
     )
     proposal_note = models.TextField(blank=True, default='', help_text='Additional context submitted with the proposal')
 
+    # System-generated flag — True when auto-issued by the system (e.g. missed appraisal deadline)
+    is_system_generated = models.BooleanField(
+        default=False,
+        help_text='Issued automatically by the system, not by a human. Does not count toward appraisal score.'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

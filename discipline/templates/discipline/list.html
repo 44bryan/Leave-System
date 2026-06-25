@@ -298,11 +298,23 @@
                         </td>
                         <td style="white-space:nowrap;font-size:.82rem;">{{ record.date_issued|date:"d M Y" }}</td>
                         {% if is_privileged %}
-                        <td style="font-size:.82rem;">{{ record.issued_by.get_full_name|default:record.issued_by.username }}</td>
+                        <td style="font-size:.82rem;">
+                            {% if record.is_system_generated %}
+                            <span style="color:#0A4D68;font-weight:600;font-size:.75rem;">
+                                <i class="bi bi-robot me-1"></i>AEF HRM System
+                            </span>
+                            {% else %}
+                            {{ record.issued_by.get_full_name|default:record.issued_by.username }}
+                            {% endif %}
+                        </td>
                         <td style="font-size:.82rem;">{{ record.employee.department|default:"—" }}</td>
                         {% endif %}
                         <td>
-                            {% if record.hr_proposed_sanction and record.director_proposed_sanction %}
+                            {% if record.is_system_generated %}
+                                <span class="badge" style="background:#0A4D68;color:#fff;font-size:.68rem;">
+                                    <i class="bi bi-robot me-1"></i>{% trans "Auto-Issued" %}
+                                </span>
+                            {% elif record.hr_proposed_sanction and record.director_proposed_sanction %}
                                 <span class="badge" style="background:#059669;color:#fff;font-size:.68rem;">
                                     <i class="bi bi-check2-circle me-1"></i>{% trans "Complete" %}
                                 </span>
