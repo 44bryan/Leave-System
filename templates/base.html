@@ -1219,10 +1219,15 @@
                     <i class="bi bi-award"></i> {% trans "Recognition" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'recognition:my_awards' %}" class="nav-link-sidebar {% block nav_my_awards %}{% endblock %}">
+                    <i class="bi bi-trophy"></i> {% trans "My Awards" %}
+                </a>
+            </li>
             {% else %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'recognition:my_awards' %}" class="nav-link-sidebar {% block nav_my_awards %}{% endblock %}">
-                    <i class="bi bi-award"></i> {% trans "My Awards" %}
+                    <i class="bi bi-trophy"></i> {% trans "My Awards" %}
                 </a>
             </li>
             {% endif %}
@@ -1243,6 +1248,11 @@
                 <a href="{% url 'appraisals:pending_unit_head' %}" class="nav-link-sidebar {% block nav_appraisals_unit_head %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-plus"></i> {% trans "Propose Discipline" %}
                 </a>
             </li>
         </ul>
@@ -1317,6 +1327,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:reversals_report' %}" class="nav-link-sidebar {% block nav_reversals_report %}{% endblock %}">
                     <i class="bi bi-arrow-repeat"></i> {% trans "Leave Reversals Log" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'recognition:direct_award' %}" class="nav-link-sidebar {% block nav_direct_award %}{% endblock %}">
+                    <i class="bi bi-trophy-fill"></i> {% trans "Issue Direct Award" %}
                 </a>
             </li>
         </ul>

@@ -137,6 +137,77 @@ def propose(request):
 
 
 @login_required
+def direct_award(request):
+    """HR/Admin: create and immediately execute a recognition in one step."""
+    user = request.user
+    try:
+        emp = user.employee
+    except Exception:
+        emp = None
+    is_hr_or_admin = user.is_superuser or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo()))
+    if not is_hr_or_admin:
+        messages.error(request, 'Only HR and above can issue direct awards.')
+        return redirect('recognition:list')
+
+    if request.method == 'POST':
+        employee_pk = request.POST.get('employee')
+        recognition_type = request.POST.get('recognition_type')
+        custom_title = request.POST.get('custom_title', '').strip()
+        description = request.POST.get('description', '').strip()
+        execution_note = request.POST.get('execution_note', '').strip()
+
+        if not employee_pk or not recognition_type or not description:
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'recognition/direct_award.html', {
+                'TYPE_CHOICES': RecognitionProposal.TYPE_CHOICES,
+                'post': request.POST,
+            })
+
+        if recognition_type == RecognitionProposal.TYPE_OTHER and not custom_title:
+            messages.error(request, 'Please enter a custom title for "Other" recognition type.')
+            return render(request, 'recognition/direct_award.html', {
+                'TYPE_CHOICES': RecognitionProposal.TYPE_CHOICES,
+                'post': request.POST,
+            })
+
+        employee = get_object_or_404(Employee, pk=employee_pk)
+        proposal = RecognitionProposal(
+            employee=employee,
+            proposed_by=user,
+            recognition_type=recognition_type,
+            custom_title=custom_title,
+            description=description,
+            status=RecognitionProposal.STATUS_EXECUTED,
+            executed_by=user,
+            executed_at=timezone.now(),
+            execution_note=execution_note,
+        )
+        proposal.save()
+
+        cert_file = request.FILES.get('certificate_file')
+        if cert_file:
+            proposal.certificate_file = cert_file
+            proposal.save(update_fields=['certificate_file'])
+
+        notify(
+            employee.user,
+            f'Congratulations! {proposal.get_display_title()}',
+            f'Dear {employee.get_full_name()},\n\n'
+            f'Congratulations! You have been formally recognized with: {proposal.get_display_title()}.\n\n'
+            f'{execution_note or ""}',
+            notification_type='success',
+            url='/recognition/my-awards/',
+        )
+        messages.success(request, f'Recognition awarded directly to {employee.get_full_name()}.')
+        return redirect('recognition:detail', pk=proposal.pk)
+
+    return render(request, 'recognition/direct_award.html', {
+        'TYPE_CHOICES': RecognitionProposal.TYPE_CHOICES,
+        'post': {},
+    })
+
+
+@login_required
 def proposal_detail(request, pk):
     proposal = get_object_or_404(
         RecognitionProposal.objects.select_related('employee__user', 'proposed_by', 'executed_by', 'rejected_by'),
