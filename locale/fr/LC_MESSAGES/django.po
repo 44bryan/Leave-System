@@ -321,7 +321,7 @@ msgstr ""
 
 #: .\accounts\templates\accounts\employee_excel_upload.html:22
 msgid "Fill in your staff data. Required columns are marked."
-msgstr ""
+msgstr "Remplissez vos données de personnel. Les colonnes obligatoires sont indiquées."
 "Remplissez les données du personnel. Les colonnes obligatoires sont "
 "indiquées."
 
@@ -1658,7 +1658,7 @@ msgstr "Changer le mot de passe"
 #: .\accounts\templates\accounts\login.html:296
 #| msgid "Contact HR Admin if you need access or forgot your password."
 msgid "Contact HR Admin if you need access."
-msgstr ""
+msgstr "Contactez l'administrateur RH si vous avez besoin d'accès."
 "Contactez l'administrateur RH si vous avez besoin d'accès ou avez oublié "
 "votre mot de passe."
 
@@ -1718,7 +1718,7 @@ msgstr "Aucun département pour l'instant."
 
 #: .\accounts\templates\accounts\my_documents.html:56
 msgid "Use the form above to upload your first document."
-msgstr ""
+msgstr "Utilisez le formulaire ci-dessus pour téléverser votre premier document."
 "Utilisez le formulaire ci-dessus pour télécharger votre premier document."
 
 #: .\accounts\templates\accounts\my_documents.html:82
@@ -1910,7 +1910,7 @@ msgstr "Réinitialisation du Mot de Passe"
 
 #: .\accounts\templates\accounts\password_reset_complete.html:20
 msgid "Your password has been reset successfully. You can now sign in."
-msgstr ""
+msgstr "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter."
 "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant "
 "vous connecter."
 
@@ -2019,12 +2019,12 @@ msgstr "Informations du profil"
 
 #: .\accounts\templates\accounts\profile.html:156
 msgid "Current photo will be replaced if you select a new one."
-msgstr ""
+msgstr "La photo actuelle sera remplacée si vous en sélectionnez une nouvelle."
 "La photo actuelle sera remplacée si vous en sélectionnez une nouvelle."
 
 #: .\accounts\templates\accounts\profile.html:171
 msgid "Employee ID, Department, Role, and Category are managed by HR."
-msgstr ""
+msgstr "L'ID, le département, le rôle et la catégorie sont gérés par les RH."
 "L'ID employé, le département, le rôle et la catégorie sont gérés par les "
 "RH.L'identifiant employé, le département, le rôle et la catégorie sont gérés"
 " par les RH."
@@ -2134,7 +2134,7 @@ msgstr "Votre signature"
 #: .\appraisals\templates\appraisals\_comment_form.html:15
 #| msgid "Your saved signature will be used. Draw below to replace it."
 msgid "Saved signature will be used. Draw to replace."
-msgstr ""
+msgstr "La signature enregistrée sera utilisée. Dessinez pour la remplacer."
 "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la "
 "remplacer."
 
@@ -2305,7 +2305,7 @@ msgstr "Modifié par les RH"
 
 #: .\appraisals\templates\appraisals\_prior_supervisor.html:5
 msgid "Supervisor / Line Manager — Appraiser Rating &amp; Comment (Read Only)"
-msgstr ""
+msgstr "Superviseur / Responsable — Note de l'évaluateur (Lecture seule)"
 "Superviseur / Responsable hiérarchique — Évaluation &amp; commentaire de "
 "l'évaluateur (lecture seule)Superviseur / Responsable Hiérarchique — "
 "Notation &amp; Commentaire de l'Évaluateur (Lecture Seule)"
@@ -2391,7 +2391,7 @@ msgstr "Cycle d'Évaluation"
 #: .\appraisals\templates\appraisals\employee_fill.html:146
 #| msgid "Your saved signature will be used. Draw below to replace it."
 msgid "Saved signature will be used. Draw below to replace."
-msgstr ""
+msgstr "La signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
 "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la "
 "remplacer."
 
@@ -2488,7 +2488,7 @@ msgstr "Facultatif : Modifier les Notes Finales"
 
 #: .\appraisals\templates\appraisals\ceo_fill.html:26
 msgid "Adjust scores if you disagree with prior assessment"
-msgstr ""
+msgstr "Ajustez les scores si vous n'êtes pas d'accord avec l'évaluation précédente"
 "Ajustez les scores si vous n'êtes pas d'accord avec l'évaluation "
 "précédenteAjuster les notes si vous n'êtes pas d'accord avec l'évaluation "
 "précédente"
@@ -2634,7 +2634,7 @@ msgstr "Facultatif : Modifier les Notes de l'Évaluateur"
 
 #: .\appraisals\templates\appraisals\director_fill.html:25
 msgid "Adjust scores if you disagree with the manager's assessment"
-msgstr ""
+msgstr "Ajustez les scores si vous n'êtes pas d'accord avec l'évaluation du responsable"
 "Ajustez les scores si vous n'êtes pas d'accord avec l'évaluation du "
 "managerAjuster les notes si vous n'êtes pas d'accord avec l'évaluation du "
 "responsable"
@@ -2707,7 +2707,7 @@ msgstr "Objectifs pour le prochain trimestre..."
 
 #: .\appraisals\templates\appraisals\employee_fill.html:96
 msgid "4. Disciplinary Sanctions (–) — Auto-filled by system"
-msgstr ""
+msgstr "4. Sanctions disciplinaires (–) — Rempli automatiquement par le système"
 "4. Sanctions disciplinaires (–) — Rempli automatiquement par le système4. "
 "Sanctions Disciplinaires (–) — Remplies automatiquement par le système"
 
@@ -3080,7 +3080,7 @@ msgstr "Motif"
 
 #: .\appraisals\templates\appraisals\hr_unlock_confirm.html:32
 msgid "e.g. Employee was on sick leave during deadline period"
-msgstr ""
+msgstr "ex. L'employé était en congé maladie pendant la période limite"
 "ex. L'employé était en congé maladie pendant la période de la date limite"
 
 #: .\appraisals\templates\appraisals\hr_unlock_confirm.html:36
@@ -3187,7 +3187,7 @@ msgstr "Aucun employé pour l'instant."
 
 #: .\appraisals\templates\appraisals\my_appraisals.html:119
 msgid "Your appraisal forms will appear here once HR initiates a new cycle."
-msgstr ""
+msgstr "Vos formulaires d'évaluation apparaîtront ici une fois que les RH lancent un nouveau cycle."
 "Vos formulaires d'évaluation apparaîtront ici une fois que les RH auront "
 "lancé un nouveau cycle.Vos fiches d'évaluation apparaîtront ici une fois que"
 " les RH auront initié un nouveau cycle."
@@ -4261,7 +4261,7 @@ msgstr "À risque"
 
 #: .\contracts\templates\contracts\stats.html:311
 msgid "No date-of-birth data available. Add it via employee profiles."
-msgstr ""
+msgstr "Aucune donnée de naissance disponible. Ajoutez-la via les profils des employés."
 "Aucune date de naissance disponible. Ajoutez-la via les profils des "
 "employés.Pas de données de date de naissance disponibles. Ajoutez-les via "
 "les profils des employés."
@@ -4442,7 +4442,7 @@ msgstr "Aucun contrat enregistré."
 
 #: .\dashboard\templates\dashboard\activity_log.html:173
 msgid "Activity will appear here as users log in and perform actions."
-msgstr ""
+msgstr "L'activité apparaîtra ici au fur et à mesure que les utilisateurs se connectent."
 "L'activité apparaîtra ici au fur et à mesure que les utilisateurs se "
 "connectent et effectuent des actions."
 
@@ -4702,7 +4702,7 @@ msgstr "Paie et bulletins de salaire"
 
 #: .\dashboard\templates\dashboard\admin_settings.html:32
 msgid "Allow HR to upload payslips and employees to view their pay history."
-msgstr ""
+msgstr "Permettre aux RH de téléverser des bulletins de paie et aux employés de consulter leur historique de paie."
 "Permettre aux RH de télécharger les bulletins et aux employés de consulter "
 "leur historique de paie."
 
@@ -4745,7 +4745,7 @@ msgstr ""
 
 #: .\dashboard\templates\dashboard\admin_settings.html:88
 msgid "Apply seniority-based entitlements to ALL active employees?"
-msgstr ""
+msgstr "Appliquer les droits basés sur l'ancienneté à TOUS les employés actifs ?"
 "Appliquer les droits basés sur l'ancienneté à TOUS les employés actifs ?"
 
 #: .\dashboard\templates\dashboard\admin_settings.html:99
@@ -4770,7 +4770,7 @@ msgstr ""
 
 #: .\dashboard\templates\dashboard\admin_settings.html:120
 msgid "Set this entitlement for ALL active employees? This cannot be undone."
-msgstr ""
+msgstr "Définir ce droit pour TOUS les employés actifs ? Cette action est irréversible."
 "Définir ce droit pour TOUS les employés actifs ? Cette action est "
 "irréversible."
 
@@ -4800,7 +4800,7 @@ msgstr ""
 
 #: .\dashboard\templates\dashboard\admin_settings.html:158
 msgid "Reset all leave balances to 18 days? This cannot be undone."
-msgstr ""
+msgstr "Réinitialiser tous les soldes de congé à 18 jours ? Cette action est irréversible."
 "Réinitialiser tous les soldes de congés à 18 jours ? Cette action est "
 "irréversible."
 
@@ -5057,7 +5057,7 @@ msgstr ""
 
 #: .\dashboard\templates\dashboard\admin_settings.html:436
 msgid "all user accounts, employee profiles, departments, and leave types."
-msgstr ""
+msgstr "tous les comptes utilisateurs, profils d'employés, départements et types de congé."
 "tous les comptes utilisateurs, profils des employés, départements et types "
 "de congés."
 
@@ -5586,7 +5586,7 @@ msgstr "%(count)s demande(s) en attente de votre révision"
 
 #: .\dashboard\templates\dashboard\hr_dashboard.html:166
 msgid "These have been approved by the manager and are now in your queue."
-msgstr ""
+msgstr "Ceux-ci ont été approuvés par le responsable et sont maintenant dans votre file d'attente."
 "Ceux-ci ont été approuvés par le manager et sont maintenant dans votre "
 "file.Ces demandes ont été approuvées par le responsable et sont maintenant "
 "dans votre file d'attente."
@@ -6208,7 +6208,7 @@ msgstr "Approche de la Retraite (âge 60)"
 #, python-format
 #| msgid "No employees match your filters."
 msgid "No active employees are within 3 years of retirement age (%(age)s)."
-msgstr ""
+msgstr "Aucun employé actif n'est à moins de 3 ans de l'âge de la retraite (%(age)s)."
 "Aucun employé actif n'est à moins de 3 ans de l'âge de retraite (%(age)s)."
 
 #: .\dashboard\templates\dashboard\unit_head_dashboard.html:171
@@ -6488,7 +6488,7 @@ msgstr "Le directeur a approuvé la sanction proposée."
 
 #: .\discipline\templates\discipline\detail.html:378
 msgid "You can now issue the formal discipline notice to the employee."
-msgstr ""
+msgstr "Vous pouvez maintenant émettre l'avis disciplinaire formel à l'employé."
 "Vous pouvez maintenant émettre l'avis disciplinaire formel à l'employé."
 
 #: .\discipline\templates\discipline\detail.html:382
@@ -6517,7 +6517,7 @@ msgstr "Licenciement"
 
 #: .\discipline\templates\discipline\detail.html:412
 msgid "HR and Admin must manually deactivate this employee's account."
-msgstr ""
+msgstr "Les RH et l'administration doivent désactiver manuellement le compte de cet employé."
 "Les RH et l'administration doivent désactiver manuellement le compte de cet "
 "employé."
 
@@ -6705,7 +6705,7 @@ msgstr "Directeur"
 
 #: .\discipline\templates\discipline\issue_form.html:171
 msgid "Explain your recommendation and any additional context for HR..."
-msgstr ""
+msgstr "Expliquez votre recommandation et tout contexte supplémentaire pour les RH..."
 "Expliquez votre recommandation et tout contexte supplémentaire pour les "
 "RH..."
 
@@ -6733,7 +6733,7 @@ msgstr ""
 
 #: .\discipline\templates\discipline\issue_form.html:217
 msgid "A final written warning — next step is suspension or dismissal."
-msgstr ""
+msgstr "Un dernier avertissement écrit — la prochaine étape est la suspension ou le licenciement."
 "Un dernier avertissement écrit — la prochaine étape est la suspension ou le "
 "licenciement."
 
@@ -6979,7 +6979,7 @@ msgstr "Observations"
 #: .\leaves\templates\leaves\action_form.html:150
 #: .\leaves\templates\leaves\request_form.html:112
 msgid "Your saved signature will be used. Draw below to replace it."
-msgstr ""
+msgstr "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
 "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la "
 "remplacer.Votre signature enregistrée sera utilisée. Dessinez ci-dessous "
 "pour la remplacer."
@@ -7026,7 +7026,7 @@ msgstr "Synchroniser les signatures avec les congés"
 
 #: .\leaves\templates\leaves\backfill_signatures.html:5
 msgid "Repair historical leave PDFs after signature system upgrade"
-msgstr ""
+msgstr "Réparer les PDFs de congé historiques après la mise à niveau du système de signature"
 "Réparer les PDFs de congés historiques après la mise à niveau du système de "
 "signature"
 
@@ -7548,7 +7548,7 @@ msgstr "Les jours sont déduits du droit annuel de l'employé (18 jours/an)."
 
 #: .\leaves\templates\leaves\leave_type_list.html:128
 msgid "Days do not affect the annual balance. Tracked separately in reports."
-msgstr ""
+msgstr "Les jours n'affectent pas le solde annuel. Suivis séparément dans les rapports."
 "Les jours n'affectent pas le solde annuel. Suivi séparément dans les "
 "rapports."
 
@@ -7649,7 +7649,7 @@ msgstr "jour(s) ouvrable(s) sélectionné(s)"
 
 #: .\leaves\templates\leaves\request_form.html:62
 msgid "You do not have enough leave balance for the selected number of days."
-msgstr ""
+msgstr "Vous n'avez pas assez de solde de congé pour le nombre de jours sélectionné."
 "Vous n'avez pas suffisamment de solde de congés pour le nombre de jours "
 "sélectionné."
 
@@ -7870,7 +7870,7 @@ msgstr "Total disponible (jours)"
 #| msgid ""
 #| "Your appraisal forms will appear here once HR initiates a new cycle."
 msgid "Your payslips will appear here once HR uploads them."
-msgstr ""
+msgstr "Vos bulletins de paie apparaîtront ici une fois que les RH les auront téléversés."
 "Vos fiches d'évaluation apparaîtront ici une fois que les RH auront initié "
 "un nouveau cycle."
 
@@ -7995,7 +7995,7 @@ msgstr "Salaire brut (XAF)"
 #: .\payroll\templates\payroll\payslip_form.html:76
 #, python-format
 msgid "Estimate CNPS (4.2%%) and IRPP based on Cameroonian tax rules"
-msgstr ""
+msgstr "Estimer CNPS (4,2 %%) et IRPP selon les règles fiscales camerounaises"
 "Estimer le CNPS (4,2%%) et l'IRPP selon les règles fiscales camerounaises"
 
 #: .\payroll\templates\payroll\payslip_form.html:77
@@ -8177,7 +8177,7 @@ msgstr "Compte suspendu jusqu'au %(end)s"
 
 #: .\templates\base.html:1623
 msgid "Applying for leave is disabled. All other features remain accessible."
-msgstr ""
+msgstr "La demande de congé est désactivée. Toutes les autres fonctionnalités restent accessibles."
 "La demande de congé est désactivée. Toutes les autres fonctionnalités "
 "restent accessibles.La demande de congé est désactivée. Toutes les autres "
 "fonctionnalités restent accessibles."
