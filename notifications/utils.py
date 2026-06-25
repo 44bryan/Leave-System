@@ -241,7 +241,7 @@ def _send_whatsapp(user, title, message, url=''):
 
         # Get phone from Employee profile
         try:
-            phone = user.employee_profile.phone.strip()
+            phone = user.employee.phone.strip()
         except Exception:
             phone = ''
 

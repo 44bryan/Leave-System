@@ -1895,5 +1895,74 @@ if (typeof Chart !== 'undefined') {
 }
 </script>
 {% block extra_js %}{% endblock %}
+
+{% if user.is_authenticated and (notif_unread > 0 or pending_leave_count > 0 or pending_appraisals_count > 0) %}
+<!-- ── Pending Actions Popup ────────────────────────────────────────── -->
+<div class="modal fade" id="pendingActionsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:460px;">
+    <div class="modal-content" style="border-radius:16px;overflow:hidden;border:none;box-shadow:0 20px 60px rgba(10,77,104,.18);">
+      <div class="modal-header border-0 pb-0" style="background:linear-gradient(135deg,#0A4D68,#088395);color:#fff;padding:20px 24px 16px;">
+        <div>
+          <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;opacity:.8;margin-bottom:4px;">AEF HRM — Action Required</div>
+          <h5 class="modal-title fw-bold mb-0" style="font-size:1rem;">
+            <i class="bi bi-alarm-fill me-2"></i>You have pending items
+          </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body px-4 py-3" style="font-size:.875rem;">
+        <ul class="list-unstyled mb-0" style="line-height:1.9;">
+          {% if notif_unread > 0 %}
+          <li>
+            <i class="bi bi-bell-fill me-2" style="color:#d97706;"></i>
+            <strong>{{ notif_unread }}</strong> unread notification{{ notif_unread|pluralize }}
+            <a href="{% url 'notifications:list' %}" class="ms-1 text-primary" style="font-size:.8rem;">view</a>
+          </li>
+          {% endif %}
+          {% if pending_leave_count > 0 %}
+          <li>
+            <i class="bi bi-calendar-check-fill me-2" style="color:#0A4D68;"></i>
+            <strong>{{ pending_leave_count }}</strong> leave request{{ pending_leave_count|pluralize }} awaiting your approval
+            <a href="{% url 'leaves:list' %}" class="ms-1 text-primary" style="font-size:.8rem;">review</a>
+          </li>
+          {% endif %}
+          {% if pending_appraisals_count > 0 %}
+          <li>
+            <i class="bi bi-clipboard-check-fill me-2" style="color:#7c3aed;"></i>
+            <strong>{{ pending_appraisals_count }}</strong> appraisal{{ pending_appraisals_count|pluralize }} waiting for your action
+            <a href="{% url 'appraisals:my_appraisals' %}" class="ms-1 text-primary" style="font-size:.8rem;">open</a>
+          </li>
+          {% endif %}
+          {% if pending_consultations_count > 0 %}
+          <li>
+            <i class="bi bi-chat-dots-fill me-2" style="color:#059669;"></i>
+            <strong>{{ pending_consultations_count }}</strong> leave consultation{{ pending_consultations_count|pluralize }} need your opinion
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
+        <a href="{% url 'dashboard:home' %}" class="btn btn-primary btn-sm px-4">
+          <i class="bi bi-house me-1"></i>Go to Dashboard
+        </a>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Dismiss</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+    'use strict';
+    var key = 'aef_popup_{{ user.pk }}_' + new Date().toDateString().replace(/ /g, '_');
+    if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1');
+        var el = document.getElementById('pendingActionsModal');
+        if (el && typeof bootstrap !== 'undefined') {
+            new bootstrap.Modal(el, { backdrop: true }).show();
+        }
+    }
+})();
+</script>
+{% endif %}
 </body>
 </html>
