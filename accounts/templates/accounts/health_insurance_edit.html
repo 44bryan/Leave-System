@@ -5,15 +5,23 @@
 {% block page_subtitle %}{{ target.get_full_name }} · {{ target.employee_id }}{% endblock %}
 
 {% block topbar_actions %}
-<a href="{% url 'accounts:health_insurance_pdf' target.pk %}" class="btn btn-sm me-2" style="background:#0A4D68;color:#fff;" target="_blank">
+<a href="{% url 'accounts:health_insurance_pdf' target.pk %}" class="btn btn-sm" style="background:#0A4D68;color:#fff;" target="_blank">
     <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Individual PDF" %}
 </a>
-<a href="{% url 'accounts:health_insurance_pdf_bulk' %}" class="btn btn-sm btn-outline-secondary me-2" target="_blank">
-    <i class="bi bi-people me-1"></i>{% trans "All Employees PDF" %}
-</a>
-<a href="{% url 'accounts:employee_list' %}" class="btn btn-sm btn-outline-secondary">
-    <i class="bi bi-arrow-left me-1"></i>{% trans "Back" %}
-</a>
+<div class="dropdown">
+    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" style="border-radius:12px;font-size:.85rem;">
+        <li><a class="dropdown-item" href="{% url 'accounts:health_insurance_pdf_bulk' %}" target="_blank">
+            <i class="bi bi-people me-2"></i>{% trans "All Employees PDF" %}
+        </a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'accounts:employee_list' %}">
+            <i class="bi bi-arrow-left me-2"></i>{% trans "Back to Employees" %}
+        </a></li>
+    </ul>
+</div>
 {% endblock %}
 
 {% block content %}

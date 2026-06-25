@@ -5,16 +5,23 @@
 {% block nav_dashboard %}active{% endblock %}
 
 {% block topbar_actions %}
-<a href="{% url 'dashboard:tracker' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-table me-1"></i> {% trans "Leave Tracker" %}
-</a>
-<a href="{% url 'discipline:issue' %}" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex">
-    <i class="bi bi-shield-exclamation me-1"></i> {% trans "Issue Notice" %}
-</a>
 <a href="{% url 'leaves:hr_approvals' %}" class="btn btn-primary btn-sm">
     <i class="bi bi-clipboard2-check me-1"></i> {% trans "HR Approvals" %}
     {% if pending_hr > 0 %}<span class="badge bg-warning text-dark ms-1">{{ pending_hr }}</span>{% endif %}
 </a>
+<div class="dropdown">
+    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" style="border-radius:12px;font-size:.85rem;">
+        <li><a class="dropdown-item" href="{% url 'dashboard:tracker' %}">
+            <i class="bi bi-table me-2"></i>{% trans "Leave Tracker" %}
+        </a></li>
+        <li><a class="dropdown-item" href="{% url 'discipline:issue' %}">
+            <i class="bi bi-shield-exclamation me-2"></i>{% trans "Issue Notice" %}
+        </a></li>
+    </ul>
+</div>
 {% endblock %}
 
 {% block extra_css %}

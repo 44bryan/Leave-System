@@ -10,12 +10,19 @@
 <a href="{% url 'contracts:issue' %}" class="btn btn-primary btn-sm">
     <i class="bi bi-file-earmark-plus me-1"></i> {% trans "New Contract" %}
 </a>
-<a href="{% url 'contracts:bulk_issue' %}" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-people me-1"></i> {% trans "Bulk Issue" %}
-</a>
-<a href="{% url 'contracts:bulk_renew' %}" class="btn btn-warning btn-sm">
-    <i class="bi bi-arrow-repeat me-1"></i> {% trans "Bulk Renew" %}
-</a>
+<div class="dropdown">
+    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" style="border-radius:12px;font-size:.85rem;">
+        <li><a class="dropdown-item" href="{% url 'contracts:bulk_issue' %}">
+            <i class="bi bi-people me-2"></i>{% trans "Bulk Issue" %}
+        </a></li>
+        <li><a class="dropdown-item" href="{% url 'contracts:bulk_renew' %}">
+            <i class="bi bi-arrow-repeat me-2"></i>{% trans "Bulk Renew" %}
+        </a></li>
+    </ul>
+</div>
 {% endif %}
 {% endblock %}
 
