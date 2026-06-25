@@ -185,7 +185,7 @@
         <div class="row g-4">
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-header"><i class="bi bi-person me-2"></i>{% trans "Personal Information" %}</div>
+                    <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-person me-2"></i>{% trans "Personal Information" %}</div>
                     <div class="card-body">
                         <table class="table table-sm mb-0">
                             <tr><td class="text-muted" style="width:45%;">{% trans "Full Name" %}</td><td><strong>{{ employee.get_full_name }}</strong></td></tr>
@@ -209,7 +209,7 @@
             </div>
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-header"><i class="bi bi-briefcase me-2"></i>{% trans "Employment Details" %}</div>
+                    <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-briefcase me-2"></i>{% trans "Employment Details" %}</div>
                     <div class="card-body">
                         <table class="table table-sm mb-0">
                             <tr><td class="text-muted" style="width:45%;">{% trans "Role" %}</td><td><span class="badge bg-{{ employee.get_role_display_badge }}">{{ employee.get_effective_role_display }}</span></td></tr>
@@ -260,7 +260,7 @@
     <!-- ── TAB: Contracts ── -->
     <div class="tab-pane fade" id="tab-contracts">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#2db4c3;color:#fff;">
                 <span><i class="bi bi-file-earmark-text me-2" style="color:#2db4c3;"></i>{% trans "Contract History" %}</span>
                 <span class="badge bg-primary">{{ contracts|length }}</span>
             </div>
@@ -365,7 +365,7 @@
     <!-- ── TAB: Leave History ── -->
     <div class="tab-pane fade" id="tab-leaves">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#2db4c3;color:#fff;">
                 <span><i class="bi bi-calendar3 me-2" style="color:#1a8fa0;"></i>{% trans "Leave Request History" %}</span>
                 <span class="badge bg-success">{{ leave_requests|length }}</span>
             </div>
@@ -409,7 +409,7 @@
     <!-- ── TAB: Discipline ── -->
     <div class="tab-pane fade" id="tab-discipline">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#2db4c3;color:#fff;">
                 <span><i class="bi bi-shield-exclamation me-2" style="color:#dc2626;"></i>{% trans "Discipline Records" %}</span>
                 {% if discipline_records %}
                 <span class="badge bg-danger">{{ discipline_records|length }}</span>
@@ -478,7 +478,7 @@
     <!-- ── TAB: Documents ── -->
     <div class="tab-pane fade" id="tab-documents">
         <div id="documents" class="card border-0 shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
                 <strong><i class="bi bi-folder2-open me-2"></i>Employee Documents</strong>
                 {% if is_privileged %}
                 <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#upload-doc-form">
@@ -583,7 +583,7 @@
     <!-- ── TAB: Appraisals ── -->
     <div class="tab-pane fade" id="tab-appraisals">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#2db4c3;color:#fff;">
                 <span><i class="bi bi-star me-2" style="color:#f59e0b;"></i>{% trans "Appraisal History" %}</span>
                 <span class="badge bg-secondary">{{ appraisals|length }}</span>
             </div>
@@ -642,7 +642,7 @@
     <!-- ── TAB: Health Insurance ── -->
     <div class="tab-pane fade" id="tab-health">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#2db4c3;color:#fff;">
                 <span><i class="bi bi-heart-pulse me-2" style="color:#0A4D68;"></i>{% trans "Health Insurance Dependants" %}</span>
                 {% if is_privileged %}
                 <a href="{% url 'accounts:health_insurance_edit' employee.pk %}" class="btn btn-sm btn-outline-primary">
@@ -704,7 +704,7 @@
 {% with dept_history=employee.department_history.all %}
 {% if dept_history %}
 <div class="card animate-in mt-4">
-    <div class="card-header">
+    <div class="card-header" style="background:#2db4c3;color:#fff;">
         <i class="bi bi-arrow-left-right me-2" style="color:#2db4c3;"></i>Department Transfer History
         <span class="badge bg-secondary ms-2">{{ dept_history|length }}</span>
     </div>

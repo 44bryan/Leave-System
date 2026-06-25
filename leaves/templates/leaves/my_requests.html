@@ -17,7 +17,7 @@
     <!-- Deductible -->
     <div class="col-12 col-md-7 animate-in">
         <div class="card h-100" style="border-color:#cde8ef;">
-            <div class="card-header card-header-blue">
+            <div class="card-header card-header-blue" style="background:#2db4c3;color:#fff;">
                 <i class="bi bi-dash-circle me-1" style="color:#b45309;"></i>
                 <strong>{% trans "Deductible Leave Balance" %}</strong>
             </div>
@@ -63,7 +63,7 @@
     <!-- Non-deductible -->
     <div class="col-12 col-md-5 animate-in delay-1">
         <div class="card h-100" style="border-color:#86efac;">
-            <div class="card-header card-header-green">
+            <div class="card-header card-header-green" style="background:#2db4c3;color:#fff;">
                 <i class="bi bi-shield-check me-1" style="color:#1a8fa0;"></i>
                 <strong>{% trans "Non-Deductible Leaves Taken" %}</strong>
             </div>
@@ -121,7 +121,7 @@
 </div>
 
 <div class="card animate-in delay-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
         <span><i class="bi bi-journal-text me-2"></i>{% trans "Leave Requests" %} — {{ year_filter }}</span>
         <span class="badge bg-secondary">{{ leave_requests|length }} {% trans "record(s)" %}</span>
     </div>

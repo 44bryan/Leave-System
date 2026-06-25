@@ -18,7 +18,7 @@
     <div class="col-lg-9">
 
         <div class="card mb-4 animate-in">
-            <div class="card-header"><i class="bi bi-table me-2"></i>{% trans "How to Import" %}</div>
+            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-table me-2"></i>{% trans "How to Import" %}</div>
             <div class="card-body">
                 <ol class="mb-3" style="font-size:0.875rem;line-height:1.8;">
                     <li>{% trans "Download the Excel template and fill in your employee data." %}</li>
@@ -55,7 +55,7 @@
         </div>
 
         <div class="card mb-4 animate-in delay-1">
-            <div class="card-header"><i class="bi bi-upload me-2"></i>{% trans "Upload Excel File" %}</div>
+            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-upload me-2"></i>{% trans "Upload Excel File" %}</div>
             <div class="card-body">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
@@ -73,7 +73,7 @@
 
         {% if results %}
         <div class="card animate-in delay-2">
-            <div class="card-header d-flex align-items-center gap-2">
+            <div class="card-header d-flex align-items-center gap-2" style="background:#2db4c3;color:#fff;">
                 <i class="bi bi-list-check me-1"></i> {% trans "Import Results" %}
                 <span class="badge bg-success ms-auto">{% blocktrans with count=results|length %}{{ count }} rows processed{% endblocktrans %}</span>
             </div>

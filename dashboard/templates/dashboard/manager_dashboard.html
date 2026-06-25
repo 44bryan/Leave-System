@@ -64,7 +64,7 @@
     <!-- On Leave Today -->
     <div class="col-lg-6">
         <div class="card h-100">
-            <div class="card-header d-flex align-items-center gap-2">
+            <div class="card-header d-flex align-items-center gap-2" style="background:#2db4c3;color:#fff;">
                 <span class="pending-pulse"></span>
                 {% trans "On Leave Today" %}
                 <span class="badge bg-danger ms-auto">{{ on_leave_today|length }}</span>
@@ -93,7 +93,7 @@
     <!-- Team Members -->
     <div class="col-lg-6">
         <div class="card h-100">
-            <div class="card-header">
+            <div class="card-header" style="background:#2db4c3;color:#fff;">
                 <i class="bi bi-people me-2" style="color:#0A4D68;"></i>{% trans "Your Team" %}
                 <span class="badge bg-secondary ms-2">{{ subordinates|length }}</span>
             </div>
@@ -131,7 +131,7 @@
 <div class="row g-4 mb-4 animate-in">
     <div class="col-lg-5">
         <div class="card h-100">
-            <div class="card-header card-header-chart">
+            <div class="card-header card-header-chart" style="background:#2db4c3;color:#fff;">
                 <i class="bi bi-radar me-2" style="color:#088395;"></i>{% trans "Team Leave Usage — Radar" %}
             </div>
             <div class="card-body p-3 d-flex align-items-center justify-content-center">
@@ -141,7 +141,7 @@
     </div>
     <div class="col-lg-4">
         <div class="card h-100">
-            <div class="card-header card-header-chart">
+            <div class="card-header card-header-chart" style="background:#2db4c3;color:#fff;">
                 <span class="pending-pulse"></span>
                 {% trans "Team Attendance Today" %}
             </div>
@@ -162,7 +162,7 @@
     </div>
     <div class="col-lg-3">
         <div class="card h-100">
-            <div class="card-header card-header-chart">
+            <div class="card-header card-header-chart" style="background:#2db4c3;color:#fff;">
                 <i class="bi bi-pie-chart-fill me-2" style="color:#7c3aed;"></i>{% trans "Leave Mix" %}
             </div>
             <div class="card-body d-flex flex-column align-items-center justify-content-center p-3">
@@ -193,7 +193,7 @@
 </div>
 {% endif %}
 <div class="card mb-4 animate-in">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
         <span><i class="bi bi-calendar2-check me-2" style="color:#0A4D68;"></i>{% trans "Deductible Leave Remaining — Your Team" %}</span>
         <span class="badge bg-secondary">{{ team_balances|length }} {% trans "members" %}</span>
     </div>

@@ -9,7 +9,7 @@
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="card animate-in mb-4">
-            <div class="card-header">
+            <div class="card-header" style="background:#2db4c3;color:#fff;">
                 <i class="bi bi-upload me-2"></i>{% trans "Upload a Document" %}
             </div>
             <div class="card-body p-4">
@@ -44,7 +44,7 @@
         </div>
 
         <div class="card animate-in delay-1">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
                 <span><i class="bi bi-folder2-open me-2"></i>{% trans "My Uploaded Documents" %}</span>
                 <span class="badge bg-secondary">{{ documents|length }}</span>
             </div>
@@ -96,7 +96,7 @@
 
     <div class="col-lg-4">
         <div class="card animate-in delay-2">
-            <div class="card-header"><i class="bi bi-info-circle me-2"></i>{% trans "Information" %}</div>
+            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-info-circle me-2"></i>{% trans "Information" %}</div>
             <div class="card-body p-4">
                 <p class="small text-muted mb-3">{% trans "Accepted document types:" %}</p>
                 <ul class="small text-muted mb-3">

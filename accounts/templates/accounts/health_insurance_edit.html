@@ -5,7 +5,7 @@
 {% block page_subtitle %}{{ target.get_full_name }} · {{ target.employee_id }}{% endblock %}
 
 {% block topbar_actions %}
-<a href="{% url 'accounts:health_insurance_pdf' target.pk %}" class="btn btn-sm me-2" style="background:#2db4c3;color:#fff;" target="_blank">
+<a href="{% url 'accounts:health_insurance_pdf' target.pk %}" class="btn btn-sm me-2" style="background:#0A4D68;color:#fff;" target="_blank">
     <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Individual PDF" %}
 </a>
 <a href="{% url 'accounts:health_insurance_pdf_bulk' %}" class="btn btn-sm btn-outline-secondary me-2" target="_blank">
@@ -21,8 +21,8 @@
 <div class="col-lg-8">
 
 <!-- Employee info card -->
-<div class="card animate-in mb-4" style="border-color:#0A4D68;">
-    <div class="card-header" style="background:#0A4D68;color:#fff;">
+<div class="card animate-in mb-4" style="border-color:#2db4c3;">
+    <div class="card-header" style="background:#2db4c3;color:#fff;">
         <i class="bi bi-person-badge me-2"></i>{% trans "Employee" %}
     </div>
     <div class="card-body">
@@ -45,7 +45,7 @@
 
 <!-- Main form -->
 <div class="card animate-in">
-    <div class="card-header" style="background:#0A4D68;color:#fff;">
+    <div class="card-header" style="background:#2db4c3;color:#fff;">
         <i class="bi bi-heart-pulse me-2"></i>{% trans "Health Insurance Dependants" %}
     </div>
     <div class="card-body p-4">
@@ -149,7 +149,7 @@
             </div>
 
             <div class="d-flex gap-2 mt-3">
-                <button type="submit" class="btn" style="background:#2db4c3;color:#fff;">
+                <button type="submit" class="btn" style="background:#0A4D68;color:#fff;">
                     <i class="bi bi-check-circle me-1"></i>{% trans "Save Health Insurance Data" %}
                 </button>
                 <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
@@ -162,8 +162,8 @@
 
 <!-- Sidebar -->
 <div class="col-lg-4">
-    <div class="card animate-in" style="border-color:#0A4D68;">
-        <div class="card-header" style="background:#0A4D68;color:#fff;">
+    <div class="card animate-in" style="border-color:#2db4c3;">
+        <div class="card-header" style="background:#2db4c3;color:#fff;">
             <i class="bi bi-info-circle me-2"></i>{% trans "Rules" %}
         </div>
         <div class="card-body p-3" style="font-size:.83rem;">
@@ -178,8 +178,8 @@
     </div>
 
     {% if spouse or ben_children or non_ben_children %}
-    <div class="card animate-in mt-3" style="border-color:#0A4D68;">
-        <div class="card-header" style="background:#0A4D68;color:#fff;">
+    <div class="card animate-in mt-3" style="border-color:#2db4c3;">
+        <div class="card-header" style="background:#2db4c3;color:#fff;">
             <i class="bi bi-people me-2"></i>{% trans "Current Dependants" %}
         </div>
         <div class="card-body p-0">

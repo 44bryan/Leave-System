@@ -10,7 +10,7 @@
   <i class="bi bi-arrow-left me-1"></i> {% trans "Back" %}
 </a>
 {% if slip.payslip_file %}
-<a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm ms-1" style="background:#2db4c3;color:#fff;">
+<a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm ms-1" style="background:#0A4D68;color:#fff;">
   <i class="bi bi-download me-1"></i> {% trans "Download PDF" %}
 </a>
 {% endif %}
@@ -20,7 +20,7 @@
 <div class="row justify-content-center">
   <div class="col-lg-6">
     <div class="card animate-in">
-      <div class="card-header" style="background:#0A4D68;color:#fff;">
+      <div class="card-header" style="background:#2db4c3;color:#fff;">
         <i class="bi bi-receipt me-2"></i>{% trans "Payslip Details" %}
       </div>
       <div class="card-body p-4">
@@ -46,7 +46,7 @@
         <div class="mb-3">
           <div class="text-muted small text-uppercase mb-1" style="letter-spacing:.08em;">{% trans "Payslip File" %}</div>
           {% if slip.payslip_file %}
-          <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm" style="background:#2db4c3;color:#fff;">
+          <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm" style="background:#0A4D68;color:#fff;">
             <i class="bi bi-file-pdf me-1"></i> {% trans "View / Download PDF" %}
           </a>
           {% else %}

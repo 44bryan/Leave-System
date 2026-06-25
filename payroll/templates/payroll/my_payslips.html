@@ -18,14 +18,14 @@
           {% endfor %}
         </select>
       </div>
-      <button type="submit" class="btn btn-sm" style="background:#2db4c3;color:#fff;"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
+      <button type="submit" class="btn btn-sm" style="background:#0A4D68;color:#fff;"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
       <a href="{% url 'payroll:my_payslips' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
     </form>
   </div>
 </div>
 
 <div class="card animate-in">
-  <div class="card-header" style="background:#0A4D68;color:#fff;">
+  <div class="card-header" style="background:#2db4c3;color:#fff;">
     <i class="bi bi-receipt me-2"></i>{% trans "My Payslips" %}
   </div>
   {% if payslips %}
@@ -46,7 +46,7 @@
           <td style="font-size:.78rem;color:#6b7a8d;">{{ slip.created_at|date:"d M Y" }}</td>
           <td>
             {% if slip.payslip_file %}
-            <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm" style="background:#2db4c3;color:#fff;font-size:.75rem;">
+            <a href="{{ slip.payslip_file.url }}" target="_blank" class="btn btn-sm" style="background:#0A4D68;color:#fff;font-size:.75rem;">
               <i class="bi bi-file-pdf me-1"></i>{% trans "Download" %}
             </a>
             {% else %}

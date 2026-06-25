@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="card animate-in">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
         <span><i class="bi bi-list-ul me-2"></i>{% blocktrans with n=records|length %}{{ n }} Employee Records{% endblocktrans %}</span>
         <a href="{% url 'appraisals:hr_dashboard' %}" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Back

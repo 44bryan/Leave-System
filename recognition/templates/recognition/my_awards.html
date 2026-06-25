@@ -19,7 +19,7 @@
 <div class="row g-4">
     {% for award in awards %}
     <div class="col-lg-6">
-        <div class="card animate-in h-100" style="border-top:4px solid #0A4D68;">
+        <div class="card animate-in h-100" style="border-top:4px solid #2db4c3;">
             <div class="card-body p-4">
                 <div class="d-flex gap-3 align-items-start mb-3">
                     <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#0A4D68,#2db4c3);
@@ -54,7 +54,7 @@
                     </div>
                     {% if award.certificate_file %}
                     <a href="{{ award.certificate_file.url }}" target="_blank" class="btn btn-sm"
-                       style="background:#2db4c3;color:#fff;font-size:.78rem;">
+                       style="background:#0A4D68;color:#fff;font-size:.78rem;">
                         <i class="bi bi-download me-1"></i>{% trans "Download Certificate" %}
                     </a>
                     {% endif %}

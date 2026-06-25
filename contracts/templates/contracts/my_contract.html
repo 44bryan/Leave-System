@@ -114,7 +114,7 @@
     <!-- Contract Details -->
     <div class="col-lg-7">
         <div class="card animate-in mb-4">
-            <div class="card-header">
+            <div class="card-header" style="background:#2db4c3;color:#fff;">
                 <i class="bi bi-file-text me-2"></i>
                 {% if contract.contract_type == 'INTERN' %}{% trans "Internship Details" %}
                 {% elif contract.contract_type == 'WACS' %}{% trans "WACS Programme Details" %}
@@ -194,7 +194,7 @@
         <!-- Recent Notifications -->
         {% if notifications %}
         <div class="card animate-in">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
                 <span><i class="bi bi-bell me-2"></i>{% trans "Contract Notifications" %}</span>
                 {% if unread_count > 0 %}
                 <span class="badge bg-danger">{{ unread_count }} {% trans "unread" %}</span>
@@ -339,7 +339,7 @@
         {% else %}
         <!-- Years of Service + quick-stats row -->
         <div class="card animate-in mb-4">
-            <div class="card-header"><i class="bi bi-clock-history me-2" style="color:#2db4c3;"></i>{% trans "Service & Contract" %}</div>
+            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-clock-history me-2" style="color:#2db4c3;"></i>{% trans "Service & Contract" %}</div>
             <div class="card-body">
                 <div class="row text-center g-0 mb-3">
                     <div class="col" style="border-right:1px solid #f0f4f8;">
@@ -373,7 +373,7 @@
 
         <!-- Employee profile card -->
         <div class="card animate-in mb-4">
-            <div class="card-header"><i class="bi bi-person-badge me-2"></i>{% trans "My Profile" %}</div>
+            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-person-badge me-2"></i>{% trans "My Profile" %}</div>
             <div class="card-body p-0">
                 {% if employee.position %}
                 <div class="d-flex justify-content-between align-items-center px-4 py-2" style="border-bottom:1px solid #f0f4f8;">
@@ -421,7 +421,7 @@
 
         <!-- Quick actions -->
         <div class="card animate-in">
-            <div class="card-header"><i class="bi bi-lightning me-2"></i>{% trans "Quick Actions" %}</div>
+            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-lightning me-2"></i>{% trans "Quick Actions" %}</div>
             <div class="card-body d-grid gap-2">
                 <a href="{% url 'leaves:submit' %}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus-circle me-1"></i>{% trans "Apply for Leave" %}
@@ -442,7 +442,7 @@
 {% if all_contracts.count > 1 %}
 <!-- Contract History -->
 <div class="card animate-in mt-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
         <span><i class="bi bi-clock-history me-2" style="color:#2db4c3;"></i>{% trans "My Contract History" %}</span>
         <span class="badge bg-secondary">{{ all_contracts.count }}</span>
     </div>
