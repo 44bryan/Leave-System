@@ -9,8 +9,8 @@ from accounts.models import Employee
 from notifications.utils import notify
 
 
-def _can_comment(user):
-    """HR, directors, CEO, managers, unit heads, and superusers can comment."""
+def _can_propose(user):
+    """Only line managers and above (unit_head, manager, HR, director, CEO, superuser) can propose."""
     if user.is_superuser:
         return True
     try:
@@ -19,6 +19,11 @@ def _can_comment(user):
                 emp.is_manager() or emp.role == 'unit_head')
     except Exception:
         return False
+
+
+def _can_comment(user):
+    """HR, directors, CEO, managers, unit heads, and superusers can comment."""
+    return _can_propose(user)
 
 
 @login_required
@@ -49,11 +54,15 @@ def proposal_list(request):
         'proposals': proposals,
         'status_filter': status_filter,
         'STATUS_CHOICES': RecognitionProposal.STATUS_CHOICES,
+        'can_propose': _can_propose(request.user),
     })
 
 
 @login_required
 def propose(request):
+    if not _can_propose(request.user):
+        messages.error(request, 'Only line managers and above can propose a recognition.')
+        return redirect('recognition:list')
     employees = Employee.objects.filter(user__is_active=True).order_by('user__last_name')
     if request.method == 'POST':
         employee_pk = request.POST.get('employee')

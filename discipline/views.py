@@ -455,8 +455,8 @@ def discipline_detail(request, pk):
     if is_super or (emp and (emp.is_hr() or emp.role == 'admin_director' or emp.is_ceo())):
         pass  # full access
     elif emp and is_proposal_only_role(emp):
-        # Submitters can view records/proposals they personally submitted
-        if record.issued_by != request.user:
+        # Submitters can view: proposals they personally submitted OR their own personal notices
+        if record.issued_by != request.user and record.employee != emp:
             messages.error(request, "Access denied.")
             return redirect('discipline:list')
     elif emp:
