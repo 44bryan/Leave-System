@@ -1086,7 +1086,14 @@
             <!-- Logged-in user chip -->
             <div class="user-chip">
                 <div class="user-chip-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
-                <span class="user-chip-name">{{ user.get_full_name|default:user.username }}</span>
+                <div>
+                    <span class="user-chip-name">{{ user.get_full_name|default:user.username }}</span>
+                    {% if user.employee.acting_role %}
+                    <span style="display:block;font-size:.65rem;font-weight:700;color:#f59e0b;letter-spacing:.04em;text-transform:uppercase;">
+                        <i class="bi bi-person-badge-fill"></i> Acting {{ user.employee.acting_role|title|cut:"_" }}
+                    </span>
+                    {% endif %}
+                </div>
             </div>
 
             <!-- Settings dropdown -->
@@ -1099,6 +1106,12 @@
                         <div class="topbar-dropdown-header">
                             <div class="td-name">{{ user.get_full_name|default:user.username }}</div>
                             <div class="td-email">{{ user.email|default:"no email" }}</div>
+                            {% if user.employee.acting_role %}
+                            <div style="margin-top:4px;font-size:.72rem;font-weight:700;color:#f59e0b;">
+                                <i class="bi bi-person-badge-fill me-1"></i>Acting {{ user.employee.acting_role|title|cut:"_" }}
+                                {% if user.employee.acting_for %}· for {{ user.employee.acting_for.get_full_name }}{% endif %}
+                            </div>
+                            {% endif %}
                         </div>
                     </li>
                     <li><hr class="dropdown-divider"></li>
