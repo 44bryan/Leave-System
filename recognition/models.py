@@ -48,6 +48,8 @@ class RecognitionProposal(models.Model):
                                        related_name='executed_recognitions')
     executed_at    = models.DateTimeField(null=True, blank=True)
     execution_note = models.TextField(blank=True, help_text='HR note on how the recognition was delivered.')
+    certificate_file = models.FileField(upload_to='recognition_certificates/', null=True, blank=True,
+                                        help_text='Optional: scanned certificate or award letter (PDF/image)')
 
     # Rejection fields
     rejected_by    = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,

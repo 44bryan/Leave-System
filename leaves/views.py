@@ -25,6 +25,9 @@ def _save_drawn_signature(employee, b64_data):
     from django.core.files.base import ContentFile
     if not b64_data or not b64_data.startswith('data:image/png;base64,'):
         return
+    # Always save b64 to DB first — this works even if the filesystem write fails
+    employee.signature_b64 = b64_data
+    save_fields = ['signature_b64']
     try:
         raw = base64.b64decode(b64_data.split(',', 1)[1])
         if employee.signature:
@@ -34,11 +37,10 @@ def _save_drawn_signature(employee, b64_data):
                 pass
         fname = f"{employee.employee_id}_sig.png"
         employee.signature.save(fname, ContentFile(raw), save=False)
-        # Also store b64 in DB so it survives Railway redeploys (ephemeral filesystem)
-        employee.signature_b64 = b64_data
-        employee.save(update_fields=['signature', 'signature_b64'])
+        save_fields.append('signature')
     except Exception:
         pass
+    employee.save(update_fields=save_fields)
 
 
 @login_required

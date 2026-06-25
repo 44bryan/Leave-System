@@ -430,6 +430,9 @@ def profile_save_signature(request):
 
     import base64
     from django.core.files.base import ContentFile
+    # Always save b64 to DB first so it persists even if the file write fails
+    employee.signature_b64 = b64_data
+    save_fields = ['signature_b64']
     try:
         raw = base64.b64decode(b64_data.split(',', 1)[1])
         if employee.signature:
@@ -439,11 +442,11 @@ def profile_save_signature(request):
                 pass
         fname = f"{employee.employee_id}_sig.png"
         employee.signature.save(fname, ContentFile(raw), save=False)
-        employee.signature_b64 = b64_data
-        employee.save(update_fields=['signature', 'signature_b64'])
-        messages.success(request, "Signature saved successfully.")
+        save_fields.append('signature')
     except Exception:
-        messages.error(request, "Could not save signature. Please try again.")
+        pass
+    employee.save(update_fields=save_fields)
+    messages.success(request, "Signature saved successfully.")
     return redirect('accounts:profile')
 
 

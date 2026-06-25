@@ -21,7 +21,11 @@ def _can_propose(user):
 
 
 def _can_comment(user):
-    """HR, directors, CEO, managers, unit heads, and superusers can comment."""
+    return _can_propose(user)
+
+
+def _is_manager_level(user):
+    """Returns True if user can access the proposal list (manager and above)."""
     return _can_propose(user)
 
 
@@ -33,17 +37,18 @@ def proposal_list(request):
     except Exception:
         emp = None
 
+    # Employees and unit_heads have no business here — redirect to their own awards
+    if not _is_manager_level(user):
+        return redirect('recognition:my_awards')
+
     if user.is_superuser or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo())):
         proposals = RecognitionProposal.objects.select_related('employee__user', 'proposed_by').all()
     elif emp and emp.is_manager():
-        # Managers see proposals for their reports + their own
         proposals = RecognitionProposal.objects.filter(
             Q(employee__supervisor=emp) | Q(proposed_by=user)
         ).distinct().select_related('employee__user', 'proposed_by')
     else:
-        proposals = RecognitionProposal.objects.filter(
-            Q(proposed_by=user) | Q(employee__user=user)
-        ).select_related('employee__user', 'proposed_by')
+        proposals = RecognitionProposal.objects.none()
 
     status_filter = request.GET.get('status', '')
     if status_filter:
@@ -58,10 +63,26 @@ def proposal_list(request):
 
 
 @login_required
+def my_awards(request):
+    """Employee view: only see your own executed recognitions."""
+    try:
+        emp = request.user.employee
+    except Exception:
+        emp = None
+
+    awards = RecognitionProposal.objects.filter(
+        employee__user=request.user,
+        status=RecognitionProposal.STATUS_EXECUTED,
+    ).order_by('-executed_at')
+
+    return render(request, 'recognition/my_awards.html', {'awards': awards, 'employee': emp})
+
+
+@login_required
 def propose(request):
     if not _can_propose(request.user):
         messages.error(request, 'Only line managers and above can propose a recognition.')
-        return redirect('recognition:list')
+        return redirect('recognition:my_awards')
     employees = Employee.objects.filter(user__is_active=True).order_by('user__last_name')
     if request.method == 'POST':
         employee_pk = request.POST.get('employee')
@@ -95,17 +116,15 @@ def propose(request):
         )
 
         # Notify HR users
-        hr_users = Employee.objects.filter(role__in=['hr', 'hr_manager'])
-        for hr_emp in hr_users:
-            if hr_emp.user_id:
-                notify(
-                    hr_emp.user,
-                    f'New Recognition Proposal — {proposal.get_display_title()}',
-                    f'{request.user.get_full_name()} has proposed {proposal.get_display_title()} for {employee.get_full_name()}.\n\n'
-                    f'Reason: {description[:200]}',
-                    notification_type='info',
-                    url=f'/recognition/{proposal.pk}/',
-                )
+        for hr_emp in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
+            notify(
+                hr_emp.user,
+                f'New Recognition Proposal — {proposal.get_display_title()}',
+                f'{request.user.get_full_name()} has proposed {proposal.get_display_title()} '
+                f'for {employee.get_full_name()}.\n\nReason: {description[:200]}',
+                notification_type='info',
+                url=f'/recognition/{proposal.pk}/',
+            )
 
         messages.success(request, f'Recognition proposal submitted for {employee.get_full_name()}.')
         return redirect('recognition:detail', pk=proposal.pk)
@@ -126,7 +145,6 @@ def proposal_detail(request, pk):
     comments = proposal.comments.select_related('author')
     can_comment = _can_comment(request.user)
 
-    # Allow the proposer and the employee themselves to view
     user = request.user
     try:
         emp = user.employee
@@ -134,15 +152,20 @@ def proposal_detail(request, pk):
         emp = None
 
     is_hr_or_admin = (user.is_superuser or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo())))
-    is_manager_of = (emp and (
-        emp == proposal.employee.supervisor or emp == proposal.employee.unit_head
+    is_manager_of = (emp and emp.is_manager() and (
+        emp == proposal.employee.supervisor
     ))
     is_proposer = (proposal.proposed_by_id == user.pk)
     is_subject = (proposal.employee.user_id == user.pk)
 
-    if not (is_hr_or_admin or is_manager_of or is_proposer or is_subject or can_comment):
+    # Employees/unit_heads can only see their own executed recognitions
+    if is_subject and not _is_manager_level(user):
+        if proposal.status != RecognitionProposal.STATUS_EXECUTED:
+            messages.error(request, 'This recognition is not yet available.')
+            return redirect('recognition:my_awards')
+    elif not (is_hr_or_admin or is_manager_of or is_proposer or is_subject or can_comment):
         messages.error(request, 'You do not have permission to view this proposal.')
-        return redirect('recognition:list')
+        return redirect('recognition:my_awards')
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -151,13 +174,11 @@ def proposal_detail(request, pk):
             body = request.POST.get('body', '').strip()
             if body:
                 RecognitionComment.objects.create(proposal=proposal, author=user, body=body)
-                # Notify HR and proposer
                 recipients = set()
                 if proposal.proposed_by_id:
                     recipients.add(proposal.proposed_by)
-                for hr_emp in Employee.objects.filter(role__in=['hr', 'hr_manager']):
-                    if hr_emp.user_id:
-                        recipients.add(hr_emp.user)
+                for hr_emp in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
+                    recipients.add(hr_emp.user)
                 for recipient in recipients:
                     if recipient != user:
                         notify(
@@ -173,13 +194,14 @@ def proposal_detail(request, pk):
         if action == 'endorse' and is_hr_or_admin and proposal.status == RecognitionProposal.STATUS_PROPOSED:
             proposal.status = RecognitionProposal.STATUS_ENDORSED
             proposal.save(update_fields=['status'])
-            notify(
-                proposal.proposed_by,
-                f'Recognition endorsed: {proposal.get_display_title()}',
-                f'Your recognition proposal for {proposal.employee.get_full_name()} has been endorsed.',
-                notification_type='success',
-                url=f'/recognition/{proposal.pk}/',
-            )
+            if proposal.proposed_by:
+                notify(
+                    proposal.proposed_by,
+                    f'Recognition endorsed: {proposal.get_display_title()}',
+                    f'Your recognition proposal for {proposal.employee.get_full_name()} has been endorsed.',
+                    notification_type='success',
+                    url=f'/recognition/{proposal.pk}/',
+                )
             messages.success(request, 'Proposal endorsed.')
             return redirect('recognition:detail', pk=pk)
 
@@ -191,18 +213,33 @@ def proposal_detail(request, pk):
             proposal.executed_by = user
             proposal.executed_at = timezone.now()
             proposal.execution_note = execution_note
-            proposal.save(update_fields=['status', 'executed_by', 'executed_at', 'execution_note'])
-            # Notify employee
+            save_fields = ['status', 'executed_by', 'executed_at', 'execution_note']
+            cert_file = request.FILES.get('certificate_file')
+            if cert_file:
+                proposal.certificate_file = cert_file
+                save_fields.append('certificate_file')
+            proposal.save(update_fields=save_fields)
+
+            # Notify the employee
             notify(
                 proposal.employee.user,
                 f'Congratulations! {proposal.get_display_title()}',
                 f'Dear {proposal.employee.get_full_name()},\n\n'
-                f'Congratulations! You have been recognized with: {proposal.get_display_title()}.\n\n'
+                f'Congratulations! You have been formally recognized with: {proposal.get_display_title()}.\n\n'
                 f'{execution_note or ""}',
                 notification_type='success',
-                url=f'/recognition/{proposal.pk}/',
+                url=f'/recognition/my-awards/',
             )
-            messages.success(request, f'Recognition executed and {proposal.employee.get_full_name()} has been notified.')
+            # Notify the proposer
+            if proposal.proposed_by and proposal.proposed_by != user:
+                notify(
+                    proposal.proposed_by,
+                    f'Recognition executed: {proposal.get_display_title()}',
+                    f'Your nomination of {proposal.employee.get_full_name()} for {proposal.get_display_title()} has been officially awarded.',
+                    notification_type='success',
+                    url=f'/recognition/{proposal.pk}/',
+                )
+            messages.success(request, f'Recognition awarded. {proposal.employee.get_full_name()} has been notified.')
             return redirect('recognition:detail', pk=pk)
 
         if action == 'reject' and is_hr_or_admin and proposal.status not in (

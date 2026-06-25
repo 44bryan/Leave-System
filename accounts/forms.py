@@ -65,7 +65,7 @@ class EmployeeCreateForm(forms.ModelForm):
     )
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'reports_to_director', 'reports_to_ceo', 'reports_to_hr', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'reports_to_director', 'reports_to_ceo', 'reports_to_hr', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'marital_status', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -78,6 +78,7 @@ class EmployeeCreateForm(forms.ModelForm):
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'sex': forms.Select(attrs={'class': 'form-select'}),
+            'marital_status': forms.Select(attrs={'class': 'form-select'}),
             'nationality': forms.TextInput(attrs={'class': 'form-control'}),
             'contract_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. CTR-2024-001'}),
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
@@ -119,7 +120,7 @@ class EmployeeEditForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'reports_to_director', 'reports_to_ceo', 'reports_to_hr', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality', 'is_active']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'reports_to_director', 'reports_to_ceo', 'reports_to_hr', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'marital_status', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality', 'is_active']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -132,6 +133,7 @@ class EmployeeEditForm(forms.ModelForm):
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'sex': forms.Select(attrs={'class': 'form-select'}),
+            'marital_status': forms.Select(attrs={'class': 'form-select'}),
             'nationality': forms.TextInput(attrs={'class': 'form-control'}),
             'contract_number': forms.TextInput(attrs={'class': 'form-control'}),
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),

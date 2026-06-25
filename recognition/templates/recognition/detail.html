@@ -168,13 +168,18 @@
                 </form>
                 {% endif %}
 
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="execute">
                     <div class="mb-3">
                         <label class="form-label" style="font-size:.82rem;font-weight:600;">{% trans "Execution Note" %} <span class="text-muted" style="font-weight:400;">({% trans "optional" %})</span></label>
                         <textarea name="execution_note" class="form-control" rows="3" style="font-size:.82rem;"
                                   placeholder="How was the recognition delivered? (ceremony, letter, etc.)"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600;">{% trans "Certificate / Award Letter" %} <span class="text-muted" style="font-weight:400;">({% trans "optional" %})</span></label>
+                        <input type="file" name="certificate_file" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png">
+                        <div class="form-text" style="font-size:.75rem;">{% trans "PDF or image. The employee will be able to download this." %}</div>
                     </div>
                     <button type="submit" class="btn w-100" style="background:#0A4D68;color:#fff;font-size:.85rem;"
                             onclick="return confirm('Mark this recognition as executed and notify the employee?')">
