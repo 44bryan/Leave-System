@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Careers — MICEI{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute, Cameroon's leading eye care hospital.{% endblock %}">
     <link rel="icon" type="image/png" href="{% static 'logo.jpg' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -36,31 +36,55 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Navbar ─────────────────────────────────────────────────────────── */
+        /* ── Navbar: WHITE background so logo is visible ───────────────────── */
         .pub-navbar {
-            background: linear-gradient(135deg, #2db4c3 0%, #0da8c0 55%, #088395 100%);
-            padding: .7rem 0;
-            box-shadow: 0 2px 16px rgba(10,77,104,.18);
+            background: #ffffff;
+            padding: .6rem 0;
+            box-shadow: 0 2px 10px rgba(10,77,104,.10);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
         .pub-navbar img.logo {
-            height: 42px;
+            height: 44px;
             width: auto;
-            filter: brightness(0) invert(1);
+            display: block;
+            /* no color filter — logo is shown as-is on white */
+        }
+        .pub-navbar .brand-name {
+            font-weight: 800;
+            font-size: .92rem;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+        .pub-navbar .brand-sub {
+            font-size: .68rem;
+            color: var(--muted);
+            font-weight: 500;
         }
         .nav-careers-pill {
-            background: rgba(255,255,255,.18);
-            color: rgba(255,255,255,.94);
+            background: var(--accent-l);
+            color: #fff;
             font-size: .72rem;
             font-weight: 700;
             letter-spacing: .07em;
             text-transform: uppercase;
-            padding: .3em .9em;
+            padding: .32em 1em;
             border-radius: 20px;
-            border: 1px solid rgba(255,255,255,.28);
         }
+
+        /* ── Light-blue band below navbar (accent strip) ───────────────────── */
+        .pub-accent-strip {
+            background: #2db4c3;
+            padding: .45rem 0;
+        }
+        .pub-accent-strip .strip-text {
+            color: rgba(255,255,255,.92);
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .04em;
+        }
+        .pub-accent-strip .strip-text i { opacity: .8; }
 
         /* ── Hero ───────────────────────────────────────────────────────────── */
         .pub-hero {
@@ -100,14 +124,14 @@
             margin-bottom: 0;
         }
 
-        /* ── Values strip (used by job board) ───────────────────────────────── */
+        /* ── Values strip (job board only) ──────────────────────────────────── */
         .values-strip {
             background: #fff;
             border-bottom: 1px solid var(--border);
             padding: 1.3rem 0;
         }
         .value-card { text-align: center; padding: .6rem .8rem; }
-        .value-icon { font-size: 1.5rem; color: var(--accent); display: block; margin-bottom: .35rem; }
+        .value-icon { font-size: 1.5rem; color: var(--accent-l); display: block; margin-bottom: .35rem; }
         .value-label { font-weight: 700; font-size: .8rem; color: var(--primary); margin-bottom: .1rem; }
         .value-sub { font-size: .73rem; color: var(--muted); margin-bottom: 0; line-height: 1.4; }
 
@@ -122,7 +146,7 @@
             box-shadow: 0 2px 14px rgba(10,77,104,.06);
         }
         .card-header-pub {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background: #2db4c3;
             color: #fff;
             border-radius: 16px 16px 0 0 !important;
             padding: 1rem 1.4rem;
@@ -142,7 +166,7 @@
             height: 100%;
         }
         .job-card:hover {
-            border-color: var(--accent);
+            border-color: var(--accent-l);
             box-shadow: 0 8px 28px rgba(10,77,104,.11);
             transform: translateY(-3px);
         }
@@ -178,7 +202,7 @@
         .apply-link {
             font-size: .82rem;
             font-weight: 700;
-            color: var(--accent);
+            color: var(--accent-l);
             display: flex;
             align-items: center;
             gap: 4px;
@@ -195,7 +219,6 @@
             font-size: .7rem;
             padding: .25em .75em;
             border-radius: 20px;
-            letter-spacing: .01em;
         }
         .tag-deadline { background: #fff8e1; color: #b45309; }
         .badge-type {
@@ -243,9 +266,9 @@
             white-space: nowrap;
         }
         .dept-pill:hover, .dept-pill.active {
-            background: var(--primary);
+            background: var(--accent-l);
             color: #fff;
-            border-color: var(--primary);
+            border-color: var(--accent-l);
         }
         .dept-count {
             background: rgba(255,255,255,.25);
@@ -254,14 +277,11 @@
             padding: .1em .45em;
             margin-left: 3px;
         }
-        .dept-pill:not(.active) .dept-count {
-            background: #dde8ef;
-            color: var(--muted);
-        }
+        .dept-pill:not(.active) .dept-count { background: #dde8ef; color: var(--muted); }
 
         /* ── Buttons ────────────────────────────────────────────────────────── */
         .btn-primary-pub {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background: var(--primary);
             color: #fff !important;
             border: none;
             border-radius: 10px;
@@ -275,7 +295,7 @@
             cursor: pointer;
         }
         .btn-primary-pub:hover {
-            background: linear-gradient(135deg, var(--primary-d), #2db4c3);
+            background: var(--primary-d);
             transform: translateY(-1px);
             box-shadow: 0 7px 22px rgba(10,77,104,.28);
         }
@@ -305,8 +325,8 @@
             background: #fff;
         }
         .form-control:focus, .form-select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(8,131,149,.1);
+            border-color: var(--accent-l);
+            box-shadow: 0 0 0 3px rgba(45,180,195,.12);
             outline: none;
         }
         .form-control::placeholder { color: #a0aec0; }
@@ -343,26 +363,27 @@
             cursor: pointer;
             position: relative;
         }
-        .drop-zone.dragover { border-color: var(--accent); background: #e8f6f9; }
+        .drop-zone.dragover { border-color: var(--accent-l); background: #e8f6f9; }
         .drop-zone input[type=file] {
             position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
         }
         .drop-zone-label { font-size: .85rem; color: var(--muted); margin: 0; }
-        .drop-zone-label strong { color: var(--accent); }
-        .drop-file-name {
-            font-size: .82rem; color: var(--primary); font-weight: 600; margin-top: .5rem;
-            display: none;
-        }
+        .drop-zone-label strong { color: var(--accent-l); }
+        .drop-file-name { font-size: .82rem; color: var(--primary); font-weight: 600; margin-top: .5rem; display: none; }
 
         /* ── Footer ─────────────────────────────────────────────────────────── */
         .pub-footer {
-            background: #fff;
-            border-top: 1px solid var(--border);
-            padding: 1.1rem 0;
-            font-size: .76rem;
-            color: var(--muted);
-            text-align: center;
+            background: var(--primary);
+            border-top: none;
+            padding: 1.8rem 0 1.2rem;
+            color: rgba(255,255,255,.65);
+            font-size: .78rem;
         }
+        .pub-footer .footer-brand { color: #fff; font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
+        .pub-footer .footer-tagline { color: rgba(255,255,255,.55); font-size: .75rem; font-style: italic; }
+        .pub-footer a { color: rgba(255,255,255,.65); text-decoration: none; }
+        .pub-footer a:hover { color: #fff; }
+        .pub-footer .footer-divider { border-color: rgba(255,255,255,.12); }
 
         /* ── Responsive ─────────────────────────────────────────────────────── */
         @media (max-width: 576px) {
@@ -378,28 +399,45 @@
 </head>
 <body>
 
-<!-- Navbar -->
+<!-- ── Navbar: white bar with logo ──────────────────────────────────────── -->
 <nav class="pub-navbar">
     <div class="container d-flex align-items-center justify-content-between">
-        <a href="{% url 'recruitment:job_board' %}">
-            <img src="{% static 'LOGO.png' %}" alt="MICEI" class="logo">
+        <a href="{% url 'recruitment:job_board' %}" class="d-flex align-items-center gap-2 text-decoration-none">
+            <img src="{% static 'LOGO.png' %}" alt="MICEI Logo" class="logo">
+            <div>
+                <div class="brand-name">MICEI</div>
+                <div class="brand-sub">Magrabi ICO Cameroon Eye Institute</div>
+            </div>
         </a>
         <span class="nav-careers-pill">Careers</span>
     </div>
 </nav>
+
+<!-- ── Light-blue accent strip below navbar ─────────────────────────────── -->
+<div class="pub-accent-strip">
+    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <span class="strip-text"><i class="bi bi-geo-alt-fill me-1"></i>Obak Village, Yaoundé — Cameroon</span>
+        <span class="strip-text d-none d-md-inline">
+            <i class="bi bi-telephone-fill me-1"></i>+237 679 993 789
+            &nbsp;&nbsp;
+            <i class="bi bi-envelope-fill me-1"></i>contact@micei.org
+        </span>
+        <span class="strip-text"><i class="bi bi-eye-fill me-1"></i>Promoting Sight, Improving Life</span>
+    </div>
+</div>
 
 <!-- Hero (overridable per page) -->
 {% block hero %}
 <section class="pub-hero">
     <div class="container hero-inner">
         <p class="hero-eyebrow">Join Our Team</p>
-        <h1>Current Openings</h1>
+        <h1>Current Openings at MICEI</h1>
         <p class="hero-sub">Explore open positions and apply directly online.</p>
     </div>
 </section>
 {% endblock %}
 
-<!-- Optional strip below hero (used by job board for values) -->
+<!-- Optional strip below hero -->
 {% block after_hero %}{% endblock %}
 
 <!-- Main content -->
@@ -419,8 +457,39 @@
     </div>
 </main>
 
+<!-- Footer -->
 <footer class="pub-footer">
-    &copy; {% now "Y" %} Africa Eye Foundation / MICEI &mdash; All rights reserved
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <p class="footer-brand">MICEI</p>
+                <p class="footer-tagline">"Promoting Sight, Improving Life"</p>
+                <p class="mt-2" style="font-size:.75rem;">
+                    Magrabi ICO Cameroon Eye Institute is a not-for-profit academic medical center delivering world-class subspecialty eye care across Central Africa.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <p class="fw-bold mb-2" style="color:rgba(255,255,255,.8);font-size:.8rem;">Quick Links</p>
+                <div class="d-flex flex-column gap-1">
+                    <a href="{% url 'recruitment:job_board' %}"><i class="bi bi-briefcase me-1"></i>All Open Positions</a>
+                    <a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-globe me-1"></i>Hospital Website</a>
+                    <a href="mailto:contact@micei.org"><i class="bi bi-envelope me-1"></i>contact@micei.org</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p class="fw-bold mb-2" style="color:rgba(255,255,255,.8);font-size:.8rem;">Contact Us</p>
+                <div class="d-flex flex-column gap-1">
+                    <span><i class="bi bi-geo-alt me-1"></i>Obak Village, Road to Okola, Yaoundé</span>
+                    <span><i class="bi bi-telephone me-1"></i>+237 679 993 789</span>
+                    <span><i class="bi bi-telephone me-1"></i>+237 679 992 543</span>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-divider mt-4">
+        <p class="text-center mb-0" style="font-size:.72rem;">
+            &copy; {% now "Y" %} Africa Eye Foundation / Magrabi ICO Cameroon Eye Institute — All rights reserved
+        </p>
+    </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

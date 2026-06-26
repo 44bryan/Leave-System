@@ -29,10 +29,10 @@
     <!-- Status tabs -->
     <div class="ms-auto d-flex gap-1 flex-wrap">
         <a href="?" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}"
-           style="{% if not status_filter %}background:#0A4D68;border-color:#0A4D68;{% endif %}">All</a>
+           style="{% if not status_filter %}background:#2db4c3;border-color:#2db4c3;{% endif %}">All</a>
         {% for val, label in STATUS_CHOICES %}
         <a href="?status={{ val }}" class="btn btn-sm {% if status_filter == val %}btn-primary{% else %}btn-outline-secondary{% endif %}"
-           style="{% if status_filter == val %}background:#0A4D68;border-color:#0A4D68;{% endif %}">{{ label }}</a>
+           style="{% if status_filter == val %}background:#2db4c3;border-color:#2db4c3;{% endif %}">{{ label }}</a>
         {% endfor %}
     </div>
 </div>

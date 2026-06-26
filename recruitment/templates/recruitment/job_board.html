@@ -1,8 +1,8 @@
 {% extends 'base_public.html' %}
 {% load i18n %}
 
-{% block title %}Careers at MICEI — Current Openings{% endblock %}
-{% block meta_description %}Join the team at Magrabi ICO Cameroon Eye Institute. Explore open positions in healthcare, administration, and more.{% endblock %}
+{% block title %}Careers at MICEI — Join Cameroon's Leading Eye Hospital{% endblock %}
+{% block meta_description %}Join the team at Magrabi ICO Cameroon Eye Institute — Cameroon's leading subspecialty eye care hospital. Explore open positions in ophthalmology, nursing, administration and more.{% endblock %}
 
 {% block extra_style %}
 .hero-stat {
@@ -17,24 +17,60 @@
     font-weight: 600;
     padding: .3em .9em;
 }
+.stat-block { text-align: center; padding: .5rem; }
+.stat-num { font-size: 1.5rem; font-weight: 800; color: #0A4D68; line-height: 1; }
+.stat-label { font-size: .72rem; color: #6b7a8d; font-weight: 500; margin-top: .2rem; }
 #noResults { display: none; }
 {% endblock %}
 
 {% block hero %}
 <section class="pub-hero" style="padding:3rem 0 2.5rem;">
     <div class="container hero-inner">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <p class="hero-eyebrow">We're Hiring</p>
-                <h1>Build a Career That <span style="color:#2db4c3;">Transforms Lives</span></h1>
-                <p class="hero-sub" style="max-width:520px;">
-                    At Magrabi ICO Cameroon Eye Institute, we are on a mission to restore sight and change lives across Central Africa.
-                    Join a passionate, world-class team making real impact every day.
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <p class="hero-eyebrow">We're Hiring — Join Our Mission</p>
+                <h1>Restore Sight.<br><span style="color:#2db4c3;">Change Lives.</span></h1>
+                <p class="hero-sub" style="max-width:500px;">
+                    Magrabi ICO Cameroon Eye Institute (MICEI) is Cameroon's leading subspecialty eye care hospital.
+                    We deliver world-class ophthalmological care to patients across Central Africa —
+                    and we're looking for passionate professionals to join our team.
                 </p>
                 <div class="d-flex gap-2 flex-wrap mt-3">
                     <span class="hero-stat"><i class="bi bi-briefcase-fill"></i>{{ postings|length }} Open Position{{ postings|length|pluralize }}</span>
                     <span class="hero-stat"><i class="bi bi-geo-alt-fill"></i>Yaoundé, Cameroon</span>
-                    <span class="hero-stat"><i class="bi bi-building"></i>Healthcare &amp; Medical</span>
+                    <span class="hero-stat"><i class="bi bi-eye-fill"></i>12+ Subspecialties</span>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <!-- Stats panel inside hero -->
+                <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:1.5rem;">
+                    <p style="color:rgba(255,255,255,.65);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem;">MICEI At a Glance</p>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div style="background:rgba(255,255,255,.14);border-radius:12px;padding:.9rem;text-align:center;">
+                                <p style="font-size:1.6rem;font-weight:800;color:#fff;margin:0;line-height:1;">450K+</p>
+                                <p style="font-size:.7rem;color:rgba(255,255,255,.7);margin:0;margin-top:.2rem;">Consultations Performed</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div style="background:rgba(255,255,255,.14);border-radius:12px;padding:.9rem;text-align:center;">
+                                <p style="font-size:1.6rem;font-weight:800;color:#fff;margin:0;line-height:1;">85K+</p>
+                                <p style="font-size:.7rem;color:rgba(255,255,255,.7);margin:0;margin-top:.2rem;">Patients Sensitized</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div style="background:rgba(255,255,255,.14);border-radius:12px;padding:.9rem;text-align:center;">
+                                <p style="font-size:1.6rem;font-weight:800;color:#fff;margin:0;line-height:1;">85</p>
+                                <p style="font-size:.7rem;color:rgba(255,255,255,.7);margin:0;margin-top:.2rem;">In-patient Beds</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div style="background:rgba(255,255,255,.14);border-radius:12px;padding:.9rem;text-align:center;">
+                                <p style="font-size:1.6rem;font-weight:800;color:#fff;margin:0;line-height:1;">26+</p>
+                                <p style="font-size:.7rem;color:rgba(255,255,255,.7);margin:0;margin-top:.2rem;">Consultation Offices</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -43,35 +79,36 @@
 {% endblock %}
 
 {% block after_hero %}
+<!-- Why join MICEI -->
 <div class="values-strip">
     <div class="container">
         <div class="row g-2 g-md-3 justify-content-center">
             <div class="col-6 col-md-3">
                 <div class="value-card">
-                    <i class="bi bi-heart-pulse-fill value-icon"></i>
-                    <p class="value-label">Meaningful Impact</p>
-                    <p class="value-sub">Restore sight, transform lives in Central Africa</p>
+                    <i class="bi bi-eye-fill value-icon"></i>
+                    <p class="value-label">Pioneer in Eye Care</p>
+                    <p class="value-sub">Cameroon's first subspecialty ophthalmology hospital of excellence</p>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="value-card">
                     <i class="bi bi-mortarboard-fill value-icon"></i>
-                    <p class="value-label">Grow With Us</p>
-                    <p class="value-sub">Continuous training &amp; professional development</p>
+                    <p class="value-label">Academic Centre</p>
+                    <p class="value-sub">Training, fellowships & continuous professional development</p>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="value-card">
-                    <i class="bi bi-people-fill value-icon"></i>
-                    <p class="value-label">Great Team</p>
-                    <p class="value-sub">Collaborative, diverse and passionate professionals</p>
+                    <i class="bi bi-globe2 value-icon"></i>
+                    <p class="value-label">International Standards</p>
+                    <p class="value-sub">High-quality care aligned with global medical best practices</p>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="value-card">
-                    <i class="bi bi-award-fill value-icon"></i>
-                    <p class="value-label">World-class Standards</p>
-                    <p class="value-sub">International quality of eye care &amp; surgery</p>
+                    <i class="bi bi-heart-pulse-fill value-icon"></i>
+                    <p class="value-label">Not-for-Profit Mission</p>
+                    <p class="value-sub">Serving patients across Cameroon & Central Africa since inception</p>
                 </div>
             </div>
         </div>
@@ -88,11 +125,13 @@
     <div class="d-flex gap-3 align-items-center flex-wrap">
         <div class="search-wrap flex-grow-1" style="min-width:220px;">
             <i class="bi bi-search search-icon"></i>
-            <input type="text" id="jobSearch" class="form-control" placeholder="Search by title, department or type…" oninput="filterJobs()">
+            <input type="text" id="jobSearch" class="form-control"
+                   placeholder="Search by title, department or type…" oninput="filterJobs()">
         </div>
-        <span id="jobCount" class="section-label mb-0">{{ postings|length }} position{{ postings|length|pluralize }}</span>
+        <span id="jobCount" class="section-label mb-0">
+            {{ postings|length }} position{{ postings|length|pluralize }}
+        </span>
     </div>
-
     {% if departments %}
     <div class="d-flex gap-2 flex-wrap mt-3">
         <button class="dept-pill active" data-dept="all" onclick="setDept(this)">
@@ -126,11 +165,11 @@
                 {% if job.department %}<span><i class="bi bi-building"></i>{{ job.department }}</span>{% endif %}
                 {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
             </div>
-            <p class="job-excerpt">{{ job.description|truncatechars:105 }}</p>
+            <p class="job-excerpt">{{ job.description|truncatechars:110 }}</p>
             <div class="job-card-footer">
                 <span class="apply-link">View & Apply <i class="bi bi-arrow-right"></i></span>
                 {% if job.deadline %}
-                <small class="text-muted" style="font-size:.72rem;">{{ job.deadline|date:"d M" }}</small>
+                <small class="text-muted" style="font-size:.72rem;">Deadline: {{ job.deadline|date:"d M" }}</small>
                 {% endif %}
             </div>
         </a>
@@ -138,10 +177,10 @@
     {% endfor %}
 </div>
 
-<!-- No results message (JS-toggled) -->
+<!-- No results -->
 <div id="noResults" class="text-center py-5">
     <div style="width:60px;height:60px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
-        <i class="bi bi-search" style="font-size:1.4rem;color:#088395;"></i>
+        <i class="bi bi-search" style="font-size:1.4rem;color:#2db4c3;"></i>
     </div>
     <h6 class="fw-bold" style="color:#0A4D68;">No positions match your search</h6>
     <p class="text-muted mb-3" style="font-size:.85rem;">Try different keywords or browse all departments.</p>
@@ -151,12 +190,16 @@
 </div>
 
 {% else %}
+<!-- No openings right now -->
 <div class="text-center py-5">
     <div style="width:72px;height:72px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
-        <i class="bi bi-briefcase" style="font-size:1.9rem;color:#088395;"></i>
+        <i class="bi bi-briefcase" style="font-size:1.9rem;color:#2db4c3;"></i>
     </div>
-    <h5 class="fw-bold" style="color:#0A4D68;">No open positions right now</h5>
-    <p class="text-muted mb-0" style="font-size:.88rem;">Check back soon — new opportunities are posted regularly.</p>
+    <h5 class="fw-bold" style="color:#0A4D68;">No open positions at the moment</h5>
+    <p class="text-muted mb-1" style="font-size:.88rem;">We are not actively hiring right now, but new opportunities are posted regularly.</p>
+    <p class="text-muted mb-0" style="font-size:.82rem;">
+        You can also send your CV directly to <a href="mailto:contact@micei.org" style="color:#0A4D68;">contact@micei.org</a>
+    </p>
 </div>
 {% endif %}
 
@@ -170,19 +213,18 @@
         var search = document.getElementById('jobSearch').value.toLowerCase().trim();
         var cards = document.querySelectorAll('.job-card-wrapper');
         var visible = 0;
-
         cards.forEach(function(card) {
-            var title = card.dataset.title || '';
-            var dept  = card.dataset.dept  || '';
-            var type  = card.dataset.type  || '';
-            var matchSearch = !search || title.includes(search) || dept.includes(search) || type.includes(search);
-            var matchDept   = activeDept === 'all' || dept === activeDept;
+            var matchSearch = !search ||
+                (card.dataset.title || '').includes(search) ||
+                (card.dataset.dept  || '').includes(search) ||
+                (card.dataset.type  || '').includes(search);
+            var matchDept = activeDept === 'all' || (card.dataset.dept || '') === activeDept;
             var show = matchSearch && matchDept;
             card.style.display = show ? '' : 'none';
             if (show) visible++;
         });
-
-        document.getElementById('jobCount').textContent = visible + ' position' + (visible !== 1 ? 's' : '');
+        document.getElementById('jobCount').textContent =
+            visible + ' position' + (visible !== 1 ? 's' : '');
         var noRes = document.getElementById('noResults');
         if (noRes) noRes.style.display = visible === 0 ? 'block' : 'none';
     }
