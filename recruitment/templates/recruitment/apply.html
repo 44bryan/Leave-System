@@ -1,73 +1,90 @@
 {% extends 'base_public.html' %}
 {% load i18n %}
 
-{% block title %}Apply — {{ posting.title }}{% endblock %}
+{% block title %}Apply — {{ posting.title }} | MICEI Careers{% endblock %}
 
 {% block hero %}
-<section class="pub-hero">
+<section class="pub-hero" style="padding:2.2rem 0 2rem;">
     <div class="container hero-inner">
-        <p class="hero-eyebrow">Apply Now</p>
-        <h1>{{ posting.title }}</h1>
-        <p class="hero-sub">{% if posting.department %}{{ posting.department }} &nbsp;&middot;&nbsp; {% endif %}Fill in the form below to submit your application.</p>
+        <p class="hero-eyebrow">
+            <a href="{% url 'recruitment:job_detail' posting.pk %}" style="color:rgba(255,255,255,.55);text-decoration:none;">
+                <i class="bi bi-arrow-left me-1"></i>Back to Job Details
+            </a>
+        </p>
+        <h1 style="font-size:clamp(1.3rem,2.8vw,1.75rem);">{{ posting.title }}</h1>
+        <p class="hero-sub" style="font-size:.84rem;">
+            {% if posting.department %}{{ posting.department }} &nbsp;&middot;&nbsp; {% endif %}
+            Complete the form below to submit your application.
+        </p>
     </div>
 </section>
 {% endblock %}
 
 {% block content %}
-<div class="mb-4">
-    <a href="{% url 'recruitment:job_detail' posting.pk %}" class="btn-outline-pub btn-sm" style="padding:.35rem .85rem;font-size:.82rem;">
-        <i class="bi bi-arrow-left me-1"></i>Back to Job Details
-    </a>
-</div>
-
 <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-8 col-xl-7">
 
-        <!-- Progress hint -->
-        <div class="d-flex align-items-center gap-3 mb-4 p-3" style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.05);">
-            <div style="width:40px;height:40px;background:linear-gradient(135deg,#0A4D68,#088395);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <i class="bi bi-file-earmark-person" style="color:#fff;font-size:1.1rem;"></i>
+        <!-- Confidentiality notice -->
+        <div class="d-flex align-items-start gap-3 mb-4 p-3"
+             style="background:#fff;border-radius:12px;border:1px solid #e0eaf0;box-shadow:0 1px 8px rgba(10,77,104,.05);">
+            <div style="width:38px;height:38px;background:linear-gradient(135deg,#0A4D68,#088395);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi bi-shield-lock" style="color:#fff;font-size:1rem;"></i>
             </div>
             <div>
-                <p class="fw-semibold mb-0" style="font-size:.88rem;color:#0A4D68;">Your application is kept confidential</p>
-                <p class="text-muted mb-0" style="font-size:.78rem;">Fields marked <span class="text-danger">*</span> are required. CV must be PDF, DOC or DOCX (max 10 MB).</p>
+                <p class="fw-semibold mb-0" style="font-size:.84rem;color:#0A4D68;">Your application is kept strictly confidential</p>
+                <p class="text-muted mb-0" style="font-size:.76rem;">
+                    Fields marked <span class="text-danger fw-bold">*</span> are required.
+                    CV/Résumé must be PDF, DOC or DOCX — max 10 MB.
+                </p>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header-pub">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-send me-2"></i>{{ posting.title }}</h5>
-                {% if posting.department %}<small style="opacity:.75;">{{ posting.department }}</small>{% endif %}
+                <h5 class="mb-0 fw-bold" style="font-size:.97rem;">
+                    <i class="bi bi-send me-2"></i>Apply: {{ posting.title }}
+                </h5>
+                {% if posting.department %}
+                <small style="opacity:.72;">{{ posting.department }}</small>
+                {% endif %}
             </div>
             <div class="card-body p-4 p-lg-5">
-                <form method="post" enctype="multipart/form-data" novalidate>
+                <form method="post" enctype="multipart/form-data" novalidate id="applyForm">
                     {% csrf_token %}
 
-                    <!-- Core fields always collected -->
-                    <h6 class="fw-bold mb-3" style="color:#0A4D68;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;">Personal Information</h6>
+                    <!-- Section: Personal Info -->
+                    <p class="section-label mb-3">Personal Information</p>
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                            <input type="text" name="applicant_name" class="form-control"
-                                   value="{{ post.applicant_name|default:'' }}" required
-                                   placeholder="Your full name">
+                            <input type="text" name="applicant_name" class="form-control" required
+                                   value="{{ post.applicant_name|default:'' }}"
+                                   placeholder="Your full legal name">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Email Address <span class="text-danger">*</span></label>
-                            <input type="email" name="applicant_email" class="form-control"
-                                   value="{{ post.applicant_email|default:'' }}" required
-                                   placeholder="your@email.com">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">CV / Résumé <span class="text-danger">*</span></label>
-                            <input type="file" name="cv_file" class="form-control" accept=".pdf,.doc,.docx" required>
-                            <div class="form-text">PDF, DOC or DOCX — max 10 MB</div>
+                            <input type="email" name="applicant_email" class="form-control" required
+                                   value="{{ post.applicant_email|default:'' }}"
+                                   placeholder="you@example.com">
                         </div>
                     </div>
 
+                    <!-- CV Upload -->
+                    <p class="section-label mb-2">CV / Résumé <span class="text-danger">*</span></p>
+                    <div class="drop-zone mb-4" id="dropZone" onclick="document.getElementById('cvInput').click()">
+                        <input type="file" name="cv_file" id="cvInput" accept=".pdf,.doc,.docx"
+                               required onchange="handleFile(this)">
+                        <i class="bi bi-cloud-arrow-up" style="font-size:2rem;color:#088395;display:block;margin-bottom:.5rem;"></i>
+                        <p class="drop-zone-label">
+                            <strong>Click to upload</strong> or drag & drop your CV here<br>
+                            <span style="font-size:.75rem;">PDF, DOC or DOCX &mdash; max 10 MB</span>
+                        </p>
+                        <p class="drop-file-name" id="dropFileName"></p>
+                    </div>
+
                     {% if fields %}
-                    <hr style="border-color:#e2e8f0;" class="mb-4">
-                    <h6 class="fw-bold mb-3" style="color:#0A4D68;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;">Application Questions</h6>
+                    <hr style="border-color:#edf2f7;" class="mb-4">
+                    <p class="section-label mb-3">Application Questions</p>
                     <div class="row g-3">
                         {% for field in fields %}
                         <div class="col-md-{% if field.field_type == 'textarea' %}12{% else %}6{% endif %}">
@@ -84,7 +101,7 @@
                             {% elif field.field_type == 'select' %}
                             <select name="{{ field.field_name }}" class="form-select"
                                     {% if field.is_required %}required{% endif %}>
-                                <option value="">— Select —</option>
+                                <option value="">— Select an option —</option>
                                 {% for opt in field.get_options_list %}
                                 <option value="{{ opt }}">{{ opt }}</option>
                                 {% endfor %}
@@ -124,16 +141,61 @@
                     </div>
                     {% endif %}
 
-                    <hr class="mt-4" style="border-color:#e2e8f0;">
-                    <div class="d-flex gap-3 align-items-center mt-3">
-                        <button type="submit" class="btn-primary-pub">
+                    <hr class="mt-4" style="border-color:#edf2f7;">
+                    <div class="d-flex gap-3 align-items-center mt-3 flex-wrap">
+                        <button type="submit" class="btn-primary-pub" id="submitBtn">
                             <i class="bi bi-send me-1"></i>Submit Application
                         </button>
-                        <a href="{% url 'recruitment:job_detail' posting.pk %}" class="text-muted text-decoration-none" style="font-size:.88rem;">Cancel</a>
+                        <a href="{% url 'recruitment:job_detail' posting.pk %}"
+                           class="text-muted text-decoration-none" style="font-size:.84rem;">
+                            Cancel
+                        </a>
                     </div>
                 </form>
             </div>
         </div>
+
     </div>
 </div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    // Drag & drop CV zone
+    var dropZone = document.getElementById('dropZone');
+    var cvInput  = document.getElementById('cvInput');
+    var fileNameEl = document.getElementById('dropFileName');
+
+    function handleFile(input) {
+        if (input.files && input.files[0]) {
+            fileNameEl.textContent = '✓ ' + input.files[0].name;
+            fileNameEl.style.display = 'block';
+            dropZone.style.borderColor = '#088395';
+            dropZone.style.background  = '#e8f6f9';
+        }
+    }
+
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', function() {
+        dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            cvInput.files = e.dataTransfer.files;
+            handleFile(cvInput);
+        }
+    });
+
+    // Prevent double-submit
+    document.getElementById('applyForm').addEventListener('submit', function() {
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting…';
+    });
+</script>
 {% endblock %}

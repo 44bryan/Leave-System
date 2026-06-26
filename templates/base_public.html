@@ -4,177 +4,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Careers{% endblock %}</title>
+    <title>{% block title %}Careers — MICEI{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute.{% endblock %}">
     <link rel="icon" type="image/png" href="{% static 'logo.jpg' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; }
+
+        :root {
+            --primary:   #0A4D68;
+            --primary-d: #083d54;
+            --accent:    #088395;
+            --accent-l:  #2db4c3;
+            --bg:        #f0f6f9;
+            --card-bg:   #ffffff;
+            --border:    #e0eaf0;
+            --text:      #1a2b3c;
+            --muted:     #6b7a8d;
+        }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #e8f6f9;
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             margin: 0;
-            color: #1a2b3c;
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Navbar ──────────────────────────────────────────────────────── */
+        /* ── Navbar ─────────────────────────────────────────────────────────── */
         .pub-navbar {
-            background: linear-gradient(135deg, #2db4c3 0%, #0da8c0 60%, #088395 100%);
-            padding: .75rem 0;
-            box-shadow: 0 2px 12px rgba(10,77,104,0.15);
+            background: linear-gradient(135deg, #2db4c3 0%, #0da8c0 55%, #088395 100%);
+            padding: .7rem 0;
+            box-shadow: 0 2px 16px rgba(10,77,104,.18);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         .pub-navbar img.logo {
-            height: 46px;
+            height: 42px;
             width: auto;
-            display: block;
             filter: brightness(0) invert(1);
         }
-        .pub-navbar .nav-tag {
-            background: rgba(255,255,255,0.18);
-            color: rgba(255,255,255,0.92);
-            font-size: .75rem;
+        .nav-careers-pill {
+            background: rgba(255,255,255,.18);
+            color: rgba(255,255,255,.94);
+            font-size: .72rem;
             font-weight: 700;
-            letter-spacing: .06em;
+            letter-spacing: .07em;
             text-transform: uppercase;
-            padding: .28em .85em;
+            padding: .3em .9em;
             border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.28);
+            border: 1px solid rgba(255,255,255,.28);
         }
 
-        /* ── Hero strip ──────────────────────────────────────────────────── */
+        /* ── Hero ───────────────────────────────────────────────────────────── */
         .pub-hero {
             background: linear-gradient(135deg, #0A4D68 0%, #088395 55%, #2db4c3 100%);
-            padding: 2.2rem 0 2rem;
+            padding: 2.5rem 0 2.2rem;
             position: relative;
             overflow: hidden;
         }
-        .pub-hero::after {
+        .pub-hero::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background: url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M32 30V26h-2v4h-4v2h4v4h2v-4h4v-2h-4zM32 2V0h-2v2h-4v2h4v4h2V4h4V2h-4zM2 30v-4H0v4h-4v2h4v4h2v-4h4v-2H2zM2 2V0H0v2h-4v2h4v4h2V4h4V2H2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             pointer-events: none;
         }
         .pub-hero .hero-inner { position: relative; z-index: 1; }
-        .pub-hero .hero-eyebrow {
-            font-size: .72rem;
+        .hero-eyebrow {
+            font-size: .7rem;
             font-weight: 700;
-            letter-spacing: .1em;
+            letter-spacing: .12em;
             text-transform: uppercase;
-            color: rgba(255,255,255,.65);
+            color: rgba(255,255,255,.6);
             margin-bottom: .5rem;
         }
         .pub-hero h1 {
             color: #fff;
             font-weight: 800;
-            font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-            margin-bottom: .5rem;
-            line-height: 1.2;
+            font-size: clamp(1.55rem, 3.2vw, 2.1rem);
+            line-height: 1.22;
+            margin-bottom: .6rem;
         }
-        .pub-hero .hero-sub {
+        .hero-sub {
             color: rgba(255,255,255,.78);
-            font-size: .93rem;
-            max-width: 440px;
+            font-size: .9rem;
+            line-height: 1.65;
+            max-width: 480px;
+            margin-bottom: 0;
         }
 
-        /* ── Content area ────────────────────────────────────────────────── */
-        .pub-main { flex: 1; padding: 2.5rem 0 4rem; }
-
-        /* ── Cards ───────────────────────────────────────────────────────── */
-        .card {
-            border: 1px solid #e5eef2;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(10,77,104,.06);
+        /* ── Values strip (used by job board) ───────────────────────────────── */
+        .values-strip {
             background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 1.3rem 0;
+        }
+        .value-card { text-align: center; padding: .6rem .8rem; }
+        .value-icon { font-size: 1.5rem; color: var(--accent); display: block; margin-bottom: .35rem; }
+        .value-label { font-weight: 700; font-size: .8rem; color: var(--primary); margin-bottom: .1rem; }
+        .value-sub { font-size: .73rem; color: var(--muted); margin-bottom: 0; line-height: 1.4; }
+
+        /* ── Main content ───────────────────────────────────────────────────── */
+        .pub-main { flex: 1; padding: 2.2rem 0 4rem; }
+
+        /* ── Cards ──────────────────────────────────────────────────────────── */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 2px 14px rgba(10,77,104,.06);
         }
         .card-header-pub {
-            background: linear-gradient(135deg, #0A4D68, #088395);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: #fff;
             border-radius: 16px 16px 0 0 !important;
             padding: 1rem 1.4rem;
         }
 
-        /* ── Job cards ───────────────────────────────────────────────────── */
+        /* ── Job cards ──────────────────────────────────────────────────────── */
         .job-card {
-            border: 1px solid #e5eef2;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
             border-radius: 14px;
-            background: #fff;
             padding: 1.4rem 1.6rem;
             transition: border-color .18s, box-shadow .18s, transform .18s;
-            text-decoration: none;
-            display: block;
-            color: inherit;
+            text-decoration: none !important;
+            display: flex;
+            flex-direction: column;
+            color: inherit !important;
+            height: 100%;
         }
         .job-card:hover {
-            border-color: #088395;
-            box-shadow: 0 6px 24px rgba(10,77,104,.1);
-            transform: translateY(-2px);
-            color: inherit;
-            text-decoration: none;
+            border-color: var(--accent);
+            box-shadow: 0 8px 28px rgba(10,77,104,.11);
+            transform: translateY(-3px);
         }
-        .job-card .job-title {
-            font-size: 1.05rem;
+        .job-title {
+            font-size: 1.02rem;
             font-weight: 700;
-            color: #0A4D68;
+            color: var(--primary);
             margin-bottom: .3rem;
         }
-        .job-card .job-meta {
-            font-size: .82rem;
-            color: #6b7a8d;
+        .job-meta {
+            font-size: .8rem;
+            color: var(--muted);
             display: flex;
             flex-wrap: wrap;
-            gap: .6rem;
-            margin-bottom: .8rem;
+            gap: .55rem;
+            margin-bottom: .75rem;
         }
-        .job-card .job-meta span { display: flex; align-items: center; gap: 4px; }
-        .job-card .job-excerpt {
-            font-size: .87rem;
+        .job-meta span { display: flex; align-items: center; gap: 4px; }
+        .job-excerpt {
+            font-size: .85rem;
             color: #4a5568;
             line-height: 1.6;
-            margin-bottom: 1rem;
+            flex: 1;
         }
+        .job-card-footer {
+            margin-top: 1rem;
+            padding-top: .85rem;
+            border-top: 1px solid #eef2f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .apply-link {
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .apply-link i { transition: transform .18s; }
+        .job-card:hover .apply-link i { transform: translateX(4px); }
 
-        /* ── Badges / tags ───────────────────────────────────────────────── */
+        /* ── Tags / badges ──────────────────────────────────────────────────── */
         .tag {
             display: inline-block;
             background: #e8f6f9;
-            color: #088395;
+            color: var(--accent);
             font-weight: 600;
-            font-size: .72rem;
+            font-size: .7rem;
             padding: .25em .75em;
             border-radius: 20px;
+            letter-spacing: .01em;
         }
-        .tag-deadline {
-            background: #fff8e1;
-            color: #b45309;
+        .tag-deadline { background: #fff8e1; color: #b45309; }
+        .badge-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #e8f6f9;
+            color: var(--accent);
+            font-size: .75rem;
+            font-weight: 600;
+            padding: .28em .8em;
+            border-radius: 20px;
         }
 
-        /* ── Buttons ─────────────────────────────────────────────────────── */
+        /* ── Filter bar ─────────────────────────────────────────────────────── */
+        .filter-bar {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.1rem 1.4rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 8px rgba(10,77,104,.05);
+        }
+        .search-wrap { position: relative; }
+        .search-wrap .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: .9rem;
+            pointer-events: none;
+        }
+        .search-wrap .form-control { padding-left: 36px; }
+        .dept-pill {
+            background: #f0f6f9;
+            color: var(--muted);
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            font-size: .76rem;
+            font-weight: 600;
+            padding: .3em .85em;
+            cursor: pointer;
+            transition: all .16s;
+            white-space: nowrap;
+        }
+        .dept-pill:hover, .dept-pill.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .dept-count {
+            background: rgba(255,255,255,.25);
+            border-radius: 10px;
+            font-size: .68rem;
+            padding: .1em .45em;
+            margin-left: 3px;
+        }
+        .dept-pill:not(.active) .dept-count {
+            background: #dde8ef;
+            color: var(--muted);
+        }
+
+        /* ── Buttons ────────────────────────────────────────────────────────── */
         .btn-primary-pub {
-            background: linear-gradient(135deg, #0A4D68, #088395);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: #fff !important;
             border: none;
             border-radius: 10px;
             font-weight: 700;
-            padding: .6rem 1.5rem;
+            padding: .62rem 1.5rem;
             font-size: .88rem;
-            box-shadow: 0 3px 12px rgba(10,77,104,.2);
-            transition: all .22s;
+            box-shadow: 0 3px 14px rgba(10,77,104,.22);
             text-decoration: none !important;
             display: inline-block;
+            transition: all .22s;
+            cursor: pointer;
         }
         .btn-primary-pub:hover {
-            background: linear-gradient(135deg, #0c5a7a, #2db4c3);
+            background: linear-gradient(135deg, var(--primary-d), #2db4c3);
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(10,77,104,.28);
+            box-shadow: 0 7px 22px rgba(10,77,104,.28);
         }
         .btn-outline-pub {
             background: transparent;
-            color: #0A4D68;
+            color: var(--primary);
             border: 1.5px solid #c8dce5;
             border-radius: 10px;
             font-weight: 600;
@@ -184,62 +291,86 @@
             transition: all .18s;
             display: inline-block;
         }
-        .btn-outline-pub:hover {
-            border-color: #0A4D68;
-            background: #f0f8fb;
-            color: #0A4D68;
-        }
+        .btn-outline-pub:hover { border-color: var(--primary); background: #f0f8fb; color: var(--primary); }
 
-        /* ── Forms ───────────────────────────────────────────────────────── */
+        /* ── Forms ──────────────────────────────────────────────────────────── */
         .form-control, .form-select {
             border: 1.5px solid #dce5ef;
             border-radius: 10px;
-            padding: 10px 14px;
+            padding: 9px 13px;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: .9rem;
+            font-size: .88rem;
+            color: var(--text);
             transition: border-color .18s, box-shadow .18s;
+            background: #fff;
         }
         .form-control:focus, .form-select:focus {
-            border-color: #088395;
+            border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(8,131,149,.1);
             outline: none;
         }
-        .form-label {
-            font-weight: 600;
-            font-size: .83rem;
-            color: #1a2b3c;
-            margin-bottom: 5px;
-        }
+        .form-control::placeholder { color: #a0aec0; }
+        .form-label { font-weight: 600; font-size: .82rem; color: var(--text); margin-bottom: 5px; }
 
-        /* ── Section divider ─────────────────────────────────────────────── */
+        /* ── Section label ──────────────────────────────────────────────────── */
         .section-label {
-            font-size: .72rem;
+            font-size: .7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .08em;
-            color: #8a9ab0;
-            margin-bottom: 1rem;
+            color: var(--muted);
         }
 
-        /* ── Alerts ──────────────────────────────────────────────────────── */
-        .alert { border-radius: 10px; border: none; }
+        /* ── Detail icons row ───────────────────────────────────────────────── */
+        .detail-icon-box {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
 
-        /* ── Footer ──────────────────────────────────────────────────────── */
+        /* ── Alerts ─────────────────────────────────────────────────────────── */
+        .alert { border-radius: 10px; border: none; font-size: .88rem; }
+
+        /* ── Drop zone ──────────────────────────────────────────────────────── */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            background: #f7fbfd;
+            padding: 1.8rem;
+            text-align: center;
+            transition: border-color .2s, background .2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .drop-zone.dragover { border-color: var(--accent); background: #e8f6f9; }
+        .drop-zone input[type=file] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .drop-zone-label { font-size: .85rem; color: var(--muted); margin: 0; }
+        .drop-zone-label strong { color: var(--accent); }
+        .drop-file-name {
+            font-size: .82rem; color: var(--primary); font-weight: 600; margin-top: .5rem;
+            display: none;
+        }
+
+        /* ── Footer ─────────────────────────────────────────────────────────── */
         .pub-footer {
             background: #fff;
-            border-top: 1px solid #e5eef2;
+            border-top: 1px solid var(--border);
             padding: 1.1rem 0;
-            font-size: .77rem;
-            color: #8a9ab0;
+            font-size: .76rem;
+            color: var(--muted);
             text-align: center;
         }
 
-        /* ── Responsive ──────────────────────────────────────────────────── */
+        /* ── Responsive ─────────────────────────────────────────────────────── */
         @media (max-width: 576px) {
-            .pub-hero { padding: 2.2rem 0 2rem; }
-            .pub-hero h1 { font-size: 1.5rem; }
-            .pub-main { padding: 1.5rem 0 3rem; }
+            .pub-hero { padding: 2rem 0 1.8rem; }
+            .pub-hero h1 { font-size: 1.4rem; }
+            .pub-main { padding: 1.4rem 0 3rem; }
             .job-card { padding: 1.1rem 1.2rem; }
+            .filter-bar { padding: .9rem 1rem; }
         }
 
         {% block extra_style %}{% endblock %}
@@ -247,15 +378,17 @@
 </head>
 <body>
 
+<!-- Navbar -->
 <nav class="pub-navbar">
     <div class="container d-flex align-items-center justify-content-between">
         <a href="{% url 'recruitment:job_board' %}">
-            <img src="{% static 'LOGO.png' %}" alt="Logo" class="logo">
+            <img src="{% static 'LOGO.png' %}" alt="MICEI" class="logo">
         </a>
-        <span class="nav-tag">Careers</span>
+        <span class="nav-careers-pill">Careers</span>
     </div>
 </nav>
 
+<!-- Hero (overridable per page) -->
 {% block hero %}
 <section class="pub-hero">
     <div class="container hero-inner">
@@ -266,6 +399,10 @@
 </section>
 {% endblock %}
 
+<!-- Optional strip below hero (used by job board for values) -->
+{% block after_hero %}{% endblock %}
+
+<!-- Main content -->
 <main class="pub-main">
     <div class="container">
         {% if messages %}

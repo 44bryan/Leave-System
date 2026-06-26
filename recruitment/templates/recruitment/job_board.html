@@ -1,39 +1,206 @@
 {% extends 'base_public.html' %}
 {% load i18n %}
 
-{% block title %}Job Openings — Careers{% endblock %}
+{% block title %}Careers at MICEI — Current Openings{% endblock %}
+{% block meta_description %}Join the team at Magrabi ICO Cameroon Eye Institute. Explore open positions in healthcare, administration, and more.{% endblock %}
+
+{% block extra_style %}
+.hero-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,.15);
+    color: rgba(255,255,255,.92);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 20px;
+    font-size: .78rem;
+    font-weight: 600;
+    padding: .3em .9em;
+}
+#noResults { display: none; }
+{% endblock %}
+
+{% block hero %}
+<section class="pub-hero" style="padding:3rem 0 2.5rem;">
+    <div class="container hero-inner">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <p class="hero-eyebrow">We're Hiring</p>
+                <h1>Build a Career That <span style="color:#2db4c3;">Transforms Lives</span></h1>
+                <p class="hero-sub" style="max-width:520px;">
+                    At Magrabi ICO Cameroon Eye Institute, we are on a mission to restore sight and change lives across Central Africa.
+                    Join a passionate, world-class team making real impact every day.
+                </p>
+                <div class="d-flex gap-2 flex-wrap mt-3">
+                    <span class="hero-stat"><i class="bi bi-briefcase-fill"></i>{{ postings|length }} Open Position{{ postings|length|pluralize }}</span>
+                    <span class="hero-stat"><i class="bi bi-geo-alt-fill"></i>Yaoundé, Cameroon</span>
+                    <span class="hero-stat"><i class="bi bi-building"></i>Healthcare &amp; Medical</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block after_hero %}
+<div class="values-strip">
+    <div class="container">
+        <div class="row g-2 g-md-3 justify-content-center">
+            <div class="col-6 col-md-3">
+                <div class="value-card">
+                    <i class="bi bi-heart-pulse-fill value-icon"></i>
+                    <p class="value-label">Meaningful Impact</p>
+                    <p class="value-sub">Restore sight, transform lives in Central Africa</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="value-card">
+                    <i class="bi bi-mortarboard-fill value-icon"></i>
+                    <p class="value-label">Grow With Us</p>
+                    <p class="value-sub">Continuous training &amp; professional development</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="value-card">
+                    <i class="bi bi-people-fill value-icon"></i>
+                    <p class="value-label">Great Team</p>
+                    <p class="value-sub">Collaborative, diverse and passionate professionals</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="value-card">
+                    <i class="bi bi-award-fill value-icon"></i>
+                    <p class="value-label">World-class Standards</p>
+                    <p class="value-sub">International quality of eye care &amp; surgery</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
+
 {% if postings %}
-<p class="section-label">{{ postings|length }} open position{{ postings|length|pluralize }}</p>
-<div class="d-flex flex-column gap-3">
+
+<!-- Search + Filter bar -->
+<div class="filter-bar">
+    <div class="d-flex gap-3 align-items-center flex-wrap">
+        <div class="search-wrap flex-grow-1" style="min-width:220px;">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" id="jobSearch" class="form-control" placeholder="Search by title, department or type…" oninput="filterJobs()">
+        </div>
+        <span id="jobCount" class="section-label mb-0">{{ postings|length }} position{{ postings|length|pluralize }}</span>
+    </div>
+
+    {% if departments %}
+    <div class="d-flex gap-2 flex-wrap mt-3">
+        <button class="dept-pill active" data-dept="all" onclick="setDept(this)">
+            All Departments
+        </button>
+        {% for dept in departments %}
+        <button class="dept-pill" data-dept="{{ dept.name|lower }}" onclick="setDept(this)">
+            {{ dept.name }} <span class="dept-count">{{ dept.count }}</span>
+        </button>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Job cards grid -->
+<div class="row g-3" id="jobGrid">
     {% for job in postings %}
-    <a href="{% url 'recruitment:job_detail' job.pk %}" class="job-card">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
-            <span class="tag">{{ job.get_employment_type_display }}</span>
-            {% if job.deadline %}
-            <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>Closes {{ job.deadline|date:"d M Y" }}</span>
-            {% endif %}
-        </div>
-        <p class="job-title">{{ job.title }}</p>
-        <div class="job-meta">
-            {% if job.department %}<span><i class="bi bi-building"></i>{{ job.department }}</span>{% endif %}
-            {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
-        </div>
-        <p class="job-excerpt mb-0">{{ job.description|truncatechars:130 }}</p>
-        <div class="mt-3">
-            <span class="btn-primary-pub btn-sm" style="padding:.4rem 1.1rem;font-size:.82rem;">View & Apply <i class="bi bi-arrow-right ms-1"></i></span>
-        </div>
-    </a>
+    <div class="col-md-6 job-card-wrapper"
+         data-title="{{ job.title|lower }}"
+         data-dept="{{ job.department|default:'general'|lower }}"
+         data-type="{{ job.get_employment_type_display|lower }}">
+        <a href="{% url 'recruitment:job_detail' job.pk %}" class="job-card">
+            <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
+                <span class="tag">{{ job.get_employment_type_display }}</span>
+                {% if job.deadline %}
+                <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>Closes {{ job.deadline|date:"d M Y" }}</span>
+                {% endif %}
+            </div>
+            <p class="job-title mb-1">{{ job.title }}</p>
+            <div class="job-meta">
+                {% if job.department %}<span><i class="bi bi-building"></i>{{ job.department }}</span>{% endif %}
+                {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
+            </div>
+            <p class="job-excerpt">{{ job.description|truncatechars:105 }}</p>
+            <div class="job-card-footer">
+                <span class="apply-link">View & Apply <i class="bi bi-arrow-right"></i></span>
+                {% if job.deadline %}
+                <small class="text-muted" style="font-size:.72rem;">{{ job.deadline|date:"d M" }}</small>
+                {% endif %}
+            </div>
+        </a>
+    </div>
     {% endfor %}
 </div>
+
+<!-- No results message (JS-toggled) -->
+<div id="noResults" class="text-center py-5">
+    <div style="width:60px;height:60px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+        <i class="bi bi-search" style="font-size:1.4rem;color:#088395;"></i>
+    </div>
+    <h6 class="fw-bold" style="color:#0A4D68;">No positions match your search</h6>
+    <p class="text-muted mb-3" style="font-size:.85rem;">Try different keywords or browse all departments.</p>
+    <button class="btn-outline-pub" onclick="clearFilters()" style="font-size:.82rem;padding:.35rem .9rem;">
+        <i class="bi bi-x-circle me-1"></i>Clear Filters
+    </button>
+</div>
+
 {% else %}
 <div class="text-center py-5">
-    <div style="width:64px;height:64px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
-        <i class="bi bi-briefcase" style="font-size:1.7rem;color:#088395;"></i>
+    <div style="width:72px;height:72px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
+        <i class="bi bi-briefcase" style="font-size:1.9rem;color:#088395;"></i>
     </div>
     <h5 class="fw-bold" style="color:#0A4D68;">No open positions right now</h5>
-    <p class="text-muted mb-0" style="font-size:.9rem;">Check back soon — new opportunities are posted regularly.</p>
+    <p class="text-muted mb-0" style="font-size:.88rem;">Check back soon — new opportunities are posted regularly.</p>
 </div>
 {% endif %}
+
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    var activeDept = 'all';
+
+    function filterJobs() {
+        var search = document.getElementById('jobSearch').value.toLowerCase().trim();
+        var cards = document.querySelectorAll('.job-card-wrapper');
+        var visible = 0;
+
+        cards.forEach(function(card) {
+            var title = card.dataset.title || '';
+            var dept  = card.dataset.dept  || '';
+            var type  = card.dataset.type  || '';
+            var matchSearch = !search || title.includes(search) || dept.includes(search) || type.includes(search);
+            var matchDept   = activeDept === 'all' || dept === activeDept;
+            var show = matchSearch && matchDept;
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        document.getElementById('jobCount').textContent = visible + ' position' + (visible !== 1 ? 's' : '');
+        var noRes = document.getElementById('noResults');
+        if (noRes) noRes.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    function setDept(btn) {
+        document.querySelectorAll('.dept-pill').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        activeDept = btn.dataset.dept;
+        filterJobs();
+    }
+
+    function clearFilters() {
+        document.getElementById('jobSearch').value = '';
+        activeDept = 'all';
+        document.querySelectorAll('.dept-pill').forEach(function(p) { p.classList.remove('active'); });
+        var allBtn = document.querySelector('.dept-pill[data-dept="all"]');
+        if (allBtn) allBtn.classList.add('active');
+        filterJobs();
+    }
+</script>
 {% endblock %}

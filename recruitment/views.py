@@ -32,8 +32,16 @@ def _is_hr_or_admin(user):
 
 def job_board(request):
     """Public job board: list all open postings."""
-    postings = JobPosting.objects.filter(status=JobPosting.STATUS_OPEN).select_related('department')
-    return render(request, 'recruitment/job_board.html', {'postings': postings})
+    postings = list(JobPosting.objects.filter(status=JobPosting.STATUS_OPEN).select_related('department'))
+    dept_counts = {}
+    for p in postings:
+        key = str(p.department) if p.department else 'General'
+        dept_counts[key] = dept_counts.get(key, 0) + 1
+    departments = [{'name': k, 'count': v} for k, v in sorted(dept_counts.items())]
+    return render(request, 'recruitment/job_board.html', {
+        'postings': postings,
+        'departments': departments,
+    })
 
 
 def job_detail(request, pk):
