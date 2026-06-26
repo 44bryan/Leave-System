@@ -8388,12 +8388,12 @@ msgid "Careers at MICEI"
 msgstr "Carrières à MICEI"
 
 #: recruitment/templates/recruitment/job_board.html
-msgid "Restore Sight."
-msgstr "Restaurer la Vue."
+msgid "Promoting Sight,"
+msgstr "Promouvoir la Vue,"
 
 #: recruitment/templates/recruitment/job_board.html
-msgid "Change Lives."
-msgstr "Changer des Vies."
+msgid "Improving Life."
+msgstr "Améliorer la Vie."
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "Magrabi ICO Cameroon Eye Institute — Cameroon's leading subspecialty eye care hospital, dedicated to improving vision and transforming lives across Central Africa."
