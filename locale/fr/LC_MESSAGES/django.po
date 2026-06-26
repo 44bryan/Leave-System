@@ -8605,3 +8605,60 @@ msgstr "Soumettre la Candidature"
 msgid "Submitting…"
 msgstr "Envoi en cours…"
 
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Application Received"
+msgstr "Candidature Reçue"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Application Submitted"
+msgstr "Candidature Soumise"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "You're All Set!"
+msgstr "Tout Est Prêt !"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Thank you — we'll review your application and be in touch soon."
+msgstr "Merci — nous examinerons votre candidature et vous contacterons bientôt."
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Application Received!"
+msgstr "Candidature Reçue !"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "You applied for <strong style="color:#0A4D68;">%(title)s</strong>"
+msgstr "Vous avez postulé pour <strong style="color:#0A4D68;">%(title)s</strong>"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "What happens next?"
+msgstr "Que se passe-t-il ensuite ?"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Application Review"
+msgstr "Examen des Candidatures"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Our HR team will review all applications received."
+msgstr "Notre équipe RH examinera toutes les candidatures reçues."
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Shortlisting"
+msgstr "Présélection"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Qualifying candidates are contacted by email or phone."
+msgstr "Les candidats qualifiés sont contactés par e-mail ou par téléphone."
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Interview"
+msgstr "Entretien"
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Selected candidates are invited for an in-person or virtual interview."
+msgstr "Les candidats sélectionnés sont invités à un entretien en présentiel ou virtuel."
+
+#: recruitment/templates/recruitment/apply_success.html
+msgid "Explore Other Openings"
+msgstr "Explorer d'autres Offres"
+

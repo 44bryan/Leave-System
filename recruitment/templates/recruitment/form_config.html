@@ -25,84 +25,87 @@
                 <small style="opacity:.75;">{% trans "Enable/disable and reorder fields shown to applicants" %}</small>
             </div>
             <div class="card-body p-0">
-                <form method="post">
+                {# Save form — wraps only hidden controls; inputs linked via form= attr.
+                   Delete forms are standalone below — no nesting. #}
+                <form id="saveForm" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="save_fields">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead style="background:#f8f9fa;">
-                                <tr>
-                                    <th style="padding:.8rem 1rem;width:55px;">#</th>
-                                    <th>{% trans "Label" %}</th>
-                                    <th>{% trans "Type" %}</th>
-                                    <th class="text-center">{% trans "Show" %}</th>
-                                    <th class="text-center">{% trans "Required" %}</th>
-                                    <th>{% trans "Options / Placeholder" %}</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for field in fields %}
-                                <tr>
-                                    <td style="padding:.8rem 1rem;">
-                                        <input type="number" name="order_{{ field.pk }}" value="{{ field.field_order }}"
-                                               class="form-control form-control-sm" style="width:52px;">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="label_{{ field.pk }}" value="{{ field.label }}"
-                                               class="form-control form-control-sm" style="min-width:130px;">
-                                        <small class="text-muted" style="font-size:.72rem;">{{ field.field_name }}</small>
-                                    </td>
-                                    <td>
-                                        <select name="type_{{ field.pk }}" class="form-select form-select-sm" style="min-width:140px;font-size:.78rem;">
-                                            {% for val, label in FIELD_TYPE_CHOICES %}
-                                            <option value="{{ val }}" {% if field.field_type == val %}selected{% endif %}>{{ label }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        {% if field.is_custom %}<span class="badge bg-info text-white mt-1 d-block" style="font-size:.67rem;width:fit-content;">custom</span>{% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        <input type="checkbox" name="enabled_{{ field.pk }}" class="form-check-input"
-                                               {% if field.is_enabled %}checked{% endif %}>
-                                    </td>
-                                    <td class="text-center">
-                                        <input type="checkbox" name="required_{{ field.pk }}" class="form-check-input"
-                                               {% if field.is_required %}checked{% endif %}>
-                                    </td>
-                                    <td>
-                                        {% if field.field_type == 'select' %}
-                                        <input type="text" name="options_{{ field.pk }}" value="{{ field.options }}"
-                                               class="form-control form-control-sm" placeholder="A,B,C (comma-separated)"
-                                               style="min-width:170px;">
-                                        {% else %}
-                                        <input type="text" name="placeholder_{{ field.pk }}" value="{{ field.placeholder }}"
-                                               class="form-control form-control-sm" placeholder="Hint text…"
-                                               style="min-width:130px;">
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <!-- All fields can be deleted -->
-                                        <form method="post" style="display:inline;"
-                                              onsubmit="return confirm('Remove field: {{ field.label }}?')">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="action" value="delete_field">
-                                            <input type="hidden" name="field_pk" value="{{ field.pk }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Remove' %}">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="p-3 border-top">
-                        <button type="submit" class="btn" style="background:#0A4D68;color:#fff;">
-                            <i class="bi bi-save me-1"></i>{% trans "Save Configuration" %}
-                        </button>
-                    </div>
                 </form>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead style="background:#f8f9fa;">
+                            <tr>
+                                <th style="padding:.8rem 1rem;width:55px;">#</th>
+                                <th>{% trans "Label" %}</th>
+                                <th>{% trans "Type" %}</th>
+                                <th class="text-center">{% trans "Show" %}</th>
+                                <th class="text-center">{% trans "Required" %}</th>
+                                <th>{% trans "Options / Placeholder" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for field in fields %}
+                            <tr>
+                                <td style="padding:.8rem 1rem;">
+                                    <input form="saveForm" type="number" name="order_{{ field.pk }}" value="{{ field.field_order }}"
+                                           class="form-control form-control-sm" style="width:52px;">
+                                </td>
+                                <td>
+                                    <input form="saveForm" type="text" name="label_{{ field.pk }}" value="{{ field.label }}"
+                                           class="form-control form-control-sm" style="min-width:130px;">
+                                    <small class="text-muted" style="font-size:.72rem;">{{ field.field_name }}</small>
+                                </td>
+                                <td>
+                                    <select form="saveForm" name="type_{{ field.pk }}" class="form-select form-select-sm" style="min-width:140px;font-size:.78rem;">
+                                        {% for val, label in FIELD_TYPE_CHOICES %}
+                                        <option value="{{ val }}" {% if field.field_type == val %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if field.is_custom %}<span class="badge bg-info text-white mt-1 d-block" style="font-size:.67rem;width:fit-content;">custom</span>{% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <input form="saveForm" type="checkbox" name="enabled_{{ field.pk }}" class="form-check-input"
+                                           {% if field.is_enabled %}checked{% endif %}>
+                                </td>
+                                <td class="text-center">
+                                    <input form="saveForm" type="checkbox" name="required_{{ field.pk }}" class="form-check-input"
+                                           {% if field.is_required %}checked{% endif %}>
+                                </td>
+                                <td>
+                                    {% if field.field_type == 'select' %}
+                                    <input form="saveForm" type="text" name="options_{{ field.pk }}" value="{{ field.options }}"
+                                           class="form-control form-control-sm" placeholder="A,B,C (comma-separated)"
+                                           style="min-width:170px;">
+                                    {% else %}
+                                    <input form="saveForm" type="text" name="placeholder_{{ field.pk }}" value="{{ field.placeholder }}"
+                                           class="form-control form-control-sm" placeholder="Hint text…"
+                                           style="min-width:130px;">
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {# Standalone delete form — NOT nested inside saveForm #}
+                                    <form method="post"
+                                          onsubmit="return confirm('{% trans "Remove field:" %} {{ field.label }}?')">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete_field">
+                                        <input type="hidden" name="field_pk" value="{{ field.pk }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Remove' %}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-3 border-top">
+                    <button type="submit" form="saveForm" class="btn" style="background:#0A4D68;color:#fff;">
+                        <i class="bi bi-save me-1"></i>{% trans "Save Configuration" %}
+                    </button>
+                </div>
             </div>
         </div>
     </div>

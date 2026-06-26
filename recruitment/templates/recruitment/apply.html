@@ -114,6 +114,11 @@
                             <input type="file" name="{{ field.field_name }}" class="form-control"
                                    {% if field.is_required %}required{% endif %}>
 
+                            {% elif field.field_type == 'email' %}
+                            <input type="email" name="{{ field.field_name }}" class="form-control"
+                                   {% if field.is_required %}required{% endif %}
+                                   {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}>
+
                             {% else %}
                             <input type="text" name="{{ field.field_name }}" class="form-control"
                                    {% if field.is_required %}required{% endif %}

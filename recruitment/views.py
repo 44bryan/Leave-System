@@ -71,7 +71,10 @@ def apply(request, pk):
         # Validate enabled required fields
         for field in fields:
             if field.is_required:
-                val = request.POST.get(field.field_name, '').strip()
+                if field.field_type == 'file':
+                    val = request.FILES.get(field.field_name)
+                else:
+                    val = request.POST.get(field.field_name, '').strip()
                 if not val:
                     errors.append(f'{field.label} is required.')
 
