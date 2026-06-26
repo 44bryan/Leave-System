@@ -8,10 +8,6 @@
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card animate-in">
-            <div class="card-header" style="background:#2db4c3;color:#fff;">
-                <i class="bi bi-briefcase me-2"></i>
-                {% if posting %}{% trans "Edit" %}: {{ posting.title }}{% else %}{% trans "New Job Posting" %}{% endif %}
-            </div>
             <div class="card-body p-4">
                 <form method="post">
                     {% csrf_token %}
