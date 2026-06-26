@@ -37,22 +37,25 @@
             display: block;
         }
         .pub-navbar .nav-link-right {
-            color: #0A4D68;
+            color: #fff;
             font-size: .82rem;
             font-weight: 600;
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: .4rem .9rem;
-            border: 1.5px solid rgba(10,77,104,0.25);
+            padding: .42rem 1rem;
+            background: linear-gradient(135deg, #0A4D68, #088395);
+            border: none;
             border-radius: 10px;
             transition: all .2s;
+            box-shadow: 0 2px 8px rgba(10,77,104,0.18);
         }
         .pub-navbar .nav-link-right:hover {
-            background: #0A4D68;
+            background: linear-gradient(135deg, #0c5a7a, #2db4c3);
             color: #fff;
-            border-color: #0A4D68;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(10,77,104,0.28);
         }
 
         /* ── Hero ───────────────────────────────────────────────────────── */
@@ -121,12 +124,36 @@
 
         /* ── Footer ─────────────────────────────────────────────────────── */
         .pub-footer {
-            background: #0A4D68;
-            color: rgba(255,255,255,0.5);
-            text-align: center;
-            padding: 1.1rem 0;
-            font-size: .78rem;
+            background: linear-gradient(145deg, #0A4D68 0%, #088395 100%);
+            color: rgba(255,255,255,0.7);
+            padding: 2.5rem 0 1.5rem;
+            font-size: .84rem;
         }
+        .pub-footer .footer-logo img {
+            height: 44px;
+            width: auto;
+            opacity: .92;
+            margin-bottom: .6rem;
+        }
+        .pub-footer .footer-tagline {
+            color: rgba(255,255,255,0.6);
+            font-size: .8rem;
+            margin-bottom: 0;
+        }
+        .pub-footer .footer-divider {
+            border-color: rgba(255,255,255,0.12);
+            margin: 1.5rem 0 1rem;
+        }
+        .pub-footer .footer-bottom {
+            color: rgba(255,255,255,0.45);
+            font-size: .75rem;
+        }
+        .pub-footer a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color .2s;
+        }
+        .pub-footer a:hover { color: #fff; }
 
         /* ── Cards ───────────────────────────────────────────────────────── */
         .card {
@@ -276,7 +303,31 @@
 </main>
 
 <footer class="pub-footer">
-    &copy; {% now "Y" %} AEF / MICEI &mdash; All rights reserved
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-md-5">
+                <div class="footer-logo">
+                    <img src="{% static 'LOGO.png' %}" alt="Logo">
+                </div>
+                <p class="footer-tagline">Providing quality eye care across Cameroon.</p>
+            </div>
+            <div class="col-md-4">
+                <p class="fw-semibold mb-2" style="color:rgba(255,255,255,.85);font-size:.82rem;">Careers</p>
+                <ul class="list-unstyled mb-0" style="font-size:.82rem;">
+                    <li class="mb-1"><a href="{% url 'recruitment:job_board' %}"><i class="bi bi-briefcase me-1"></i>Open Positions</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 text-md-end">
+                <a href="{% url 'accounts:login' %}" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:.45rem 1rem;font-size:.82rem;font-weight:600;text-decoration:none;transition:all .2s;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.22)'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+                    <i class="bi bi-box-arrow-in-right"></i>Staff Portal
+                </a>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <p class="footer-bottom text-center mb-0">&copy; {% now "Y" %} Africa Eye Foundation / MICEI &mdash; All rights reserved</p>
+    </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
