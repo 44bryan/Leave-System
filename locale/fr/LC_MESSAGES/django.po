@@ -8445,9 +8445,6 @@ msgstr "Au service des patients à travers le Cameroun et l’Afrique centrale"
 msgid "Filter:"
 msgstr "Filtrer :"
 
-#: recruitment/templates/recruitment/job_board.html
-msgid "All"
-msgstr "Tous"
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "%(num)s position"
@@ -8455,9 +8452,6 @@ msgid_plural "%(num)s positions"
 msgstr[0] "%(num)s poste"
 msgstr[1] "%(num)s postes"
 
-#: recruitment/templates/recruitment/job_board.html
-msgid "New"
-msgstr "Nouveau"
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "Closes"
@@ -8531,9 +8525,6 @@ msgstr "Détails du Poste"
 msgid "Employment Type"
 msgstr "Type d'Emploi"
 
-#: recruitment/templates/recruitment/job_detail.html
-msgid "Department"
-msgstr "Département"
 
 #: recruitment/templates/recruitment/job_detail.html
 msgid "Location"
@@ -8547,9 +8538,6 @@ msgstr "Date Limite de Candidature"
 msgid "Share This Role"
 msgstr "Partager ce Poste"
 
-#: recruitment/templates/recruitment/apply.html
-msgid "Apply"
-msgstr "Postuler"
 
 #: recruitment/templates/recruitment/apply.html
 msgid "Back to Job Details"
@@ -8571,13 +8559,7 @@ msgstr "Les champs marqués"
 msgid "are required. CV must be PDF, DOC or DOCX — max 10 MB."
 msgstr "sont obligatoires. Le CV doit être en PDF, DOC ou DOCX — max 10 Mo."
 
-#: recruitment/templates/recruitment/apply.html
-msgid "Personal Information"
-msgstr "Informations Personnelles"
 
-#: recruitment/templates/recruitment/apply.html
-msgid "Full Name"
-msgstr "Nom Complet"
 
 #: recruitment/templates/recruitment/apply.html
 msgid "Email Address"
@@ -8611,25 +8593,13 @@ msgstr "Questions de Candidature"
 msgid "— Select an option —"
 msgstr "— Sélectionner une option —"
 
-#: recruitment/templates/recruitment/apply.html
-msgid "— Select —"
-msgstr "— Sélectionner —"
 
-#: recruitment/templates/recruitment/apply.html
-msgid "Yes"
-msgstr "Oui"
 
-#: recruitment/templates/recruitment/apply.html
-msgid "No"
-msgstr "Non"
 
 #: recruitment/templates/recruitment/apply.html
 msgid "Submit Application"
 msgstr "Soumettre la Candidature"
 
-#: recruitment/templates/recruitment/apply.html
-msgid "Cancel"
-msgstr "Annuler"
 
 #: recruitment/templates/recruitment/apply.html
 msgid "Submitting…"
