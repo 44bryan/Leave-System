@@ -32,7 +32,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Navbar: white, logo only ───────────────────────────────────────── */
+        /* ── Navbar ─────────────────────────────────────────────────────────── */
         .pub-navbar {
             background: #fff;
             padding: .65rem 0;
@@ -42,16 +42,18 @@
             z-index: 1000;
         }
         .pub-navbar img.logo { height: 46px; width: auto; display: block; }
-        .nav-careers-pill {
-            background: var(--accent);
-            color: #fff;
-            font-size: .72rem;
-            font-weight: 700;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            padding: .32em 1em;
-            border-radius: 20px;
+        .nav-lang-btn {
+            background: none; border: none;
+            font-size: .72rem; font-weight: 700;
+            cursor: pointer; padding: .22em .42em;
+            color: #b0bec5; letter-spacing: .05em;
+            transition: color .15s; line-height: 1;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
+        .nav-lang-btn.active, .nav-lang-btn:hover { color: var(--dark); }
+        .nav-lang-sep { color: #dde8ef; font-size: .7rem; line-height: 1; }
+        .nav-social { color: #b0bec5; font-size: 1rem; text-decoration: none; transition: color .15s; line-height: 1; }
+        .nav-social:hover { color: var(--dark); }
 
         /* ── Hero ───────────────────────────────────────────────────────────── */
         .pub-hero {
@@ -268,7 +270,7 @@
 
         /* ── Footer ─────────────────────────────────────────────────────────── */
         .pub-footer {
-            background: var(--dark);   /* dark navy — matches micei.org footer */
+            background: #3d3d3d;   /* dark charcoal/grey — matching micei.org footer */
             padding: 1.4rem 0 1rem;
             color: rgba(255,255,255,.55);
             font-size: .76rem;
@@ -346,12 +348,34 @@
 </head>
 <body>
 
-<!-- Navbar: logo only -->
+<!-- Navbar: logo | lang switcher | social links -->
 <nav class="pub-navbar">
-    <div class="container">
+    <div class="container d-flex align-items-center justify-content-between">
         <a href="{% url 'recruitment:job_board' %}">
             <img src="{% static 'LOGO.png' %}" alt="MICEI" class="logo">
         </a>
+
+        <div class="d-flex align-items-center gap-3">
+            <!-- EN | FR language toggle -->
+            {% get_current_language as CURRENT_LANG %}
+            <form action="{% url 'set_language' %}" method="post" class="d-flex align-items-center gap-1 mb-0">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" name="language" value="en" class="nav-lang-btn {% if CURRENT_LANG == 'en' %}active{% endif %}">EN</button>
+                <span class="nav-lang-sep">|</span>
+                <button type="submit" name="language" value="fr" class="nav-lang-btn {% if CURRENT_LANG == 'fr' %}active{% endif %}">FR</button>
+            </form>
+
+            <!-- Social icons — update hrefs to actual MICEI pages -->
+            <div class="d-flex align-items-center gap-2">
+                <a href="https://web.facebook.com/micei" target="_blank" rel="noopener" class="nav-social" title="Facebook">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/micei" target="_blank" rel="noopener" class="nav-social" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                </a>
+            </div>
+        </div>
     </div>
 </nav>
 
