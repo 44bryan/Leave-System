@@ -1,17 +1,19 @@
 {% extends 'base_public.html' %}
 {% load i18n %}
 
-{% block title %}{{ posting.title }} — MICEI Careers{% endblock %}
+{% block title %}{{ posting.title }} — Careers{% endblock %}
 
 {% block hero %}
-<div class="pub-hero">
-    <span class="hero-badge"><i class="bi bi-briefcase-fill"></i>Job Opening</span>
-    <h1>{{ posting.title }}</h1>
-    <p>
-        {% if posting.department %}<i class="bi bi-building me-1"></i>{{ posting.department }}{% endif %}
-        {% if posting.location %}&nbsp;&nbsp;<i class="bi bi-geo-alt me-1"></i>{{ posting.location }}{% endif %}
-    </p>
-</div>
+<section class="pub-hero">
+    <div class="container hero-inner">
+        <span class="hero-badge"><i class="bi bi-briefcase-fill"></i>Job Opening</span>
+        <h1>{{ posting.title }}</h1>
+        <p class="hero-sub">
+            {% if posting.department %}<i class="bi bi-building me-1"></i>{{ posting.department }}{% endif %}
+            {% if posting.location %}&nbsp;&nbsp;<i class="bi bi-geo-alt me-1"></i>{{ posting.location }}{% endif %}
+        </p>
+    </div>
+</section>
 {% endblock %}
 
 {% block content %}

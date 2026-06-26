@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Careers — MICEI{% endblock %}</title>
+    <title>{% block title %}Careers{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'logo.jpg' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -17,79 +17,70 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            margin: 0;
         }
 
-        /* ── Header ─────────────────────────────────────────────────────── */
-        .pub-header {
-            background: linear-gradient(135deg, #0A4D68 0%, #088395 60%, #2db4c3 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .pub-header::before {
-            content: '';
-            position: absolute;
-            width: 320px; height: 320px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.07);
-            top: -120px; right: -80px;
-            pointer-events: none;
-        }
-        .pub-header::after {
-            content: '';
-            position: absolute;
-            width: 200px; height: 200px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-            bottom: -80px; left: -60px;
-            pointer-events: none;
-        }
-
-        /* Navbar row inside header */
+        /* ── Top navbar ─────────────────────────────────────────────────── */
         .pub-navbar {
-            padding: .85rem 0;
-            position: relative;
-            z-index: 2;
+            background: #fff;
+            border-bottom: 1px solid rgba(10,77,104,0.08);
+            padding: .7rem 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
         }
-        .pub-navbar .brand {
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.05rem;
+        .pub-navbar .logo-wrap {
+            display: flex;
+            align-items: center;
+        }
+        .pub-navbar .logo-wrap img {
+            height: 48px;
+            width: auto;
+            display: block;
+        }
+        .pub-navbar .nav-link-right {
+            color: #0A4D68;
+            font-size: .82rem;
+            font-weight: 600;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        .pub-navbar .brand img {
-            height: 38px;
-            width: 38px;
+            gap: 6px;
+            padding: .4rem .9rem;
+            border: 1.5px solid rgba(10,77,104,0.25);
             border-radius: 10px;
-            object-fit: cover;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-        }
-        .pub-navbar .tagline {
-            color: rgba(255,255,255,0.7);
-            font-size: .8rem;
-        }
-        .pub-navbar .btn-staff-login {
-            background: rgba(255,255,255,0.15);
-            color: #fff;
-            border: 1.5px solid rgba(255,255,255,0.35);
-            border-radius: 10px;
-            font-size: .8rem;
-            font-weight: 600;
-            padding: .38rem .9rem;
-            text-decoration: none;
             transition: all .2s;
-            backdrop-filter: blur(4px);
         }
-        .pub-navbar .btn-staff-login:hover {
-            background: rgba(255,255,255,0.25);
+        .pub-navbar .nav-link-right:hover {
+            background: #0A4D68;
             color: #fff;
+            border-color: #0A4D68;
         }
 
-        /* Hero section (inside header, below navbar) */
+        /* ── Hero ───────────────────────────────────────────────────────── */
         .pub-hero {
-            padding: 2rem 0 2.5rem;
+            background: linear-gradient(145deg, #2db4c3 0%, #0da8c0 50%, #17c3d9 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 3.5rem 0 3rem;
+        }
+        .pub-hero::before {
+            content: '';
+            position: absolute;
+            width: 380px; height: 380px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+            top: -140px; right: -100px;
+            pointer-events: none;
+        }
+        .pub-hero::after {
+            content: '';
+            position: absolute;
+            width: 240px; height: 240px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            bottom: -90px; left: -60px;
+            pointer-events: none;
+        }
+        .pub-hero .hero-inner {
             position: relative;
             z-index: 2;
         }
@@ -99,26 +90,30 @@
             gap: 6px;
             background: rgba(255,255,255,0.18);
             color: rgba(255,255,255,0.95);
-            font-size: .78rem;
-            font-weight: 600;
-            padding: .3em .85em;
+            font-size: .75rem;
+            font-weight: 700;
+            padding: .32em .9em;
             border-radius: 20px;
-            margin-bottom: .8rem;
-            border: 1px solid rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.28);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-bottom: .9rem;
         }
         .pub-hero h1 {
             color: #fff;
             font-weight: 800;
-            font-size: 1.9rem;
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
             margin-bottom: .5rem;
+            line-height: 1.2;
         }
-        .pub-hero p {
+        .pub-hero .hero-sub {
             color: rgba(255,255,255,0.82);
             font-size: .95rem;
-            max-width: 520px;
+            max-width: 480px;
+            line-height: 1.6;
         }
 
-        /* ── Main content area ──────────────────────────────────────────── */
+        /* ── Main ───────────────────────────────────────────────────────── */
         .pub-main {
             flex: 1;
             padding: 2.5rem 0 4rem;
@@ -127,17 +122,11 @@
         /* ── Footer ─────────────────────────────────────────────────────── */
         .pub-footer {
             background: #0A4D68;
-            color: rgba(255,255,255,0.55);
+            color: rgba(255,255,255,0.5);
             text-align: center;
             padding: 1.1rem 0;
-            font-size: .8rem;
-            margin-top: auto;
+            font-size: .78rem;
         }
-        .pub-footer a {
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-        }
-        .pub-footer a:hover { color: #2db4c3; }
 
         /* ── Cards ───────────────────────────────────────────────────────── */
         .card {
@@ -154,13 +143,10 @@
         }
 
         /* ── Job cards ───────────────────────────────────────────────────── */
-        .job-card {
-            transition: transform .2s, box-shadow .2s;
-            cursor: pointer;
-        }
+        .job-card { transition: transform .2s, box-shadow .2s; }
         .job-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 32px rgba(10,77,104,0.13);
+            box-shadow: 0 10px 36px rgba(10,77,104,0.13);
         }
 
         /* ── Badges ──────────────────────────────────────────────────────── */
@@ -169,7 +155,7 @@
             color: #0A4D68;
             font-weight: 600;
             font-size: .72rem;
-            padding: .3em .75em;
+            padding: .3em .8em;
             border-radius: 20px;
             display: inline-block;
         }
@@ -181,7 +167,7 @@
             border: none;
             border-radius: 12px;
             font-weight: 700;
-            padding: .6rem 1.5rem;
+            padding: .65rem 1.6rem;
             font-size: .9rem;
             box-shadow: 0 4px 14px rgba(10,77,104,0.22);
             transition: all .25s;
@@ -191,16 +177,17 @@
         .btn-primary-pub:hover {
             background: linear-gradient(135deg, #0c5a7a, #2db4c3);
             transform: translateY(-2px);
-            box-shadow: 0 8px 22px rgba(10,77,104,0.32);
+            box-shadow: 0 8px 24px rgba(10,77,104,0.32);
+            color: #fff !important;
         }
         .btn-outline-pub {
             background: transparent;
             color: #0A4D68;
-            border: 1.5px solid #0A4D68;
-            border-radius: 12px;
+            border: 1.5px solid rgba(10,77,104,0.35);
+            border-radius: 10px;
             font-weight: 600;
-            padding: .55rem 1.3rem;
-            font-size: .88rem;
+            padding: .45rem 1.1rem;
+            font-size: .85rem;
             text-decoration: none;
             transition: all .2s;
             display: inline-block;
@@ -208,6 +195,7 @@
         .btn-outline-pub:hover {
             background: #0A4D68;
             color: #fff;
+            border-color: #0A4D68;
         }
 
         /* ── Form controls ───────────────────────────────────────────────── */
@@ -226,22 +214,19 @@
         }
         .form-label {
             font-weight: 600;
-            font-size: .82rem;
+            font-size: .83rem;
             color: #0d1b2a;
             margin-bottom: 5px;
         }
 
-        /* ── Section heading ─────────────────────────────────────────────── */
-        .section-heading {
-            color: #0A4D68;
-            font-weight: 800;
-            font-size: 1.25rem;
-        }
+        /* ── Alerts ──────────────────────────────────────────────────────── */
+        .alert { border-radius: 12px; border: none; }
 
-        /* ── Alert messages ──────────────────────────────────────────────── */
-        .alert {
-            border-radius: 12px;
-            border: none;
+        /* ── Mobile ──────────────────────────────────────────────────────── */
+        @media (max-width: 576px) {
+            .pub-hero { padding: 2.5rem 0 2rem; }
+            .pub-hero h1 { font-size: 1.6rem; }
+            .pub-main { padding: 1.5rem 0 3rem; }
         }
 
         {% block extra_style %}{% endblock %}
@@ -249,29 +234,31 @@
 </head>
 <body>
 
-<header class="pub-header">
-    <div class="container">
-        <nav class="pub-navbar d-flex align-items-center gap-3">
-            <a href="{% url 'recruitment:job_board' %}" class="brand">
-                <img src="{% static 'logo.jpg' %}" alt="MICEI">
-                MICEI Careers
-            </a>
-            <span class="tagline d-none d-md-inline">Magrabi ICO Cameroon Eye Institute</span>
-            <a href="{% url 'accounts:login' %}" class="btn-staff-login ms-auto">
-                <i class="bi bi-box-arrow-in-right me-1"></i>Staff Login
-            </a>
-        </nav>
-
-        {% block hero %}
-        <div class="pub-hero">
-            <span class="hero-badge"><i class="bi bi-briefcase-fill"></i>Join Our Team</span>
-            <h1>Current Opportunities</h1>
-            <p>Build a meaningful career with us. Explore open positions and apply directly online.</p>
-        </div>
-        {% endblock %}
+<!-- Navbar: logo only, login link -->
+<nav class="pub-navbar">
+    <div class="container d-flex align-items-center justify-content-between">
+        <a href="{% url 'recruitment:job_board' %}" class="logo-wrap">
+            <img src="{% static 'LOGO.png' %}" alt="Logo">
+        </a>
+        <a href="{% url 'accounts:login' %}" class="nav-link-right">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span class="d-none d-sm-inline">Staff Login</span>
+        </a>
     </div>
-</header>
+</nav>
 
+<!-- Hero -->
+{% block hero %}
+<section class="pub-hero">
+    <div class="container hero-inner">
+        <span class="hero-badge"><i class="bi bi-briefcase-fill"></i>Careers</span>
+        <h1>Join Our Team</h1>
+        <p class="hero-sub">Explore open positions and apply directly online. We're looking for passionate people to grow with us.</p>
+    </div>
+</section>
+{% endblock %}
+
+<!-- Main content -->
 <main class="pub-main">
     <div class="container">
         {% if messages %}
@@ -289,7 +276,7 @@
 </main>
 
 <footer class="pub-footer">
-    &copy; {% now "Y" %} AEF / MICEI &mdash; All rights reserved &nbsp;|&nbsp; Powered by AEF HRM
+    &copy; {% now "Y" %} AEF / MICEI &mdash; All rights reserved
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

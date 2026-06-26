@@ -1,14 +1,16 @@
 {% extends 'base_public.html' %}
 {% load i18n %}
 
-{% block title %}Application Received — MICEI Careers{% endblock %}
+{% block title %}Application Received — Careers{% endblock %}
 
 {% block hero %}
-<div class="pub-hero">
-    <span class="hero-badge"><i class="bi bi-check-circle-fill"></i>Submitted</span>
-    <h1>Application Received!</h1>
-    <p>Thank you — we'll be in touch if your profile matches our requirements.</p>
-</div>
+<section class="pub-hero">
+    <div class="container hero-inner">
+        <span class="hero-badge"><i class="bi bi-check-circle-fill"></i>Submitted</span>
+        <h1>Application Received!</h1>
+        <p class="hero-sub">Thank you — we'll be in touch if your profile matches our requirements.</p>
+    </div>
+</section>
 {% endblock %}
 
 {% block content %}
