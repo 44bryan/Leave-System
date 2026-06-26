@@ -13,7 +13,7 @@ from datetime import date
 
 from accounts.models import Department, Employee
 from contracts.models import Contract
-from leaves.models import LeaveType, LeaveBalance
+from leaves.models import LeaveBalance
 
 PASSWORD = 'DemoBoard@2026'
 
@@ -104,15 +104,12 @@ for emp in all_emps:
 print("Contracts created.")
 
 # ── Leave Balances ────────────────────────────────────────────────────────────
-leave_types = LeaveType.objects.all()
 for emp in all_emps:
-    for lt in leave_types:
-        LeaveBalance.objects.get_or_create(
-            employee=emp,
-            leave_type=lt,
-            year=2026,
-            defaults={'total_days': lt.default_days, 'used_days': 0}
-        )
+    LeaveBalance.objects.get_or_create(
+        employee=emp,
+        year=2026,
+        defaults={'total_entitlement': 18, 'carried_forward': 0}
+    )
 print("Leave balances created.")
 
 # ── Summary ───────────────────────────────────────────────────────────────────
