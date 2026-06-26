@@ -23,20 +23,32 @@
 
         /* ── Navbar ──────────────────────────────────────────────────────── */
         .pub-navbar {
-            background: #fff;
-            border-bottom: 1px solid #e5eef2;
-            padding: .9rem 0;
+            background: linear-gradient(135deg, #2db4c3 0%, #0da8c0 60%, #088395 100%);
+            padding: .75rem 0;
+            box-shadow: 0 2px 12px rgba(10,77,104,0.15);
         }
         .pub-navbar img.logo {
             height: 46px;
             width: auto;
             display: block;
+            filter: brightness(0) invert(1);
+        }
+        .pub-navbar .nav-tag {
+            background: rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.92);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            padding: .28em .85em;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.28);
         }
 
         /* ── Hero strip ──────────────────────────────────────────────────── */
         .pub-hero {
             background: linear-gradient(135deg, #0A4D68 0%, #088395 55%, #2db4c3 100%);
-            padding: 3rem 0 2.8rem;
+            padding: 2.2rem 0 2rem;
             position: relative;
             overflow: hidden;
         }
@@ -236,18 +248,19 @@
 <body>
 
 <nav class="pub-navbar">
-    <div class="container d-flex justify-content-center">
+    <div class="container d-flex align-items-center justify-content-between">
         <a href="{% url 'recruitment:job_board' %}">
             <img src="{% static 'LOGO.png' %}" alt="Logo" class="logo">
         </a>
+        <span class="nav-tag">Careers</span>
     </div>
 </nav>
 
 {% block hero %}
 <section class="pub-hero">
     <div class="container hero-inner">
-        <p class="hero-eyebrow">Careers</p>
-        <h1>Join Our Team</h1>
+        <p class="hero-eyebrow">Join Our Team</p>
+        <h1>Current Openings</h1>
         <p class="hero-sub">Explore open positions and apply directly online.</p>
     </div>
 </section>
