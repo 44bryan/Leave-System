@@ -3,10 +3,21 @@
 
 {% block title %}{{ posting.title }} — MICEI Careers{% endblock %}
 
+{% block hero %}
+<div class="pub-hero">
+    <span class="hero-badge"><i class="bi bi-briefcase-fill"></i>Job Opening</span>
+    <h1>{{ posting.title }}</h1>
+    <p>
+        {% if posting.department %}<i class="bi bi-building me-1"></i>{{ posting.department }}{% endif %}
+        {% if posting.location %}&nbsp;&nbsp;<i class="bi bi-geo-alt me-1"></i>{{ posting.location }}{% endif %}
+    </p>
+</div>
+{% endblock %}
+
 {% block content %}
-<div class="mb-3">
-    <a href="{% url 'recruitment:job_board' %}" class="text-decoration-none" style="color:#0A4D68;">
-        <i class="bi bi-arrow-left me-1"></i> Back to all openings
+<div class="mb-4">
+    <a href="{% url 'recruitment:job_board' %}" class="btn-outline-pub btn-sm" style="padding:.35rem .85rem;font-size:.82rem;">
+        <i class="bi bi-arrow-left me-1"></i>All Openings
     </a>
 </div>
 
@@ -14,60 +25,91 @@
     <div class="col-lg-8">
         <div class="card">
             <div class="card-body p-4 p-lg-5">
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    <span class="badge-type">{{ posting.get_employment_type_display }}</span>
-                    {% if posting.department %}
-                    <span class="badge-type"><i class="bi bi-building me-1"></i>{{ posting.department }}</span>
-                    {% endif %}
-                    {% if posting.location %}
-                    <span class="badge-type"><i class="bi bi-geo-alt me-1"></i>{{ posting.location }}</span>
-                    {% endif %}
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <span class="badge-type"><i class="bi bi-person-badge me-1"></i>{{ posting.get_employment_type_display }}</span>
+                    {% if posting.department %}<span class="badge-type"><i class="bi bi-building me-1"></i>{{ posting.department }}</span>{% endif %}
+                    {% if posting.location %}<span class="badge-type"><i class="bi bi-geo-alt me-1"></i>{{ posting.location }}</span>{% endif %}
                 </div>
-                <h1 style="color:#0A4D68;font-weight:700;font-size:1.7rem;">{{ posting.title }}</h1>
 
-                <hr>
-
-                <h5 class="fw-semibold mt-4 mb-2" style="color:#0A4D68;">About the Role</h5>
-                <div style="white-space:pre-wrap;line-height:1.7;">{{ posting.description }}</div>
+                <h4 class="fw-bold mb-4" style="color:#0A4D68;">About the Role</h4>
+                <div style="white-space:pre-wrap;line-height:1.8;color:#334155;font-size:.93rem;">{{ posting.description }}</div>
 
                 {% if posting.requirements %}
-                <h5 class="fw-semibold mt-4 mb-2" style="color:#0A4D68;">Requirements</h5>
-                <div style="white-space:pre-wrap;line-height:1.7;">{{ posting.requirements }}</div>
+                <h5 class="fw-bold mt-5 mb-3" style="color:#0A4D68;">Requirements</h5>
+                <div style="white-space:pre-wrap;line-height:1.8;color:#334155;font-size:.93rem;">{{ posting.requirements }}</div>
                 {% endif %}
+
+                <hr class="my-4" style="border-color:#e2e8f0;">
+                <a href="{% url 'recruitment:apply' posting.pk %}" class="btn-primary-pub">
+                    <i class="bi bi-send me-1"></i>Apply for This Position
+                </a>
             </div>
         </div>
     </div>
 
     <div class="col-lg-4">
-        <div class="card">
+        <!-- Position details card -->
+        <div class="card mb-3">
             <div class="card-body p-4">
-                <h6 class="fw-semibold mb-3" style="color:#0A4D68;">Position Details</h6>
-                <table class="table table-sm table-borderless mb-0">
-                    <tr>
-                        <td class="text-muted" style="font-size:.85rem;">Type</td>
-                        <td class="fw-semibold" style="font-size:.85rem;">{{ posting.get_employment_type_display }}</td>
-                    </tr>
+                <h6 class="fw-bold mb-3" style="color:#0A4D68;font-size:.9rem;text-transform:uppercase;letter-spacing:.04em;">Position Details</h6>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width:36px;height:36px;background:#e0f7fa;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="bi bi-person-badge" style="color:#088395;font-size:.95rem;"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0" style="font-size:.75rem;">Employment Type</p>
+                            <p class="fw-semibold mb-0" style="font-size:.88rem;">{{ posting.get_employment_type_display }}</p>
+                        </div>
+                    </div>
                     {% if posting.department %}
-                    <tr>
-                        <td class="text-muted" style="font-size:.85rem;">Department</td>
-                        <td class="fw-semibold" style="font-size:.85rem;">{{ posting.department }}</td>
-                    </tr>
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width:36px;height:36px;background:#e0f7fa;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="bi bi-building" style="color:#088395;font-size:.95rem;"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0" style="font-size:.75rem;">Department</p>
+                            <p class="fw-semibold mb-0" style="font-size:.88rem;">{{ posting.department }}</p>
+                        </div>
+                    </div>
                     {% endif %}
                     {% if posting.location %}
-                    <tr>
-                        <td class="text-muted" style="font-size:.85rem;">Location</td>
-                        <td class="fw-semibold" style="font-size:.85rem;">{{ posting.location }}</td>
-                    </tr>
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width:36px;height:36px;background:#e0f7fa;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="bi bi-geo-alt" style="color:#088395;font-size:.95rem;"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0" style="font-size:.75rem;">Location</p>
+                            <p class="fw-semibold mb-0" style="font-size:.88rem;">{{ posting.location }}</p>
+                        </div>
+                    </div>
                     {% endif %}
                     {% if posting.deadline %}
-                    <tr>
-                        <td class="text-muted" style="font-size:.85rem;">Deadline</td>
-                        <td class="fw-semibold" style="font-size:.85rem;">{{ posting.deadline|date:"d M Y" }}</td>
-                    </tr>
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width:36px;height:36px;background:#fff3cd;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="bi bi-calendar-event" style="color:#d4870a;font-size:.95rem;"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0" style="font-size:.75rem;">Application Deadline</p>
+                            <p class="fw-semibold mb-0" style="font-size:.88rem;">{{ posting.deadline|date:"d M Y" }}</p>
+                        </div>
+                    </div>
                     {% endif %}
-                </table>
-                <a href="{% url 'recruitment:apply' posting.pk %}" class="btn btn-primary-pub w-100 mt-3">
-                    <i class="bi bi-send me-1"></i> Apply Now
+                </div>
+            </div>
+        </div>
+
+        <!-- Apply CTA card -->
+        <div class="card" style="background:linear-gradient(135deg,#0A4D68,#088395);border-radius:20px;">
+            <div class="card-body p-4 text-white text-center">
+                <i class="bi bi-send-fill mb-2" style="font-size:1.8rem;opacity:.9;"></i>
+                <h6 class="fw-bold mb-1">Ready to Apply?</h6>
+                <p style="font-size:.82rem;opacity:.8;" class="mb-3">Submit your application online. It only takes a few minutes.</p>
+                <a href="{% url 'recruitment:apply' posting.pk %}"
+                   style="background:rgba(255,255,255,0.18);color:#fff;border:1.5px solid rgba(255,255,255,0.4);border-radius:12px;font-weight:700;padding:.6rem 1.5rem;text-decoration:none;display:block;transition:all .2s;font-size:.9rem;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.28)'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.18)'">
+                    <i class="bi bi-send me-1"></i>Apply Now
                 </a>
             </div>
         </div>

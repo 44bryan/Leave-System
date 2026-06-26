@@ -81,7 +81,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-semibold">{% trans "Requirements" %} <span class="text-muted fw-normal">({% trans "optional" %})</span></label>
+                        <label class="form-label fw-semibold">{% trans "Requirements" %}</label>
                         <textarea name="requirements" class="form-control" rows="5"
                                   placeholder="Qualifications, skills, experience required…">{% if posting %}{{ posting.requirements }}{% else %}{{ post.requirements|default:'' }}{% endif %}</textarea>
                     </div>

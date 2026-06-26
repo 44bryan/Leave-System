@@ -4,34 +4,32 @@
 {% block title %}Job Openings — MICEI Careers{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2 style="color:#0A4D68;font-weight:700;">Current Job Openings</h2>
-        <p class="text-muted">Explore opportunities to join our team at Magrabi ICO Cameroon Eye Institute.</p>
-    </div>
-</div>
-
 {% if postings %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <p class="text-muted mb-0" style="font-size:.9rem;">
+        <strong style="color:#0A4D68;">{{ postings|length }}</strong> open position{{ postings|length|pluralize }}
+    </p>
+</div>
 <div class="row g-3">
     {% for job in postings %}
     <div class="col-md-6 col-lg-4">
         <div class="card job-card h-100">
             <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <span class="badge-type">{{ job.get_employment_type_display }}</span>
                     {% if job.deadline %}
-                    <small class="text-muted">Closes {{ job.deadline|date:"d M Y" }}</small>
+                    <small class="text-muted" style="font-size:.75rem;"><i class="bi bi-clock me-1"></i>Closes {{ job.deadline|date:"d M Y" }}</small>
                     {% endif %}
                 </div>
-                <h5 class="fw-700 mt-2 mb-1" style="color:#0A4D68;">{{ job.title }}</h5>
+                <h5 class="fw-bold mb-1" style="color:#0A4D68;font-size:1.05rem;">{{ job.title }}</h5>
                 {% if job.department %}
-                <p class="text-muted mb-1" style="font-size:.88rem;"><i class="bi bi-building me-1"></i>{{ job.department }}</p>
+                <p class="text-muted mb-1" style="font-size:.83rem;"><i class="bi bi-building me-1 text-muted"></i>{{ job.department }}</p>
                 {% endif %}
                 {% if job.location %}
-                <p class="text-muted mb-2" style="font-size:.88rem;"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}</p>
+                <p class="text-muted mb-2" style="font-size:.83rem;"><i class="bi bi-geo-alt me-1 text-muted"></i>{{ job.location }}</p>
                 {% endif %}
-                <p class="text-secondary mb-3" style="font-size:.9rem;">{{ job.description|truncatechars:120 }}</p>
-                <a href="{% url 'recruitment:job_detail' job.pk %}" class="btn btn-primary-pub w-100">
+                <p class="mb-4" style="font-size:.88rem;color:#4a5568;line-height:1.6;">{{ job.description|truncatechars:110 }}</p>
+                <a href="{% url 'recruitment:job_detail' job.pk %}" class="btn-primary-pub w-100 text-center d-block">
                     View & Apply <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -40,10 +38,14 @@
     {% endfor %}
 </div>
 {% else %}
-<div class="text-center py-5">
-    <i class="bi bi-briefcase" style="font-size:3rem;color:#ccc;"></i>
-    <h5 class="mt-3 text-muted">No open positions at the moment</h5>
-    <p class="text-muted">Check back soon — new opportunities are added regularly.</p>
+<div class="card text-center py-5 px-3">
+    <div class="card-body">
+        <div style="width:72px;height:72px;background:#e0f7fa;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
+            <i class="bi bi-briefcase" style="font-size:2rem;color:#088395;"></i>
+        </div>
+        <h5 class="fw-bold" style="color:#0A4D68;">No open positions right now</h5>
+        <p class="text-muted mb-0" style="font-size:.9rem;">Check back soon — new opportunities are posted regularly.</p>
+    </div>
 </div>
 {% endif %}
 {% endblock %}
