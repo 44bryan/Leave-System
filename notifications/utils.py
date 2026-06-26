@@ -45,6 +45,7 @@ def notify(recipient_user, title, message, notification_type='system', url=''):
 def _send_email(user, title, message, notification_type='system', url=''):
     """Send a professional HTML email if EMAIL_NOTIFICATIONS_ENABLED=True."""
     try:
+        import html as _html
         from django.conf import settings
         if not getattr(settings, 'EMAIL_NOTIFICATIONS_ENABLED', False):
             logger.debug('EMAIL_NOTIFICATIONS_ENABLED is False — skipping email for "%s"', title)
@@ -56,7 +57,8 @@ def _send_email(user, title, message, notification_type='system', url=''):
         from django.core.mail import EmailMultiAlternatives
 
         color      = '#2db4c3'  # Dominant logo color — keeps email uniform with logo
-        first_name = user.first_name or user.username
+        first_name = _html.escape(user.first_name or user.username)
+        safe_title = _html.escape(title)
 
         site_base = getattr(settings, 'SITE_URL', '').rstrip('/')
         app_url   = (site_base + url) if (url and url.startswith('/')) else url
@@ -147,7 +149,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
                   </p>
                   <h1 style="margin:0 0 20px 0;font-size:20px;font-weight:700;
                               color:#0d1b2a;line-height:1.35;">
-                    {title}
+                    {safe_title}
                   </h1>
                   <p style="margin:0;font-size:15px;color:#374151;">
                     Dear <strong>{first_name}</strong>,
@@ -160,7 +162,7 @@ def _send_email(user, title, message, notification_type='system', url=''):
                 <td style="padding:16px 40px 0 40px;">
                   <div style="font-size:15px;color:#4a5568;line-height:1.8;
                                border-left:3px solid {color};padding-left:16px;">
-                    {message.replace(chr(10), '<br>')}
+                    {_html.escape(message).replace(chr(10), '<br>')}
                   </div>
                 </td>
               </tr>

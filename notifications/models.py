@@ -31,7 +31,7 @@ class Notification(models.Model):
     message          = models.TextField()
     notification_type = models.CharField(max_length=30, choices=TYPE_CHOICES, default='system')
     url              = models.CharField(max_length=500, blank=True, default='')
-    is_read          = models.BooleanField(default=False)
+    is_read          = models.BooleanField(default=False, db_index=True)
     created_at       = models.DateTimeField(auto_now_add=True)
 
     class Meta:

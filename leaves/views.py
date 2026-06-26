@@ -265,7 +265,10 @@ def my_requests(request):
         return redirect('dashboard:home')
 
     current_year = date.today().year
-    year_filter = int(request.GET.get('year', current_year))
+    try:
+        year_filter = int(request.GET.get('year', current_year))
+    except (ValueError, TypeError):
+        year_filter = current_year
     status_filter = request.GET.get('status', '')
 
     qs = LeaveRequest.objects.filter(
@@ -1118,7 +1121,10 @@ def employee_leave_summary(request, pk):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
 
-    year = int(request.GET.get('year', date.today().year))
+    try:
+        year = int(request.GET.get('year', date.today().year))
+    except (ValueError, TypeError):
+        year = date.today().year
     balance, _ = LeaveBalance.objects.get_or_create(
         employee=target, year=year,
         defaults={'total_entitlement': seniority_entitlement(target, year)}

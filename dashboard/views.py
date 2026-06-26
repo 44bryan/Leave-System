@@ -45,14 +45,14 @@ def _build_contract_analytics(today, year):
     from contracts.models import Contract as _Contract
     from collections import defaultdict as _dd
 
-    _all_active = list(
-        _Contract.objects.filter(status='active')
-        .select_related('employee', 'employee__user', 'employee__department')
+    _base_qs = _Contract.objects.filter(status='active').select_related(
+        'employee', 'employee__user', 'employee__department'
     )
-    _active_cdd    = [c for c in _all_active if c.contract_type == 'CDD']
-    _active_cdi    = [c for c in _all_active if c.contract_type == 'CDI']
-    _active_intern = [c for c in _all_active if c.contract_type == 'INTERN']
-    _active_wacs   = [c for c in _all_active if c.contract_type == 'WACS']
+    _active_cdd    = list(_base_qs.filter(contract_type='CDD'))
+    _active_cdi    = list(_base_qs.filter(contract_type='CDI'))
+    _active_intern = list(_base_qs.filter(contract_type='INTERN'))
+    _active_wacs   = list(_base_qs.filter(contract_type='WACS'))
+    _all_active    = _active_cdd + _active_cdi + _active_intern + _active_wacs
 
     contracts_expired_active = sorted(
         [c for c in _active_cdd if c.is_expired], key=lambda c: c.end_date
@@ -1122,7 +1122,10 @@ def leave_tracker(request):
     if not emp or (not emp.is_hr() and not emp.is_director() and not emp.is_ceo()):
         return redirect('dashboard:home')
 
-    year = int(request.GET.get('year', date.today().year))
+    try:
+        year = int(request.GET.get('year', date.today().year))
+    except (ValueError, TypeError):
+        year = date.today().year
     dept_filter = request.GET.get('dept', '')
 
     employees = Employee.objects.filter(is_active=True).select_related('user', 'department')
@@ -1160,7 +1163,10 @@ def birthday_dashboard(request):
         return redirect('dashboard:home')
 
     today = date.today()
-    selected_month = int(request.GET.get('month', today.month))
+    try:
+        selected_month = int(request.GET.get('month', today.month))
+    except (ValueError, TypeError):
+        selected_month = today.month
 
     from accounts.models import Employee as _Emp
     from datetime import datetime
@@ -1325,7 +1331,10 @@ def superuser_required_view(view_func):
 
 @superuser_required_view
 def admin_settings(request):
-    year = int(request.GET.get('year', date.today().year))
+    try:
+        year = int(request.GET.get('year', date.today().year))
+    except (ValueError, TypeError):
+        year = date.today().year
     employees = Employee.objects.filter(is_active=True).select_related('user', 'department')
     balances = []
     for emp in employees:
@@ -1518,7 +1527,10 @@ def export_leaves_excel(request):
     from reportlab.lib.units import mm
     import io
 
-    year = int(request.GET.get('year', date.today().year))
+    try:
+        year = int(request.GET.get('year', date.today().year))
+    except (ValueError, TypeError):
+        year = date.today().year
     dept_id = request.GET.get('department', '')
     emp_id = request.GET.get('employee', '')
 
@@ -2353,8 +2365,14 @@ def leave_calendar(request):
     """Monthly calendar view showing who is on approved leave each day."""
     import calendar as cal_module
     today = date.today()
-    year = int(request.GET.get('year', today.year))
-    month = int(request.GET.get('month', today.month))
+    try:
+        year = int(request.GET.get('year', today.year))
+    except (ValueError, TypeError):
+        year = today.year
+    try:
+        month = int(request.GET.get('month', today.month))
+    except (ValueError, TypeError):
+        month = today.month
 
     # Navigation
     if month == 1:

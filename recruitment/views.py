@@ -60,6 +60,10 @@ def apply(request, pk):
         email = request.POST.get('applicant_email', '').strip()
         cv    = request.FILES.get('cv_file')
 
+        import os as _os
+        _ALLOWED_CV_EXTS = {'.pdf', '.doc', '.docx'}
+        _MAX_CV_BYTES = 10 * 1024 * 1024  # 10 MB
+
         errors = []
         if not name:
             errors.append('Full name is required.')
@@ -67,6 +71,12 @@ def apply(request, pk):
             errors.append('Email address is required.')
         if not cv:
             errors.append('Please upload your CV / résumé.')
+        else:
+            ext = _os.path.splitext(cv.name)[1].lower()
+            if ext not in _ALLOWED_CV_EXTS:
+                errors.append('CV must be a PDF, DOC, or DOCX file.')
+            elif cv.size > _MAX_CV_BYTES:
+                errors.append('CV file size must not exceed 10 MB.')
 
         # Validate enabled required fields
         for field in fields:

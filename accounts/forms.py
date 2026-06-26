@@ -1,8 +1,16 @@
+import secrets
+import string
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 from .models import Employee, Department, HealthDependant
+
+
+def _generate_password():
+    """Generate a random 12-character password (letters + digits)."""
+    chars = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(chars) for _ in range(12))
 
 
 class LoginForm(AuthenticationForm):
@@ -33,13 +41,16 @@ class EmployeeCreateForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'readonly': 'readonly',
-            'style': 'background:#f8fafc;color:#6b7a8d;cursor:not-allowed;',
-            'value': 'Micei2021',
+            'id': 'id_password',
         }),
-        initial='Micei2021',
-        help_text='Default password. Employee must change it on first login.',
+        help_text='Auto-generated. Share with the employee; they must change it on first login.',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # On a fresh (unbound) form, pre-fill with a new random password
+        if not args and 'data' not in kwargs:
+            self.fields['password'].initial = _generate_password()
 
     # Contract fields (required at registration)
     CONTRACT_TYPE_CHOICES = [

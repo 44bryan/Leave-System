@@ -65,6 +65,11 @@ class Contract(models.Model):
     class Meta:
         ordering = ['-start_date', '-created_at']
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.end_date and self.start_date and self.end_date <= self.start_date:
+            raise ValidationError({'end_date': 'End date must be after the start date.'})
+
     def __str__(self):
         return (
             f"{self.get_contract_type_display()} — "
