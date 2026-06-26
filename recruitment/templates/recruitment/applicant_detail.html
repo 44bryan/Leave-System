@@ -21,7 +21,7 @@
     <!-- Left: Application details -->
     <div class="col-lg-7">
         <div class="card animate-in mb-4">
-            <div class="card-header"><i class="bi bi-person me-2"></i>{% trans "Applicant Information" %}</div>
+            <div class="card-header" style="background:#0A4D68;color:#fff;"><i class="bi bi-person me-2"></i>{% trans "Applicant Information" %}</div>
             <div class="card-body p-4">
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -69,7 +69,7 @@
 
         <!-- HR Notes -->
         <div class="card animate-in">
-            <div class="card-header"><i class="bi bi-journal-text me-2"></i>{% trans "HR Notes" %}</div>
+            <div class="card-header" style="background:#0A4D68;color:#fff;"><i class="bi bi-journal-text me-2"></i>{% trans "HR Notes" %}</div>
             <div class="card-body p-4">
                 <form method="post">
                     {% csrf_token %}
@@ -95,7 +95,7 @@
     <!-- Right: Status controls -->
     <div class="col-lg-5">
         <div class="card animate-in mb-4">
-            <div class="card-header"><i class="bi bi-arrow-right-circle me-2"></i>{% trans "Update Status" %}</div>
+            <div class="card-header" style="background:#0A4D68;color:#fff;"><i class="bi bi-arrow-right-circle me-2"></i>{% trans "Update Status" %}</div>
             <div class="card-body p-4">
                 <form method="post" id="statusForm">
                     {% csrf_token %}
