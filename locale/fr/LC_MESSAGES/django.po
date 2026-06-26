@@ -8627,8 +8627,8 @@ msgid "Application Received!"
 msgstr "Candidature Reçue !"
 
 #: recruitment/templates/recruitment/apply_success.html
-msgid "You applied for <strong style="color:#0A4D68;">%(title)s</strong>"
-msgstr "Vous avez postulé pour <strong style="color:#0A4D68;">%(title)s</strong>"
+msgid "You applied for <strong style=\"color:#0A4D68;\">%(title)s</strong>"
+msgstr "Vous avez postulé pour <strong style=\"color:#0A4D68;\">%(title)s</strong>"
 
 #: recruitment/templates/recruitment/apply_success.html
 msgid "What happens next?"
