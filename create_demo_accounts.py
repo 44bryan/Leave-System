@@ -89,17 +89,16 @@ print("Users created.")
 
 # ── Contracts ─────────────────────────────────────────────────────────────────
 all_emps = [ceo1,ceo2,dir1,dir2,hr1,hr2,mgr1,uh1,uh2,emp1,emp2]
+superuser = User.objects.filter(is_superuser=True).first()
 for emp in all_emps:
     if not emp.contracts.exists():
         Contract.objects.create(
             employee=emp,
-            contract_type='cdi',
+            contract_type='CDI',
             start_date=date(2026, 1, 1),
             end_date=None,
-            position=emp.position,
-            department=dept,
-            issued_by=User.objects.filter(is_superuser=True).first(),
             status='active',
+            created_by=superuser,
             notes='Demo / test contract for board testing.'
         )
 print("Contracts created.")
