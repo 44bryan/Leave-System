@@ -12,7 +12,7 @@ from accounts.models import Department
 from .models import (
     JobPosting, FormFieldConfig, ScoringCriterion,
     Application, ApplicationAnswer,
-    FIELD_TYPE_CHOICES, APPLICATION_STATUS_CHOICES,
+    FIELD_TYPE_TEXT, FIELD_TYPE_CHOICES, APPLICATION_STATUS_CHOICES,
 )
 
 
