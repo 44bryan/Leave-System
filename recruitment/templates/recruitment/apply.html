@@ -6,9 +6,9 @@
 {% block hero %}
 <section class="pub-hero">
     <div class="container hero-inner">
-        <span class="hero-badge"><i class="bi bi-send-fill"></i>Apply Now</span>
+        <p class="hero-eyebrow">Apply Now</p>
         <h1>{{ posting.title }}</h1>
-        <p class="hero-sub">{% if posting.department %}{{ posting.department }} &nbsp;&middot;&nbsp; {% endif %}Fill in the form below and submit your application.</p>
+        <p class="hero-sub">{% if posting.department %}{{ posting.department }} &nbsp;&middot;&nbsp; {% endif %}Fill in the form below to submit your application.</p>
     </div>
 </section>
 {% endblock %}

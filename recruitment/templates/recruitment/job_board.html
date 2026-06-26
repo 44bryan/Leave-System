@@ -5,47 +5,35 @@
 
 {% block content %}
 {% if postings %}
-<div class="d-flex align-items-center justify-content-between mb-4">
-    <p class="text-muted mb-0" style="font-size:.9rem;">
-        <strong style="color:#0A4D68;">{{ postings|length }}</strong> open position{{ postings|length|pluralize }}
-    </p>
-</div>
-<div class="row g-3">
+<p class="section-label">{{ postings|length }} open position{{ postings|length|pluralize }}</p>
+<div class="d-flex flex-column gap-3">
     {% for job in postings %}
-    <div class="col-md-6 col-lg-4">
-        <div class="card job-card h-100">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <span class="badge-type">{{ job.get_employment_type_display }}</span>
-                    {% if job.deadline %}
-                    <small class="text-muted" style="font-size:.75rem;"><i class="bi bi-clock me-1"></i>Closes {{ job.deadline|date:"d M Y" }}</small>
-                    {% endif %}
-                </div>
-                <h5 class="fw-bold mb-1" style="color:#0A4D68;font-size:1.05rem;">{{ job.title }}</h5>
-                {% if job.department %}
-                <p class="text-muted mb-1" style="font-size:.83rem;"><i class="bi bi-building me-1 text-muted"></i>{{ job.department }}</p>
-                {% endif %}
-                {% if job.location %}
-                <p class="text-muted mb-2" style="font-size:.83rem;"><i class="bi bi-geo-alt me-1 text-muted"></i>{{ job.location }}</p>
-                {% endif %}
-                <p class="mb-4" style="font-size:.88rem;color:#4a5568;line-height:1.6;">{{ job.description|truncatechars:110 }}</p>
-                <a href="{% url 'recruitment:job_detail' job.pk %}" class="btn-primary-pub w-100 text-center d-block">
-                    View & Apply <i class="bi bi-arrow-right ms-1"></i>
-                </a>
-            </div>
+    <a href="{% url 'recruitment:job_detail' job.pk %}" class="job-card">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+            <span class="tag">{{ job.get_employment_type_display }}</span>
+            {% if job.deadline %}
+            <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>Closes {{ job.deadline|date:"d M Y" }}</span>
+            {% endif %}
         </div>
-    </div>
+        <p class="job-title">{{ job.title }}</p>
+        <div class="job-meta">
+            {% if job.department %}<span><i class="bi bi-building"></i>{{ job.department }}</span>{% endif %}
+            {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
+        </div>
+        <p class="job-excerpt mb-0">{{ job.description|truncatechars:130 }}</p>
+        <div class="mt-3">
+            <span class="btn-primary-pub btn-sm" style="padding:.4rem 1.1rem;font-size:.82rem;">View & Apply <i class="bi bi-arrow-right ms-1"></i></span>
+        </div>
+    </a>
     {% endfor %}
 </div>
 {% else %}
-<div class="card text-center py-5 px-3">
-    <div class="card-body">
-        <div style="width:72px;height:72px;background:#e0f7fa;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
-            <i class="bi bi-briefcase" style="font-size:2rem;color:#088395;"></i>
-        </div>
-        <h5 class="fw-bold" style="color:#0A4D68;">No open positions right now</h5>
-        <p class="text-muted mb-0" style="font-size:.9rem;">Check back soon — new opportunities are posted regularly.</p>
+<div class="text-center py-5">
+    <div style="width:64px;height:64px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
+        <i class="bi bi-briefcase" style="font-size:1.7rem;color:#088395;"></i>
     </div>
+    <h5 class="fw-bold" style="color:#0A4D68;">No open positions right now</h5>
+    <p class="text-muted mb-0" style="font-size:.9rem;">Check back soon — new opportunities are posted regularly.</p>
 </div>
 {% endif %}
 {% endblock %}
