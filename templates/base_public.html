@@ -5,26 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Careers — MICEI{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute, Cameroon's leading eye care hospital.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute.{% endblock %}">
     <link rel="icon" type="image/png" href="{% static 'logo.jpg' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-
         :root {
-            --primary:   #0A4D68;
-            --primary-d: #083d54;
-            --accent:    #088395;
-            --accent-l:  #2db4c3;
-            --bg:        #f0f6f9;
-            --card-bg:   #ffffff;
-            --border:    #e0eaf0;
-            --text:      #1a2b3c;
-            --muted:     #6b7a8d;
+            --primary:  #0A4D68;
+            --accent:   #2db4c3;
+            --bg:       #f0f6f9;
+            --border:   #e0eaf0;
+            --text:     #1a2b3c;
+            --muted:    #6b7a8d;
         }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg);
@@ -36,60 +31,31 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Navbar: WHITE background so logo is visible ───────────────────── */
+        /* ── Navbar: white, logo only ───────────────────────────────────────── */
         .pub-navbar {
-            background: #ffffff;
-            padding: .6rem 0;
-            box-shadow: 0 2px 10px rgba(10,77,104,.10);
+            background: #fff;
+            padding: .65rem 0;
+            box-shadow: 0 1px 0 var(--border), 0 2px 12px rgba(10,77,104,.07);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
-        .pub-navbar img.logo {
-            height: 44px;
-            width: auto;
-            display: block;
-            /* no color filter — logo is shown as-is on white */
-        }
-        .pub-navbar .brand-name {
-            font-weight: 800;
-            font-size: .92rem;
-            color: var(--primary);
-            line-height: 1.2;
-        }
-        .pub-navbar .brand-sub {
-            font-size: .68rem;
-            color: var(--muted);
-            font-weight: 500;
-        }
+        .pub-navbar img.logo { height: 46px; width: auto; display: block; }
         .nav-careers-pill {
-            background: var(--accent-l);
+            background: var(--accent);
             color: #fff;
             font-size: .72rem;
             font-weight: 700;
-            letter-spacing: .07em;
+            letter-spacing: .06em;
             text-transform: uppercase;
             padding: .32em 1em;
             border-radius: 20px;
         }
 
-        /* ── Light-blue band below navbar (accent strip) ───────────────────── */
-        .pub-accent-strip {
-            background: #2db4c3;
-            padding: .45rem 0;
-        }
-        .pub-accent-strip .strip-text {
-            color: rgba(255,255,255,.92);
-            font-size: .75rem;
-            font-weight: 600;
-            letter-spacing: .04em;
-        }
-        .pub-accent-strip .strip-text i { opacity: .8; }
-
         /* ── Hero ───────────────────────────────────────────────────────────── */
         .pub-hero {
-            background: linear-gradient(135deg, #0A4D68 0%, #088395 55%, #2db4c3 100%);
-            padding: 2.5rem 0 2.2rem;
+            background: linear-gradient(135deg, #0A4D68 0%, #088395 60%, #2db4c3 100%);
+            padding: 3rem 0 2.8rem;
             position: relative;
             overflow: hidden;
         }
@@ -97,7 +63,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M32 30V26h-2v4h-4v2h4v4h2v-4h4v-2h-4zM32 2V0h-2v2h-4v2h4v4h2V4h4V2h-4zM2 30v-4H0v4h-4v2h4v4h2v-4h4v-2H2zM2 2V0H0v2h-4v2h4v4h2V4h4V2H2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23fff' fill-opacity='0.04'%3E%3Cpath d='M30 28v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM30 2V0h-2v2h-4v2h4v4h2V4h4V2h-4z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             pointer-events: none;
         }
         .pub-hero .hero-inner { position: relative; z-index: 1; }
@@ -106,47 +72,47 @@
             font-weight: 700;
             letter-spacing: .12em;
             text-transform: uppercase;
-            color: rgba(255,255,255,.6);
+            color: rgba(255,255,255,.55);
             margin-bottom: .5rem;
         }
         .pub-hero h1 {
             color: #fff;
             font-weight: 800;
-            font-size: clamp(1.55rem, 3.2vw, 2.1rem);
-            line-height: 1.22;
-            margin-bottom: .6rem;
+            font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+            line-height: 1.2;
+            margin-bottom: .7rem;
         }
         .hero-sub {
-            color: rgba(255,255,255,.78);
+            color: rgba(255,255,255,.75);
             font-size: .9rem;
-            line-height: 1.65;
-            max-width: 480px;
+            line-height: 1.7;
+            max-width: 460px;
             margin-bottom: 0;
         }
 
-        /* ── Values strip (job board only) ──────────────────────────────────── */
+        /* ── Values strip ───────────────────────────────────────────────────── */
         .values-strip {
             background: #fff;
             border-bottom: 1px solid var(--border);
-            padding: 1.3rem 0;
+            padding: 1.2rem 0;
         }
         .value-card { text-align: center; padding: .6rem .8rem; }
-        .value-icon { font-size: 1.5rem; color: var(--accent-l); display: block; margin-bottom: .35rem; }
-        .value-label { font-weight: 700; font-size: .8rem; color: var(--primary); margin-bottom: .1rem; }
-        .value-sub { font-size: .73rem; color: var(--muted); margin-bottom: 0; line-height: 1.4; }
+        .value-icon { font-size: 1.4rem; color: var(--accent); display: block; margin-bottom: .3rem; }
+        .value-label { font-weight: 700; font-size: .78rem; color: var(--primary); margin-bottom: .1rem; }
+        .value-sub { font-size: .72rem; color: var(--muted); margin-bottom: 0; line-height: 1.4; }
 
-        /* ── Main content ───────────────────────────────────────────────────── */
+        /* ── Main ───────────────────────────────────────────────────────────── */
         .pub-main { flex: 1; padding: 2.2rem 0 4rem; }
 
         /* ── Cards ──────────────────────────────────────────────────────────── */
         .card {
-            background: var(--card-bg);
+            background: #fff;
             border: 1px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 2px 14px rgba(10,77,104,.06);
+            box-shadow: 0 2px 12px rgba(10,77,104,.05);
         }
         .card-header-pub {
-            background: #2db4c3;
+            background: var(--accent);
             color: #fff;
             border-radius: 16px 16px 0 0 !important;
             padding: 1rem 1.4rem;
@@ -154,7 +120,7 @@
 
         /* ── Job cards ──────────────────────────────────────────────────────── */
         .job-card {
-            background: var(--card-bg);
+            background: #fff;
             border: 1.5px solid var(--border);
             border-radius: 14px;
             padding: 1.4rem 1.6rem;
@@ -166,72 +132,45 @@
             height: 100%;
         }
         .job-card:hover {
-            border-color: var(--accent-l);
-            box-shadow: 0 8px 28px rgba(10,77,104,.11);
+            border-color: var(--accent);
+            box-shadow: 0 8px 26px rgba(10,77,104,.1);
             transform: translateY(-3px);
         }
-        .job-title {
-            font-size: 1.02rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: .3rem;
-        }
+        .job-title { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: .25rem; }
         .job-meta {
-            font-size: .8rem;
+            font-size: .79rem;
             color: var(--muted);
             display: flex;
             flex-wrap: wrap;
-            gap: .55rem;
-            margin-bottom: .75rem;
+            gap: .5rem;
+            margin-bottom: .7rem;
         }
         .job-meta span { display: flex; align-items: center; gap: 4px; }
-        .job-excerpt {
-            font-size: .85rem;
-            color: #4a5568;
-            line-height: 1.6;
-            flex: 1;
-        }
+        .job-excerpt { font-size: .84rem; color: #4a5568; line-height: 1.6; flex: 1; }
         .job-card-footer {
-            margin-top: 1rem;
-            padding-top: .85rem;
+            margin-top: .9rem;
+            padding-top: .8rem;
             border-top: 1px solid #eef2f7;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .apply-link {
-            font-size: .82rem;
-            font-weight: 700;
-            color: var(--accent-l);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .apply-link { font-size: .81rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 4px; }
         .apply-link i { transition: transform .18s; }
         .job-card:hover .apply-link i { transform: translateX(4px); }
 
-        /* ── Tags / badges ──────────────────────────────────────────────────── */
+        /* ── Tags ───────────────────────────────────────────────────────────── */
         .tag {
             display: inline-block;
             background: #e8f6f9;
-            color: var(--accent);
+            color: #088395;
             font-weight: 600;
-            font-size: .7rem;
-            padding: .25em .75em;
+            font-size: .69rem;
+            padding: .22em .7em;
             border-radius: 20px;
         }
         .tag-deadline { background: #fff8e1; color: #b45309; }
-        .badge-type {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: #e8f6f9;
-            color: var(--accent);
-            font-size: .75rem;
-            font-weight: 600;
-            padding: .28em .8em;
-            border-radius: 20px;
-        }
+        .badge-type { display: inline-flex; align-items: center; gap: 4px; background: #e8f6f9; color: #088395; font-size: .75rem; font-weight: 600; padding: .28em .8em; border-radius: 20px; }
 
         /* ── Filter bar ─────────────────────────────────────────────────────── */
         .filter-bar {
@@ -240,43 +179,25 @@
             border-radius: 14px;
             padding: 1.1rem 1.4rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 1px 8px rgba(10,77,104,.05);
+            box-shadow: 0 1px 6px rgba(10,77,104,.04);
         }
         .search-wrap { position: relative; }
-        .search-wrap .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--muted);
-            font-size: .9rem;
-            pointer-events: none;
-        }
+        .search-wrap .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .88rem; pointer-events: none; }
         .search-wrap .form-control { padding-left: 36px; }
         .dept-pill {
             background: #f0f6f9;
             color: var(--muted);
             border: 1.5px solid var(--border);
             border-radius: 20px;
-            font-size: .76rem;
+            font-size: .75rem;
             font-weight: 600;
-            padding: .3em .85em;
+            padding: .28em .8em;
             cursor: pointer;
             transition: all .16s;
             white-space: nowrap;
         }
-        .dept-pill:hover, .dept-pill.active {
-            background: var(--accent-l);
-            color: #fff;
-            border-color: var(--accent-l);
-        }
-        .dept-count {
-            background: rgba(255,255,255,.25);
-            border-radius: 10px;
-            font-size: .68rem;
-            padding: .1em .45em;
-            margin-left: 3px;
-        }
+        .dept-pill:hover, .dept-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .dept-count { background: rgba(255,255,255,.25); border-radius: 10px; font-size: .67rem; padding: .08em .4em; margin-left: 3px; }
         .dept-pill:not(.active) .dept-count { background: #dde8ef; color: var(--muted); }
 
         /* ── Buttons ────────────────────────────────────────────────────────── */
@@ -288,17 +209,13 @@
             font-weight: 700;
             padding: .62rem 1.5rem;
             font-size: .88rem;
-            box-shadow: 0 3px 14px rgba(10,77,104,.22);
+            box-shadow: 0 3px 12px rgba(10,77,104,.2);
             text-decoration: none !important;
             display: inline-block;
-            transition: all .22s;
+            transition: all .2s;
             cursor: pointer;
         }
-        .btn-primary-pub:hover {
-            background: var(--primary-d);
-            transform: translateY(-1px);
-            box-shadow: 0 7px 22px rgba(10,77,104,.28);
-        }
+        .btn-primary-pub:hover { background: #083d54; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10,77,104,.26); }
         .btn-outline-pub {
             background: transparent;
             color: var(--primary);
@@ -324,35 +241,14 @@
             transition: border-color .18s, box-shadow .18s;
             background: #fff;
         }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--accent-l);
-            box-shadow: 0 0 0 3px rgba(45,180,195,.12);
-            outline: none;
-        }
+        .form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,180,195,.11); outline: none; }
         .form-control::placeholder { color: #a0aec0; }
         .form-label { font-weight: 600; font-size: .82rem; color: var(--text); margin-bottom: 5px; }
 
-        /* ── Section label ──────────────────────────────────────────────────── */
-        .section-label {
-            font-size: .7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: var(--muted);
-        }
-
-        /* ── Detail icons row ───────────────────────────────────────────────── */
-        .detail-icon-box {
-            width: 36px; height: 36px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-
-        /* ── Alerts ─────────────────────────────────────────────────────────── */
+        /* ── Misc ───────────────────────────────────────────────────────────── */
+        .section-label { font-size: .69rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+        .detail-icon-box { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .alert { border-radius: 10px; border: none; font-size: .88rem; }
-
-        /* ── Drop zone ──────────────────────────────────────────────────────── */
         .drop-zone {
             border: 2px dashed var(--border);
             border-radius: 12px;
@@ -363,70 +259,44 @@
             cursor: pointer;
             position: relative;
         }
-        .drop-zone.dragover { border-color: var(--accent-l); background: #e8f6f9; }
-        .drop-zone input[type=file] {
-            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-        }
+        .drop-zone.dragover { border-color: var(--accent); background: #e8f6f9; }
+        .drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
         .drop-zone-label { font-size: .85rem; color: var(--muted); margin: 0; }
-        .drop-zone-label strong { color: var(--accent-l); }
+        .drop-zone-label strong { color: var(--accent); }
         .drop-file-name { font-size: .82rem; color: var(--primary); font-weight: 600; margin-top: .5rem; display: none; }
 
         /* ── Footer ─────────────────────────────────────────────────────────── */
         .pub-footer {
             background: var(--primary);
-            border-top: none;
-            padding: 1.8rem 0 1.2rem;
-            color: rgba(255,255,255,.65);
-            font-size: .78rem;
+            padding: 1.4rem 0 1rem;
+            color: rgba(255,255,255,.55);
+            font-size: .76rem;
+            text-align: center;
         }
-        .pub-footer .footer-brand { color: #fff; font-weight: 700; font-size: .95rem; margin-bottom: .25rem; }
-        .pub-footer .footer-tagline { color: rgba(255,255,255,.55); font-size: .75rem; font-style: italic; }
-        .pub-footer a { color: rgba(255,255,255,.65); text-decoration: none; }
+        .pub-footer a { color: rgba(255,255,255,.55); text-decoration: none; }
         .pub-footer a:hover { color: #fff; }
-        .pub-footer .footer-divider { border-color: rgba(255,255,255,.12); }
 
-        /* ── Responsive ─────────────────────────────────────────────────────── */
         @media (max-width: 576px) {
-            .pub-hero { padding: 2rem 0 1.8rem; }
-            .pub-hero h1 { font-size: 1.4rem; }
-            .pub-main { padding: 1.4rem 0 3rem; }
+            .pub-hero { padding: 2.2rem 0 2rem; }
+            .pub-hero h1 { font-size: 1.5rem; }
+            .pub-main { padding: 1.5rem 0 3rem; }
             .job-card { padding: 1.1rem 1.2rem; }
-            .filter-bar { padding: .9rem 1rem; }
         }
-
         {% block extra_style %}{% endblock %}
     </style>
 </head>
 <body>
 
-<!-- ── Navbar: white bar with logo ──────────────────────────────────────── -->
+<!-- Navbar: logo + Careers pill only -->
 <nav class="pub-navbar">
     <div class="container d-flex align-items-center justify-content-between">
-        <a href="{% url 'recruitment:job_board' %}" class="d-flex align-items-center gap-2 text-decoration-none">
-            <img src="{% static 'LOGO.png' %}" alt="MICEI Logo" class="logo">
-            <div>
-                <div class="brand-name">MICEI</div>
-                <div class="brand-sub">Magrabi ICO Cameroon Eye Institute</div>
-            </div>
+        <a href="{% url 'recruitment:job_board' %}">
+            <img src="{% static 'LOGO.png' %}" alt="MICEI" class="logo">
         </a>
         <span class="nav-careers-pill">Careers</span>
     </div>
 </nav>
 
-<!-- ── Light-blue accent strip below navbar ─────────────────────────────── -->
-<div class="pub-accent-strip">
-    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <span class="strip-text"><i class="bi bi-geo-alt-fill me-1"></i>Obak Village, Yaoundé — Cameroon</span>
-        <span class="strip-text d-none d-md-inline">
-            <i class="bi bi-telephone-fill me-1"></i>+237 679 993 789
-            &nbsp;&nbsp;
-            <i class="bi bi-envelope-fill me-1"></i>contact@micei.org
-        </span>
-        <span class="strip-text"><i class="bi bi-eye-fill me-1"></i>Promoting Sight, Improving Life</span>
-    </div>
-</div>
-
-<!-- Hero (overridable per page) -->
 {% block hero %}
 <section class="pub-hero">
     <div class="container hero-inner">
@@ -437,10 +307,8 @@
 </section>
 {% endblock %}
 
-<!-- Optional strip below hero -->
 {% block after_hero %}{% endblock %}
 
-<!-- Main content -->
 <main class="pub-main">
     <div class="container">
         {% if messages %}
@@ -457,38 +325,12 @@
     </div>
 </main>
 
-<!-- Footer -->
 <footer class="pub-footer">
     <div class="container">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <p class="footer-brand">MICEI</p>
-                <p class="footer-tagline">"Promoting Sight, Improving Life"</p>
-                <p class="mt-2" style="font-size:.75rem;">
-                    Magrabi ICO Cameroon Eye Institute is a not-for-profit academic medical center delivering world-class subspecialty eye care across Central Africa.
-                </p>
-            </div>
-            <div class="col-md-4">
-                <p class="fw-bold mb-2" style="color:rgba(255,255,255,.8);font-size:.8rem;">Quick Links</p>
-                <div class="d-flex flex-column gap-1">
-                    <a href="{% url 'recruitment:job_board' %}"><i class="bi bi-briefcase me-1"></i>All Open Positions</a>
-                    <a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-globe me-1"></i>Hospital Website</a>
-                    <a href="mailto:contact@micei.org"><i class="bi bi-envelope me-1"></i>contact@micei.org</a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <p class="fw-bold mb-2" style="color:rgba(255,255,255,.8);font-size:.8rem;">Contact Us</p>
-                <div class="d-flex flex-column gap-1">
-                    <span><i class="bi bi-geo-alt me-1"></i>Obak Village, Road to Okola, Yaoundé</span>
-                    <span><i class="bi bi-telephone me-1"></i>+237 679 993 789</span>
-                    <span><i class="bi bi-telephone me-1"></i>+237 679 992 543</span>
-                </div>
-            </div>
-        </div>
-        <hr class="footer-divider mt-4">
-        <p class="text-center mb-0" style="font-size:.72rem;">
-            &copy; {% now "Y" %} Africa Eye Foundation / Magrabi ICO Cameroon Eye Institute — All rights reserved
-        </p>
+        &copy; {% now "Y" %} Magrabi ICO Cameroon Eye Institute &mdash;
+        <a href="https://www.micei.org" target="_blank" rel="noopener">micei.org</a>
+        &nbsp;&middot;&nbsp;
+        <a href="mailto:contact@micei.org">contact@micei.org</a>
     </div>
 </footer>
 
