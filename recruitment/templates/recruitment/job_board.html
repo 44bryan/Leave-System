@@ -6,6 +6,31 @@
 
 {% block extra_style %}
 #noResults { display: none; }
+.job-card { border-left: 3px solid var(--accent); }
+.job-card:hover { border-left-color: var(--primary); }
+.posted-ago { font-size: .72rem; color: var(--muted); }
+.cta-banner {
+    background: linear-gradient(135deg, #0A4D68 0%, #088395 100%);
+    border-radius: 16px;
+    padding: 2.4rem 2rem;
+    text-align: center;
+    color: #fff;
+    margin-top: 3rem;
+}
+.cta-banner h4 { font-weight: 800; margin-bottom: .5rem; }
+.cta-banner p { color: rgba(255,255,255,.75); font-size: .88rem; margin-bottom: 1.2rem; }
+.btn-cta-white {
+    display: inline-block;
+    background: #fff;
+    color: #0A4D68;
+    font-weight: 700;
+    font-size: .88rem;
+    padding: .6rem 1.6rem;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all .2s;
+}
+.btn-cta-white:hover { background: #e8f6f9; color: #0A4D68; transform: translateY(-1px); }
 {% endblock %}
 
 {% block hero %}
@@ -17,6 +42,17 @@
             Join Cameroon's leading subspecialty eye care hospital. We're looking for passionate
             professionals dedicated to improving vision and transforming lives across Central Africa.
         </p>
+
+        <!-- Search bar embedded in hero -->
+        <div class="mt-4" style="max-width:480px;">
+            <div style="position:relative;">
+                <i class="bi bi-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#0A4D68;font-size:.9rem;z-index:1;pointer-events:none;"></i>
+                <input type="text" id="jobSearch" class="form-control"
+                       style="padding-left:42px;border-radius:12px;border:none;height:46px;font-size:.9rem;box-shadow:0 4px 24px rgba(0,0,0,.18);"
+                       placeholder="Search positions, departments…" oninput="filterJobs()">
+            </div>
+        </div>
+
         {% if postings %}
         <div class="mt-3">
             <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.25);border-radius:20px;font-size:.79rem;font-weight:600;padding:.32em 1em;">
@@ -69,28 +105,23 @@
 {% block content %}
 {% if postings %}
 
-<div class="filter-bar">
-    <div class="d-flex gap-3 align-items-center flex-wrap">
-        <div class="search-wrap flex-grow-1" style="min-width:200px;">
-            <i class="bi bi-search search-icon"></i>
-            <input type="text" id="jobSearch" class="form-control"
-                   placeholder="Search positions…" oninput="filterJobs()">
-        </div>
-        <span id="jobCount" class="section-label mb-0">
-            {{ postings|length }} position{{ postings|length|pluralize }}
-        </span>
-    </div>
-    {% if departments %}
-    <div class="d-flex gap-2 flex-wrap mt-3">
-        <button class="dept-pill active" data-dept="all" onclick="setDept(this)">All</button>
-        {% for dept in departments %}
-        <button class="dept-pill" data-dept="{{ dept.name|lower }}" onclick="setDept(this)">
-            {{ dept.name }} <span class="dept-count">{{ dept.count }}</span>
-        </button>
-        {% endfor %}
-    </div>
-    {% endif %}
+<!-- Department filter pills -->
+{% if departments %}
+<div class="d-flex gap-2 flex-wrap align-items-center mb-4">
+    <span class="section-label me-1">Filter:</span>
+    <button class="dept-pill active" data-dept="all" onclick="setDept(this)">All</button>
+    {% for dept in departments %}
+    <button class="dept-pill" data-dept="{{ dept.name|lower }}" onclick="setDept(this)">
+        {{ dept.name }} <span class="dept-count">{{ dept.count }}</span>
+    </button>
+    {% endfor %}
+    <span id="jobCount" class="section-label ms-auto mb-0">{{ postings|length }} position{{ postings|length|pluralize }}</span>
 </div>
+{% else %}
+<div class="d-flex justify-content-end mb-3">
+    <span id="jobCount" class="section-label">{{ postings|length }} position{{ postings|length|pluralize }}</span>
+</div>
+{% endif %}
 
 <div class="row g-3" id="jobGrid">
     {% for job in postings %}
@@ -102,7 +133,7 @@
             <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
                 <span class="tag">{{ job.get_employment_type_display }}</span>
                 {% if job.deadline %}
-                <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>{{ job.deadline|date:"d M Y" }}</span>
+                <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>Deadline {{ job.deadline|date:"d M Y" }}</span>
                 {% endif %}
             </div>
             <p class="job-title mb-1">{{ job.title }}</p>
@@ -110,9 +141,10 @@
                 {% if job.department %}<span><i class="bi bi-building"></i>{{ job.department }}</span>{% endif %}
                 {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
             </div>
-            <p class="job-excerpt">{{ job.description|truncatechars:110 }}</p>
+            <p class="job-excerpt">{{ job.description|truncatechars:120 }}</p>
             <div class="job-card-footer">
-                <span class="apply-link">View & Apply <i class="bi bi-arrow-right"></i></span>
+                <span class="posted-ago"><i class="bi bi-calendar3 me-1"></i>Posted {{ job.created_at|timesince }} ago</span>
+                <span class="apply-link">View &amp; Apply <i class="bi bi-arrow-right"></i></span>
             </div>
         </a>
     </div>
@@ -130,6 +162,15 @@
     </button>
 </div>
 
+<!-- Bottom CTA -->
+<div class="cta-banner">
+    <h4>Didn't find the right role?</h4>
+    <p>Send us your CV and we'll reach out when a matching opportunity opens up.</p>
+    <a href="mailto:hr@micei.org" class="btn-cta-white">
+        <i class="bi bi-envelope me-2"></i>Send Open Application
+    </a>
+</div>
+
 {% else %}
 <div class="text-center py-5">
     <div style="width:68px;height:68px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
@@ -138,7 +179,7 @@
     <h5 class="fw-bold mb-1" style="color:#0A4D68;">No open positions at the moment</h5>
     <p class="text-muted mb-1" style="font-size:.87rem;">Check back soon — new opportunities are posted regularly.</p>
     <p class="text-muted" style="font-size:.82rem;">
-        You can also send your CV to <a href="mailto:contact@micei.org" style="color:#0A4D68;font-weight:600;">contact@micei.org</a>
+        You can also send your CV to <a href="mailto:hr@micei.org" style="color:#0A4D68;font-weight:600;">hr@micei.org</a>
     </p>
 </div>
 {% endif %}
@@ -156,7 +197,8 @@ function filterJobs() {
         c.style.display = ok ? '' : 'none';
         if (ok) visible++;
     });
-    document.getElementById('jobCount').textContent = visible + ' position' + (visible !== 1 ? 's' : '');
+    var cnt = document.getElementById('jobCount');
+    if (cnt) cnt.textContent = visible + ' position' + (visible !== 1 ? 's' : '');
     var nr = document.getElementById('noResults');
     if (nr) nr.style.display = visible === 0 ? 'block' : 'none';
 }

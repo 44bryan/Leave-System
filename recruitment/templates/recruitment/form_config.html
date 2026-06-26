@@ -54,8 +54,12 @@
                                         <small class="text-muted" style="font-size:.72rem;">{{ field.field_name }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-light text-dark" style="font-size:.72rem;">{{ field.get_field_type_display }}</span>
-                                        {% if field.is_custom %}<span class="badge bg-info text-white ms-1" style="font-size:.7rem;">custom</span>{% endif %}
+                                        <select name="type_{{ field.pk }}" class="form-select form-select-sm" style="min-width:140px;font-size:.78rem;">
+                                            {% for val, label in FIELD_TYPE_CHOICES %}
+                                            <option value="{{ val }}" {% if field.field_type == val %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if field.is_custom %}<span class="badge bg-info text-white mt-1 d-block" style="font-size:.67rem;width:fit-content;">custom</span>{% endif %}
                                     </td>
                                     <td class="text-center">
                                         <input type="checkbox" name="enabled_{{ field.pk }}" class="form-check-input"

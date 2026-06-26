@@ -115,17 +115,19 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">{% trans "Which field to check?" %} <span class="text-danger">*</span></label>
-                        <select name="field_name" class="form-select">
+                        <select name="field_name" class="form-select" id="scoringField" onchange="onFieldChange()">
                             <option value="">— {% trans "Select a field" %} —</option>
                             {% for field in fields %}
-                            <option value="{{ field.field_name }}">{{ field.label }}</option>
+                            <option value="{{ field.field_name }}"
+                                    data-type="{{ field.field_type }}"
+                                    data-options="{{ field.options }}">{{ field.label }}</option>
                             {% endfor %}
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">{% trans "Condition" %} <span class="text-danger">*</span></label>
-                        <select name="condition" class="form-select" id="scoringCond">
+                        <select name="condition" class="form-select" id="scoringCond" onchange="onCondChange()">
                             {% for val, label in COND_CHOICES %}
                             <option value="{{ val }}">{{ label }}</option>
                             {% endfor %}
@@ -134,8 +136,12 @@
 
                     <div class="mb-3" id="scoringValueDiv">
                         <label class="form-label fw-semibold">{% trans "Value to match" %}</label>
-                        <input type="text" name="value" class="form-control"
+                        <!-- Switched by JS: text input or dropdown based on field type -->
+                        <input type="text" name="value" id="scoringValueText" class="form-control"
                                placeholder="e.g. Master's Degree  or  5">
+                        <select name="value" id="scoringValueSelect" class="form-select" style="display:none;">
+                            <option value="">— choose —</option>
+                        </select>
                         <div class="form-text">{% trans "Not needed for Yes / No conditions." %}</div>
                     </div>
 
@@ -155,15 +161,51 @@
 </div>
 
 <script>
-(function(){
-    var cond = document.getElementById('scoringCond');
-    var valDiv = document.getElementById('scoringValueDiv');
-    function toggle(){
-        var v = cond.value;
-        valDiv.style.display = (v === 'yes' || v === 'no') ? 'none' : '';
+function onFieldChange() {
+    var sel = document.getElementById('scoringField');
+    var opt = sel.options[sel.selectedIndex];
+    var ftype   = opt ? (opt.dataset.type   || '') : '';
+    var fopts   = opt ? (opt.dataset.options || '') : '';
+    var txtEl   = document.getElementById('scoringValueText');
+    var selEl   = document.getElementById('scoringValueSelect');
+
+    if (ftype === 'select' && fopts) {
+        // Build dropdown from field options
+        selEl.innerHTML = '<option value="">— choose —</option>';
+        fopts.split(',').forEach(function(o) {
+            o = o.trim();
+            if (o) {
+                var op = document.createElement('option');
+                op.value = o; op.textContent = o;
+                selEl.appendChild(op);
+            }
+        });
+        txtEl.style.display  = 'none';
+        txtEl.disabled       = true;
+        selEl.style.display  = '';
+        selEl.disabled       = false;
+    } else if (ftype === 'yesno') {
+        selEl.innerHTML = '<option value="">— choose —</option><option value="yes">Yes</option><option value="no">No</option>';
+        txtEl.style.display  = 'none';
+        txtEl.disabled       = true;
+        selEl.style.display  = '';
+        selEl.disabled       = false;
+    } else {
+        txtEl.style.display  = '';
+        txtEl.disabled       = false;
+        selEl.style.display  = 'none';
+        selEl.disabled       = true;
     }
-    cond.addEventListener('change', toggle);
-    toggle();
-})();
+    onCondChange();
+}
+
+function onCondChange() {
+    var cond   = document.getElementById('scoringCond').value;
+    var valDiv = document.getElementById('scoringValueDiv');
+    valDiv.style.display = (cond === 'yes' || cond === 'no') ? 'none' : '';
+}
+
+onFieldChange();
+onCondChange();
 </script>
 {% endblock %}

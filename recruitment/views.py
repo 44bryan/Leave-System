@@ -264,14 +264,16 @@ def form_config(request, pk):
         action = request.POST.get('action', '')
 
         if action == 'save_fields':
+            valid_types = [c[0] for c in FIELD_TYPE_CHOICES]
             fields = posting.form_fields.all()
             for field in fields:
-                enabled  = f'enabled_{field.pk}' in request.POST
-                required = f'required_{field.pk}' in request.POST
-                label    = request.POST.get(f'label_{field.pk}', field.label).strip() or field.label
-                order    = request.POST.get(f'order_{field.pk}', str(field.field_order))
-                ph       = request.POST.get(f'placeholder_{field.pk}', '').strip()
-                options  = request.POST.get(f'options_{field.pk}', field.options).strip()
+                enabled   = f'enabled_{field.pk}' in request.POST
+                required  = f'required_{field.pk}' in request.POST
+                label     = request.POST.get(f'label_{field.pk}', field.label).strip() or field.label
+                order     = request.POST.get(f'order_{field.pk}', str(field.field_order))
+                ph        = request.POST.get(f'placeholder_{field.pk}', '').strip()
+                options   = request.POST.get(f'options_{field.pk}', field.options).strip()
+                new_type  = request.POST.get(f'type_{field.pk}', field.field_type)
                 try:
                     order = int(order)
                 except ValueError:
@@ -282,7 +284,9 @@ def form_config(request, pk):
                 field.field_order  = order
                 field.placeholder  = ph
                 field.options      = options
-                field.save(update_fields=['is_enabled', 'is_required', 'label', 'field_order', 'placeholder', 'options'])
+                if new_type in valid_types:
+                    field.field_type = new_type
+                field.save(update_fields=['is_enabled', 'is_required', 'label', 'field_order', 'placeholder', 'options', 'field_type'])
             messages.success(request, 'Form configuration saved.')
             return redirect('recruitment:form_config', pk=pk)
 
