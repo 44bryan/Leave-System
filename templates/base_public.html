@@ -13,8 +13,8 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         :root {
-            --primary:  #2db4c3;   /* logo teal — dominant colour */
-            --dark:     #0a7a8a;   /* darker teal for hover/footer */
+            --primary:  #2db4c3;   /* logo teal — hero, headers, icons */
+            --dark:     #0A4D68;   /* dark navy — buttons, titles, text */
             --accent:   #2db4c3;
             --bg:       #f0f8f9;
             --border:   #cde9ed;
@@ -99,7 +99,7 @@
         }
         .value-card { text-align: center; padding: .6rem .8rem; }
         .value-icon { font-size: 1.4rem; color: var(--accent); display: block; margin-bottom: .3rem; }
-        .value-label { font-weight: 700; font-size: .78rem; color: var(--primary); margin-bottom: .1rem; }
+        .value-label { font-weight: 700; font-size: .78rem; color: var(--dark); margin-bottom: .1rem; }
         .value-sub { font-size: .72rem; color: var(--muted); margin-bottom: 0; line-height: 1.4; }
 
         /* ── Main ───────────────────────────────────────────────────────────── */
@@ -137,7 +137,7 @@
             box-shadow: 0 8px 26px rgba(10,77,104,.1);
             transform: translateY(-3px);
         }
-        .job-title { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: .25rem; }
+        .job-title { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: .25rem; }
         .job-meta {
             font-size: .79rem;
             color: var(--muted);
@@ -268,14 +268,52 @@
 
         /* ── Footer ─────────────────────────────────────────────────────────── */
         .pub-footer {
-            background: var(--dark);
+            background: var(--primary);   /* same teal as hero & headers */
             padding: 1.4rem 0 1rem;
-            color: rgba(255,255,255,.55);
+            color: rgba(10,77,104,.8);
             font-size: .76rem;
             text-align: center;
         }
-        .pub-footer a { color: rgba(255,255,255,.55); text-decoration: none; }
-        .pub-footer a:hover { color: #fff; }
+        .pub-footer a { color: rgba(10,77,104,.8); text-decoration: none; font-weight: 600; }
+        .pub-footer a:hover { color: var(--dark); }
+
+        /* ── Apply button on cards ──────────────────────────────────────────── */
+        .apply-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--primary);
+            color: #fff !important;
+            font-size: .74rem;
+            font-weight: 700;
+            padding: .3em 1em;
+            border-radius: 20px;
+            transition: background .16s;
+        }
+        .job-card:hover .apply-btn { background: var(--dark); }
+
+        /* ── Process steps ──────────────────────────────────────────────────── */
+        .process-strip {
+            background: #fff;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 1.3rem 0;
+        }
+        .step-bubble {
+            width: 38px; height: 38px;
+            background: var(--primary);
+            color: #fff;
+            font-weight: 800;
+            font-size: .82rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto .4rem;
+            flex-shrink: 0;
+        }
+        .step-label { font-size: .72rem; font-weight: 700; color: var(--dark); margin: 0; white-space: nowrap; }
+        .step-arrow { color: #b0cdd4; font-size: .9rem; }
 
         @media (max-width: 576px) {
             .pub-hero { padding: 2.2rem 0 2rem; }

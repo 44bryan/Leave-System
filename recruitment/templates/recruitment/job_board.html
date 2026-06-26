@@ -6,29 +6,30 @@
 
 {% block extra_style %}
 #noResults { display: none; }
-.job-card { border-left: 3px solid var(--accent); }
-.job-card:hover { border-left-color: var(--primary); }
+.job-card { border-left: 3px solid var(--primary); }
+.job-card:hover { border-left-color: var(--dark); }
 .posted-ago { font-size: .72rem; color: var(--muted); }
 .cta-banner {
     background: linear-gradient(135deg, #0a9aac 0%, #2db4c3 100%);
     border-radius: 16px;
-    padding: 2.4rem 2rem;
+    padding: 2.6rem 2rem;
     text-align: center;
     color: #fff;
     margin-top: 3rem;
 }
-.cta-banner h4 { font-weight: 800; margin-bottom: .5rem; }
-.cta-banner p { color: rgba(255,255,255,.75); font-size: .88rem; margin-bottom: 1.2rem; }
+.cta-banner h4 { font-weight: 800; margin-bottom: .5rem; font-size: 1.25rem; }
+.cta-banner p { color: rgba(255,255,255,.82); font-size: .88rem; margin-bottom: 1.2rem; }
 .btn-cta-white {
     display: inline-block;
     background: #fff;
     color: #0A4D68;
     font-weight: 700;
     font-size: .88rem;
-    padding: .6rem 1.6rem;
+    padding: .65rem 1.8rem;
     border-radius: 10px;
     text-decoration: none;
     transition: all .2s;
+    box-shadow: 0 3px 12px rgba(0,0,0,.12);
 }
 .btn-cta-white:hover { background: #e8f6f9; color: #0A4D68; transform: translateY(-1px); }
 {% endblock %}
@@ -37,13 +38,13 @@
 <section class="pub-hero">
     <div class="container hero-inner">
         <p class="hero-eyebrow">We're Hiring</p>
-        <h1>Restore Sight.<br><span style="color:#2db4c3;">Change Lives.</span></h1>
+        <h1>Restore Sight.<br><span style="color:rgba(255,255,255,.88);">Change Lives.</span></h1>
         <p class="hero-sub">
             Join Cameroon's leading subspecialty eye care hospital. We're looking for passionate
             professionals dedicated to improving vision and transforming lives across Central Africa.
         </p>
 
-        <!-- Search bar embedded in hero -->
+        <!-- Embedded search -->
         <div class="mt-4" style="max-width:480px;">
             <div style="position:relative;">
                 <i class="bi bi-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#0A4D68;font-size:.9rem;z-index:1;pointer-events:none;"></i>
@@ -55,7 +56,7 @@
 
         {% if postings %}
         <div class="mt-3">
-            <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.25);border-radius:20px;font-size:.79rem;font-weight:600;padding:.32em 1em;">
+            <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;font-size:.79rem;font-weight:600;padding:.32em 1em;">
                 <i class="bi bi-briefcase-fill"></i>
                 {{ postings|length }} open position{{ postings|length|pluralize }}
             </span>
@@ -66,6 +67,7 @@
 {% endblock %}
 
 {% block after_hero %}
+<!-- Why MICEI — 4 values -->
 <div class="values-strip">
     <div class="container">
         <div class="row g-2 justify-content-center">
@@ -96,6 +98,35 @@
                     <p class="value-label">Not-for-Profit Mission</p>
                     <p class="value-sub">Serving patients across Cameroon &amp; Central Africa</p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How We Hire — process steps -->
+<div class="process-strip">
+    <div class="container">
+        <p class="section-label text-center mb-3" style="letter-spacing:.1em;">Our Hiring Process</p>
+        <div class="d-flex justify-content-center align-items-center gap-1 flex-wrap" style="gap:.5rem!important;">
+            <div class="text-center px-2">
+                <div class="step-bubble">1</div>
+                <p class="step-label">Apply Online</p>
+            </div>
+            <i class="bi bi-chevron-right step-arrow d-none d-sm-block"></i>
+            <div class="text-center px-2">
+                <div class="step-bubble">2</div>
+                <p class="step-label">CV Review</p>
+                <p style="font-size:.65rem;color:var(--muted);margin:0;">3–5 days</p>
+            </div>
+            <i class="bi bi-chevron-right step-arrow d-none d-sm-block"></i>
+            <div class="text-center px-2">
+                <div class="step-bubble">3</div>
+                <p class="step-label">Interview</p>
+            </div>
+            <i class="bi bi-chevron-right step-arrow d-none d-sm-block"></i>
+            <div class="text-center px-2">
+                <div class="step-bubble">4</div>
+                <p class="step-label">Job Offer</p>
             </div>
         </div>
     </div>
@@ -133,7 +164,7 @@
             <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
                 <span class="tag">{{ job.get_employment_type_display }}</span>
                 {% if job.deadline %}
-                <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>Deadline {{ job.deadline|date:"d M Y" }}</span>
+                <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>Closes {{ job.deadline|date:"d M Y" }}</span>
                 {% endif %}
             </div>
             <p class="job-title mb-1">{{ job.title }}</p>
@@ -143,8 +174,8 @@
             </div>
             <p class="job-excerpt">{{ job.description|truncatechars:120 }}</p>
             <div class="job-card-footer">
-                <span class="posted-ago"><i class="bi bi-calendar3 me-1"></i>Posted {{ job.created_at|timesince }} ago</span>
-                <span class="apply-link">View &amp; Apply <i class="bi bi-arrow-right"></i></span>
+                <span class="posted-ago"><i class="bi bi-calendar3 me-1"></i>{{ job.created_at|timesince }} ago</span>
+                <span class="apply-btn">Apply Now <i class="bi bi-arrow-right"></i></span>
             </div>
         </a>
     </div>
@@ -155,7 +186,7 @@
     <div style="width:56px;height:56px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
         <i class="bi bi-search" style="font-size:1.3rem;color:#2db4c3;"></i>
     </div>
-    <h6 class="fw-bold mb-1" style="color:#2db4c3;">No positions match your search</h6>
+    <h6 class="fw-bold mb-1" style="color:#0A4D68;">No positions match your search</h6>
     <p class="text-muted mb-3" style="font-size:.84rem;">Try different keywords or browse all departments.</p>
     <button class="btn-outline-pub" onclick="clearFilters()" style="font-size:.82rem;padding:.35rem .9rem;">
         <i class="bi bi-x-circle me-1"></i>Clear Filters
@@ -165,7 +196,7 @@
 <!-- Bottom CTA -->
 <div class="cta-banner">
     <h4>Didn't find the right role?</h4>
-    <p>Send us your CV and we'll reach out when a matching opportunity opens up.</p>
+    <p>Send us your CV and we'll reach out when a matching opportunity opens.</p>
     <a href="mailto:hr@micei.org" class="btn-cta-white">
         <i class="bi bi-envelope me-2"></i>Send Open Application
     </a>
@@ -176,10 +207,10 @@
     <div style="width:68px;height:68px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
         <i class="bi bi-briefcase" style="font-size:1.8rem;color:#2db4c3;"></i>
     </div>
-    <h5 class="fw-bold mb-1" style="color:#2db4c3;">No open positions at the moment</h5>
+    <h5 class="fw-bold mb-1" style="color:#0A4D68;">No open positions at the moment</h5>
     <p class="text-muted mb-1" style="font-size:.87rem;">Check back soon — new opportunities are posted regularly.</p>
     <p class="text-muted" style="font-size:.82rem;">
-        You can also send your CV to <a href="mailto:hr@micei.org" style="color:#2db4c3;font-weight:600;">hr@micei.org</a>
+        You can also send your CV to <a href="mailto:hr@micei.org" style="color:#0A4D68;font-weight:600;">hr@micei.org</a>
     </p>
 </div>
 {% endif %}
