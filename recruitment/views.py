@@ -1,8 +1,10 @@
+import re
 import uuid
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Max
 from django.utils import timezone
 from django.http import Http404
 
@@ -284,7 +286,6 @@ def form_config(request, pk):
                 messages.error(request, 'A label is required for the custom field.')
             else:
                 # Generate a safe field_name from label
-                import re
                 field_name = re.sub(r'[^a-z0-9_]', '_', label.lower())[:60]
                 field_name = f'custom_{field_name}'
                 # Ensure uniqueness within this posting
@@ -293,7 +294,7 @@ def form_config(request, pk):
                 while posting.form_fields.filter(field_name=field_name).exists():
                     field_name = f'{base}_{i}'
                     i += 1
-                max_order = posting.form_fields.aggregate(m=models.Max('field_order'))['m'] or 0
+                max_order = posting.form_fields.aggregate(m=Max('field_order'))['m'] or 0
                 FormFieldConfig.objects.create(
                     posting=posting,
                     field_name=field_name,
@@ -323,10 +324,6 @@ def form_config(request, pk):
         'fields':         fields,
         'FIELD_TYPE_CHOICES': FIELD_TYPE_CHOICES,
     })
-
-
-# Need to import models for aggregate
-from django.db import models as djmodels
 
 
 @login_required
