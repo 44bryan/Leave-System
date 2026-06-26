@@ -216,7 +216,7 @@
             transition: all .2s;
             cursor: pointer;
         }
-        .btn-primary-pub:hover { background: #086a78; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10,122,138,.3); }
+        .btn-primary-pub:hover { background: #083d54; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10,77,104,.28); }
         .btn-outline-pub {
             background: transparent;
             color: var(--dark);
@@ -276,6 +276,26 @@
         }
         .pub-footer a { color: rgba(10,77,104,.8); text-decoration: none; font-weight: 600; }
         .pub-footer a:hover { color: var(--dark); }
+
+        /* ── Benefit chips ──────────────────────────────────────────────────── */
+        .benefit-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            padding: .38em 1.1em;
+            font-size: .79rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .benefit-chip i { color: var(--primary); font-size: .85rem; }
+        .benefits-strip {
+            background: #f5fbfc;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+        }
 
         /* ── Apply button on cards ──────────────────────────────────────────── */
         .apply-btn {

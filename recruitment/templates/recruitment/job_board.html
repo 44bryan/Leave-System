@@ -9,29 +9,17 @@
 .job-card { border-left: 3px solid var(--primary); }
 .job-card:hover { border-left-color: var(--dark); }
 .posted-ago { font-size: .72rem; color: var(--muted); }
-.cta-banner {
-    background: linear-gradient(135deg, #0a9aac 0%, #2db4c3 100%);
-    border-radius: 16px;
-    padding: 2.6rem 2rem;
-    text-align: center;
-    color: #fff;
-    margin-top: 3rem;
-}
-.cta-banner h4 { font-weight: 800; margin-bottom: .5rem; font-size: 1.25rem; }
-.cta-banner p { color: rgba(255,255,255,.82); font-size: .88rem; margin-bottom: 1.2rem; }
-.btn-cta-white {
-    display: inline-block;
-    background: #fff;
-    color: #0A4D68;
+.badge-new {
+    background: #fff3cd;
+    color: #92600a;
+    font-size: .65rem;
     font-weight: 700;
-    font-size: .88rem;
-    padding: .65rem 1.8rem;
+    padding: .18em .6em;
     border-radius: 10px;
-    text-decoration: none;
-    transition: all .2s;
-    box-shadow: 0 3px 12px rgba(0,0,0,.12);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    vertical-align: middle;
 }
-.btn-cta-white:hover { background: #e8f6f9; color: #0A4D68; transform: translateY(-1px); }
 {% endblock %}
 
 {% block hero %}
@@ -103,31 +91,15 @@
     </div>
 </div>
 
-<!-- How We Hire — process steps -->
-<div class="process-strip">
+<!-- What we offer — employee benefits chips -->
+<div class="benefits-strip">
     <div class="container">
-        <p class="section-label text-center mb-3" style="letter-spacing:.1em;">Our Hiring Process</p>
-        <div class="d-flex justify-content-center align-items-center gap-1 flex-wrap" style="gap:.5rem!important;">
-            <div class="text-center px-2">
-                <div class="step-bubble">1</div>
-                <p class="step-label">Apply Online</p>
-            </div>
-            <i class="bi bi-chevron-right step-arrow d-none d-sm-block"></i>
-            <div class="text-center px-2">
-                <div class="step-bubble">2</div>
-                <p class="step-label">CV Review</p>
-                <p style="font-size:.65rem;color:var(--muted);margin:0;">3–5 days</p>
-            </div>
-            <i class="bi bi-chevron-right step-arrow d-none d-sm-block"></i>
-            <div class="text-center px-2">
-                <div class="step-bubble">3</div>
-                <p class="step-label">Interview</p>
-            </div>
-            <i class="bi bi-chevron-right step-arrow d-none d-sm-block"></i>
-            <div class="text-center px-2">
-                <div class="step-bubble">4</div>
-                <p class="step-label">Job Offer</p>
-            </div>
+        <div class="d-flex gap-2 flex-wrap justify-content-center">
+            <span class="benefit-chip"><i class="bi bi-graph-up-arrow"></i>Career Growth</span>
+            <span class="benefit-chip"><i class="bi bi-award"></i>Competitive Package</span>
+            <span class="benefit-chip"><i class="bi bi-people-fill"></i>Collaborative Team</span>
+            <span class="benefit-chip"><i class="bi bi-book-half"></i>Continuous Training</span>
+            <span class="benefit-chip"><i class="bi bi-patch-check-fill"></i>Purpose-Driven Work</span>
         </div>
     </div>
 </div>
@@ -159,10 +131,16 @@
     <div class="col-md-6 job-card-wrapper"
          data-title="{{ job.title|lower }}"
          data-dept="{{ job.department|default:'general'|lower }}"
-         data-type="{{ job.get_employment_type_display|lower }}">
+         data-type="{{ job.get_employment_type_display|lower }}"
+         data-days="{{ job.created_at|timesince }}">
         <a href="{% url 'recruitment:job_detail' job.pk %}" class="job-card">
             <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
-                <span class="tag">{{ job.get_employment_type_display }}</span>
+                <div class="d-flex gap-1 flex-wrap">
+                    <span class="tag">{{ job.get_employment_type_display }}</span>
+                    {% if job.created_at %}
+                    <span class="badge-new">New</span>
+                    {% endif %}
+                </div>
                 {% if job.deadline %}
                 <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>Closes {{ job.deadline|date:"d M Y" }}</span>
                 {% endif %}
@@ -191,15 +169,6 @@
     <button class="btn-outline-pub" onclick="clearFilters()" style="font-size:.82rem;padding:.35rem .9rem;">
         <i class="bi bi-x-circle me-1"></i>Clear Filters
     </button>
-</div>
-
-<!-- Bottom CTA -->
-<div class="cta-banner">
-    <h4>Didn't find the right role?</h4>
-    <p>Send us your CV and we'll reach out when a matching opportunity opens.</p>
-    <a href="mailto:hr@micei.org" class="btn-cta-white">
-        <i class="bi bi-envelope me-2"></i>Send Open Application
-    </a>
 </div>
 
 {% else %}
