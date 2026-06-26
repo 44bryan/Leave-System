@@ -79,9 +79,10 @@ def apply(request, pk):
             for e in errors:
                 messages.error(request, e)
             return render(request, 'recruitment/apply.html', {
-                'posting': posting,
-                'fields':  fields,
-                'post':    request.POST,
+                'posting':         posting,
+                'fields':          fields,
+                'applicant_name':  name,
+                'applicant_email': email,
             })
 
         with transaction.atomic():
@@ -107,9 +108,10 @@ def apply(request, pk):
         return redirect('recruitment:apply_success', pk=posting.pk)
 
     return render(request, 'recruitment/apply.html', {
-        'posting': posting,
-        'fields':  fields,
-        'post':    {},
+        'posting':         posting,
+        'fields':          fields,
+        'applicant_name':  '',
+        'applicant_email': '',
     })
 
 
@@ -320,7 +322,7 @@ def form_config(request, pk):
 
         if action == 'delete_field':
             field_pk = request.POST.get('field_pk')
-            field = posting.form_fields.filter(pk=field_pk, is_custom=True).first()
+            field = posting.form_fields.filter(pk=field_pk).first()
             if field:
                 field.delete()
                 messages.success(request, 'Custom field deleted.')

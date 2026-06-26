@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}{% trans "Form Configuration" %} — {{ posting.title }}{% endblock %}
-{% block page_title %}{% trans "Application Form Configuration" %}{% endblock %}
+{% block page_title %}{% trans "Application Form" %}{% endblock %}
 {% block page_subtitle %}{{ posting.title }}{% endblock %}
 
 {% block content %}
@@ -18,12 +18,11 @@
 </div>
 
 <div class="row g-4">
-    <!-- Current fields -->
     <div class="col-lg-8">
         <div class="card animate-in">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:#2db4c3;color:#fff;">
                 <span><i class="bi bi-sliders me-2"></i>{% trans "Form Fields" %}</span>
-                <small style="opacity:.7;">{% trans "Drag order numbers to reorder" %}</small>
+                <small style="opacity:.75;">{% trans "Enable/disable and reorder fields shown to applicants" %}</small>
             </div>
             <div class="card-body p-0">
                 <form method="post">
@@ -33,10 +32,10 @@
                         <table class="table table-hover mb-0">
                             <thead style="background:#f8f9fa;">
                                 <tr>
-                                    <th style="padding:.8rem 1rem;width:60px;">#</th>
+                                    <th style="padding:.8rem 1rem;width:55px;">#</th>
                                     <th>{% trans "Label" %}</th>
                                     <th>{% trans "Type" %}</th>
-                                    <th class="text-center">{% trans "Enabled" %}</th>
+                                    <th class="text-center">{% trans "Show" %}</th>
                                     <th class="text-center">{% trans "Required" %}</th>
                                     <th>{% trans "Options / Placeholder" %}</th>
                                     <th></th>
@@ -47,16 +46,16 @@
                                 <tr>
                                     <td style="padding:.8rem 1rem;">
                                         <input type="number" name="order_{{ field.pk }}" value="{{ field.field_order }}"
-                                               class="form-control form-control-sm" style="width:55px;">
+                                               class="form-control form-control-sm" style="width:52px;">
                                     </td>
                                     <td>
                                         <input type="text" name="label_{{ field.pk }}" value="{{ field.label }}"
                                                class="form-control form-control-sm" style="min-width:130px;">
-                                        <small class="text-muted">{{ field.field_name }}</small>
+                                        <small class="text-muted" style="font-size:.72rem;">{{ field.field_name }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-light text-dark">{{ field.get_field_type_display }}</span>
-                                        {% if field.is_custom %}<span class="badge bg-info text-white ms-1">custom</span>{% endif %}
+                                        <span class="badge bg-light text-dark" style="font-size:.72rem;">{{ field.get_field_type_display }}</span>
+                                        {% if field.is_custom %}<span class="badge bg-info text-white ms-1" style="font-size:.7rem;">custom</span>{% endif %}
                                     </td>
                                     <td class="text-center">
                                         <input type="checkbox" name="enabled_{{ field.pk }}" class="form-check-input"
@@ -70,24 +69,24 @@
                                         {% if field.field_type == 'select' %}
                                         <input type="text" name="options_{{ field.pk }}" value="{{ field.options }}"
                                                class="form-control form-control-sm" placeholder="A,B,C (comma-separated)"
-                                               style="min-width:180px;">
+                                               style="min-width:170px;">
                                         {% else %}
                                         <input type="text" name="placeholder_{{ field.pk }}" value="{{ field.placeholder }}"
-                                               class="form-control form-control-sm" placeholder="Placeholder text…"
-                                               style="min-width:140px;">
+                                               class="form-control form-control-sm" placeholder="Hint text…"
+                                               style="min-width:130px;">
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if field.is_custom %}
-                                        <form method="post" style="display:inline;" onsubmit="return confirm('Delete field: {{ field.label }}?')">
+                                        <!-- All fields can be deleted -->
+                                        <form method="post" style="display:inline;"
+                                              onsubmit="return confirm('Remove field: {{ field.label }}?')">
                                             {% csrf_token %}
                                             <input type="hidden" name="action" value="delete_field">
                                             <input type="hidden" name="field_pk" value="{{ field.pk }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Remove' %}">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
-                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -95,8 +94,8 @@
                         </table>
                     </div>
                     <div class="p-3 border-top">
-                        <button type="submit" class="btn" style="background:#2db4c3;color:#fff;">
-                            <i class="bi bi-save me-1"></i>{% trans "Save Field Configuration" %}
+                        <button type="submit" class="btn" style="background:#0A4D68;color:#fff;">
+                            <i class="bi bi-save me-1"></i>{% trans "Save Configuration" %}
                         </button>
                     </div>
                 </form>
@@ -104,7 +103,6 @@
         </div>
     </div>
 
-    <!-- Add custom field -->
     <div class="col-lg-4">
         <div class="card animate-in">
             <div class="card-header" style="background:#2db4c3;color:#fff;">
@@ -127,19 +125,19 @@
                         </select>
                     </div>
                     <div class="mb-3" id="newOptionsDiv" style="display:none;">
-                        <label class="form-label fw-semibold">{% trans "Options" %}</label>
+                        <label class="form-label fw-semibold">{% trans "Dropdown Options" %}</label>
                         <input type="text" name="new_options" class="form-control" placeholder="Option A,Option B,Option C">
-                        <div class="form-text">{% trans "Comma-separated list of choices" %}</div>
+                        <div class="form-text">{% trans "Comma-separated choices" %}</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">{% trans "Placeholder" %}</label>
-                        <input type="text" name="new_placeholder" class="form-control" placeholder="Hint shown inside the field">
+                        <label class="form-label fw-semibold">{% trans "Placeholder hint" %}</label>
+                        <input type="text" name="new_placeholder" class="form-control" placeholder="Text shown inside the field">
                     </div>
                     <div class="mb-3 form-check">
                         <input type="checkbox" name="new_required" class="form-check-input" id="newRequired">
                         <label class="form-check-label" for="newRequired">{% trans "Required" %}</label>
                     </div>
-                    <button type="submit" class="btn w-100" style="background:#2db4c3;color:#fff;">
+                    <button type="submit" class="btn w-100" style="background:#0A4D68;color:#fff;">
                         <i class="bi bi-plus-lg me-1"></i>{% trans "Add Field" %}
                     </button>
                 </form>
@@ -148,10 +146,12 @@
 
         <div class="card mt-3">
             <div class="card-body p-3">
-                <p class="mb-1 fw-semibold" style="font-size:.88rem;color:#0A4D68;"><i class="bi bi-info-circle me-1"></i>{% trans "Note" %}</p>
-                <p class="text-muted mb-0" style="font-size:.82rem;">
-                    {% trans "Name and Email are always collected. The fields listed here are additional. Disable a field to hide it from applicants. Only enabled fields are required for scoring." %}
-                </p>
+                <p class="mb-1 fw-semibold" style="font-size:.85rem;color:#0A4D68;"><i class="bi bi-info-circle me-1"></i>{% trans "Tips" %}</p>
+                <ul class="text-muted mb-0" style="font-size:.8rem;padding-left:1.1rem;">
+                    <li>{% trans "Name, Email and CV are always collected." %}</li>
+                    <li>{% trans "Uncheck 'Show' to hide a field from applicants." %}</li>
+                    <li>{% trans "Any field can be deleted — it can be re-added as a custom field." %}</li>
+                </ul>
             </div>
         </div>
     </div>

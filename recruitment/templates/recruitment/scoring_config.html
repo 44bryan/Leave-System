@@ -1,10 +1,20 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}{% trans "Scoring Rules" %} — {{ posting.title }}{% endblock %}
-{% block page_title %}{% trans "Auto-Scoring Rules" %}{% endblock %}
+{% block page_title %}{% trans "Auto-Scoring" %}{% endblock %}
 {% block page_subtitle %}{{ posting.title }}{% endblock %}
 
 {% block content %}
+<!-- Plain-language explanation -->
+<div class="alert alert-info mb-4" style="border-radius:12px;border:none;background:#e8f6f9;">
+    <p class="fw-semibold mb-1" style="color:#0A4D68;"><i class="bi bi-lightbulb me-1"></i>{% trans "How does auto-scoring work?" %}</p>
+    <p class="text-muted mb-0" style="font-size:.85rem;">
+        {% trans "When an applicant submits their form, each rule you set here is checked against their answers. If their answer matches the rule, they earn the points. At the end all points are added up and applicants are ranked highest to lowest — so the best matches appear at the top of your applicant list." %}
+        <br><strong>{% trans "Example:" %}</strong> {% trans "Rule: 'Years of Experience is ≥ 5' → award 20 points. A candidate who wrote '7' years earns 20 points; one who wrote '2' earns 0." %}
+        <br><em class="text-muted" style="font-size:.8rem;">{% trans "Scoring is optional — if you add no rules, applicants are sorted by date received." %}</em>
+    </p>
+</div>
+
 <div class="d-flex gap-2 mb-4 flex-wrap">
     <a href="{% url 'recruitment:list' %}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Postings" %}
@@ -15,14 +25,13 @@
     <a href="{% url 'recruitment:applicant_list' posting.pk %}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-people me-1"></i>{% trans "View Applicants" %}
     </a>
-
     {% if criteria %}
     <form method="post" class="ms-auto">
         {% csrf_token %}
         <input type="hidden" name="action" value="rescore_all">
-        <button type="submit" class="btn btn-sm btn-outline-primary"
-                onclick="return confirm('Re-score all existing applications?')">
-            <i class="bi bi-arrow-repeat me-1"></i>{% trans "Re-score All Applicants" %}
+        <button type="submit" class="btn btn-sm btn-outline-secondary"
+                onclick="return confirm('Re-score all existing applications with the current rules?')">
+            <i class="bi bi-arrow-repeat me-1"></i>{% trans "Re-score All" %}
         </button>
     </form>
     {% endif %}
@@ -32,8 +41,8 @@
     <div class="col-lg-8">
         <div class="card animate-in">
             <div class="card-header" style="background:#2db4c3;color:#fff;">
-                <i class="bi bi-star me-2"></i>{% trans "Current Scoring Rules" %}
-                <span class="badge bg-secondary ms-2">{{ criteria|length }}</span>
+                <i class="bi bi-star me-2"></i>{% trans "Scoring Rules" %}
+                <span class="badge bg-white text-dark ms-2">{{ criteria|length }}</span>
             </div>
             {% if criteria %}
             <div class="card-body p-0">
@@ -41,10 +50,10 @@
                     <table class="table table-hover mb-0">
                         <thead style="background:#f8f9fa;">
                             <tr>
-                                <th style="padding:.8rem 1rem;">{% trans "Rule Description" %}</th>
+                                <th style="padding:.8rem 1rem;">{% trans "Rule" %}</th>
                                 <th>{% trans "Field" %}</th>
                                 <th>{% trans "Condition" %}</th>
-                                <th>{% trans "Value" %}</th>
+                                <th>{% trans "Match Value" %}</th>
                                 <th class="text-center">{% trans "Points" %}</th>
                                 <th></th>
                             </tr>
@@ -53,16 +62,17 @@
                             {% for crit in criteria %}
                             <tr>
                                 <td style="padding:.8rem 1rem;" class="fw-semibold">{{ crit.label }}</td>
-                                <td><code style="font-size:.8rem;">{{ crit.field_name }}</code></td>
-                                <td><span class="badge bg-light text-dark">{{ crit.get_condition_display }}</span></td>
-                                <td class="text-muted">{{ crit.value|default:"—" }}</td>
+                                <td><code style="font-size:.78rem;">{{ crit.field_name }}</code></td>
+                                <td><span class="badge bg-light text-dark" style="font-size:.75rem;">{{ crit.get_condition_display }}</span></td>
+                                <td class="text-muted" style="font-size:.85rem;">{{ crit.value|default:"—" }}</td>
                                 <td class="text-center">
                                     <span class="badge {% if crit.points > 0 %}bg-success{% else %}bg-danger{% endif %}">
                                         {% if crit.points > 0 %}+{% endif %}{{ crit.points }}
                                     </span>
                                 </td>
                                 <td>
-                                    <form method="post" style="display:inline;" onsubmit="return confirm('Delete rule: {{ crit.label }}?')">
+                                    <form method="post" style="display:inline;"
+                                          onsubmit="return confirm('Delete rule: {{ crit.label }}?')">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="delete_criterion">
                                         <input type="hidden" name="criterion_pk" value="{{ crit.pk }}">
@@ -80,7 +90,7 @@
             {% else %}
             <div class="card-body text-center py-4">
                 <i class="bi bi-star" style="font-size:2.5rem;color:#ccc;"></i>
-                <p class="text-muted mt-2 mb-0">{% trans "No scoring rules yet. Add rules to automatically rank applicants." %}</p>
+                <p class="text-muted mt-2 mb-0" style="font-size:.88rem;">{% trans "No scoring rules yet. Add rules below to automatically rank applicants." %}</p>
             </div>
             {% endif %}
         </div>
@@ -89,7 +99,7 @@
     <div class="col-lg-4">
         <div class="card animate-in">
             <div class="card-header" style="background:#2db4c3;color:#fff;">
-                <i class="bi bi-plus-circle me-2"></i>{% trans "Add Scoring Rule" %}
+                <i class="bi bi-plus-circle me-2"></i>{% trans "Add a Rule" %}
             </div>
             <div class="card-body p-3">
                 <form method="post">
@@ -97,17 +107,18 @@
                     <input type="hidden" name="action" value="add_criterion">
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">{% trans "Rule Description" %} <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">{% trans "Rule Name" %} <span class="text-danger">*</span></label>
                         <input type="text" name="label" class="form-control"
-                               placeholder="e.g. Has Master's degree, 5+ years exp…">
+                               placeholder="e.g. Has 5+ years experience">
+                        <div class="form-text">{% trans "Short description shown in the rules table." %}</div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">{% trans "Field to Evaluate" %} <span class="text-danger">*</span></label>
-                        <select name="field_name" class="form-select" id="scoringFieldSel">
-                            <option value="">— {% trans "Select field" %} —</option>
+                        <label class="form-label fw-semibold">{% trans "Which field to check?" %} <span class="text-danger">*</span></label>
+                        <select name="field_name" class="form-select">
+                            <option value="">— {% trans "Select a field" %} —</option>
                             {% for field in fields %}
-                            <option value="{{ field.field_name }}">{{ field.label }} ({{ field.field_name }})</option>
+                            <option value="{{ field.field_name }}">{{ field.label }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -122,31 +133,22 @@
                     </div>
 
                     <div class="mb-3" id="scoringValueDiv">
-                        <label class="form-label fw-semibold">{% trans "Value to Match" %}</label>
+                        <label class="form-label fw-semibold">{% trans "Value to match" %}</label>
                         <input type="text" name="value" class="form-control"
-                               placeholder="e.g. Master's Degree, 5 …">
-                        <div class="form-text">{% trans "Leave blank for yes/no conditions." %}</div>
+                               placeholder="e.g. Master's Degree  or  5">
+                        <div class="form-text">{% trans "Not needed for Yes / No conditions." %}</div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">{% trans "Points" %} <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">{% trans "Points to award" %} <span class="text-danger">*</span></label>
                         <input type="number" name="points" class="form-control" value="10" required>
-                        <div class="form-text">{% trans "Use negative points to penalise." %}</div>
+                        <div class="form-text">{% trans "Use a negative number to penalise a bad answer." %}</div>
                     </div>
 
-                    <button type="submit" class="btn w-100" style="background:#2db4c3;color:#fff;">
+                    <button type="submit" class="btn w-100" style="background:#0A4D68;color:#fff;">
                         <i class="bi bi-plus-lg me-1"></i>{% trans "Add Rule" %}
                     </button>
                 </form>
-            </div>
-        </div>
-
-        <div class="card mt-3">
-            <div class="card-body p-3">
-                <p class="mb-1 fw-semibold" style="font-size:.88rem;color:#0A4D68;"><i class="bi bi-info-circle me-1"></i>{% trans "How scoring works" %}</p>
-                <p class="text-muted mb-0" style="font-size:.82rem;">
-                    {% trans "When an application is submitted, each rule is checked against the applicant's answers. Points are summed to produce the final score. Applicants are then sorted highest-to-lowest. Use Re-score All to update scores after changing rules." %}
-                </p>
             </div>
         </div>
     </div>

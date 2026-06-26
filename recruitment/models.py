@@ -34,11 +34,12 @@ DEFAULT_FIELDS = [
      'options': "High School,Bachelor's Degree,Master's Degree,PhD / Doctorate,Professional Certification,Other"},
     {'field_name': 'years_experience', 'label': 'Years of Experience',        'field_type': FIELD_TYPE_NUMBER,   'is_enabled': True,  'is_required': False, 'field_order': 7,  'options': ''},
     {'field_name': 'current_employer', 'label': 'Current / Last Employer',    'field_type': FIELD_TYPE_TEXT,     'is_enabled': True,  'is_required': False, 'field_order': 8,  'options': ''},
-    {'field_name': 'cover_letter',     'label': 'Cover Letter',               'field_type': FIELD_TYPE_TEXTAREA, 'is_enabled': True,  'is_required': False, 'field_order': 9,  'options': ''},
-    {'field_name': 'linkedin_url',     'label': 'LinkedIn Profile URL',       'field_type': FIELD_TYPE_TEXT,     'is_enabled': False, 'is_required': False, 'field_order': 10, 'options': ''},
-    {'field_name': 'expected_salary',  'label': 'Expected Salary (XAF)',      'field_type': FIELD_TYPE_TEXT,     'is_enabled': False, 'is_required': False, 'field_order': 11, 'options': ''},
-    {'field_name': 'available_from',   'label': 'Available Start Date',       'field_type': FIELD_TYPE_DATE,     'is_enabled': True,  'is_required': False, 'field_order': 12, 'options': ''},
-    {'field_name': 'source',           'label': 'How did you hear about us?', 'field_type': FIELD_TYPE_SELECT,   'is_enabled': True,  'is_required': False, 'field_order': 13,
+    {'field_name': 'cover_letter',          'label': 'Cover Letter',                  'field_type': FIELD_TYPE_TEXTAREA, 'is_enabled': True,  'is_required': False, 'field_order': 9,  'options': ''},
+    {'field_name': 'recommendation_letter', 'label': 'Recommendation Letter',          'field_type': FIELD_TYPE_TEXTAREA, 'is_enabled': False, 'is_required': False, 'field_order': 10, 'options': ''},
+    {'field_name': 'linkedin_url',          'label': 'LinkedIn Profile URL',           'field_type': FIELD_TYPE_TEXT,     'is_enabled': False, 'is_required': False, 'field_order': 11, 'options': ''},
+    {'field_name': 'expected_salary',       'label': 'Expected Salary (XAF)',          'field_type': FIELD_TYPE_TEXT,     'is_enabled': False, 'is_required': False, 'field_order': 12, 'options': ''},
+    {'field_name': 'available_from',        'label': 'Available Start Date',           'field_type': FIELD_TYPE_DATE,     'is_enabled': True,  'is_required': False, 'field_order': 13, 'options': ''},
+    {'field_name': 'source',                'label': 'How did you hear about us?',     'field_type': FIELD_TYPE_SELECT,   'is_enabled': True,  'is_required': False, 'field_order': 14,
      'options': 'Job Board,Employee Referral,LinkedIn,Facebook / Social Media,Company Website,Other'},
 ]
 
