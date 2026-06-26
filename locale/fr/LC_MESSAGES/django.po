@@ -8356,3 +8356,282 @@ msgstr "L'adresse e-mail saisie ne correspond pas à l'adresse enregistrée sur 
 msgid "This account has no email address on file. Please contact HR."
 msgstr "Ce compte ne possède pas d'adresse e-mail enregistrée. Veuillez contacter les RH."
 
+
+# -- Recruitment / Public career site -------------------------------------------
+
+#: templates/base_public.html
+msgid "Careers — MICEI"
+msgstr "Carrières — MICEI"
+
+#: templates/base_public.html
+msgid "Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute."
+msgstr "Rejoignez l’équipe MICEI — explorez les postes ouverts à l’Institut Magrabi ICO Cameroon Eye."
+
+#: templates/base_public.html
+msgid "Join Our Team"
+msgstr "Rejoignez Notre Équipe"
+
+#: templates/base_public.html
+msgid "Current Openings at MICEI"
+msgstr "Postes Actuels à MICEI"
+
+#: templates/base_public.html
+msgid "Explore open positions and apply directly online."
+msgstr "Explorez les postes ouverts et postulez directement en ligne."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Join the team at Magrabi ICO Cameroon Eye Institute — explore open positions in ophthalmology, nursing, administration and more."
+msgstr "Rejoignez l’équipe MICEI — explorez les postes en ophtalmologie, soins infirmiers, administration et bien plus."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Careers at MICEI"
+msgstr "Carrières à MICEI"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Restore Sight."
+msgstr "Restaurer la Vue."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Change Lives."
+msgstr "Changer des Vies."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Magrabi ICO Cameroon Eye Institute — Cameroon's leading subspecialty eye care hospital, dedicated to improving vision and transforming lives across Central Africa."
+msgstr "Magrabi ICO Cameroon Eye Institute — le premier hôpital ophtalmologique spécialisé du Cameroun, dédié à l’amélioration de la vision et à la transformation des vies en Afrique centrale."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Search positions, departments…"
+msgstr "Rechercher des postes, départements…"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "%(num)s open position"
+msgid_plural "%(num)s open positions"
+msgstr[0] "%(num)s poste ouvert"
+msgstr[1] "%(num)s postes ouverts"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Pioneer in Eye Care"
+msgstr "Pionnier en Soins Oculaires"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Cameroon's first subspecialty ophthalmology centre of excellence"
+msgstr "Premier centre d’excellence ophtalmologique spécialisé du Cameroun"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Academic Centre"
+msgstr "Centre Académique"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Training, fellowships & continuous professional development"
+msgstr "Formation, bourses et développement professionnel continu"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "International Standards"
+msgstr "Standards Internationaux"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "World-class care aligned with global medical best practices"
+msgstr "Soins de classe mondiale alignés sur les meilleures pratiques médicales mondiales"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Not-for-Profit Mission"
+msgstr "Mission à But Non Lucratif"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Serving patients across Cameroon & Central Africa"
+msgstr "Au service des patients à travers le Cameroun et l’Afrique centrale"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Filter:"
+msgstr "Filtrer :"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "All"
+msgstr "Tous"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "%(num)s position"
+msgid_plural "%(num)s positions"
+msgstr[0] "%(num)s poste"
+msgstr[1] "%(num)s postes"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "New"
+msgstr "Nouveau"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Closes"
+msgstr "Clôture le"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "%(time)s ago"
+msgstr "il y a %(time)s"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Apply Now"
+msgstr "Postuler"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "No positions match your search"
+msgstr "Aucun poste ne correspond à votre recherche"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Try different keywords or browse all departments."
+msgstr "Essayez d’autres mots-clés ou parcourez tous les départements."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Clear Filters"
+msgstr "Effacer les Filtres"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "No open positions at the moment"
+msgstr "Aucun poste ouvert pour le moment"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Check back soon — new opportunities are posted regularly."
+msgstr "Revenez bientôt — de nouvelles opportunités sont publiées régulièrement."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "You can also send your CV to"
+msgstr "Vous pouvez également envoyer votre CV à"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "MICEI Careers"
+msgstr "Carrières MICEI"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "All Openings"
+msgstr "Toutes les Offres"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Deadline:"
+msgstr "Date limite :"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "About the Role"
+msgstr "A propos du Poste"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Requirements"
+msgstr "Exigences"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Apply for This Position"
+msgstr "Postuler à ce Poste"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Back to Openings"
+msgstr "Retour aux Offres"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Position Details"
+msgstr "Détails du Poste"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Employment Type"
+msgstr "Type d'Emploi"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Department"
+msgstr "Département"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Location"
+msgstr "Localisation"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Application Deadline"
+msgstr "Date Limite de Candidature"
+
+#: recruitment/templates/recruitment/job_detail.html
+msgid "Share This Role"
+msgstr "Partager ce Poste"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Apply"
+msgstr "Postuler"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Back to Job Details"
+msgstr "Retour aux Détails du Poste"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Complete the form below to submit your application."
+msgstr "Remplissez le formulaire ci-dessous pour soumettre votre candidature."
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Your application is kept strictly confidential"
+msgstr "Votre candidature est strictement confidentielle"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Fields marked"
+msgstr "Les champs marqués"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "are required. CV must be PDF, DOC or DOCX — max 10 MB."
+msgstr "sont obligatoires. Le CV doit être en PDF, DOC ou DOCX — max 10 Mo."
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Personal Information"
+msgstr "Informations Personnelles"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Full Name"
+msgstr "Nom Complet"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Email Address"
+msgstr "Adresse E-mail"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Your full legal name"
+msgstr "Votre nom légal complet"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "CV / Résumé"
+msgstr "CV / Résumé"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Click to upload"
+msgstr "Cliquez pour télécharger"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "or drag & drop"
+msgstr "ou glisser-déposer"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "PDF, DOC or DOCX — max 10 MB"
+msgstr "PDF, DOC ou DOCX — max 10 Mo"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Application Questions"
+msgstr "Questions de Candidature"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "— Select an option —"
+msgstr "— Sélectionner une option —"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "— Select —"
+msgstr "— Sélectionner —"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Yes"
+msgstr "Oui"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "No"
+msgstr "Non"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Submit Application"
+msgstr "Soumettre la Candidature"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Cancel"
+msgstr "Annuler"
+
+#: recruitment/templates/recruitment/apply.html
+msgid "Submitting…"
+msgstr "Envoi en cours…"
+

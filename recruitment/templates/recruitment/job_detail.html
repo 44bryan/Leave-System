@@ -1,7 +1,7 @@
 {% extends 'base_public.html' %}
 {% load i18n %}
 
-{% block title %}{{ posting.title }} — MICEI Careers{% endblock %}
+{% block title %}{{ posting.title }} — {% trans "MICEI Careers" %}{% endblock %}
 {% block meta_description %}{{ posting.title }} at MICEI. {{ posting.description|truncatechars:140 }}{% endblock %}
 
 {% block hero %}
@@ -9,7 +9,7 @@
     <div class="container hero-inner">
         <p class="hero-eyebrow">
             <a href="{% url 'recruitment:job_board' %}" style="color:rgba(255,255,255,.55);text-decoration:none;">
-                <i class="bi bi-arrow-left me-1"></i>All Openings
+                <i class="bi bi-arrow-left me-1"></i>{% trans "All Openings" %}
             </a>
         </p>
         <h1>{{ posting.title }}</h1>
@@ -23,7 +23,7 @@
             </span>
             {% if posting.deadline %}
             <span style="background:rgba(255,248,225,.25);color:rgba(255,248,225,.95);border:1px solid rgba(255,248,225,.3);border-radius:20px;font-size:.76rem;font-weight:600;padding:.28em .85em;">
-                <i class="bi bi-clock me-1"></i>Deadline: {{ posting.deadline|date:"d M Y" }}
+                <i class="bi bi-clock me-1"></i>{% trans "Deadline:" %} {{ posting.deadline|date:"d M Y" }}
             </span>
             {% endif %}
         </div>
@@ -37,22 +37,22 @@
     <div class="col-lg-8">
         <div class="card">
             <div class="card-body p-4 p-lg-5">
-                <h5 class="fw-bold mb-3" style="color:#0A4D68;">About the Role</h5>
+                <h5 class="fw-bold mb-3" style="color:#0A4D68;">{% trans "About the Role" %}</h5>
                 <div style="white-space:pre-wrap;line-height:1.82;color:#2d3748;font-size:.9rem;">{{ posting.description }}</div>
 
                 {% if posting.requirements %}
                 <hr class="my-4" style="border-color:#edf2f7;">
-                <h5 class="fw-bold mb-3" style="color:#0A4D68;">Requirements</h5>
+                <h5 class="fw-bold mb-3" style="color:#0A4D68;">{% trans "Requirements" %}</h5>
                 <div style="white-space:pre-wrap;line-height:1.82;color:#2d3748;font-size:.9rem;">{{ posting.requirements }}</div>
                 {% endif %}
 
                 <hr class="my-4" style="border-color:#edf2f7;">
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     <a href="{% url 'recruitment:apply' posting.pk %}" class="btn-primary-pub">
-                        <i class="bi bi-send me-1"></i>Apply for This Position
+                        <i class="bi bi-send me-1"></i>{% trans "Apply for This Position" %}
                     </a>
                     <a href="{% url 'recruitment:job_board' %}" class="btn-outline-pub">
-                        <i class="bi bi-arrow-left me-1"></i>Back to Openings
+                        <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Openings" %}
                     </a>
                 </div>
             </div>
@@ -64,14 +64,14 @@
         <!-- Position details -->
         <div class="card mb-3">
             <div class="card-body p-4">
-                <p class="section-label mb-3">Position Details</p>
+                <p class="section-label mb-3">{% trans "Position Details" %}</p>
                 <div class="d-flex flex-column gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <div class="detail-icon-box" style="background:#e8f6f9;">
                             <i class="bi bi-person-badge" style="color:#088395;font-size:.95rem;"></i>
                         </div>
                         <div>
-                            <p class="text-muted mb-0" style="font-size:.73rem;">Employment Type</p>
+                            <p class="text-muted mb-0" style="font-size:.73rem;">{% trans "Employment Type" %}</p>
                             <p class="fw-semibold mb-0" style="font-size:.86rem;">{{ posting.get_employment_type_display }}</p>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                             <i class="bi bi-building" style="color:#088395;font-size:.95rem;"></i>
                         </div>
                         <div>
-                            <p class="text-muted mb-0" style="font-size:.73rem;">Department</p>
+                            <p class="text-muted mb-0" style="font-size:.73rem;">{% trans "Department" %}</p>
                             <p class="fw-semibold mb-0" style="font-size:.86rem;">{{ posting.department }}</p>
                         </div>
                     </div>
@@ -92,7 +92,7 @@
                             <i class="bi bi-geo-alt" style="color:#088395;font-size:.95rem;"></i>
                         </div>
                         <div>
-                            <p class="text-muted mb-0" style="font-size:.73rem;">Location</p>
+                            <p class="text-muted mb-0" style="font-size:.73rem;">{% trans "Location" %}</p>
                             <p class="fw-semibold mb-0" style="font-size:.86rem;">{{ posting.location }}</p>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                             <i class="bi bi-calendar-event" style="color:#d4870a;font-size:.95rem;"></i>
                         </div>
                         <div>
-                            <p class="text-muted mb-0" style="font-size:.73rem;">Application Deadline</p>
+                            <p class="text-muted mb-0" style="font-size:.73rem;">{% trans "Application Deadline" %}</p>
                             <p class="fw-semibold mb-0" style="font-size:.86rem;">{{ posting.deadline|date:"d M Y" }}</p>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
         <!-- Share -->
         <div class="card mt-3">
             <div class="card-body p-3">
-                <p class="section-label mb-2">Share This Role</p>
+                <p class="section-label mb-2">{% trans "Share This Role" %}</p>
                 <div class="d-flex gap-2 flex-wrap">
                     <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}"
                        target="_blank" rel="noopener"

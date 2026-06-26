@@ -1,20 +1,20 @@
 {% extends 'base_public.html' %}
 {% load i18n %}
 
-{% block title %}Apply — {{ posting.title }} | MICEI Careers{% endblock %}
+{% block title %}{% trans "Apply" %} — {{ posting.title }} | {% trans "MICEI Careers" %}{% endblock %}
 
 {% block hero %}
 <section class="pub-hero" style="padding:2.2rem 0 2rem;">
     <div class="container hero-inner">
         <p class="hero-eyebrow">
             <a href="{% url 'recruitment:job_detail' posting.pk %}" style="color:rgba(255,255,255,.55);text-decoration:none;">
-                <i class="bi bi-arrow-left me-1"></i>Back to Job Details
+                <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Job Details" %}
             </a>
         </p>
         <h1 style="font-size:clamp(1.3rem,2.8vw,1.75rem);">{{ posting.title }}</h1>
         <p class="hero-sub" style="font-size:.84rem;">
             {% if posting.department %}{{ posting.department }} &nbsp;&middot;&nbsp; {% endif %}
-            Complete the form below to submit your application.
+            {% trans "Complete the form below to submit your application." %}
         </p>
     </div>
 </section>
@@ -30,10 +30,9 @@
                 <i class="bi bi-shield-lock" style="color:#2db4c3;font-size:.95rem;"></i>
             </div>
             <div>
-                <p class="fw-semibold mb-0" style="font-size:.83rem;color:#0A4D68;">Your application is kept strictly confidential</p>
+                <p class="fw-semibold mb-0" style="font-size:.83rem;color:#0A4D68;">{% trans "Your application is kept strictly confidential" %}</p>
                 <p class="text-muted mb-0" style="font-size:.75rem;">
-                    Fields marked <span class="text-danger fw-bold">*</span> are required.
-                    CV must be PDF, DOC or DOCX — max 10 MB.
+                    {% trans "Fields marked" %} <span class="text-danger fw-bold">*</span> {% trans "are required. CV must be PDF, DOC or DOCX — max 10 MB." %}
                 </p>
             </div>
         </div>
@@ -49,35 +48,35 @@
                 <form method="post" enctype="multipart/form-data" novalidate id="applyForm">
                     {% csrf_token %}
 
-                    <p class="section-label mb-3">Personal Information</p>
+                    <p class="section-label mb-3">{% trans "Personal Information" %}</p>
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{% trans "Full Name" %} <span class="text-danger">*</span></label>
                             <input type="text" name="applicant_name" class="form-control" required
-                                   value="{{ applicant_name }}" placeholder="Your full legal name">
+                                   value="{{ applicant_name }}" placeholder="{% trans "Your full legal name" %}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <label class="form-label">{% trans "Email Address" %} <span class="text-danger">*</span></label>
                             <input type="email" name="applicant_email" class="form-control" required
                                    value="{{ applicant_email }}" placeholder="you@example.com">
                         </div>
                     </div>
 
-                    <p class="section-label mb-2">CV / Résumé <span class="text-danger">*</span></p>
+                    <p class="section-label mb-2">{% trans "CV / Résumé" %} <span class="text-danger">*</span></p>
                     <div class="drop-zone mb-4" id="dropZone">
                         <input type="file" name="cv_file" id="cvInput" accept=".pdf,.doc,.docx"
                                required onchange="handleFile(this)">
                         <i class="bi bi-cloud-arrow-up" style="font-size:2rem;color:#2db4c3;display:block;margin-bottom:.5rem;"></i>
                         <p class="drop-zone-label">
-                            <strong>Click to upload</strong> or drag &amp; drop<br>
-                            <span style="font-size:.74rem;">PDF, DOC or DOCX &mdash; max 10 MB</span>
+                            <strong>{% trans "Click to upload" %}</strong> {% trans "or drag & drop" %}<br>
+                            <span style="font-size:.74rem;">{% trans "PDF, DOC or DOCX — max 10 MB" %}</span>
                         </p>
                         <p class="drop-file-name" id="dropFileName"></p>
                     </div>
 
                     {% if fields %}
                     <hr style="border-color:#edf2f7;" class="mb-4">
-                    <p class="section-label mb-3">Application Questions</p>
+                    <p class="section-label mb-3">{% trans "Application Questions" %}</p>
                     <div class="row g-3">
                         {% for field in fields %}
                         <div class="col-md-{% if field.field_type == 'textarea' %}12{% else %}6{% endif %}">
@@ -94,7 +93,7 @@
                             {% elif field.field_type == 'select' %}
                             <select name="{{ field.field_name }}" class="form-select"
                                     {% if field.is_required %}required{% endif %}>
-                                <option value="">— Select an option —</option>
+                                <option value="">{% trans "— Select an option —" %}</option>
                                 {% for opt in field.get_options_list %}
                                 <option value="{{ opt }}">{{ opt }}</option>
                                 {% endfor %}
@@ -103,9 +102,9 @@
                             {% elif field.field_type == 'yesno' %}
                             <select name="{{ field.field_name }}" class="form-select"
                                     {% if field.is_required %}required{% endif %}>
-                                <option value="">— Select —</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="">{% trans "— Select —" %}</option>
+                                <option value="yes">{% trans "Yes" %}</option>
+                                <option value="no">{% trans "No" %}</option>
                             </select>
 
                             {% elif field.field_type == 'number' %}
@@ -134,10 +133,10 @@
                     <hr class="mt-4" style="border-color:#edf2f7;">
                     <div class="d-flex gap-3 align-items-center mt-3 flex-wrap">
                         <button type="submit" class="btn-primary-pub" id="submitBtn">
-                            <i class="bi bi-send me-1"></i>Submit Application
+                            <i class="bi bi-send me-1"></i>{% trans "Submit Application" %}
                         </button>
                         <a href="{% url 'recruitment:job_detail' posting.pk %}"
-                           class="text-muted text-decoration-none" style="font-size:.84rem;">Cancel</a>
+                           class="text-muted text-decoration-none" style="font-size:.84rem;">{% trans "Cancel" %}</a>
                     </div>
                 </form>
             </div>
@@ -169,7 +168,7 @@
     document.getElementById('applyForm').addEventListener('submit', function() {
         var btn = document.getElementById('submitBtn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting…';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{% trans "Submitting…" %}';
     });
 </script>
 {% endblock %}
