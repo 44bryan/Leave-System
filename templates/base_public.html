@@ -13,10 +13,11 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         :root {
-            --primary:  #0A4D68;
+            --primary:  #2db4c3;   /* logo teal — dominant colour */
+            --dark:     #0a7a8a;   /* darker teal for hover/footer */
             --accent:   #2db4c3;
-            --bg:       #f0f6f9;
-            --border:   #e0eaf0;
+            --bg:       #f0f8f9;
+            --border:   #cde9ed;
             --text:     #1a2b3c;
             --muted:    #6b7a8d;
         }
@@ -54,7 +55,7 @@
 
         /* ── Hero ───────────────────────────────────────────────────────────── */
         .pub-hero {
-            background: linear-gradient(135deg, #0A4D68 0%, #088395 60%, #2db4c3 100%);
+            background: linear-gradient(135deg, #0a9aac 0%, #2db4c3 60%, #50cad7 100%);
             padding: 3rem 0 2.8rem;
             position: relative;
             overflow: hidden;
@@ -202,24 +203,24 @@
 
         /* ── Buttons ────────────────────────────────────────────────────────── */
         .btn-primary-pub {
-            background: var(--primary);
+            background: var(--dark);
             color: #fff !important;
             border: none;
             border-radius: 10px;
             font-weight: 700;
             padding: .62rem 1.5rem;
             font-size: .88rem;
-            box-shadow: 0 3px 12px rgba(10,77,104,.2);
+            box-shadow: 0 3px 12px rgba(10,122,138,.22);
             text-decoration: none !important;
             display: inline-block;
             transition: all .2s;
             cursor: pointer;
         }
-        .btn-primary-pub:hover { background: #083d54; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10,77,104,.26); }
+        .btn-primary-pub:hover { background: #086a78; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10,122,138,.3); }
         .btn-outline-pub {
             background: transparent;
-            color: var(--primary);
-            border: 1.5px solid #c8dce5;
+            color: var(--dark);
+            border: 1.5px solid #9dd4db;
             border-radius: 10px;
             font-weight: 600;
             padding: .48rem 1.1rem;
@@ -228,7 +229,7 @@
             transition: all .18s;
             display: inline-block;
         }
-        .btn-outline-pub:hover { border-color: var(--primary); background: #f0f8fb; color: var(--primary); }
+        .btn-outline-pub:hover { border-color: var(--dark); background: #e8f7f9; color: var(--dark); }
 
         /* ── Forms ──────────────────────────────────────────────────────────── */
         .form-control, .form-select {
@@ -267,7 +268,7 @@
 
         /* ── Footer ─────────────────────────────────────────────────────────── */
         .pub-footer {
-            background: var(--primary);
+            background: var(--dark);
             padding: 1.4rem 0 1rem;
             color: rgba(255,255,255,.55);
             font-size: .76rem;
