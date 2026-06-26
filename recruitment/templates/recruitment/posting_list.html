@@ -37,7 +37,6 @@
                 <thead style="background:#f8f9fa;">
                     <tr>
                         <th style="padding:1rem 1.2rem;">{% trans "Position" %}</th>
-                        <th>{% trans "Department" %}</th>
                         <th>{% trans "Type" %}</th>
                         <th>{% trans "Status" %}</th>
                         <th>{% trans "Deadline" %}</th>
@@ -50,9 +49,11 @@
                     <tr>
                         <td style="padding:1rem 1.2rem;">
                             <a href="{% url 'recruitment:applicant_list' job.pk %}" class="fw-semibold text-decoration-none" style="color:#0A4D68;">{{ job.title }}</a>
-                            {% if job.location %}<br><small class="text-muted"><i class="bi bi-geo-alt"></i> {{ job.location }}</small>{% endif %}
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                {% if job.department %}<small class="text-muted"><i class="bi bi-building"></i> {{ job.department }}</small>{% endif %}
+                                {% if job.location %}<small class="text-muted ms-2"><i class="bi bi-geo-alt"></i> {{ job.location }}</small>{% endif %}
+                            </div>
                         </td>
-                        <td class="text-muted">{{ job.department|default:"—" }}</td>
                         <td><span class="badge bg-light text-dark">{{ job.get_employment_type_display }}</span></td>
                         <td>
                             {% if job.status == 'open' %}
