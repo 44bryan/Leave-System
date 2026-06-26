@@ -25,31 +25,68 @@
 {% block hero %}
 <section class="pub-hero">
     <div class="container hero-inner">
-        <p class="hero-eyebrow">We're Hiring</p>
-        <h1>Restore Sight.<br><span style="color:rgba(255,255,255,.88);">Change Lives.</span></h1>
-        <p class="hero-sub">
-            Join Cameroon's leading subspecialty eye care hospital. We're looking for passionate
-            professionals dedicated to improving vision and transforming lives across Central Africa.
-        </p>
+        <div class="row align-items-center g-4">
 
-        <!-- Embedded search -->
-        <div class="mt-4" style="max-width:480px;">
-            <div style="position:relative;">
-                <i class="bi bi-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#0A4D68;font-size:.9rem;z-index:1;pointer-events:none;"></i>
-                <input type="text" id="jobSearch" class="form-control"
-                       style="padding-left:42px;border-radius:12px;border:none;height:46px;font-size:.9rem;box-shadow:0 4px 24px rgba(0,0,0,.18);"
-                       placeholder="Search positions, departments…" oninput="filterJobs()">
+            <!-- Left: text + search -->
+            <div class="col-lg-7">
+                <p class="hero-eyebrow">We're Hiring</p>
+                <h1>Restore Sight.<br><span style="color:rgba(255,255,255,.88);">Change Lives.</span></h1>
+                <p class="hero-sub">
+                    Join Cameroon's leading subspecialty eye care hospital. We're looking for passionate
+                    professionals dedicated to improving vision and transforming lives across Central Africa.
+                </p>
+
+                <!-- Embedded search -->
+                <div class="mt-4" style="max-width:460px;">
+                    <div style="position:relative;">
+                        <i class="bi bi-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#0A4D68;font-size:.9rem;z-index:1;pointer-events:none;"></i>
+                        <input type="text" id="jobSearch" class="form-control"
+                               style="padding-left:42px;border-radius:12px;border:none;height:46px;font-size:.9rem;box-shadow:0 4px 24px rgba(0,0,0,.18);"
+                               placeholder="Search positions, departments…" oninput="filterJobs()">
+                    </div>
+                </div>
+
+                {% if postings %}
+                <div class="mt-3">
+                    <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;font-size:.79rem;font-weight:600;padding:.32em 1em;">
+                        <i class="bi bi-briefcase-fill"></i>
+                        {{ postings|length }} open position{{ postings|length|pluralize }}
+                    </span>
+                </div>
+                {% endif %}
             </div>
-        </div>
 
-        {% if postings %}
-        <div class="mt-3">
-            <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;font-size:.79rem;font-weight:600;padding:.32em 1em;">
-                <i class="bi bi-briefcase-fill"></i>
-                {{ postings|length }} open position{{ postings|length|pluralize }}
-            </span>
+            <!-- Right: info card (desktop only) -->
+            <div class="col-lg-5 d-none d-lg-flex justify-content-end">
+                <div style="background:rgba(255,255,255,.13);backdrop-filter:blur(12px);border:1.5px solid rgba(255,255,255,.22);border-radius:20px;padding:1.8rem;width:100%;max-width:290px;">
+                    <div style="text-align:center;margin-bottom:1.2rem;">
+                        <div style="width:58px;height:58px;background:rgba(255,255,255,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .6rem;">
+                            <i class="bi bi-eye-fill" style="font-size:1.5rem;color:#fff;"></i>
+                        </div>
+                        <p style="font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.65);margin:0;">Magrabi ICO Cameroon</p>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:.6rem;">
+                        <div style="display:flex;align-items:center;gap:.7rem;padding:.55rem .8rem;background:rgba(255,255,255,.1);border-radius:10px;">
+                            <i class="bi bi-geo-alt-fill" style="color:rgba(255,255,255,.85);font-size:.88rem;flex-shrink:0;"></i>
+                            <span style="font-size:.78rem;color:#fff;font-weight:500;">Yaoundé, Cameroon</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:.7rem;padding:.55rem .8rem;background:rgba(255,255,255,.1);border-radius:10px;">
+                            <i class="bi bi-hospital-fill" style="color:rgba(255,255,255,.85);font-size:.88rem;flex-shrink:0;"></i>
+                            <span style="font-size:.78rem;color:#fff;font-weight:500;">Subspecialty Eye Hospital</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:.7rem;padding:.55rem .8rem;background:rgba(255,255,255,.1);border-radius:10px;">
+                            <i class="bi bi-mortarboard-fill" style="color:rgba(255,255,255,.85);font-size:.88rem;flex-shrink:0;"></i>
+                            <span style="font-size:.78rem;color:#fff;font-weight:500;">Academic Teaching Centre</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:.7rem;padding:.55rem .8rem;background:rgba(255,255,255,.1);border-radius:10px;">
+                            <i class="bi bi-heart-pulse-fill" style="color:rgba(255,255,255,.85);font-size:.88rem;flex-shrink:0;"></i>
+                            <span style="font-size:.78rem;color:#fff;font-weight:500;">Not-for-Profit Mission</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        {% endif %}
     </div>
 </section>
 {% endblock %}
@@ -91,18 +128,6 @@
     </div>
 </div>
 
-<!-- What we offer — employee benefits chips -->
-<div class="benefits-strip">
-    <div class="container">
-        <div class="d-flex gap-2 flex-wrap justify-content-center">
-            <span class="benefit-chip"><i class="bi bi-graph-up-arrow"></i>Career Growth</span>
-            <span class="benefit-chip"><i class="bi bi-award"></i>Competitive Package</span>
-            <span class="benefit-chip"><i class="bi bi-people-fill"></i>Collaborative Team</span>
-            <span class="benefit-chip"><i class="bi bi-book-half"></i>Continuous Training</span>
-            <span class="benefit-chip"><i class="bi bi-patch-check-fill"></i>Purpose-Driven Work</span>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block content %}
