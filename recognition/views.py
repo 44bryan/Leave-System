@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q
 
@@ -122,8 +123,8 @@ def propose(request):
                 f'New Recognition Proposal — {proposal.get_display_title()}',
                 f'{request.user.get_full_name()} has proposed {proposal.get_display_title()} '
                 f'for {employee.get_full_name()}.\n\nReason: {description[:200]}',
-                notification_type='info',
-                url=f'/recognition/{proposal.pk}/',
+                notification_type='system',
+                url=reverse('recognition:detail', kwargs={'pk': proposal.pk}),
             )
 
         messages.success(request, f'Recognition proposal submitted for {employee.get_full_name()}.')
@@ -195,8 +196,8 @@ def direct_award(request):
             f'Dear {employee.get_full_name()},\n\n'
             f'Congratulations! You have been formally recognized with: {proposal.get_display_title()}.\n\n'
             f'{execution_note or ""}',
-            notification_type='success',
-            url='/recognition/my-awards/',
+            notification_type='appraisal',
+            url=reverse('recognition:my_awards'),
         )
         messages.success(request, f'Recognition awarded directly to {employee.get_full_name()}.')
         return redirect('recognition:detail', pk=proposal.pk)
@@ -256,8 +257,8 @@ def proposal_detail(request, pk):
                             recipient,
                             f'New comment on recognition: {proposal.get_display_title()}',
                             f'{user.get_full_name()} commented on the recognition proposal for {proposal.employee.get_full_name()}:\n\n"{body[:200]}"',
-                            notification_type='info',
-                            url=f'/recognition/{proposal.pk}/',
+                            notification_type='system',
+                            url=reverse('recognition:detail', kwargs={'pk': proposal.pk}),
                         )
                 messages.success(request, 'Comment added.')
             return redirect('recognition:detail', pk=pk)
@@ -270,8 +271,8 @@ def proposal_detail(request, pk):
                     proposal.proposed_by,
                     f'Recognition endorsed: {proposal.get_display_title()}',
                     f'Your recognition proposal for {proposal.employee.get_full_name()} has been endorsed.',
-                    notification_type='success',
-                    url=f'/recognition/{proposal.pk}/',
+                    notification_type='appraisal',
+                    url=reverse('recognition:detail', kwargs={'pk': proposal.pk}),
                 )
             messages.success(request, 'Proposal endorsed.')
             return redirect('recognition:detail', pk=pk)
@@ -298,8 +299,8 @@ def proposal_detail(request, pk):
                 f'Dear {proposal.employee.get_full_name()},\n\n'
                 f'Congratulations! You have been formally recognized with: {proposal.get_display_title()}.\n\n'
                 f'{execution_note or ""}',
-                notification_type='success',
-                url=f'/recognition/my-awards/',
+                notification_type='appraisal',
+                url=reverse('recognition:my_awards'),
             )
             # Notify the proposer
             if proposal.proposed_by and proposal.proposed_by != user:
@@ -307,8 +308,8 @@ def proposal_detail(request, pk):
                     proposal.proposed_by,
                     f'Recognition executed: {proposal.get_display_title()}',
                     f'Your nomination of {proposal.employee.get_full_name()} for {proposal.get_display_title()} has been officially awarded.',
-                    notification_type='success',
-                    url=f'/recognition/{proposal.pk}/',
+                    notification_type='appraisal',
+                    url=reverse('recognition:detail', kwargs={'pk': proposal.pk}),
                 )
             messages.success(request, f'Recognition awarded. {proposal.employee.get_full_name()} has been notified.')
             return redirect('recognition:detail', pk=pk)
@@ -327,8 +328,8 @@ def proposal_detail(request, pk):
                     proposal.proposed_by,
                     f'Recognition proposal not approved: {proposal.get_display_title()}',
                     f'Your recognition proposal for {proposal.employee.get_full_name()} was not approved.\n\nReason: {rejection_reason}',
-                    notification_type='warning',
-                    url=f'/recognition/{proposal.pk}/',
+                    notification_type='leave_rejected',
+                    url=reverse('recognition:detail', kwargs={'pk': proposal.pk}),
                 )
             messages.warning(request, 'Proposal rejected.')
             return redirect('recognition:detail', pk=pk)

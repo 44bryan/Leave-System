@@ -1798,47 +1798,76 @@ def export_discipline_excel(request):
 
 @superuser_required_view
 def export_data(request):
-    """Export all key system data as a JSON file."""
+    """Export ALL system data as a JSON file (full backup)."""
     import json
     from django.core import serializers
     from django.contrib.auth.models import User
+    from accounts.models import EmployeeDocument, OnboardingChecklist, DepartmentHistory, HealthDependant
+    from leaves.models import LeaveConsultation, LeaveReversal
+    from contracts.models import Contract, ContractNotification
+    from discipline.models import DisciplineRecord
+    from appraisals.models import AppraisalCycle, AppraisalRecord
+    from payroll.models import Payslip
+    from recognition.models import RecognitionProposal, RecognitionComment
+    from recruitment.models import JobPosting, FormFieldConfig, ScoringCriterion, Application, ApplicationAnswer
+    from dashboard.models import SystemSettings
 
-    # collect all models in dependency order
-    datasets = {}
+    def _s(qs):
+        return json.loads(serializers.serialize('json', qs))
 
-    users = User.objects.filter(is_superuser=False)
-    datasets['users'] = json.loads(serializers.serialize('json', users))
-
-    departments = Department.objects.all()
-    datasets['departments'] = json.loads(serializers.serialize('json', departments))
-
-    employees = Employee.objects.all()
-    datasets['employees'] = json.loads(serializers.serialize('json', employees))
-
-    leave_types = LeaveType.objects.all()
-    datasets['leave_types'] = json.loads(serializers.serialize('json', leave_types))
-
-    balances = LeaveBalance.objects.all()
-    datasets['leave_balances'] = json.loads(serializers.serialize('json', balances))
-
-    requests_qs = LeaveRequest.objects.all()
-    datasets['leave_requests'] = json.loads(serializers.serialize('json', requests_qs))
+    # Serialise in FK dependency order (parents before children)
+    datasets = {
+        # ── Core identity ────────────────────────────────────────────────
+        'users':                _s(User.objects.filter(is_superuser=False)),
+        'departments':          _s(Department.objects.all()),
+        'employees':            _s(Employee.objects.all()),
+        'employee_documents':   _s(EmployeeDocument.objects.all()),
+        'onboarding_checklists':_s(OnboardingChecklist.objects.all()),
+        'department_history':   _s(DepartmentHistory.objects.all()),
+        'health_dependants':    _s(HealthDependant.objects.all()),
+        'system_settings':      _s(SystemSettings.objects.all()),
+        # ── Leave ────────────────────────────────────────────────────────
+        'leave_types':          _s(LeaveType.objects.all()),
+        'leave_balances':       _s(LeaveBalance.objects.all()),
+        'leave_requests':       _s(LeaveRequest.objects.all()),
+        'leave_consultations':  _s(LeaveConsultation.objects.all()),
+        'leave_reversals':      _s(LeaveReversal.objects.all()),
+        # ── Contracts ────────────────────────────────────────────────────
+        'contracts':            _s(Contract.objects.all()),
+        'contract_notifications':_s(ContractNotification.objects.all()),
+        # ── Discipline ───────────────────────────────────────────────────
+        'discipline_records':   _s(DisciplineRecord.objects.all()),
+        # ── Appraisals ───────────────────────────────────────────────────
+        'appraisal_cycles':     _s(AppraisalCycle.objects.all()),
+        'appraisal_records':    _s(AppraisalRecord.objects.all()),
+        # ── Payroll ──────────────────────────────────────────────────────
+        'payslips':             _s(Payslip.objects.all()),
+        # ── Recognition ──────────────────────────────────────────────────
+        'recognition_proposals':_s(RecognitionProposal.objects.all()),
+        'recognition_comments': _s(RecognitionComment.objects.all()),
+        # ── Recruitment ──────────────────────────────────────────────────
+        'job_postings':         _s(JobPosting.objects.all()),
+        'form_field_configs':   _s(FormFieldConfig.objects.all()),
+        'scoring_criteria':     _s(ScoringCriterion.objects.all()),
+        'applications':         _s(Application.objects.all()),
+        'application_answers':  _s(ApplicationAnswer.objects.all()),
+    }
 
     export = {
         'exported_at': date.today().isoformat(),
-        'version': '1.0',
+        'version': '2.0',
         'data': datasets,
     }
 
     payload = json.dumps(export, indent=2, default=str)
     response = HttpResponse(payload, content_type='application/json')
-    response['Content-Disposition'] = f'attachment; filename="micei-hrm_backup_{date.today()}.json"'
+    response['Content-Disposition'] = f'attachment; filename="aef-hrm_backup_{date.today()}.json"'
     return response
 
 
 @superuser_required_view
 def import_data(request):
-    """Import data from a previously exported JSON backup."""
+    """Import data from a previously exported JSON backup (v1.0 and v2.0)."""
     from django.contrib import messages
     from django.core import serializers
     from django.db import transaction
@@ -1856,18 +1885,38 @@ def import_data(request):
         raw = uploaded.read().decode('utf-8')
         export = json.loads(raw)
         data = export.get('data', {})
+        version = export.get('version', '1.0')
 
+        # Full ordered list for v2.0; v1.0 sections are a subset so this is safe either way
+        ordered_sections = [
+            'users', 'departments', 'employees',
+            'employee_documents', 'onboarding_checklists', 'department_history', 'health_dependants',
+            'system_settings',
+            'leave_types', 'leave_balances', 'leave_requests', 'leave_consultations', 'leave_reversals',
+            'contracts', 'contract_notifications',
+            'discipline_records',
+            'appraisal_cycles', 'appraisal_records',
+            'payslips',
+            'recognition_proposals', 'recognition_comments',
+            'job_postings', 'form_field_configs', 'scoring_criteria', 'applications', 'application_answers',
+        ]
+
+        restored = 0
         with transaction.atomic():
-            # Restore in dependency order
-            for section in ['users', 'departments', 'employees', 'leave_types', 'leave_balances', 'leave_requests']:
+            for section in ordered_sections:
                 records = data.get(section, [])
                 if not records:
                     continue
                 json_str = json.dumps(records)
                 for obj in serializers.deserialize('json', json_str):
                     obj.save()
+                    restored += 1
 
-        messages.success(request, f"Backup from {export.get('exported_at', 'unknown date')} imported successfully.")
+        messages.success(
+            request,
+            f"Backup v{version} from {export.get('exported_at', 'unknown date')} imported successfully "
+            f"({restored} records restored)."
+        )
     except Exception as e:
         messages.error(request, f"Import failed: {e}")
 

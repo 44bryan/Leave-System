@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 from django.utils import timezone
 from accounts.models import Employee
 from .models import AppraisalCycle, AppraisalRecord
@@ -50,8 +51,8 @@ def _notify_director(record):
             dir_emp.user,
             f'Appraisal {role_label} Review — {record.employee.get_full_name()}',
             f'HR has reviewed the appraisal for {record.employee.get_full_name()}. Your comment is next.',
-            notification_type='general',
-            url=f'/appraisals/director/{record.pk}/',
+            notification_type='appraisal',
+            url=reverse('appraisals:director_fill', args=[record.pk]),
         )
 
 
@@ -123,8 +124,8 @@ def hr_initiate(request):
                 e.user,
                 f'New Appraisal — {cycle}',
                 f'Your appraisal form for {cycle} is now available. Please log in and complete your section.',
-                notification_type='general',
-                url=f'/appraisals/my/',
+                notification_type='appraisal',
+                url=reverse('appraisals:my_appraisals'),
             )
             created += 1
 
@@ -198,7 +199,7 @@ def hr_unlock_employee(request, record_pk):
             f'Appraisal Re-opened — {record.cycle}',
             f'HR has re-opened your appraisal for {record.cycle}. '
             f'Please log in immediately and complete your section.',
-            notification_type='general',
+            notification_type='appraisal',
             url='/appraisals/my/',
         )
         messages.success(request, f"Appraisal re-opened for {record.employee.get_full_name()}. They have been notified.")
@@ -311,8 +312,8 @@ def distribute(request, cycle_pk):
                 record.employee.user,
                 f'Appraisal Results Available — {cycle}',
                 f'Your appraisal results for {cycle} have been released by HR. You can now view your completed form.',
-                notification_type='general',
-                url=f'/appraisals/my/',
+                notification_type='appraisal',
+                url=reverse('appraisals:my_appraisals'),
             )
         messages.success(request, f"Appraisal cycle '{cycle}' results distributed to all staff.")
     return redirect('appraisals:hr_dashboard')
@@ -421,8 +422,8 @@ def employee_fill(request, record_pk):
                     f'Appraisal Comment Needed — {emp.get_full_name()}',
                     f'{emp.get_full_name()} has submitted their appraisal for {record.cycle}. '
                     f'Please log in to add your comment.',
-                    notification_type='general',
-                    url=f'/appraisals/unit-head/{record.pk}/',
+                    notification_type='appraisal',
+                    url=reverse('appraisals:unit_head_fill', args=[record.pk]),
                 )
             else:
                 # No reviewer at all — go straight to HR
@@ -433,8 +434,8 @@ def employee_fill(request, record_pk):
                         hr_emp.user,
                         f'Appraisal HR Review Needed — {emp.get_full_name()}',
                         f'{emp.get_full_name()} has submitted their appraisal for {record.cycle}.',
-                        notification_type='general',
-                        url=f'/appraisals/hr-review/{record.pk}/',
+                        notification_type='appraisal',
+                        url=reverse('appraisals:hr_fill', args=[record.pk]),
                     )
             messages.success(request, "Your appraisal section has been submitted.")
         else:
@@ -578,8 +579,8 @@ def _apply_score_override(post, record, by_emp, role='hr'):
                 f'{role_label} has adjusted {len(snapshot)} score(s) on '
                 f'{record.employee.get_full_name()}\'s appraisal ({record.cycle}). '
                 f'You can view the changes in the appraisal detail.',
-                notification_type='general',
-                url=f'/appraisals/detail/{record.pk}/',
+                notification_type='appraisal',
+                url=reverse('appraisals:detail', args=[record.pk]),
             )
 
 
@@ -612,8 +613,8 @@ def _check_flag_ceo(record, stage_total, stage_label):
                 f'Appraisal Flagged for Review — {record.employee.get_full_name()}',
                 f'{record.employee.get_full_name()}\'s appraisal ({record.cycle}) has been flagged for CEO review '
                 f'due to a {direction} score of {stage_total:.1f} at the {stage_label} stage.',
-                notification_type='warning',
-                url=f'/appraisals/ceo-dashboard/',
+                notification_type='appraisal_warning',
+                url=reverse('appraisals:pending_ceo'),
             )
 
 
@@ -681,8 +682,8 @@ def coworker_fill(request, record_pk):
                     target.user,
                     f'Appraisal Review Needed — {record.employee.get_full_name()}',
                     f'Co-worker comment added. Please add your supervisor comment for {record.employee.get_full_name()}.',
-                    notification_type='general',
-                    url=f'/appraisals/unit-head/{record.pk}/',
+                    notification_type='appraisal',
+                    url=reverse('appraisals:unit_head_fill', args=[record.pk]),
                 )
             messages.success(request, "Co-worker comment submitted.")
         else:
@@ -728,8 +729,8 @@ def unit_head_fill(request, record_pk):
                 f'Appraisal Grading Needed — {subj.get_full_name()}',
                 f'Unit Head has commented on {subj.get_full_name()}\'s appraisal ({record.cycle}). '
                 f'Please log in to grade and add your line manager comment.',
-                notification_type='general',
-                url=f'/appraisals/manager/{record.pk}/',
+                notification_type='appraisal',
+                url=reverse('appraisals:manager_fill', args=[record.pk]),
             )
         messages.success(request, "Unit head comment submitted. Line manager notified.")
         return redirect('dashboard:home')
@@ -785,8 +786,8 @@ def manager_fill(request, record_pk):
                 hr_emp.user,
                 f'Appraisal HR Review Needed — {record.employee.get_full_name()}',
                 f'Line manager has completed the appraisal for {record.employee.get_full_name()}. Your review is next.',
-                notification_type='general',
-                url=f'/appraisals/hr-review/{record.pk}/',
+                notification_type='appraisal',
+                url=reverse('appraisals:hr_fill', args=[record.pk]),
             )
         messages.success(request, "Manager appraisal rating and comment submitted.")
         return redirect('dashboard:home')
@@ -891,8 +892,8 @@ def director_fill(request, record_pk):
                 ceo_emp.user,
                 f'Appraisal CEO Review — {record.employee.get_full_name()}',
                 f'Admin Director has commented on {record.employee.get_full_name()}\'s appraisal. Your final comment is next.',
-                notification_type='general',
-                url=f'/appraisals/ceo/{record.pk}/',
+                notification_type='appraisal',
+                url=reverse('appraisals:ceo_fill', args=[record.pk]),
             )
         messages.success(request, "Director comment submitted.")
         return redirect('dashboard:home')
@@ -942,8 +943,8 @@ def ceo_fill(request, record_pk):
                 f'Appraisal Complete — {record.employee.get_full_name()}',
                 f'All signatures collected for {record.employee.get_full_name()}\'s appraisal. '
                 f'Distribute results when all records in the cycle are done.',
-                notification_type='general',
-                url=f'/appraisals/cycles/{record.cycle.pk}/',
+                notification_type='appraisal',
+                url=reverse('appraisals:cycle_records', args=[record.cycle.pk]),
             )
         messages.success(request, "CEO comment submitted. Appraisal chain complete.")
         return redirect('appraisals:pending_ceo')

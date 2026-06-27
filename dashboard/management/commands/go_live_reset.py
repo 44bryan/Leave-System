@@ -27,13 +27,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from appraisals.models import AppraisalCycle, AppraisalRecord
-        from leaves.models import LeaveRequest, LeaveBalance
+        from leaves.models import LeaveRequest, LeaveBalance, LeaveConsultation, LeaveReversal
         from discipline.models import DisciplineRecord
         from notifications.models import Notification
         from payroll.models import Payslip
         from dashboard.models import AuditLog
         from contracts.models import ContractNotification
         from accounts.models import OnboardingChecklist
+        from recognition.models import RecognitionProposal, RecognitionComment
+        from recruitment.models import Application, ApplicationAnswer, JobPosting
 
         # Try to clear axes (brute-force login attempt logs) — optional dependency
         try:
@@ -47,12 +49,19 @@ class Command(BaseCommand):
             'Appraisal Cycles':        AppraisalCycle.objects.count(),
             'Appraisal Records':       AppraisalRecord.objects.count(),
             'Leave Requests':          LeaveRequest.objects.count(),
+            'Leave Consultations':     LeaveConsultation.objects.count(),
+            'Leave Reversals':         LeaveReversal.objects.count(),
             'Leave Balances':          LeaveBalance.objects.count(),
             'Discipline Records':      DisciplineRecord.objects.count(),
             'Notifications':           Notification.objects.count(),
             'Payslips':                Payslip.objects.count(),
             'Audit Logs':              AuditLog.objects.count(),
             'Contract Notifications':  ContractNotification.objects.count(),
+            'Recognition Proposals':   RecognitionProposal.objects.count(),
+            'Recognition Comments':    RecognitionComment.objects.count(),
+            'Job Applications':        Application.objects.count(),
+            'Application Answers':     ApplicationAnswer.objects.count(),
+            'Job Postings':            JobPosting.objects.count(),
             'Onboarding flags reset':  OnboardingChecklist.objects.count(),
         }
         if axes_attempts is not None:
@@ -66,7 +75,8 @@ class Command(BaseCommand):
         self.stdout.write('=' * 55)
         self.stdout.write(self.style.WARNING(
             '\n  KEPT: employees, users, departments, contracts,\n'
-            '        employee documents, leave types, system settings.\n'
+            '        employee documents, leave types, system settings,\n'
+            '        job posting configs (form fields & scoring criteria).\n'
         ))
 
         if not options['yes']:
@@ -81,9 +91,11 @@ class Command(BaseCommand):
         AppraisalCycle.objects.all().delete()
         self.stdout.write('  [OK] Appraisals cleared')
 
+        LeaveConsultation.objects.all().delete()
+        LeaveReversal.objects.all().delete()
         LeaveRequest.objects.all().delete()
         LeaveBalance.objects.all().delete()
-        self.stdout.write('  [OK] Leave requests and balances cleared')
+        self.stdout.write('  [OK] Leave requests, consultations, reversals and balances cleared')
 
         DisciplineRecord.objects.all().delete()
         self.stdout.write('  [OK] Discipline records cleared')
@@ -99,6 +111,15 @@ class Command(BaseCommand):
 
         ContractNotification.objects.all().delete()
         self.stdout.write('  [OK] Contract notifications cleared')
+
+        RecognitionComment.objects.all().delete()
+        RecognitionProposal.objects.all().delete()
+        self.stdout.write('  [OK] Recognition data cleared')
+
+        ApplicationAnswer.objects.all().delete()
+        Application.objects.all().delete()
+        JobPosting.objects.all().delete()
+        self.stdout.write('  [OK] Recruitment applications and job postings cleared')
 
         # Reset onboarding checklist flags but keep the records
         OnboardingChecklist.objects.all().update(

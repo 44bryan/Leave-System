@@ -15,6 +15,7 @@ Run daily via cron: python manage.py notify_expiring_contracts
 from datetime import date, timedelta
 
 from django.core.management.base import BaseCommand
+from django.urls import reverse
 
 
 MILESTONES = [
@@ -95,7 +96,7 @@ class Command(BaseCommand):
                     title=title,
                     message=msg,
                     notification_type='contract_issued',
-                    url=f'/contracts/{contract.pk}/',
+                    url=reverse('contracts:detail', kwargs={'pk': contract.pk}),
                 )
                 sent += 1
                 self.stdout.write(

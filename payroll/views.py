@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.urls import reverse
 from datetime import date
 
 from accounts.models import Employee
@@ -117,8 +118,8 @@ def payslip_create(request):
                     f"Your payslip for {slip.get_period_month_display()} {slip.period_year} "
                     f"is now available. You can view and download it from your account."
                 ),
-                notification_type='system',
-                url=f'/payroll/{slip.pk}/',
+                notification_type='payslip',
+                url=reverse('payroll:detail', kwargs={'pk': slip.pk}),
             )
 
             from dashboard.models import AuditLog
@@ -251,7 +252,7 @@ def bulk_upload_payslips(request):
                     f'Dear {emp.user.first_name},\n\nYour payslip for {month_name} {period_year} '
                     f'is now available. You can view and download it from your account.',
                     notification_type='payslip',
-                    url='/payroll/my/',
+                    url=reverse('payroll:my_payslips'),
                 )
                 matched.append(emp.get_full_name())
 

@@ -1377,7 +1377,7 @@ def leave_reversal(request, pk):
                         f"Reason: {reason}"
                     ),
                     notification_type='leave_cancelled',
-                    url=f'/leaves/detail/{pk}/',
+                    url=reverse('leaves:detail', kwargs={'pk': pk}),
                 )
 
         return redirect('leaves:detail', pk=pk)
@@ -1699,7 +1699,7 @@ def seek_consultation(request, leave_pk):
                 f'{leave.start_date} – {leave.end_date}). '
                 f'Please log in to respond privately.',
                 notification_type='system',
-                url=f'/leaves/consultation/{consultation.pk}/respond/',
+                url=reverse('leaves:respond_consultation', kwargs={'pk': consultation.pk}),
             )
             messages.success(request, f"Guidance request sent privately to {consulted.get_full_name()}.")
             return redirect('leaves:detail', pk=leave_pk)
@@ -1743,7 +1743,7 @@ def respond_consultation(request, pk):
                 f'{"✅ Proceed" if status == LeaveConsultation.STATUS_PROCEED else "⏸ Hold"}. '
                 + (f'Note: {note}' if note else ''),
                 notification_type='system',
-                url=f'/leaves/action/{consultation.leave_request.pk}/',
+                url=reverse('leaves:detail', kwargs={'pk': consultation.leave_request.pk}),
             )
             messages.success(request, "Your response has been sent privately.")
             return redirect('dashboard:home')

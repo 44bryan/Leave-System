@@ -1,6 +1,9 @@
+import logging
 from django.db import models
 from django.contrib.auth.models import User
 from accounts.models import Department
+
+logger = logging.getLogger(__name__)
 
 
 FIELD_TYPE_TEXT     = 'text'
@@ -228,8 +231,8 @@ class Application(models.Model):
                 elif crit.condition == ScoringCriterion.COND_NO:
                     if raw.lower() in ('no', 'false', '0'):
                         total += crit.points
-            except (ValueError, TypeError):
-                pass
+            except (ValueError, TypeError) as e:
+                logger.debug('Scoring criterion "%s" skipped for application %s: %s', crit.label, self.pk, e)
         self.score = total
         self.save(update_fields=['score'])
         return total

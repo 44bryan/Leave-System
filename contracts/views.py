@@ -433,13 +433,13 @@ def renew_contract(request, pk):
     old_contract = get_object_or_404(Contract, pk=pk)
 
     if request.method == 'POST':
-        new_start = request.POST.get('start_date')
-        new_end = request.POST.get('end_date') or None
+        new_start = _parse_date(request.POST.get('start_date'))
+        new_end = _parse_date(request.POST.get('end_date')) if request.POST.get('end_date') else None
         contract_type = request.POST.get('contract_type', old_contract.contract_type)
         notes = request.POST.get('notes', '')
 
         if not new_start:
-            messages.error(request, "New start date is required.")
+            messages.error(request, "New start date is required or has an invalid format.")
             return redirect('contracts:detail', pk=pk)
 
         if contract_type in ('CDD', 'INTERN', 'WACS') and not new_end:

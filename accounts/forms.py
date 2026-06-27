@@ -97,6 +97,18 @@ class EmployeeCreateForm(forms.ModelForm):
             'speciality': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Medicine, Nursing, Ophthalmology'}),
         }
 
+    def clean_username(self):
+        uname = self.cleaned_data.get('username', '').strip()
+        if User.objects.filter(username=uname).exists():
+            raise ValidationError("This username is already taken. Please choose a different one.")
+        return uname
+
+    def clean_employee_id(self):
+        eid = self.cleaned_data.get('employee_id', '').strip()
+        if eid and Employee.objects.filter(employee_id=eid).exists():
+            raise ValidationError("An employee with this ID already exists.")
+        return eid
+
     def clean_staff_category(self):
         return self.cleaned_data.get('staff_category', '').strip()
 

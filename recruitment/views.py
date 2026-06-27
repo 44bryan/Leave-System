@@ -64,11 +64,18 @@ def apply(request, pk):
         _ALLOWED_CV_EXTS = {'.pdf', '.doc', '.docx'}
         _MAX_CV_BYTES = 10 * 1024 * 1024  # 10 MB
 
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError as _VE
         errors = []
         if not name:
             errors.append('Full name is required.')
         if not email:
             errors.append('Email address is required.')
+        else:
+            try:
+                validate_email(email)
+            except _VE:
+                errors.append('Please enter a valid email address.')
         if not cv:
             errors.append('Please upload your CV / résumé.')
         else:
@@ -108,7 +115,11 @@ def apply(request, pk):
             # Save answers for all enabled fields
             answers_to_create = []
             for field in fields:
-                val = request.POST.get(field.field_name, '').strip()
+                if field.field_type == 'file':
+                    uploaded_file = request.FILES.get(field.field_name)
+                    val = uploaded_file.name if uploaded_file else ''
+                else:
+                    val = request.POST.get(field.field_name, '').strip()
                 answers_to_create.append(ApplicationAnswer(
                     application=app,
                     field_name=field.field_name,
@@ -267,6 +278,7 @@ def posting_delete(request, pk):
 def form_config(request, pk):
     """Configure which fields appear on the application form for this posting."""
     if not _is_hr_or_admin(request.user):
+        messages.error(request, 'Only HR and above can configure application forms.')
         return redirect('recruitment:list')
 
     posting = get_object_or_404(JobPosting, pk=pk)
@@ -357,6 +369,7 @@ def form_config(request, pk):
 def scoring_config(request, pk):
     """Configure auto-scoring criteria for a posting."""
     if not _is_hr_or_admin(request.user):
+        messages.error(request, 'Only HR and above can configure scoring criteria.')
         return redirect('recruitment:list')
 
     posting = get_object_or_404(JobPosting, pk=pk)

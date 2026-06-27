@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db import models
 from django.db.models import Q, F
 from django.urls import reverse
+from django.urls import reverse
 from datetime import date
 
 from accounts.models import Employee
@@ -504,7 +505,7 @@ def propose_sanction(request, pk):
                     f"Please review and submit your final decision."
                 ),
                 notification_type='discipline',
-                url=f'/discipline/{record.pk}/',
+                url=reverse('discipline:detail', kwargs={'pk': record.pk}),
             )
     elif role == 'director' and (is_super or (emp and emp.role == 'admin_director')):
         record.director_proposed_sanction = sanction
@@ -522,7 +523,7 @@ def propose_sanction(request, pk):
                     f"Please review and take any necessary follow-up actions."
                 ),
                 notification_type='discipline',
-                url=f'/discipline/{record.pk}/',
+                url=reverse('discipline:detail', kwargs={'pk': record.pk}),
             )
     else:
         messages.error(request, "You do not have permission to submit this proposal.")
