@@ -1,19 +1,84 @@
 import re
+import threading
 import uuid
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Max
+from django.urls import reverse
 from django.utils import timezone
 from django.http import Http404
 
-from accounts.models import Department
+from accounts.models import Department, Employee
+from notifications.utils import notify
 from .models import (
     JobPosting, FormFieldConfig, ScoringCriterion,
     Application, ApplicationAnswer,
     FIELD_TYPE_TEXT, FIELD_TYPE_CHOICES, APPLICATION_STATUS_CHOICES,
 )
+
+
+# ─── Applicant email helper ────────────────────────────────────────────────────
+
+_STATUS_EMAIL_TEMPLATES = {
+    'under_review': (
+        'Your Application is Under Review — {title}',
+        'Thank you for applying for the {title} position at Africa Eye Foundation.\n\n'
+        'We are pleased to inform you that your application is currently under review by our HR team. '
+        'We will be in touch with further updates.\n\nBest regards,\nAEF HR Team',
+    ),
+    'shortlisted': (
+        "You've Been Shortlisted — {title}",
+        'Congratulations! We are pleased to inform you that your application for the {title} position '
+        'has been shortlisted.\n\nWe will contact you shortly with the next steps in our selection process.'
+        '\n\nBest regards,\nAEF HR Team',
+    ),
+    'interview': (
+        'Interview Invitation — {title}',
+        'Congratulations! You have been selected for an interview for the {title} position at Africa Eye Foundation.\n\n'
+        'Our HR team will contact you directly with the interview schedule and details.\n\nBest regards,\nAEF HR Team',
+    ),
+    'hired': (
+        'Congratulations — You Have Been Selected! — {title}',
+        'Dear Applicant,\n\nWe are delighted to inform you that you have been selected for the {title} position '
+        'at Africa Eye Foundation.\n\nOur HR team will be reaching out to you shortly with further details '
+        'regarding your offer and onboarding.\n\nWelcome to the AEF family!\n\nBest regards,\nAEF HR Team',
+    ),
+    'rejected': (
+        'Application Update — {title}',
+        'Thank you for your interest in the {title} position at Africa Eye Foundation and for the time '
+        'you invested in your application.\n\nAfter careful consideration, we regret to inform you that '
+        'we will not be moving forward with your application at this time. We encourage you to apply for '
+        'future openings that match your qualifications.\n\nWe wish you all the best in your career journey.'
+        '\n\nBest regards,\nAEF HR Team',
+    ),
+}
+
+
+def _email_applicant(applicant_name, applicant_email, status, posting_title):
+    """Send a status-update email to an applicant in a background thread."""
+    if not getattr(settings, 'EMAIL_NOTIFICATIONS_ENABLED', False):
+        return
+    if not applicant_email:
+        return
+    tpl = _STATUS_EMAIL_TEMPLATES.get(status)
+    if not tpl:
+        return
+    subject = tpl[0].format(title=posting_title)
+    body = f'Dear {applicant_name},\n\n' + tpl[1].format(title=posting_title)
+    try:
+        send_mail(
+            subject=f'[AEF HRM] {subject}',
+            message=body,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'AEF HRM <noreply@aef-hrm.com>'),
+            recipient_list=[applicant_email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
 
 
 # ─── Permission helpers ───────────────────────────────────────────────────────
@@ -128,6 +193,18 @@ def apply(request, pk):
             ApplicationAnswer.objects.bulk_create(answers_to_create)
             # Auto-score
             app.compute_score()
+
+        # Notify all HR users of the new application
+        detail_url = reverse('recruitment:applicant_detail', kwargs={'posting_pk': posting.pk, 'pk': app.pk})
+        for hr_emp in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
+            notify(
+                hr_emp.user,
+                f'New Application — {posting.title}',
+                f'{name} has submitted an application for the {posting.title} position.\n\n'
+                f'Score: {int(app.score)} pts  |  Email: {email}',
+                notification_type='system',
+                url=detail_url,
+            )
 
         return redirect('recruitment:apply_success', pk=posting.pk)
 
@@ -478,6 +555,12 @@ def applicant_detail(request, posting_pk, pk):
                         except ValueError:
                             pass
                 app.save()
+                # Email the applicant about their status change (background thread)
+                threading.Thread(
+                    target=_email_applicant,
+                    args=(app.applicant_name, app.applicant_email, new_status, posting.title),
+                    daemon=True,
+                ).start()
                 messages.success(request, f'Status updated to {app.get_status_display()}.')
             return redirect('recruitment:applicant_detail', posting_pk=posting_pk, pk=pk)
 

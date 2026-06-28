@@ -22,9 +22,9 @@
 
     <!-- Status filter tabs -->
     <div class="ms-auto d-flex gap-1 flex-wrap">
-        <a href="?" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="{% if not status_filter %}background:#2db4c3;border-color:#2db4c3;{% endif %}">All</a>
+        <a href="?" class="btn btn-sm" style="{% if not status_filter %}background:#2db4c3;border-color:#2db4c3;color:#fff;{% else %}background:transparent;border:1px solid #dee2e6;color:#6c757d;{% endif %}">{% trans "All" %}</a>
         {% for val, label in STATUS_CHOICES %}
-        <a href="?status={{ val }}" class="btn btn-sm {% if status_filter == val %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="{% if status_filter == val %}background:#2db4c3;border-color:#2db4c3;{% endif %}">{{ label }}</a>
+        <a href="?status={{ val }}" class="btn btn-sm" style="{% if status_filter == val %}background:#2db4c3;border-color:#2db4c3;color:#fff;{% else %}background:transparent;border:1px solid #dee2e6;color:#6c757d;{% endif %}">{{ label }}</a>
         {% endfor %}
     </div>
 </div>
