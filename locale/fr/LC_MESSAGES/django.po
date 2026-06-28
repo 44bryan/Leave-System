@@ -1605,6 +1605,634 @@ msgstr "Aucun contrat expirant dans les 90 prochains jours."
 msgid "Staff Leave Management Portal"
 msgstr "Portail de Gestion des Congés du Personnel"
 
+# ──────────────────────────────────────────────────────────────────────────────
+# RECOGNITION MODULE
+# ──────────────────────────────────────────────────────────────────────────────
+
+#: recognition/templates/recognition/list.html
+msgid "Staff Recognition"
+msgstr "Reconnaissance du Personnel"
+
+#: recognition/templates/recognition/list.html
+msgid "Recognition proposals and awards"
+msgstr "Propositions de reconnaissance et récompenses"
+
+#: recognition/templates/recognition/list.html
+msgid "All Statuses"
+msgstr "Tous les Statuts"
+
+#: recognition/templates/recognition/list.html recognition/templates/recognition/propose.html
+msgid "Propose Recognition"
+msgstr "Proposer une Reconnaissance"
+
+#: recognition/templates/recognition/list.html
+msgid "Recognition Proposals"
+msgstr "Propositions de Reconnaissance"
+
+#: recognition/templates/recognition/list.html
+msgid "No recognition proposals yet."
+msgstr "Aucune proposition de reconnaissance pour le moment."
+
+#: recognition/templates/recognition/list.html recognition/templates/recognition/detail.html
+msgid "Recognition"
+msgstr "Reconnaissance"
+
+#: recognition/templates/recognition/list.html recognition/templates/recognition/detail.html
+msgid "Executed"
+msgstr "Exécuté"
+
+#: recognition/templates/recognition/list.html recognition/templates/recognition/detail.html
+msgid "Endorsed"
+msgstr "Approuvé"
+
+#: recognition/templates/recognition/list.html recognition/templates/recognition/detail.html
+msgid "Proposed"
+msgstr "Proposé"
+
+#: recognition/templates/recognition/detail.html
+msgid "Recognition Proposal"
+msgstr "Proposition de Reconnaissance"
+
+#: recognition/templates/recognition/detail.html
+msgid "Recognition Executed"
+msgstr "Reconnaissance Exécutée"
+
+#: recognition/templates/recognition/detail.html
+msgid "This recognition has been formally awarded to"
+msgstr "Cette reconnaissance a été officiellement décernée à"
+
+#: recognition/templates/recognition/detail.html
+msgid "on"
+msgstr "le"
+
+#: recognition/templates/recognition/detail.html
+msgid "by"
+msgstr "par"
+
+#: recognition/templates/recognition/detail.html
+msgid "Proposal Rejected"
+msgstr "Proposition Rejetée"
+
+#: recognition/templates/recognition/detail.html
+msgid "This proposal has been endorsed and is awaiting HR execution."
+msgstr "Cette proposition a été approuvée et attend l'exécution des RH."
+
+#: recognition/templates/recognition/detail.html
+msgid "Proposal Details"
+msgstr "Détails de la Proposition"
+
+#: recognition/templates/recognition/detail.html recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+msgid "Recognition Type"
+msgstr "Type de Reconnaissance"
+
+#: recognition/templates/recognition/detail.html recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+msgid "Reason / Description"
+msgstr "Raison / Description"
+
+#: recognition/templates/recognition/detail.html
+msgid "Comments & Opinions"
+msgstr "Commentaires et Opinions"
+
+#: recognition/templates/recognition/detail.html
+msgid "No comments yet. Share your opinion below."
+msgstr "Aucun commentaire pour le moment. Partagez votre avis ci-dessous."
+
+#: recognition/templates/recognition/detail.html
+msgid "Share your opinion on this proposal…"
+msgstr "Partagez votre avis sur cette proposition…"
+
+#: recognition/templates/recognition/detail.html
+msgid "Post Comment"
+msgstr "Publier le Commentaire"
+
+#: recognition/templates/recognition/detail.html
+msgid "Only managers, HR, and senior staff can comment on recognition proposals."
+msgstr "Seuls les managers, RH et personnel senior peuvent commenter les propositions de reconnaissance."
+
+#: recognition/templates/recognition/detail.html
+msgid "Back to List"
+msgstr "Retour à la Liste"
+
+#: recognition/templates/recognition/detail.html
+msgid "HR Actions"
+msgstr "Actions RH"
+
+#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+msgid "Endorse Proposal"
+msgstr "Approuver la Proposition"
+
+#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+msgid "Execution Note"
+msgstr "Note d'Exécution"
+
+#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+msgid "optional"
+msgstr "optionnel"
+
+#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+msgid "Certificate / Award Letter"
+msgstr "Certificat / Lettre de Récompense"
+
+#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+msgid "PDF or image. The employee will be able to download this."
+msgstr "PDF ou image. L'employé pourra le télécharger."
+
+#: recognition/templates/recognition/detail.html
+msgid "Execute Recognition"
+msgstr "Exécuter la Reconnaissance"
+
+#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+msgid "Reject Proposal"
+msgstr "Rejeter la Proposition"
+
+#: recognition/templates/recognition/detail.html
+msgid "Reason for rejection"
+msgstr "Raison du rejet"
+
+#: recognition/templates/recognition/propose.html
+msgid "Propose Staff Recognition"
+msgstr "Proposer la Reconnaissance d'un Employé"
+
+#: recognition/templates/recognition/propose.html
+msgid "Nominate an employee for a recognition award"
+msgstr "Nommer un employé pour une récompense de reconnaissance"
+
+#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+msgid "Employee to Recognise"
+msgstr "Employé à Reconnaître"
+
+#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+msgid "Type name to search…"
+msgstr "Tapez un nom pour rechercher…"
+
+#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+msgid "Change"
+msgstr "Modifier"
+
+#: recognition/templates/recognition/propose.html
+msgid "Start typing the employee's name to search."
+msgstr "Commencez à taper le nom de l'employé pour rechercher."
+
+#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+msgid "Select type"
+msgstr "Sélectionner un type"
+
+#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+msgid "Custom Title"
+msgstr "Titre Personnalisé"
+
+#: recognition/templates/recognition/propose.html
+msgid "Be specific. Your comments will be visible to HR and the hierarchy."
+msgstr "Soyez précis. Vos commentaires seront visibles par les RH et la hiérarchie."
+
+#: recognition/templates/recognition/propose.html
+msgid "Submit Proposal"
+msgstr "Soumettre la Proposition"
+
+#: recognition/templates/recognition/my_awards.html
+msgid "My Awards"
+msgstr "Mes Récompenses"
+
+#: recognition/templates/recognition/my_awards.html
+msgid "My Recognition Awards"
+msgstr "Mes Récompenses de Reconnaissance"
+
+#: recognition/templates/recognition/my_awards.html
+msgid "Awards formally issued to you by HR"
+msgstr "Récompenses officiellement émises par les RH"
+
+#: recognition/templates/recognition/my_awards.html
+msgid "No awards yet"
+msgstr "Aucune récompense pour le moment"
+
+#: recognition/templates/recognition/my_awards.html
+msgid "When you receive a formal recognition, it will appear here."
+msgstr "Lorsque vous recevrez une reconnaissance officielle, elle apparaîtra ici."
+
+#: recognition/templates/recognition/my_awards.html
+msgid "Awarded on"
+msgstr "Décerné le"
+
+#: recognition/templates/recognition/my_awards.html
+msgid "Reason:"
+msgstr "Raison :"
+
+#: recognition/templates/recognition/my_awards.html
+msgid "Proposed by"
+msgstr "Proposé par"
+
+#: recognition/templates/recognition/my_awards.html
+msgid "Download Certificate"
+msgstr "Télécharger le Certificat"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "Direct Award"
+msgstr "Récompense Directe"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "Issue a Direct Recognition Award"
+msgstr "Émettre une Récompense de Reconnaissance Directe"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "Award an employee without a prior proposal — HR only"
+msgstr "Récompenser un employé sans proposition préalable — RH uniquement"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "Direct Award Form"
+msgstr "Formulaire de Récompense Directe"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "Employee to Award"
+msgstr "Employé à Récompenser"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "Describe why this employee deserves this award…"
+msgstr "Décrivez pourquoi cet employé mérite cette récompense…"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "How was the recognition delivered? (ceremony, letter, etc.)"
+msgstr "Comment la reconnaissance a-t-elle été remise ? (cérémonie, lettre, etc.)"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "Issue this award directly and notify the employee?"
+msgstr "Émettre cette récompense directement et notifier l'employé ?"
+
+#: recognition/templates/recognition/direct_award.html
+msgid "Issue Award Now"
+msgstr "Émettre la Récompense Maintenant"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# RECRUITMENT MODULE (Internal HR templates)
+# ──────────────────────────────────────────────────────────────────────────────
+
+#: recruitment/templates/recruitment/posting_list.html
+msgid "Recruitment"
+msgstr "Recrutement"
+
+#: recruitment/templates/recruitment/posting_list.html
+msgid "Manage job postings and applicants"
+msgstr "Gérer les offres d'emploi et les candidats"
+
+#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html
+msgid "New Posting"
+msgstr "Nouvelle Offre"
+
+#: recruitment/templates/recruitment/posting_list.html
+msgid "View Public Job Board"
+msgstr "Voir le Tableau des Emplois Public"
+
+#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/form_config.html recruitment/templates/recruitment/scoring_config.html
+msgid "View Applicants"
+msgstr "Voir les Candidats"
+
+#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/applicant_detail.html
+msgid "Edit Posting"
+msgstr "Modifier l'Offre"
+
+#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/applicant_detail.html
+msgid "Configure Form"
+msgstr "Configurer le Formulaire"
+
+#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/applicant_detail.html recruitment/templates/recruitment/form_config.html recruitment/templates/recruitment/scoring_config.html
+msgid "Scoring Rules"
+msgstr "Règles de Notation"
+
+#: recruitment/templates/recruitment/posting_list.html
+msgid "Preview (Public)"
+msgstr "Aperçu (Public)"
+
+#: recruitment/templates/recruitment/posting_list.html
+msgid "No job postings yet"
+msgstr "Aucune offre d'emploi pour le moment"
+
+#: recruitment/templates/recruitment/posting_list.html
+msgid "Create your first job posting to start receiving applications."
+msgstr "Créez votre première offre d'emploi pour commencer à recevoir des candidatures."
+
+#: recruitment/templates/recruitment/posting_list.html
+msgid "Create First Posting"
+msgstr "Créer la Première Offre"
+
+#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html
+msgid "Applicants"
+msgstr "Candidats"
+
+#: recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/form_config.html recruitment/templates/recruitment/scoring_config.html
+msgid "Back to Postings"
+msgstr "Retour aux Offres"
+
+#: recruitment/templates/recruitment/applicant_list.html
+msgid "Rank"
+msgstr "Rang"
+
+#: recruitment/templates/recruitment/applicant_list.html
+msgid "Applicant"
+msgstr "Candidat"
+
+#: recruitment/templates/recruitment/applicant_list.html
+msgid "Submitted"
+msgstr "Soumis"
+
+#: recruitment/templates/recruitment/applicant_list.html
+msgid "No applicants with this status"
+msgstr "Aucun candidat avec ce statut"
+
+#: recruitment/templates/recruitment/applicant_list.html
+msgid "No applications received yet"
+msgstr "Aucune candidature reçue pour le moment"
+
+#: recruitment/templates/recruitment/applicant_list.html
+msgid "Publish the posting to start receiving applications."
+msgstr "Publiez l'offre pour commencer à recevoir des candidatures."
+
+#: recruitment/templates/recruitment/applicant_list.html
+msgid "Publish Posting"
+msgstr "Publier l'Offre"
+
+#: recruitment/templates/recruitment/applicant_list.html
+msgid "Share the job board link:"
+msgstr "Partagez le lien du tableau des emplois :"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Edit Job Posting"
+msgstr "Modifier l'Offre d'Emploi"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Create Job Posting"
+msgstr "Créer une Offre d'Emploi"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Fill in the position details"
+msgstr "Remplissez les détails du poste"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Job Title"
+msgstr "Intitulé du Poste"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "No department"
+msgstr "Pas de département"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Employment Type"
+msgstr "Type de Contrat"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Application Deadline"
+msgstr "Date Limite de Candidature"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Job Description"
+msgstr "Description du Poste"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Requirements"
+msgstr "Exigences"
+
+#: recruitment/templates/recruitment/posting_form.html
+msgid "Create Posting"
+msgstr "Créer l'Offre"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Application Review"
+msgstr "Examen de la Candidature"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Applicant Information"
+msgstr "Informations sur le Candidat"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Applied On"
+msgstr "Candidaté le"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "CV / Résumé"
+msgstr "CV / Résumé"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Download CV"
+msgstr "Télécharger le CV"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "No file"
+msgstr "Aucun fichier"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Application Answers"
+msgstr "Réponses à la Candidature"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "HR Notes"
+msgstr "Notes RH"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "General Notes"
+msgstr "Notes Générales"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Interview Notes"
+msgstr "Notes d'Entretien"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Save Notes"
+msgstr "Enregistrer les Notes"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Update Status"
+msgstr "Mettre à Jour le Statut"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Move to Status"
+msgstr "Passer au Statut"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Interview Date & Time"
+msgstr "Date et Heure de l'Entretien"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Rejection Reason"
+msgstr "Raison du Rejet"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Back to Applicants"
+msgstr "Retour aux Candidats"
+
+#: recruitment/templates/recruitment/applicant_detail.html
+msgid "Interview Scheduled"
+msgstr "Entretien Planifié"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Form Configuration"
+msgstr "Configuration du Formulaire"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Application Form"
+msgstr "Formulaire de Candidature"
+
+#: recruitment/templates/recruitment/form_config.html recruitment/templates/recruitment/scoring_config.html
+msgid "Form Fields"
+msgstr "Champs du Formulaire"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Enable/disable and reorder fields shown to applicants"
+msgstr "Activer/désactiver et réorganiser les champs affichés aux candidats"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Label"
+msgstr "Étiquette"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Show"
+msgstr "Afficher"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Options / Placeholder"
+msgstr "Options / Texte indicatif"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Remove field:"
+msgstr "Supprimer le champ :"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Remove"
+msgstr "Supprimer"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Save Configuration"
+msgstr "Enregistrer la Configuration"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Add Custom Field"
+msgstr "Ajouter un Champ Personnalisé"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Field Label"
+msgstr "Étiquette du Champ"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Field Type"
+msgstr "Type de Champ"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Dropdown Options"
+msgstr "Options Déroulantes"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Comma-separated choices"
+msgstr "Choix séparés par des virgules"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Placeholder hint"
+msgstr "Texte indicatif"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Add Field"
+msgstr "Ajouter un Champ"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Tips"
+msgstr "Conseils"
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Name, Email and CV are always collected."
+msgstr "Nom, Email et CV sont toujours collectés."
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Uncheck 'Show' to hide a field from applicants."
+msgstr "Décochez 'Afficher' pour masquer un champ aux candidats."
+
+#: recruitment/templates/recruitment/form_config.html
+msgid "Any field can be deleted — it can be re-added as a custom field."
+msgstr "N'importe quel champ peut être supprimé — il peut être rajouté comme champ personnalisé."
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Auto-Scoring"
+msgstr "Notation Automatique"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "How does auto-scoring work?"
+msgstr "Comment fonctionne la notation automatique ?"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "When an applicant submits their form, each rule you set here is checked against their answers. If their answer matches the rule, they earn the points. At the end all points are added up and applicants are ranked highest to lowest — so the best matches appear at the top of your applicant list."
+msgstr "Lorsqu'un candidat soumet son formulaire, chaque règle définie ici est vérifiée par rapport à ses réponses. Si sa réponse correspond à la règle, il obtient les points. En fin de compte, tous les points sont additionnés et les candidats sont classés du plus élevé au plus bas — ainsi les meilleures correspondances apparaissent en haut de votre liste."
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Example:"
+msgstr "Exemple :"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Rule: 'Years of Experience is ≥ 5' → award 20 points. A candidate who wrote '7' years earns 20 points; one who wrote '2' earns 0."
+msgstr "Règle : 'Années d'expérience ≥ 5' → attribuer 20 points. Un candidat ayant écrit '7' ans obtient 20 points ; celui ayant écrit '2' en obtient 0."
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Scoring is optional — if you add no rules, applicants are sorted by date received."
+msgstr "La notation est optionnelle — si vous n'ajoutez aucune règle, les candidats sont triés par date de réception."
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Re-score All"
+msgstr "Recalculer Tous"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Rule"
+msgstr "Règle"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Condition"
+msgstr "Condition"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Match Value"
+msgstr "Valeur de Correspondance"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Points"
+msgstr "Points"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "No scoring rules yet. Add rules below to automatically rank applicants."
+msgstr "Aucune règle de notation. Ajoutez des règles ci-dessous pour classer automatiquement les candidats."
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Add a Rule"
+msgstr "Ajouter une Règle"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Rule Name"
+msgstr "Nom de la Règle"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Short description shown in the rules table."
+msgstr "Description courte affichée dans le tableau des règles."
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Which field to check?"
+msgstr "Quel champ vérifier ?"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Select a field"
+msgstr "Sélectionner un champ"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Value to match"
+msgstr "Valeur à correspondre"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Not needed for Yes / No conditions."
+msgstr "Non requis pour les conditions Oui / Non."
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Points to award"
+msgstr "Points à attribuer"
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Use a negative number to penalise a bad answer."
+msgstr "Utilisez un nombre négatif pour pénaliser une mauvaise réponse."
+
+#: recruitment/templates/recruitment/scoring_config.html
+msgid "Add Rule"
+msgstr "Ajouter une Règle"
+
 #: .\accounts\templates\accounts\login.html:227
 msgid "Streamlined HR administration for our teams."
 msgstr "Administration RH simplifiée pour nos équipes."
