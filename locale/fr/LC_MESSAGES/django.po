@@ -280,8 +280,7 @@ msgid "Reason(s)"
 msgstr "Motif"
 
 #: .\accounts\templates\accounts\employee_excel_results.html:101
-msgid ""
-"Fix the errors in your Excel file and re-upload just the affected rows."
+msgid "Fix the errors in your Excel file and re-upload just the affected rows."
 msgstr ""
 "Corrigez les erreurs dans votre fichier Excel et réimportez uniquement les "
 "lignes concernées."
@@ -291,8 +290,8 @@ msgid ""
 "No rows were processed. The file may be empty or the header row may be "
 "missing."
 msgstr ""
-"Aucune ligne n'a été traitée. Le fichier est peut-être vide ou la ligne "
-"d'en-tête est manquante."
+"Aucune ligne n'a été traitée. Le fichier est peut-être vide ou la ligne d'en-"
+"tête est manquante."
 
 #: .\accounts\templates\accounts\employee_excel_upload.html:3
 #: .\accounts\templates\accounts\employee_excel_upload.html:4
@@ -316,14 +315,15 @@ msgid ""
 "Click Download Template (top right) to get the Excel file with all column "
 "headers."
 msgstr ""
-"Cliquez sur Télécharger le modèle (en haut à droite) pour obtenir le fichier"
-" Excel avec tous les en-têtes de colonnes."
+"Cliquez sur Télécharger le modèle (en haut à droite) pour obtenir le fichier "
+"Excel avec tous les en-têtes de colonnes."
 
 #: .\accounts\templates\accounts\employee_excel_upload.html:22
 msgid "Fill in your staff data. Required columns are marked."
-msgstr "Remplissez vos données de personnel. Les colonnes obligatoires sont indiquées."
-"Remplissez les données du personnel. Les colonnes obligatoires sont "
-"indiquées."
+msgstr ""
+"Remplissez vos données de personnel. Les colonnes obligatoires sont "
+"indiquées.Remplissez les données du personnel. Les colonnes obligatoires "
+"sont indiquées."
 
 #: .\accounts\templates\accounts\employee_excel_upload.html:23
 #| msgid "Grade the employee below."
@@ -417,8 +417,8 @@ msgstr "Tout Sélectionner"
 msgid ""
 "Only .xlsx files are supported. Maximum ~500 rows recommended per upload."
 msgstr ""
-"Seuls les fichiers .xlsx sont pris en charge. Maximum ~500 lignes recommandé"
-" par importation."
+"Seuls les fichiers .xlsx sont pris en charge. Maximum ~500 lignes recommandé "
+"par importation."
 
 #: .\accounts\templates\accounts\employee_excel_upload.html:91
 msgid "Import"
@@ -568,11 +568,10 @@ msgstr "Chef d'unité"
 
 #: .\accounts\templates\accounts\employee_form.html:131
 msgid ""
-"Optional — leave blank if this employee has no unit head above their "
-"manager."
+"Optional — leave blank if this employee has no unit head above their manager."
 msgstr ""
-"Optionnel — laisser vide si cet employé n'a pas de chef d'unité au-dessus de"
-" son responsable."
+"Optionnel — laisser vide si cet employé n'a pas de chef d'unité au-dessus de "
+"son responsable."
 
 #: .\accounts\templates\accounts\employee_form.html:137
 #| msgid "Administration Director"
@@ -582,8 +581,8 @@ msgstr "Directeur Administratif"
 #: .\accounts\templates\accounts\employee_form.html:139
 msgid "Leave skips Unit Head & Manager — goes to HR then Admin Director."
 msgstr ""
-"Le congé saute le Chef d'unité et le Manager — va directement aux RH puis au"
-" Directeur administratif.Le congé saute le Chef d'Unité et le Responsable — "
+"Le congé saute le Chef d'unité et le Manager — va directement aux RH puis au "
+"Directeur administratif.Le congé saute le Chef d'Unité et le Responsable — "
 "va aux RH puis au Directeur Administratif."
 
 #: .\accounts\templates\accounts\employee_form.html:140
@@ -632,8 +631,8 @@ msgid ""
 "Leave skips Unit Head & Manager — HR approves as final authority. No "
 "Director step."
 msgstr ""
-"Le congé saute le Chef d'Unité et le Responsable — les RH approuvent en tant"
-" qu'autorité finale. Pas d'étape Directeur."
+"Le congé saute le Chef d'Unité et le Responsable — les RH approuvent en tant "
+"qu'autorité finale. Pas d'étape Directeur."
 
 #: .\accounts\templates\accounts\employee_form.html:165
 #: .\accounts\templates\accounts\employee_history.html:183
@@ -1608,7 +1607,6 @@ msgstr "Portail de Gestion des Congés du Personnel"
 # ──────────────────────────────────────────────────────────────────────────────
 # RECOGNITION MODULE
 # ──────────────────────────────────────────────────────────────────────────────
-
 #: recognition/templates/recognition/list.html
 msgid "Staff Recognition"
 msgstr "Reconnaissance du Personnel"
@@ -1621,7 +1619,8 @@ msgstr "Propositions de reconnaissance et récompenses"
 msgid "All Statuses"
 msgstr "Tous les Statuts"
 
-#: recognition/templates/recognition/list.html recognition/templates/recognition/propose.html
+#: recognition/templates/recognition/list.html
+#: recognition/templates/recognition/propose.html
 msgid "Propose Recognition"
 msgstr "Proposer une Reconnaissance"
 
@@ -1633,19 +1632,23 @@ msgstr "Propositions de Reconnaissance"
 msgid "No recognition proposals yet."
 msgstr "Aucune proposition de reconnaissance pour le moment."
 
-#: recognition/templates/recognition/list.html recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/list.html
+#: recognition/templates/recognition/detail.html
 msgid "Recognition"
 msgstr "Reconnaissance"
 
-#: recognition/templates/recognition/list.html recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/list.html
+#: recognition/templates/recognition/detail.html
 msgid "Executed"
 msgstr "Exécuté"
 
-#: recognition/templates/recognition/list.html recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/list.html
+#: recognition/templates/recognition/detail.html
 msgid "Endorsed"
 msgstr "Approuvé"
 
-#: recognition/templates/recognition/list.html recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/list.html
+#: recognition/templates/recognition/detail.html
 msgid "Proposed"
 msgstr "Proposé"
 
@@ -1681,11 +1684,15 @@ msgstr "Cette proposition a été approuvée et attend l'exécution des RH."
 msgid "Proposal Details"
 msgstr "Détails de la Proposition"
 
-#: recognition/templates/recognition/detail.html recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/propose.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Recognition Type"
 msgstr "Type de Reconnaissance"
 
-#: recognition/templates/recognition/detail.html recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/propose.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Reason / Description"
 msgstr "Raison / Description"
 
@@ -1706,30 +1713,38 @@ msgid "Post Comment"
 msgstr "Publier le Commentaire"
 
 #: recognition/templates/recognition/detail.html
-msgid "Only managers, HR, and senior staff can comment on recognition proposals."
-msgstr "Seuls les managers, RH et personnel senior peuvent commenter les propositions de reconnaissance."
+msgid ""
+"Only managers, HR, and senior staff can comment on recognition proposals."
+msgstr ""
+"Seuls les managers, RH et personnel senior peuvent commenter les "
+"propositions de reconnaissance."
 
 #: recognition/templates/recognition/detail.html
 msgid "HR Actions"
 msgstr "Actions RH"
 
-#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Endorse Proposal"
 msgstr "Approuver la Proposition"
 
-#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Execution Note"
 msgstr "Note d'Exécution"
 
-#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/direct_award.html
 msgid "optional"
 msgstr "optionnel"
 
-#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Certificate / Award Letter"
 msgstr "Certificat / Lettre de Récompense"
 
-#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/direct_award.html
 msgid "PDF or image. The employee will be able to download this."
 msgstr "PDF ou image. L'employé pourra le télécharger."
 
@@ -1737,7 +1752,8 @@ msgstr "PDF ou image. L'employé pourra le télécharger."
 msgid "Execute Recognition"
 msgstr "Exécuter la Reconnaissance"
 
-#: recognition/templates/recognition/detail.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/detail.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Reject Proposal"
 msgstr "Rejeter la Proposition"
 
@@ -1753,15 +1769,18 @@ msgstr "Proposer la Reconnaissance d'un Employé"
 msgid "Nominate an employee for a recognition award"
 msgstr "Nommer un employé pour une récompense de reconnaissance"
 
-#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/propose.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Employee to Recognise"
 msgstr "Employé à Reconnaître"
 
-#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/propose.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Type name to search…"
 msgstr "Tapez un nom pour rechercher…"
 
-#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/propose.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Change"
 msgstr "Modifier"
 
@@ -1769,17 +1788,20 @@ msgstr "Modifier"
 msgid "Start typing the employee's name to search."
 msgstr "Commencez à taper le nom de l'employé pour rechercher."
 
-#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/propose.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Select type"
 msgstr "Sélectionner un type"
 
-#: recognition/templates/recognition/propose.html recognition/templates/recognition/direct_award.html
+#: recognition/templates/recognition/propose.html
+#: recognition/templates/recognition/direct_award.html
 msgid "Custom Title"
 msgstr "Titre Personnalisé"
 
 #: recognition/templates/recognition/propose.html
 msgid "Be specific. Your comments will be visible to HR and the hierarchy."
-msgstr "Soyez précis. Vos commentaires seront visibles par les RH et la hiérarchie."
+msgstr ""
+"Soyez précis. Vos commentaires seront visibles par les RH et la hiérarchie."
 
 #: recognition/templates/recognition/propose.html
 msgid "Submit Proposal"
@@ -1803,7 +1825,8 @@ msgstr "Aucune récompense pour le moment"
 
 #: recognition/templates/recognition/my_awards.html
 msgid "When you receive a formal recognition, it will appear here."
-msgstr "Lorsque vous recevrez une reconnaissance officielle, elle apparaîtra ici."
+msgstr ""
+"Lorsque vous recevrez une reconnaissance officielle, elle apparaîtra ici."
 
 #: recognition/templates/recognition/my_awards.html
 msgid "Awarded on"
@@ -1847,7 +1870,8 @@ msgstr "Décrivez pourquoi cet employé mérite cette récompense…"
 
 #: recognition/templates/recognition/direct_award.html
 msgid "How was the recognition delivered? (ceremony, letter, etc.)"
-msgstr "Comment la reconnaissance a-t-elle été remise ? (cérémonie, lettre, etc.)"
+msgstr ""
+"Comment la reconnaissance a-t-elle été remise ? (cérémonie, lettre, etc.)"
 
 #: recognition/templates/recognition/direct_award.html
 msgid "Issue this award directly and notify the employee?"
@@ -1860,7 +1884,6 @@ msgstr "Émettre la Récompense Maintenant"
 # ──────────────────────────────────────────────────────────────────────────────
 # RECRUITMENT MODULE (Internal HR templates)
 # ──────────────────────────────────────────────────────────────────────────────
-
 #: recruitment/templates/recruitment/posting_list.html
 msgid "Recruitment"
 msgstr "Recrutement"
@@ -1869,7 +1892,8 @@ msgstr "Recrutement"
 msgid "Manage job postings and applicants"
 msgstr "Gérer les offres d'emploi et les candidats"
 
-#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html
+#: recruitment/templates/recruitment/posting_list.html
+#: recruitment/templates/recruitment/applicant_list.html
 msgid "New Posting"
 msgstr "Nouvelle Offre"
 
@@ -1877,19 +1901,30 @@ msgstr "Nouvelle Offre"
 msgid "View Public Job Board"
 msgstr "Voir le Tableau des Emplois Public"
 
-#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/form_config.html recruitment/templates/recruitment/scoring_config.html
+#: recruitment/templates/recruitment/posting_list.html
+#: recruitment/templates/recruitment/applicant_list.html
+#: recruitment/templates/recruitment/form_config.html
+#: recruitment/templates/recruitment/scoring_config.html
 msgid "View Applicants"
 msgstr "Voir les Candidats"
 
-#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/applicant_detail.html
+#: recruitment/templates/recruitment/posting_list.html
+#: recruitment/templates/recruitment/applicant_list.html
+#: recruitment/templates/recruitment/applicant_detail.html
 msgid "Edit Posting"
 msgstr "Modifier l'Offre"
 
-#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/applicant_detail.html
+#: recruitment/templates/recruitment/posting_list.html
+#: recruitment/templates/recruitment/applicant_list.html
+#: recruitment/templates/recruitment/applicant_detail.html
 msgid "Configure Form"
 msgstr "Configurer le Formulaire"
 
-#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/applicant_detail.html recruitment/templates/recruitment/form_config.html recruitment/templates/recruitment/scoring_config.html
+#: recruitment/templates/recruitment/posting_list.html
+#: recruitment/templates/recruitment/applicant_list.html
+#: recruitment/templates/recruitment/applicant_detail.html
+#: recruitment/templates/recruitment/form_config.html
+#: recruitment/templates/recruitment/scoring_config.html
 msgid "Scoring Rules"
 msgstr "Règles de Notation"
 
@@ -1903,17 +1938,22 @@ msgstr "Aucune offre d'emploi pour le moment"
 
 #: recruitment/templates/recruitment/posting_list.html
 msgid "Create your first job posting to start receiving applications."
-msgstr "Créez votre première offre d'emploi pour commencer à recevoir des candidatures."
+msgstr ""
+"Créez votre première offre d'emploi pour commencer à recevoir des "
+"candidatures."
 
 #: recruitment/templates/recruitment/posting_list.html
 msgid "Create First Posting"
 msgstr "Créer la Première Offre"
 
-#: recruitment/templates/recruitment/posting_list.html recruitment/templates/recruitment/applicant_list.html
+#: recruitment/templates/recruitment/posting_list.html
+#: recruitment/templates/recruitment/applicant_list.html
 msgid "Applicants"
 msgstr "Candidats"
 
-#: recruitment/templates/recruitment/applicant_list.html recruitment/templates/recruitment/form_config.html recruitment/templates/recruitment/scoring_config.html
+#: recruitment/templates/recruitment/applicant_list.html
+#: recruitment/templates/recruitment/form_config.html
+#: recruitment/templates/recruitment/scoring_config.html
 msgid "Back to Postings"
 msgstr "Retour aux Offres"
 
@@ -1966,8 +2006,13 @@ msgid "Job Title"
 msgstr "Intitulé du Poste"
 
 #: recruitment/templates/recruitment/posting_form.html
+#, fuzzy
 msgid "No department"
-msgstr "Pas de département"
+msgstr ""
+"#-#-#-#-#  django.po  #-#-#-#-#\n"
+"Pas de département\n"
+"#-#-#-#-#  django.po  #-#-#-#-#\n"
+"Aucun département"
 
 #: recruitment/templates/recruitment/posting_form.html
 msgid "Employment Type"
@@ -2065,7 +2110,8 @@ msgstr "Configuration du Formulaire"
 msgid "Application Form"
 msgstr "Formulaire de Candidature"
 
-#: recruitment/templates/recruitment/form_config.html recruitment/templates/recruitment/scoring_config.html
+#: recruitment/templates/recruitment/form_config.html
+#: recruitment/templates/recruitment/scoring_config.html
 msgid "Form Fields"
 msgstr "Champs du Formulaire"
 
@@ -2139,7 +2185,9 @@ msgstr "Décochez 'Afficher' pour masquer un champ aux candidats."
 
 #: recruitment/templates/recruitment/form_config.html
 msgid "Any field can be deleted — it can be re-added as a custom field."
-msgstr "N'importe quel champ peut être supprimé — il peut être rajouté comme champ personnalisé."
+msgstr ""
+"N'importe quel champ peut être supprimé — il peut être rajouté comme champ "
+"personnalisé."
 
 #: recruitment/templates/recruitment/scoring_config.html
 msgid "Auto-Scoring"
@@ -2150,20 +2198,37 @@ msgid "How does auto-scoring work?"
 msgstr "Comment fonctionne la notation automatique ?"
 
 #: recruitment/templates/recruitment/scoring_config.html
-msgid "When an applicant submits their form, each rule you set here is checked against their answers. If their answer matches the rule, they earn the points. At the end all points are added up and applicants are ranked highest to lowest — so the best matches appear at the top of your applicant list."
-msgstr "Lorsqu'un candidat soumet son formulaire, chaque règle définie ici est vérifiée par rapport à ses réponses. Si sa réponse correspond à la règle, il obtient les points. En fin de compte, tous les points sont additionnés et les candidats sont classés du plus élevé au plus bas — ainsi les meilleures correspondances apparaissent en haut de votre liste."
+msgid ""
+"When an applicant submits their form, each rule you set here is checked "
+"against their answers. If their answer matches the rule, they earn the "
+"points. At the end all points are added up and applicants are ranked highest "
+"to lowest — so the best matches appear at the top of your applicant list."
+msgstr ""
+"Lorsqu'un candidat soumet son formulaire, chaque règle définie ici est "
+"vérifiée par rapport à ses réponses. Si sa réponse correspond à la règle, il "
+"obtient les points. En fin de compte, tous les points sont additionnés et "
+"les candidats sont classés du plus élevé au plus bas — ainsi les meilleures "
+"correspondances apparaissent en haut de votre liste."
 
 #: recruitment/templates/recruitment/scoring_config.html
 msgid "Example:"
 msgstr "Exemple :"
 
 #: recruitment/templates/recruitment/scoring_config.html
-msgid "Rule: 'Years of Experience is ≥ 5' → award 20 points. A candidate who wrote '7' years earns 20 points; one who wrote '2' earns 0."
-msgstr "Règle : 'Années d'expérience ≥ 5' → attribuer 20 points. Un candidat ayant écrit '7' ans obtient 20 points ; celui ayant écrit '2' en obtient 0."
+msgid ""
+"Rule: 'Years of Experience is ≥ 5' → award 20 points. A candidate who wrote "
+"'7' years earns 20 points; one who wrote '2' earns 0."
+msgstr ""
+"Règle : 'Années d'expérience ≥ 5' → attribuer 20 points. Un candidat ayant "
+"écrit '7' ans obtient 20 points ; celui ayant écrit '2' en obtient 0."
 
 #: recruitment/templates/recruitment/scoring_config.html
-msgid "Scoring is optional — if you add no rules, applicants are sorted by date received."
-msgstr "La notation est optionnelle — si vous n'ajoutez aucune règle, les candidats sont triés par date de réception."
+msgid ""
+"Scoring is optional — if you add no rules, applicants are sorted by date "
+"received."
+msgstr ""
+"La notation est optionnelle — si vous n'ajoutez aucune règle, les candidats "
+"sont triés par date de réception."
 
 #: recruitment/templates/recruitment/scoring_config.html
 msgid "Re-score All"
@@ -2187,7 +2252,9 @@ msgstr "Points"
 
 #: recruitment/templates/recruitment/scoring_config.html
 msgid "No scoring rules yet. Add rules below to automatically rank applicants."
-msgstr "Aucune règle de notation. Ajoutez des règles ci-dessous pour classer automatiquement les candidats."
+msgstr ""
+"Aucune règle de notation. Ajoutez des règles ci-dessous pour classer "
+"automatiquement les candidats."
 
 #: recruitment/templates/recruitment/scoring_config.html
 msgid "Add a Rule"
@@ -2282,13 +2349,13 @@ msgstr "Changer le mot de passe"
 #: .\accounts\templates\accounts\login.html:296
 #| msgid "Contact HR Admin if you need access or forgot your password."
 msgid "Contact HR Admin if you need access."
-msgstr "Contactez l'administrateur RH si vous avez besoin d'accès."
-"Contactez l'administrateur RH si vous avez besoin d'accès ou avez oublié "
-"votre mot de passe."
+msgstr ""
+"Contactez l'administrateur RH si vous avez besoin d'accès.Contactez "
+"l'administrateur RH si vous avez besoin d'accès ou avez oublié votre mot de "
+"passe."
 
 #: .\accounts\templates\accounts\my_documents.html:3
-#: .\accounts\templates\accounts\my_documents.html:4
-#: .\templates\base.html:1184
+#: .\accounts\templates\accounts\my_documents.html:4 .\templates\base.html:1184
 #| msgid "Document"
 msgid "My Documents"
 msgstr "Document"
@@ -2304,12 +2371,12 @@ msgstr "Document"
 
 #: .\accounts\templates\accounts\my_documents.html:16
 msgid ""
-"Upload your ID card, diplomas, certificates, or any document HR may need. HR"
-" can view and download all uploaded documents."
+"Upload your ID card, diplomas, certificates, or any document HR may need. HR "
+"can view and download all uploaded documents."
 msgstr ""
 "Téléchargez votre carte d'identité, diplômes, certificats ou tout document "
-"dont les RH pourraient avoir besoin. Les RH peuvent consulter et télécharger"
-" tous les documents importés."
+"dont les RH pourraient avoir besoin. Les RH peuvent consulter et télécharger "
+"tous les documents importés."
 
 #: .\accounts\templates\accounts\my_documents.html:29
 #: .\accounts\templates\accounts\my_documents.html:64
@@ -2342,7 +2409,8 @@ msgstr "Aucun département pour l'instant."
 
 #: .\accounts\templates\accounts\my_documents.html:56
 msgid "Use the form above to upload your first document."
-msgstr "Utilisez le formulaire ci-dessus pour téléverser votre premier document."
+msgstr ""
+"Utilisez le formulaire ci-dessus pour téléverser votre premier document."
 "Utilisez le formulaire ci-dessus pour télécharger votre premier document."
 
 #: .\accounts\templates\accounts\my_documents.html:82
@@ -2534,9 +2602,10 @@ msgstr "Réinitialisation du Mot de Passe"
 
 #: .\accounts\templates\accounts\password_reset_complete.html:20
 msgid "Your password has been reset successfully. You can now sign in."
-msgstr "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter."
+msgstr ""
 "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant "
-"vous connecter."
+"vous connecter.Votre mot de passe a été réinitialisé avec succès. Vous "
+"pouvez maintenant vous connecter."
 
 #: .\accounts\templates\accounts\password_reset_confirm.html:6
 #| msgid "New Password"
@@ -2582,8 +2651,8 @@ msgstr "Vérifiez votre e-mail"
 
 #: .\accounts\templates\accounts\password_reset_done.html:21
 msgid ""
-"If an account exists for that email, we've sent a password reset link. Check"
-" your inbox and spam folder."
+"If an account exists for that email, we've sent a password reset link. Check "
+"your inbox and spam folder."
 msgstr ""
 "Si un compte existe pour cet e-mail, nous avons envoyé un lien de "
 "réinitialisation de mot de passe. Vérifiez votre boîte de réception et vos "
@@ -2643,15 +2712,17 @@ msgstr "Informations du profil"
 
 #: .\accounts\templates\accounts\profile.html:156
 msgid "Current photo will be replaced if you select a new one."
-msgstr "La photo actuelle sera remplacée si vous en sélectionnez une nouvelle."
-"La photo actuelle sera remplacée si vous en sélectionnez une nouvelle."
+msgstr ""
+"La photo actuelle sera remplacée si vous en sélectionnez une nouvelle.La "
+"photo actuelle sera remplacée si vous en sélectionnez une nouvelle."
 
 #: .\accounts\templates\accounts\profile.html:171
 msgid "Employee ID, Department, Role, and Category are managed by HR."
-msgstr "L'ID, le département, le rôle et la catégorie sont gérés par les RH."
-"L'ID employé, le département, le rôle et la catégorie sont gérés par les "
-"RH.L'identifiant employé, le département, le rôle et la catégorie sont gérés"
-" par les RH."
+msgstr ""
+"L'ID, le département, le rôle et la catégorie sont gérés par les RH.L'ID "
+"employé, le département, le rôle et la catégorie sont gérés par les RH."
+"L'identifiant employé, le département, le rôle et la catégorie sont gérés "
+"par les RH."
 
 #: .\accounts\templates\accounts\profile.html:179
 #| msgid "Internship Details"
@@ -2704,8 +2775,7 @@ msgid ""
 "etc.), then enter the 6-digit code to confirm."
 msgstr ""
 "Scannez le code QR avec une application d'authentification (Google "
-"Authenticator, Authy, etc.), puis entrez le code à 6 chiffres pour "
-"confirmer."
+"Authenticator, Authy, etc.), puis entrez le code à 6 chiffres pour confirmer."
 
 #: .\accounts\templates\accounts\setup_2fa.html:41
 msgid "Manual entry key:"
@@ -2758,9 +2828,9 @@ msgstr "Votre signature"
 #: .\appraisals\templates\appraisals\_comment_form.html:15
 #| msgid "Your saved signature will be used. Draw below to replace it."
 msgid "Saved signature will be used. Draw to replace."
-msgstr "La signature enregistrée sera utilisée. Dessinez pour la remplacer."
-"Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la "
-"remplacer."
+msgstr ""
+"La signature enregistrée sera utilisée. Dessinez pour la remplacer.Votre "
+"signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
 
 #: .\appraisals\templates\appraisals\_comment_form.html:21
 #: .\appraisals\templates\appraisals\_sig_pad.html:13
@@ -2929,9 +2999,10 @@ msgstr "Modifié par les RH"
 
 #: .\appraisals\templates\appraisals\_prior_supervisor.html:5
 msgid "Supervisor / Line Manager — Appraiser Rating &amp; Comment (Read Only)"
-msgstr "Superviseur / Responsable — Note de l'évaluateur (Lecture seule)"
-"Superviseur / Responsable hiérarchique — Évaluation &amp; commentaire de "
-"l'évaluateur (lecture seule)Superviseur / Responsable Hiérarchique — "
+msgstr ""
+"Superviseur / Responsable — Note de l'évaluateur (Lecture "
+"seule)Superviseur / Responsable hiérarchique — Évaluation &amp; commentaire "
+"de l'évaluateur (lecture seule)Superviseur / Responsable Hiérarchique — "
 "Notation &amp; Commentaire de l'Évaluateur (Lecture Seule)"
 
 #: .\appraisals\templates\appraisals\_prior_supervisor.html:10
@@ -3015,9 +3086,10 @@ msgstr "Cycle d'Évaluation"
 #: .\appraisals\templates\appraisals\employee_fill.html:146
 #| msgid "Your saved signature will be used. Draw below to replace it."
 msgid "Saved signature will be used. Draw below to replace."
-msgstr "La signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
-"Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la "
-"remplacer."
+msgstr ""
+"La signature enregistrée sera utilisée. Dessinez ci-dessous pour la "
+"remplacer.Votre signature enregistrée sera utilisée. Dessinez ci-dessous "
+"pour la remplacer."
 
 #: .\appraisals\templates\appraisals\_sig_pad.html:17
 #: .\appraisals\templates\appraisals\employee_fill.html:156
@@ -3112,8 +3184,9 @@ msgstr "Facultatif : Modifier les Notes Finales"
 
 #: .\appraisals\templates\appraisals\ceo_fill.html:26
 msgid "Adjust scores if you disagree with prior assessment"
-msgstr "Ajustez les scores si vous n'êtes pas d'accord avec l'évaluation précédente"
+msgstr ""
 "Ajustez les scores si vous n'êtes pas d'accord avec l'évaluation "
+"précédenteAjustez les scores si vous n'êtes pas d'accord avec l'évaluation "
 "précédenteAjuster les notes si vous n'êtes pas d'accord avec l'évaluation "
 "précédente"
 
@@ -3209,12 +3282,14 @@ msgstr "La date limite de soumission est dépassée"
 #, python-format
 msgid ""
 "\n"
-"                The deadline for completing your appraisal for <strong>%(cycle)s</strong> was\n"
+"                The deadline for completing your appraisal for "
+"<strong>%(cycle)s</strong> was\n"
 "                <strong>%(deadline)s</strong>.\n"
 "                "
 msgstr ""
 "\n"
-"                La date limite pour compléter votre évaluation pour <strong>%(cycle)s</strong> était\n"
+"                La date limite pour compléter votre évaluation pour "
+"<strong>%(cycle)s</strong> était\n"
 "                le <strong>%(deadline)s</strong>.\n"
 "                "
 
@@ -3258,9 +3333,10 @@ msgstr "Facultatif : Modifier les Notes de l'Évaluateur"
 
 #: .\appraisals\templates\appraisals\director_fill.html:25
 msgid "Adjust scores if you disagree with the manager's assessment"
-msgstr "Ajustez les scores si vous n'êtes pas d'accord avec l'évaluation du responsable"
+msgstr ""
 "Ajustez les scores si vous n'êtes pas d'accord avec l'évaluation du "
-"managerAjuster les notes si vous n'êtes pas d'accord avec l'évaluation du "
+"responsableAjustez les scores si vous n'êtes pas d'accord avec l'évaluation "
+"du managerAjuster les notes si vous n'êtes pas d'accord avec l'évaluation du "
 "responsable"
 
 #: .\appraisals\templates\appraisals\director_fill.html:70
@@ -3319,11 +3395,11 @@ msgstr "Notes"
 
 #: .\appraisals\templates\appraisals\employee_fill.html:88
 msgid ""
-"These action points must be discussed and agreed with your supervisor before"
-" filling this section."
+"These action points must be discussed and agreed with your supervisor before "
+"filling this section."
 msgstr ""
-"Ces points d'action doivent être discutés et convenus avec votre superviseur"
-" avant de remplir cette section."
+"Ces points d'action doivent être discutés et convenus avec votre superviseur "
+"avant de remplir cette section."
 
 #: .\appraisals\templates\appraisals\employee_fill.html:90
 msgid "Goals for next trimester..."
@@ -3331,8 +3407,9 @@ msgstr "Objectifs pour le prochain trimestre..."
 
 #: .\appraisals\templates\appraisals\employee_fill.html:96
 msgid "4. Disciplinary Sanctions (–) — Auto-filled by system"
-msgstr "4. Sanctions disciplinaires (–) — Rempli automatiquement par le système"
+msgstr ""
 "4. Sanctions disciplinaires (–) — Rempli automatiquement par le système4. "
+"Sanctions disciplinaires (–) — Rempli automatiquement par le système4. "
 "Sanctions Disciplinaires (–) — Remplies automatiquement par le système"
 
 #: .\appraisals\templates\appraisals\employee_fill.html:98
@@ -3580,9 +3657,9 @@ msgid ""
 "and send them a notification. Make sure you have the correct trimester and "
 "year selected before submitting."
 msgstr ""
-"Cela créera des fiches d'évaluation pour <strong>tous les employés "
-"actifs</strong> et leur enverra une notification. Assurez-vous d'avoir "
-"sélectionné le bon trimestre et la bonne année avant de soumettre."
+"Cela créera des fiches d'évaluation pour <strong>tous les employés actifs</"
+"strong> et leur enverra une notification. Assurez-vous d'avoir sélectionné "
+"le bon trimestre et la bonne année avant de soumettre."
 
 #: .\appraisals\templates\appraisals\hr_initiate.html:21
 #: .\dashboard\templates\dashboard\admin_settings.html:92
@@ -3691,8 +3768,9 @@ msgstr "Motif"
 
 #: .\appraisals\templates\appraisals\hr_unlock_confirm.html:32
 msgid "e.g. Employee was on sick leave during deadline period"
-msgstr "ex. L'employé était en congé maladie pendant la période limite"
-"ex. L'employé était en congé maladie pendant la période de la date limite"
+msgstr ""
+"ex. L'employé était en congé maladie pendant la période limiteex. L'employé "
+"était en congé maladie pendant la période de la date limite"
 
 #: .\appraisals\templates\appraisals\hr_unlock_confirm.html:36
 #| msgid "Delete Employee"
@@ -3798,10 +3876,11 @@ msgstr "Aucun employé pour l'instant."
 
 #: .\appraisals\templates\appraisals\my_appraisals.html:119
 msgid "Your appraisal forms will appear here once HR initiates a new cycle."
-msgstr "Vos formulaires d'évaluation apparaîtront ici une fois que les RH lancent un nouveau cycle."
-"Vos formulaires d'évaluation apparaîtront ici une fois que les RH auront "
-"lancé un nouveau cycle.Vos fiches d'évaluation apparaîtront ici une fois que"
-" les RH auront initié un nouveau cycle."
+msgstr ""
+"Vos formulaires d'évaluation apparaîtront ici une fois que les RH lancent un "
+"nouveau cycle.Vos formulaires d'évaluation apparaîtront ici une fois que les "
+"RH auront lancé un nouveau cycle.Vos fiches d'évaluation apparaîtront ici "
+"une fois que les RH auront initié un nouveau cycle."
 
 #: .\appraisals\templates\appraisals\pending_list.html:5
 msgid "Appraisals waiting for your action"
@@ -3841,8 +3920,7 @@ msgid ""
 "Provide your written assessment of this employee's performance during the "
 "period..."
 msgstr ""
-"Saisir votre évaluation en tant que superviseur / responsable "
-"hiérarchique..."
+"Saisir votre évaluation en tant que superviseur / responsable hiérarchique..."
 
 #: .\contracts\templates\contracts\bulk_issue_contract.html:4
 #: .\contracts\templates\contracts\bulk_issue_contract.html:5
@@ -4854,8 +4932,9 @@ msgstr "À risque"
 
 #: .\contracts\templates\contracts\stats.html:311
 msgid "No date-of-birth data available. Add it via employee profiles."
-msgstr "Aucune donnée de naissance disponible. Ajoutez-la via les profils des employés."
-"Aucune date de naissance disponible. Ajoutez-la via les profils des "
+msgstr ""
+"Aucune donnée de naissance disponible. Ajoutez-la via les profils des "
+"employés.Aucune date de naissance disponible. Ajoutez-la via les profils des "
 "employés.Pas de données de date de naissance disponibles. Ajoutez-les via "
 "les profils des employés."
 
@@ -5035,9 +5114,10 @@ msgstr "Aucun contrat enregistré."
 
 #: .\dashboard\templates\dashboard\activity_log.html:173
 msgid "Activity will appear here as users log in and perform actions."
-msgstr "L'activité apparaîtra ici au fur et à mesure que les utilisateurs se connectent."
+msgstr ""
 "L'activité apparaîtra ici au fur et à mesure que les utilisateurs se "
-"connectent et effectuent des actions."
+"connectent.L'activité apparaîtra ici au fur et à mesure que les utilisateurs "
+"se connectent et effectuent des actions."
 
 # admin_dashboard.html
 #: .\dashboard\templates\dashboard\admin_dashboard.html:3
@@ -5295,9 +5375,10 @@ msgstr "Paie et bulletins de salaire"
 
 #: .\dashboard\templates\dashboard\admin_settings.html:32
 msgid "Allow HR to upload payslips and employees to view their pay history."
-msgstr "Permettre aux RH de téléverser des bulletins de paie et aux employés de consulter leur historique de paie."
-"Permettre aux RH de télécharger les bulletins et aux employés de consulter "
-"leur historique de paie."
+msgstr ""
+"Permettre aux RH de téléverser des bulletins de paie et aux employés de "
+"consulter leur historique de paie.Permettre aux RH de télécharger les "
+"bulletins et aux employés de consulter leur historique de paie."
 
 #: .\dashboard\templates\dashboard\admin_settings.html:57
 msgid "Auto-Set Leave by Seniority"
@@ -5305,8 +5386,8 @@ msgstr "Définir automatiquement les congés par ancienneté"
 
 #: .\dashboard\templates\dashboard\admin_settings.html:58
 msgid ""
-"Applies Cameroonian Labour Code entitlement based on each employee's date of"
-" hire"
+"Applies Cameroonian Labour Code entitlement based on each employee's date of "
+"hire"
 msgstr ""
 "Applique le droit selon le Code du travail camerounais basé sur la date "
 "d'embauche de chaque employé"
@@ -5338,7 +5419,8 @@ msgstr ""
 
 #: .\dashboard\templates\dashboard\admin_settings.html:88
 msgid "Apply seniority-based entitlements to ALL active employees?"
-msgstr "Appliquer les droits basés sur l'ancienneté à TOUS les employés actifs ?"
+msgstr ""
+"Appliquer les droits basés sur l'ancienneté à TOUS les employés actifs ?"
 "Appliquer les droits basés sur l'ancienneté à TOUS les employés actifs ?"
 
 #: .\dashboard\templates\dashboard\admin_settings.html:99
@@ -5363,9 +5445,10 @@ msgstr ""
 
 #: .\dashboard\templates\dashboard\admin_settings.html:120
 msgid "Set this entitlement for ALL active employees? This cannot be undone."
-msgstr "Définir ce droit pour TOUS les employés actifs ? Cette action est irréversible."
+msgstr ""
 "Définir ce droit pour TOUS les employés actifs ? Cette action est "
-"irréversible."
+"irréversible.Définir ce droit pour TOUS les employés actifs ? Cette action "
+"est irréversible."
 
 #: .\dashboard\templates\dashboard\admin_settings.html:147
 #| msgid "Leave Balance"
@@ -5385,17 +5468,18 @@ msgstr ""
 #: .\dashboard\templates\dashboard\admin_settings.html:155
 #, python-format
 msgid ""
-"Affects <strong>%(count)s employees</strong> for year "
-"<strong>%(year)s</strong>. This cannot be undone."
+"Affects <strong>%(count)s employees</strong> for year <strong>%(year)s</"
+"strong>. This cannot be undone."
 msgstr ""
-"Affecte <strong>%(count)s employés</strong> pour l'année "
-"<strong>%(year)s</strong>. Cette action est irréversible."
+"Affecte <strong>%(count)s employés</strong> pour l'année <strong>%(year)s</"
+"strong>. Cette action est irréversible."
 
 #: .\dashboard\templates\dashboard\admin_settings.html:158
 msgid "Reset all leave balances to 18 days? This cannot be undone."
-msgstr "Réinitialiser tous les soldes de congé à 18 jours ? Cette action est irréversible."
-"Réinitialiser tous les soldes de congés à 18 jours ? Cette action est "
-"irréversible."
+msgstr ""
+"Réinitialiser tous les soldes de congé à 18 jours ? Cette action est "
+"irréversible.Réinitialiser tous les soldes de congés à 18 jours ? Cette "
+"action est irréversible."
 
 #: .\dashboard\templates\dashboard\admin_settings.html:162
 #| msgid "Leave Balance"
@@ -5408,12 +5492,12 @@ msgstr "Fin d'année : Report des congés accumulés"
 
 #: .\dashboard\templates\dashboard\admin_settings.html:176
 msgid ""
-"Transfer each employee's unused deductible leave from one year into the next"
-" year as accumulated (carried-forward) leave. This is added on top of the "
+"Transfer each employee's unused deductible leave from one year into the next "
+"year as accumulated (carried-forward) leave. This is added on top of the "
 "standard annual entitlement for that year."
 msgstr ""
-"Transférer les congés déductibles inutilisés de chaque employé d'une année à"
-" l'autre en tant que congés accumulés (reportés). Cela s'ajoute au droit "
+"Transférer les congés déductibles inutilisés de chaque employé d'une année à "
+"l'autre en tant que congés accumulés (reportés). Cela s'ajoute au droit "
 "annuel standard de cette année."
 
 #: .\dashboard\templates\dashboard\admin_settings.html:180
@@ -5549,8 +5633,8 @@ msgid ""
 "you to type a confirmation phrase exactly before proceeding."
 msgstr ""
 "Ces actions sont irréversibles. Créez d'abord une sauvegarde. Les deux "
-"options vous demandent de saisir une phrase de confirmation exactement avant"
-" de continuer."
+"options vous demandent de saisir une phrase de confirmation exactement avant "
+"de continuer."
 
 #: .\dashboard\templates\dashboard\admin_settings.html:361
 msgid "Go-Live Reset — Clear Test Data"
@@ -5617,8 +5701,8 @@ msgid ""
 "Clears all leave requests and leave balances only. Use this at the start of "
 "a new leave year so every employee begins fresh."
 msgstr ""
-"Efface uniquement les demandes de congés et les soldes de congés. À utiliser"
-" au début d'une nouvelle année de congés pour que chaque employé reparte à "
+"Efface uniquement les demandes de congés et les soldes de congés. À utiliser "
+"au début d'une nouvelle année de congés pour que chaque employé reparte à "
 "zéro."
 
 #: .\dashboard\templates\dashboard\admin_settings.html:406
@@ -5650,9 +5734,10 @@ msgstr ""
 
 #: .\dashboard\templates\dashboard\admin_settings.html:436
 msgid "all user accounts, employee profiles, departments, and leave types."
-msgstr "tous les comptes utilisateurs, profils d'employés, départements et types de congé."
-"tous les comptes utilisateurs, profils des employés, départements et types "
-"de congés."
+msgstr ""
+"tous les comptes utilisateurs, profils d'employés, départements et types de "
+"congé.tous les comptes utilisateurs, profils des employés, départements et "
+"types de congés."
 
 #: .\dashboard\templates\dashboard\admin_settings.html:448
 msgid "Clear All Activity Data"
@@ -5693,8 +5778,8 @@ msgstr "Vous devez saisir :"
 
 #: .\dashboard\templates\dashboard\admin_settings.html:533
 msgid ""
-"THIS CANNOT BE UNDONE. Are you absolutely sure you want to proceed with this"
-" reset?"
+"THIS CANNOT BE UNDONE. Are you absolutely sure you want to proceed with this "
+"reset?"
 msgstr ""
 "CETTE ACTION EST IRRÉVERSIBLE. Êtes-vous absolument certain de vouloir "
 "procéder à cette réinitialisation ?"
@@ -5999,8 +6084,8 @@ msgid ""
 "Wishing you a wonderful day from the entire Africa Eye Foundation Institute "
 "family."
 msgstr ""
-"Nous vous souhaitons une merveilleuse journée de la part de toute la famille"
-" du Magrabi ICO Cameroon Eye Institute."
+"Nous vous souhaitons une merveilleuse journée de la part de toute la famille "
+"du Magrabi ICO Cameroon Eye Institute."
 
 #: .\dashboard\templates\dashboard\employee_dashboard.html:37
 #: .\dashboard\templates\dashboard\includes\my_leave_section.html:25
@@ -6179,10 +6264,11 @@ msgstr "%(count)s demande(s) en attente de votre révision"
 
 #: .\dashboard\templates\dashboard\hr_dashboard.html:166
 msgid "These have been approved by the manager and are now in your queue."
-msgstr "Ceux-ci ont été approuvés par le responsable et sont maintenant dans votre file d'attente."
-"Ceux-ci ont été approuvés par le manager et sont maintenant dans votre "
-"file.Ces demandes ont été approuvées par le responsable et sont maintenant "
-"dans votre file d'attente."
+msgstr ""
+"Ceux-ci ont été approuvés par le responsable et sont maintenant dans votre "
+"file d'attente.Ceux-ci ont été approuvés par le manager et sont maintenant "
+"dans votre file.Ces demandes ont été approuvées par le responsable et sont "
+"maintenant dans votre file d'attente."
 
 #: .\dashboard\templates\dashboard\hr_dashboard.html:170
 msgid "Review Now"
@@ -6783,14 +6869,14 @@ msgstr "Action requise"
 #, python-format
 msgid ""
 "Staff listed above are within 3 years of the mandatory retirement age "
-"(%(age)s). HR should initiate succession planning, notify the employees, and"
-" begin retirement benefit processing at least 6 months before the retirement"
-" date."
+"(%(age)s). HR should initiate succession planning, notify the employees, and "
+"begin retirement benefit processing at least 6 months before the retirement "
+"date."
 msgstr ""
 "Le personnel listé ci-dessus est à moins de 3 ans de l'âge de retraite "
 "obligatoire (%(age)s). Les RH doivent initier la planification de la "
-"succession, notifier les employés et commencer le traitement des prestations"
-" de retraite au moins 6 mois avant la date de retraite."
+"succession, notifier les employés et commencer le traitement des prestations "
+"de retraite au moins 6 mois avant la date de retraite."
 
 #: .\dashboard\templates\dashboard\retirement_dashboard.html:150
 #| msgid "Approaching Retirement (age 60)"
@@ -6801,7 +6887,8 @@ msgstr "Approche de la Retraite (âge 60)"
 #, python-format
 #| msgid "No employees match your filters."
 msgid "No active employees are within 3 years of retirement age (%(age)s)."
-msgstr "Aucun employé actif n'est à moins de 3 ans de l'âge de la retraite (%(age)s)."
+msgstr ""
+"Aucun employé actif n'est à moins de 3 ans de l'âge de la retraite (%(age)s)."
 "Aucun employé actif n'est à moins de 3 ans de l'âge de retraite (%(age)s)."
 
 #: .\dashboard\templates\dashboard\unit_head_dashboard.html:171
@@ -6890,8 +6977,8 @@ msgstr "Proposition RH"
 #| "You are currently on <strong>%(leave_type)s</strong> leave. You return on "
 #| "<strong>%(end_date)s</strong>."
 msgid ""
-"Formally execute this <strong>%(action)s</strong> for "
-"<strong>%(name)s</strong>?"
+"Formally execute this <strong>%(action)s</strong> for <strong>%(name)s</"
+"strong>?"
 msgstr ""
 "Exécuter formellement cette action <strong>%(action)s</strong> pour "
 "<strong>%(name)s</strong> ?"
@@ -7076,8 +7163,9 @@ msgstr "Le directeur a approuvé la sanction proposée."
 
 #: .\discipline\templates\discipline\detail.html:378
 msgid "You can now issue the formal discipline notice to the employee."
-msgstr "Vous pouvez maintenant émettre l'avis disciplinaire formel à l'employé."
-"Vous pouvez maintenant émettre l'avis disciplinaire formel à l'employé."
+msgstr ""
+"Vous pouvez maintenant émettre l'avis disciplinaire formel à l'employé.Vous "
+"pouvez maintenant émettre l'avis disciplinaire formel à l'employé."
 
 #: .\discipline\templates\discipline\detail.html:382
 #| msgid "New Disciplinary Notice"
@@ -7105,9 +7193,10 @@ msgstr "Licenciement"
 
 #: .\discipline\templates\discipline\detail.html:412
 msgid "HR and Admin must manually deactivate this employee's account."
-msgstr "Les RH et l'administration doivent désactiver manuellement le compte de cet employé."
+msgstr ""
 "Les RH et l'administration doivent désactiver manuellement le compte de cet "
-"employé."
+"employé.Les RH et l'administration doivent désactiver manuellement le compte "
+"de cet employé."
 
 #: .\discipline\templates\discipline\detail.html:414
 #| msgid "Active Employees"
@@ -7179,12 +7268,12 @@ msgstr ""
 
 #: .\discipline\templates\discipline\issue_form.html:34
 msgid ""
-"You may <strong>issue discipline directly</strong> or <strong>propose to "
-"HR</strong> for formal execution. Use the toggle below to choose."
+"You may <strong>issue discipline directly</strong> or <strong>propose to HR</"
+"strong> for formal execution. Use the toggle below to choose."
 msgstr ""
 "Vous pouvez <strong>émettre une sanction directement</strong> ou "
-"<strong>proposer aux RH</strong> pour exécution formelle. Utilisez le bouton"
-" ci-dessous pour choisir."
+"<strong>proposer aux RH</strong> pour exécution formelle. Utilisez le bouton "
+"ci-dessous pour choisir."
 
 #: .\discipline\templates\discipline\issue_form.html:43
 #| msgid "Verbal Warning"
@@ -7273,8 +7362,8 @@ msgid ""
 "Attach the official notice letter or any supporting document (PDF, Word, or "
 "image)."
 msgstr ""
-"Joignez la lettre d'avis officielle ou tout document justificatif (PDF, Word"
-" ou image)."
+"Joignez la lettre d'avis officielle ou tout document justificatif (PDF, Word "
+"ou image)."
 
 #: .\discipline\templates\discipline\issue_form.html:167
 #| msgid "Director"
@@ -7283,9 +7372,9 @@ msgstr "Directeur"
 
 #: .\discipline\templates\discipline\issue_form.html:171
 msgid "Explain your recommendation and any additional context for HR..."
-msgstr "Expliquez votre recommandation et tout contexte supplémentaire pour les RH..."
-"Expliquez votre recommandation et tout contexte supplémentaire pour les "
-"RH..."
+msgstr ""
+"Expliquez votre recommandation et tout contexte supplémentaire pour les RH..."
+"Expliquez votre recommandation et tout contexte supplémentaire pour les RH..."
 
 #: .\discipline\templates\discipline\issue_form.html:181
 msgid "Any internal remarks for HR records only..."
@@ -7297,8 +7386,7 @@ msgid "Submit Proposal to HR"
 msgstr "Soumettre la proposition aux RH"
 
 #: .\discipline\templates\discipline\issue_form.html:215
-msgid ""
-"An informal recorded warning — first step before formal written action."
+msgid "An informal recorded warning — first step before formal written action."
 msgstr ""
 "Un avertissement informel enregistré — première étape avant une action "
 "écrite formelle."
@@ -7311,9 +7399,10 @@ msgstr ""
 
 #: .\discipline\templates\discipline\issue_form.html:217
 msgid "A final written warning — next step is suspension or dismissal."
-msgstr "Un dernier avertissement écrit — la prochaine étape est la suspension ou le licenciement."
+msgstr ""
 "Un dernier avertissement écrit — la prochaine étape est la suspension ou le "
-"licenciement."
+"licenciement.Un dernier avertissement écrit — la prochaine étape est la "
+"suspension ou le licenciement."
 
 #: .\discipline\templates\discipline\issue_form.html:218
 msgid ""
@@ -7557,10 +7646,11 @@ msgstr "Observations"
 #: .\leaves\templates\leaves\action_form.html:150
 #: .\leaves\templates\leaves\request_form.html:112
 msgid "Your saved signature will be used. Draw below to replace it."
-msgstr "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la remplacer."
+msgstr ""
 "Votre signature enregistrée sera utilisée. Dessinez ci-dessous pour la "
 "remplacer.Votre signature enregistrée sera utilisée. Dessinez ci-dessous "
-"pour la remplacer."
+"pour la remplacer.Votre signature enregistrée sera utilisée. Dessinez ci-"
+"dessous pour la remplacer."
 
 #: .\leaves\templates\leaves\action_form.html:178
 msgid "Submit Decision"
@@ -7599,9 +7689,10 @@ msgstr "Synchroniser les signatures avec les congés"
 
 #: .\leaves\templates\leaves\backfill_signatures.html:5
 msgid "Repair historical leave PDFs after signature system upgrade"
-msgstr "Réparer les PDFs de congé historiques après la mise à niveau du système de signature"
-"Réparer les PDFs de congés historiques après la mise à niveau du système de "
-"signature"
+msgstr ""
+"Réparer les PDFs de congé historiques après la mise à niveau du système de "
+"signatureRéparer les PDFs de congés historiques après la mise à niveau du "
+"système de signature"
 
 #: .\leaves\templates\leaves\backfill_signatures.html:12
 msgid "Signature Backfill"
@@ -7878,9 +7969,9 @@ msgstr "Cher/Chère"
 #: .\leaves\templates\leaves\leave_print.html:356
 msgid ""
 "We are pleased to inform you that your leave request has been reviewed and "
-"fully approved by the Human Resources Department. Please find the details of"
-" your approved leave below. Kindly ensure that all pending duties are handed"
-" over to the appropriate colleague before the commencement of your leave."
+"fully approved by the Human Resources Department. Please find the details of "
+"your approved leave below. Kindly ensure that all pending duties are handed "
+"over to the appropriate colleague before the commencement of your leave."
 msgstr ""
 "Nous avons le plaisir de vous informer que votre demande de congé a été "
 "examinée et entièrement approuvée par le Département des Ressources "
@@ -7928,8 +8019,8 @@ msgid ""
 msgstr ""
 "Cette lettre constitue la confirmation officielle de votre congé approuvé. "
 "Veuillez en conserver une copie pour vos dossiers personnels. Si vous devez "
-"revenir avant la date prévue, veuillez informer immédiatement les Ressources"
-" Humaines."
+"revenir avant la date prévue, veuillez informer immédiatement les Ressources "
+"Humaines."
 
 #: .\leaves\templates\leaves\leave_print.html:419
 msgid "We wish you a restful and pleasant leave."
@@ -8121,9 +8212,10 @@ msgstr "Les jours sont déduits du droit annuel de l'employé (18 jours/an)."
 
 #: .\leaves\templates\leaves\leave_type_list.html:128
 msgid "Days do not affect the annual balance. Tracked separately in reports."
-msgstr "Les jours n'affectent pas le solde annuel. Suivis séparément dans les rapports."
-"Les jours n'affectent pas le solde annuel. Suivi séparément dans les "
-"rapports."
+msgstr ""
+"Les jours n'affectent pas le solde annuel. Suivis séparément dans les "
+"rapports.Les jours n'affectent pas le solde annuel. Suivi séparément dans "
+"les rapports."
 
 # manager_approvals.html
 #: .\leaves\templates\leaves\manager_approvals.html:3
@@ -8222,7 +8314,8 @@ msgstr "jour(s) ouvrable(s) sélectionné(s)"
 
 #: .\leaves\templates\leaves\request_form.html:62
 msgid "You do not have enough leave balance for the selected number of days."
-msgstr "Vous n'avez pas assez de solde de congé pour le nombre de jours sélectionné."
+msgstr ""
+"Vous n'avez pas assez de solde de congé pour le nombre de jours sélectionné."
 "Vous n'avez pas suffisamment de solde de congés pour le nombre de jours "
 "sélectionné."
 
@@ -8236,12 +8329,10 @@ msgid "Reason for Leave"
 msgstr "Motif du Congé"
 
 #: .\leaves\templates\leaves\request_form.html:92
-msgid ""
-"Upload a medical certificate, marriage certificate, etc. if applicable."
+msgid "Upload a medical certificate, marriage certificate, etc. if applicable."
 msgstr ""
-"Téléchargez un certificat médical, acte de mariage, etc. si "
-"applicable.Téléchargez un certificat médical, acte de mariage, etc. si "
-"applicable."
+"Téléchargez un certificat médical, acte de mariage, etc. si applicable."
+"Téléchargez un certificat médical, acte de mariage, etc. si applicable."
 
 #: .\leaves\templates\leaves\request_form.html:140
 msgid "Submit Request"
@@ -8440,12 +8531,12 @@ msgid "No payslips available yet"
 msgstr "Total disponible (jours)"
 
 #: .\payroll\templates\payroll\my_payslips.html:63
-#| msgid ""
-#| "Your appraisal forms will appear here once HR initiates a new cycle."
+#| msgid "Your appraisal forms will appear here once HR initiates a new cycle."
 msgid "Your payslips will appear here once HR uploads them."
-msgstr "Vos bulletins de paie apparaîtront ici une fois que les RH les auront téléversés."
-"Vos fiches d'évaluation apparaîtront ici une fois que les RH auront initié "
-"un nouveau cycle."
+msgstr ""
+"Vos bulletins de paie apparaîtront ici une fois que les RH les auront "
+"téléversés.Vos fiches d'évaluation apparaîtront ici une fois que les RH "
+"auront initié un nouveau cycle."
 
 #: .\payroll\templates\payroll\payslip_detail.html:4
 msgid "Payslip"
@@ -8564,8 +8655,9 @@ msgstr "Salaire brut (XAF)"
 #: .\payroll\templates\payroll\payslip_form.html:76
 #, python-format
 msgid "Estimate CNPS (4.2%%) and IRPP based on Cameroonian tax rules"
-msgstr "Estimer CNPS (4,2 %%) et IRPP selon les règles fiscales camerounaises"
-"Estimer le CNPS (4,2%%) et l'IRPP selon les règles fiscales camerounaises"
+msgstr ""
+"Estimer CNPS (4,2 %%) et IRPP selon les règles fiscales camerounaisesEstimer "
+"le CNPS (4,2%%) et l'IRPP selon les règles fiscales camerounaises"
 
 #: .\payroll\templates\payroll\payslip_form.html:77
 msgid "Auto-calculate CNPS & Tax"
@@ -8741,136 +8833,11 @@ msgstr "Compte suspendu jusqu'au %(end)s"
 
 #: .\templates\base.html:1623
 msgid "Applying for leave is disabled. All other features remain accessible."
-msgstr "La demande de congé est désactivée. Toutes les autres fonctionnalités restent accessibles."
+msgstr ""
 "La demande de congé est désactivée. Toutes les autres fonctionnalités "
 "restent accessibles.La demande de congé est désactivée. Toutes les autres "
-"fonctionnalités restent accessibles."
-
-#~ msgid ""
-#~ "If you have forgotten your password, contact the system administrator to "
-#~ "reset it for you."
-#~ msgstr ""
-#~ "Si vous avez oublié votre mot de passe, contactez l'administrateur système "
-#~ "pour le réinitialiser."
-
-#~ msgid "Period:"
-#~ msgstr "Période"
-
-#~ msgid "Hired:"
-#~ msgstr "Expiré"
-
-#~ msgid "6. Select a Co-Worker"
-#~ msgstr "6. Sélectionner un Collègue"
-
-#~ msgid "who will comment on your work"
-#~ msgstr "qui commentera votre travail"
-
-#~ msgid ""
-#~ "Choose a colleague (from any department) who will provide a brief comment "
-#~ "about your work. They will be notified automatically after you submit."
-#~ msgstr ""
-#~ "Choisissez un collègue (de n'importe quel département) qui fournira un bref "
-#~ "commentaire sur votre travail. Il sera notifié automatiquement après votre "
-#~ "soumission."
-
-#~ msgid "Type to search by name or department..."
-#~ msgstr "Rechercher par nom ou département..."
-
-#~ msgid "— Select a colleague —"
-#~ msgstr "— Sélectionner un département —"
-
-#~ msgid ""
-#~ "This person cannot be yourself. They will receive a notification to log in "
-#~ "and add their comment."
-#~ msgstr ""
-#~ "Cette personne ne peut pas être vous-même. Elle recevra une notification "
-#~ "pour se connecter et ajouter son commentaire."
-
-# manager_approvals.html
-#~ msgid "Manager Appraisal Rating"
-#~ msgstr "Approbations du Responsable"
-
-#~ msgid "Supervisor Review"
-#~ msgstr "Superviseur"
-
-#~ msgid "Supervisor Review & Grading"
-#~ msgstr "Revue et Notation du Superviseur"
-
-#~ msgid "Your Appraiser Rating & Comment (Supervisor / Line Manager)"
-#~ msgstr ""
-#~ "Votre Notation et Commentaire (Superviseur / Responsable Hiérarchique)"
-
-#~ msgid "Select a colleague to cover you"
-#~ msgstr "Sélectionner un collègue pour vous remplacer"
-
-#~ msgid "Submit a new leave request"
-#~ msgstr "Soumettre une nouvelle demande de congé"
-
-#~ msgid "HR Admin Final Approval"
-#~ msgstr "Approbation Finale de l'Admin RH"
-
-#~ msgid "Print Approval Letter"
-#~ msgstr "Imprimer la Lettre d'Approbation"
-
-#~ msgid "Rejected This Year"
-#~ msgstr "Rejetés Cette Année"
-
-#~ msgid "Manager Approved"
-#~ msgstr "Approuvé par le Responsable"
-
-#~ msgid "No pending approvals"
-#~ msgstr "Aucune approbation en attente"
-
-#~ msgid "Low Leave Balance (≤3 days)"
-#~ msgstr "Solde de Congés Faible (≤3 jours)"
-
-#~ msgid "Awaiting Your Approval"
-#~ msgstr "En Attente de Votre Approbation"
-
-#~ msgid "Your Team Members"
-#~ msgstr "Membres de Votre Équipe"
-
-#~ msgid "Language"
-#~ msgstr "Langue"
-
-#~ msgid "No pending HR approvals"
-#~ msgstr "Aucune approbation RH en attente"
-
-#~ msgid "Requests Awaiting Your Final Approval"
-#~ msgstr "Demandes en attente de votre approbation finale"
-
-#~ msgid "No requests awaiting your approval — all clear!"
-#~ msgstr "Aucune demande en attente de votre approbation — tout est en ordre !"
-
-#~ msgid "Former / Dismissed"
-#~ msgstr "Anciens / Licenciés"
-
-#~ msgid "Awaiting My Approval"
-#~ msgstr "En attente de mon approbation"
-
-#~ msgid "My Recent Leave Requests"
-#~ msgstr "Mes demandes de congé récentes"
-
-#~ msgid "No pending requests. Your unit is all clear."
-#~ msgstr "Aucune demande en attente. Votre unité est en ordre."
-
-#~ msgid "No pending approvals — all caught up!"
-#~ msgstr "Aucune approbation en attente — tout est à jour !"
-
-#~ msgid "Male"
-#~ msgstr "Masculin"
-
-#~ msgid "Female"
-#~ msgstr "Féminin"
-
-#~ msgid "CEO"
-#~ msgstr "PDG"
-
-#~ msgid "View all notifications"
-#~ msgstr "Voir toutes les notifications"
-
-#~ msgid "No department"
-#~ msgstr "Aucun département"
+"fonctionnalités restent accessibles.La demande de congé est désactivée. "
+"Toutes les autres fonctionnalités restent accessibles."
 
 #: contracts/templates/contracts/contract_detail.html
 msgid "Delete Contract"
@@ -8885,8 +8852,11 @@ msgid "Are you sure you want to permanently delete this contract?"
 msgstr "Êtes-vous sûr de vouloir supprimer définitivement ce contrat ?"
 
 #: contracts/templates/contracts/contract_detail.html
-msgid "This action cannot be undone. All contract data will be permanently removed."
-msgstr "Cette action est irréversible. Toutes les données du contrat seront définitivement supprimées."
+msgid ""
+"This action cannot be undone. All contract data will be permanently removed."
+msgstr ""
+"Cette action est irréversible. Toutes les données du contrat seront "
+"définitivement supprimées."
 
 #: accounts/templates/accounts/password_reset_form.html
 msgid "Confirm your email"
@@ -8897,8 +8867,12 @@ msgid "We found your account. The email on file is:"
 msgstr "Nous avons trouvé votre compte. L'adresse e-mail enregistrée est :"
 
 #: accounts/templates/accounts/password_reset_form.html
-msgid "Enter your full email address to verify your identity. A reset link will be sent to that address."
-msgstr "Saisissez votre adresse e-mail complète pour vérifier votre identité. Un lien de réinitialisation vous sera envoyé."
+msgid ""
+"Enter your full email address to verify your identity. A reset link will be "
+"sent to that address."
+msgstr ""
+"Saisissez votre adresse e-mail complète pour vérifier votre identité. Un "
+"lien de réinitialisation vous sera envoyé."
 
 #: accounts/templates/accounts/password_reset_form.html
 msgid "Your email address"
@@ -8913,22 +8887,31 @@ msgid "No account found with that username."
 msgstr "Aucun compte trouvé avec ce nom d'utilisateur."
 
 #: accounts/templates/accounts/password_reset_form.html
-msgid "The email you entered does not match the email on this account. Please try again."
-msgstr "L'adresse e-mail saisie ne correspond pas à l'adresse enregistrée sur ce compte. Veuillez réessayer."
+msgid ""
+"The email you entered does not match the email on this account. Please try "
+"again."
+msgstr ""
+"L'adresse e-mail saisie ne correspond pas à l'adresse enregistrée sur ce "
+"compte. Veuillez réessayer."
 
 #: accounts/templates/accounts/password_reset_form.html
 msgid "This account has no email address on file. Please contact HR."
-msgstr "Ce compte ne possède pas d'adresse e-mail enregistrée. Veuillez contacter les RH."
+msgstr ""
+"Ce compte ne possède pas d'adresse e-mail enregistrée. Veuillez contacter "
+"les RH."
 
 # -- Recruitment / Public career site -------------------------------------------
-
 #: templates/base_public.html
 msgid "Careers — MICEI"
 msgstr "Carrières — MICEI"
 
 #: templates/base_public.html
-msgid "Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute."
-msgstr "Rejoignez l’équipe MICEI — explorez les postes ouverts à l’Institut Magrabi ICO Cameroon Eye."
+msgid ""
+"Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye "
+"Institute."
+msgstr ""
+"Rejoignez l’équipe MICEI — explorez les postes ouverts à l’Institut Magrabi "
+"ICO Cameroon Eye."
 
 #: templates/base_public.html
 msgid "Join Our Team"
@@ -8943,8 +8926,12 @@ msgid "Explore open positions and apply directly online."
 msgstr "Explorez les postes ouverts et postulez directement en ligne."
 
 #: recruitment/templates/recruitment/job_board.html
-msgid "Join the team at Magrabi ICO Cameroon Eye Institute — explore open positions in ophthalmology, nursing, administration and more."
-msgstr "Rejoignez l’équipe MICEI — explorez les postes en ophtalmologie, soins infirmiers, administration et bien plus."
+msgid ""
+"Join the team at Magrabi ICO Cameroon Eye Institute — explore open positions "
+"in ophthalmology, nursing, administration and more."
+msgstr ""
+"Rejoignez l’équipe MICEI — explorez les postes en ophtalmologie, soins "
+"infirmiers, administration et bien plus."
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "Careers at MICEI"
@@ -8959,8 +8946,14 @@ msgid "Improving Life."
 msgstr "Améliorer la Vie."
 
 #: recruitment/templates/recruitment/job_board.html
-msgid "Magrabi ICO Cameroon Eye Institute — Cameroon's leading subspecialty eye care hospital, dedicated to improving vision and transforming lives across Central Africa."
-msgstr "Magrabi ICO Cameroon Eye Institute — le premier hôpital ophtalmologique spécialisé du Cameroun, dédié à l’amélioration de la vision et à la transformation des vies en Afrique centrale."
+msgid ""
+"Magrabi ICO Cameroon Eye Institute — Cameroon's leading subspecialty eye "
+"care hospital, dedicated to improving vision and transforming lives across "
+"Central Africa."
+msgstr ""
+"Magrabi ICO Cameroon Eye Institute — le premier hôpital ophtalmologique "
+"spécialisé du Cameroun, dédié à l’amélioration de la vision et à la "
+"transformation des vies en Afrique centrale."
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "Search positions, departments…"
@@ -8994,7 +8987,9 @@ msgstr "Standards Internationaux"
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "World-class care aligned with global medical best practices"
-msgstr "Soins de classe mondiale alignés sur les meilleures pratiques médicales mondiales"
+msgstr ""
+"Soins de classe mondiale alignés sur les meilleures pratiques médicales "
+"mondiales"
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "Not-for-Profit Mission"
@@ -9044,7 +9039,8 @@ msgstr "Aucun poste ouvert pour le moment"
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "Check back soon — new opportunities are posted regularly."
-msgstr "Revenez bientôt — de nouvelles opportunités sont publiées régulièrement."
+msgstr ""
+"Revenez bientôt — de nouvelles opportunités sont publiées régulièrement."
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "You can also send your CV to"
@@ -9156,7 +9152,8 @@ msgstr "Tout Est Prêt !"
 
 #: recruitment/templates/recruitment/apply_success.html
 msgid "Thank you — we'll review your application and be in touch soon."
-msgstr "Merci — nous examinerons votre candidature et vous contacterons bientôt."
+msgstr ""
+"Merci — nous examinerons votre candidature et vous contacterons bientôt."
 
 #: recruitment/templates/recruitment/apply_success.html
 msgid "Application Received!"
@@ -9164,7 +9161,8 @@ msgstr "Candidature Reçue !"
 
 #: recruitment/templates/recruitment/apply_success.html
 msgid "You applied for <strong style=\"color:#0A4D68;\">%(title)s</strong>"
-msgstr "Vous avez postulé pour <strong style=\"color:#0A4D68;\">%(title)s</strong>"
+msgstr ""
+"Vous avez postulé pour <strong style=\"color:#0A4D68;\">%(title)s</strong>"
 
 #: recruitment/templates/recruitment/apply_success.html
 msgid "What happens next?"
@@ -9188,10 +9186,134 @@ msgstr "Entretien"
 
 #: recruitment/templates/recruitment/apply_success.html
 msgid "Selected candidates are invited for an in-person or virtual interview."
-msgstr "Les candidats sélectionnés sont invités à un entretien en présentiel ou virtuel."
+msgstr ""
+"Les candidats sélectionnés sont invités à un entretien en présentiel ou "
+"virtuel."
 
 #: recruitment/templates/recruitment/apply_success.html
 msgid "Explore Other Openings"
 msgstr "Explorer d'autres Offres"
 
+#~ msgid ""
+#~ "If you have forgotten your password, contact the system administrator to "
+#~ "reset it for you."
+#~ msgstr ""
+#~ "Si vous avez oublié votre mot de passe, contactez l'administrateur "
+#~ "système pour le réinitialiser."
 
+#~ msgid "Period:"
+#~ msgstr "Période"
+
+#~ msgid "Hired:"
+#~ msgstr "Expiré"
+
+#~ msgid "6. Select a Co-Worker"
+#~ msgstr "6. Sélectionner un Collègue"
+
+#~ msgid "who will comment on your work"
+#~ msgstr "qui commentera votre travail"
+
+#~ msgid ""
+#~ "Choose a colleague (from any department) who will provide a brief comment "
+#~ "about your work. They will be notified automatically after you submit."
+#~ msgstr ""
+#~ "Choisissez un collègue (de n'importe quel département) qui fournira un "
+#~ "bref commentaire sur votre travail. Il sera notifié automatiquement après "
+#~ "votre soumission."
+
+#~ msgid "Type to search by name or department..."
+#~ msgstr "Rechercher par nom ou département..."
+
+#~ msgid "— Select a colleague —"
+#~ msgstr "— Sélectionner un département —"
+
+#~ msgid ""
+#~ "This person cannot be yourself. They will receive a notification to log "
+#~ "in and add their comment."
+#~ msgstr ""
+#~ "Cette personne ne peut pas être vous-même. Elle recevra une notification "
+#~ "pour se connecter et ajouter son commentaire."
+
+# manager_approvals.html
+#~ msgid "Manager Appraisal Rating"
+#~ msgstr "Approbations du Responsable"
+
+#~ msgid "Supervisor Review"
+#~ msgstr "Superviseur"
+
+#~ msgid "Supervisor Review & Grading"
+#~ msgstr "Revue et Notation du Superviseur"
+
+#~ msgid "Your Appraiser Rating & Comment (Supervisor / Line Manager)"
+#~ msgstr ""
+#~ "Votre Notation et Commentaire (Superviseur / Responsable Hiérarchique)"
+
+#~ msgid "Select a colleague to cover you"
+#~ msgstr "Sélectionner un collègue pour vous remplacer"
+
+#~ msgid "Submit a new leave request"
+#~ msgstr "Soumettre une nouvelle demande de congé"
+
+#~ msgid "HR Admin Final Approval"
+#~ msgstr "Approbation Finale de l'Admin RH"
+
+#~ msgid "Print Approval Letter"
+#~ msgstr "Imprimer la Lettre d'Approbation"
+
+#~ msgid "Rejected This Year"
+#~ msgstr "Rejetés Cette Année"
+
+#~ msgid "Manager Approved"
+#~ msgstr "Approuvé par le Responsable"
+
+#~ msgid "No pending approvals"
+#~ msgstr "Aucune approbation en attente"
+
+#~ msgid "Low Leave Balance (≤3 days)"
+#~ msgstr "Solde de Congés Faible (≤3 jours)"
+
+#~ msgid "Awaiting Your Approval"
+#~ msgstr "En Attente de Votre Approbation"
+
+#~ msgid "Your Team Members"
+#~ msgstr "Membres de Votre Équipe"
+
+#~ msgid "Language"
+#~ msgstr "Langue"
+
+#~ msgid "No pending HR approvals"
+#~ msgstr "Aucune approbation RH en attente"
+
+#~ msgid "Requests Awaiting Your Final Approval"
+#~ msgstr "Demandes en attente de votre approbation finale"
+
+#~ msgid "No requests awaiting your approval — all clear!"
+#~ msgstr ""
+#~ "Aucune demande en attente de votre approbation — tout est en ordre !"
+
+#~ msgid "Former / Dismissed"
+#~ msgstr "Anciens / Licenciés"
+
+#~ msgid "Awaiting My Approval"
+#~ msgstr "En attente de mon approbation"
+
+#~ msgid "My Recent Leave Requests"
+#~ msgstr "Mes demandes de congé récentes"
+
+#~ msgid "No pending requests. Your unit is all clear."
+#~ msgstr "Aucune demande en attente. Votre unité est en ordre."
+
+#~ msgid "No pending approvals — all caught up!"
+#~ msgstr "Aucune approbation en attente — tout est à jour !"
+
+#~ msgid "Male"
+#~ msgstr "Masculin"
+
+#~ msgid "Female"
+#~ msgstr "Féminin"
+
+#~ msgid "CEO"
+#~ msgstr "PDG"
+
+#~ msgid "View all notifications"
+#~ msgstr "Voir toutes les notifications"
