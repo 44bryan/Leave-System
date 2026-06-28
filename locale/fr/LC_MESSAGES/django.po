@@ -1710,10 +1710,6 @@ msgid "Only managers, HR, and senior staff can comment on recognition proposals.
 msgstr "Seuls les managers, RH et personnel senior peuvent commenter les propositions de reconnaissance."
 
 #: recognition/templates/recognition/detail.html
-msgid "Back to List"
-msgstr "Retour à la Liste"
-
-#: recognition/templates/recognition/detail.html
 msgid "HR Actions"
 msgstr "Actions RH"
 
@@ -3625,19 +3621,6 @@ msgstr "Trimestre 3 — Juillet à Octobre"
 msgid "Custom Label"
 msgstr "Libellé Personnalisé"
 
-#: .\appraisals\templates\appraisals\hr_initiate.html:34
-#: .\appraisals\templates\appraisals\hr_initiate.html:39
-#: .\appraisals\templates\appraisals\hr_unlock_confirm.html:30
-#: .\contracts\templates\contracts\bulk_issue_contract.html:95
-#: .\contracts\templates\contracts\issue_contract.html:137
-#: .\discipline\templates\discipline\issue_form.html:157
-#: .\leaves\templates\leaves\action_form.html:135
-#: .\leaves\templates\leaves\request_form.html:90
-#: .\payroll\templates\payroll\payslip_form.html:52
-#: .\payroll\templates\payroll\payslip_form.html:56
-msgid "optional"
-msgstr "facultatif"
-
 #: .\appraisals\templates\appraisals\hr_initiate.html:36
 msgid "Leave blank to auto-generate."
 msgstr "Laisser vide pour générer automatiquement."
@@ -3827,13 +3810,6 @@ msgstr "Évaluations en attente de votre action"
 #: .\appraisals\templates\appraisals\pending_list.html:17
 msgid "No appraisals waiting for your action."
 msgstr "Aucune évaluation en attente de votre action."
-
-#: .\appraisals\templates\appraisals\pending_list.html:23
-#: .\leaves\templates\leaves\ceo_approvals.html:35
-#: .\leaves\templates\leaves\manager_approvals.html:31
-#: .\leaves\templates\leaves\unit_head_approvals.html:31
-msgid "Submitted"
-msgstr "Soumis le"
 
 #: .\appraisals\templates\appraisals\unit_head_fill.html:3
 #| msgid "Unit Head Queue"
@@ -4158,11 +4134,6 @@ msgstr "Restants"
 msgid "Created On"
 msgstr "Créé le"
 
-#: .\contracts\templates\contracts\contract_detail.html:182
-#| msgid "Actions"
-msgid "HR Actions"
-msgstr "Actions"
-
 #: .\contracts\templates\contracts\contract_detail.html:189
 #: .\contracts\templates\contracts\contract_detail.html:333
 #| msgid "New Contract"
@@ -4310,12 +4281,6 @@ msgstr "Rechercher un nom ou un ID…"
 #: .\discipline\templates\discipline\list.html:165
 msgid "All Types"
 msgstr "Tous les types"
-
-#: .\contracts\templates\contracts\contract_list.html:90
-#: .\leaves\templates\leaves\all_leaves.html:24
-#: .\leaves\templates\leaves\my_requests.html:107
-msgid "All Statuses"
-msgstr "Tous les Statuts"
 
 #: .\contracts\templates\contracts\contract_list.html:94
 #: .\contracts\templates\contracts\contract_list.html:213
@@ -7024,11 +6989,6 @@ msgstr "Étape 2 — Sanction proposée par les RH"
 msgid "HR Proposed Sanction"
 msgstr "Proposition RH"
 
-#: .\discipline\templates\discipline\detail.html:263
-#| msgid "Notes"
-msgid "HR Notes"
-msgstr "Notes"
-
 #: .\discipline\templates\discipline\detail.html:279
 msgid "Update HR Proposed Sanction"
 msgstr "Mettre à jour la sanction proposée par les RH"
@@ -7287,11 +7247,6 @@ msgstr "Type de Contrat"
 msgid "Notice Type"
 msgstr "Type de Contrat"
 
-#: .\discipline\templates\discipline\issue_form.html:120
-#| msgid "Delete Employee"
-msgid "Select type"
-msgstr "Supprimer l'Employé"
-
 #: .\discipline\templates\discipline\issue_form.html:138
 msgid ""
 "Duration is fixed at <strong>8 days</strong>. The end date is calculated "
@@ -7299,11 +7254,6 @@ msgid ""
 msgstr ""
 "La durée est fixée à <strong>8 jours</strong>. La date de fin est calculée "
 "automatiquement."
-
-#: .\discipline\templates\discipline\issue_form.html:147
-#| msgid "Reason for Leave"
-msgid "Reason / Description"
-msgstr "Motif du Congé"
 
 #: .\discipline\templates\discipline\issue_form.html:150
 msgid ""
@@ -7624,11 +7574,6 @@ msgstr "Informations sur l'Employé"
 #, python-format
 msgid "%(days)s days remaining"
 msgstr "%(days)s jours restants"
-
-#: .\leaves\templates\leaves\action_form.html:230
-#: .\leaves\templates\leaves\my_requests.html:139
-msgid "Applied On"
-msgstr "Soumis le"
 
 #: .\leaves\templates\leaves\all_leaves.html:3
 #: .\leaves\templates\leaves\all_leaves.html:4 .\templates\base.html:1334
@@ -8516,10 +8461,6 @@ msgstr "Détails du Stage"
 msgid "Back"
 msgstr "Retour"
 
-#: .\payroll\templates\payroll\payslip_detail.html:35
-msgid "by"
-msgstr "par"
-
 #: .\payroll\templates\payroll\payslip_detail.html:43
 #: .\payroll\templates\payroll\payslip_form.html:68
 #| msgid "Leave Type"
@@ -8665,11 +8606,6 @@ msgstr "Nouveau mot de passe"
 #| msgid "All Contracts"
 msgid "All Months"
 msgstr "Tous les contrats"
-
-#: .\payroll\templates\payroll\payslip_list.html:99
-#| msgid "My Profile"
-msgid "No file"
-msgstr "Mon Profil"
 
 #: .\payroll\templates\payroll\payslip_list.html:108
 msgid "Delete this payslip?"
@@ -8984,7 +8920,6 @@ msgstr "L'adresse e-mail saisie ne correspond pas à l'adresse enregistrée sur 
 msgid "This account has no email address on file. Please contact HR."
 msgstr "Ce compte ne possède pas d'adresse e-mail enregistrée. Veuillez contacter les RH."
 
-
 # -- Recruitment / Public career site -------------------------------------------
 
 #: templates/base_public.html
@@ -9073,13 +9008,11 @@ msgstr "Au service des patients à travers le Cameroun et l’Afrique centrale"
 msgid "Filter:"
 msgstr "Filtrer :"
 
-
 #: recruitment/templates/recruitment/job_board.html
 msgid "%(num)s position"
 msgid_plural "%(num)s positions"
 msgstr[0] "%(num)s poste"
 msgstr[1] "%(num)s postes"
-
 
 #: recruitment/templates/recruitment/job_board.html
 msgid "Closes"
@@ -9134,10 +9067,6 @@ msgid "About the Role"
 msgstr "A propos du Poste"
 
 #: recruitment/templates/recruitment/job_detail.html
-msgid "Requirements"
-msgstr "Exigences"
-
-#: recruitment/templates/recruitment/job_detail.html
 msgid "Apply for This Position"
 msgstr "Postuler à ce Poste"
 
@@ -9150,22 +9079,12 @@ msgid "Position Details"
 msgstr "Détails du Poste"
 
 #: recruitment/templates/recruitment/job_detail.html
-msgid "Employment Type"
-msgstr "Type d'Emploi"
-
-
-#: recruitment/templates/recruitment/job_detail.html
 msgid "Location"
 msgstr "Localisation"
 
 #: recruitment/templates/recruitment/job_detail.html
-msgid "Application Deadline"
-msgstr "Date Limite de Candidature"
-
-#: recruitment/templates/recruitment/job_detail.html
 msgid "Share This Role"
 msgstr "Partager ce Poste"
-
 
 #: recruitment/templates/recruitment/apply.html
 msgid "Back to Job Details"
@@ -9187,8 +9106,6 @@ msgstr "Les champs marqués"
 msgid "are required. CV must be PDF, DOC or DOCX — max 10 MB."
 msgstr "sont obligatoires. Le CV doit être en PDF, DOC ou DOCX — max 10 Mo."
 
-
-
 #: recruitment/templates/recruitment/apply.html
 msgid "Email Address"
 msgstr "Adresse E-mail"
@@ -9196,10 +9113,6 @@ msgstr "Adresse E-mail"
 #: recruitment/templates/recruitment/apply.html
 msgid "Your full legal name"
 msgstr "Votre nom légal complet"
-
-#: recruitment/templates/recruitment/apply.html
-msgid "CV / Résumé"
-msgstr "CV / Résumé"
 
 #: recruitment/templates/recruitment/apply.html
 msgid "Click to upload"
@@ -9221,18 +9134,13 @@ msgstr "Questions de Candidature"
 msgid "— Select an option —"
 msgstr "— Sélectionner une option —"
 
-
-
-
 #: recruitment/templates/recruitment/apply.html
 msgid "Submit Application"
 msgstr "Soumettre la Candidature"
 
-
 #: recruitment/templates/recruitment/apply.html
 msgid "Submitting…"
 msgstr "Envoi en cours…"
-
 
 #: recruitment/templates/recruitment/apply_success.html
 msgid "Application Received"
@@ -9263,10 +9171,6 @@ msgid "What happens next?"
 msgstr "Que se passe-t-il ensuite ?"
 
 #: recruitment/templates/recruitment/apply_success.html
-msgid "Application Review"
-msgstr "Examen des Candidatures"
-
-#: recruitment/templates/recruitment/apply_success.html
 msgid "Our HR team will review all applications received."
 msgstr "Notre équipe RH examinera toutes les candidatures reçues."
 
@@ -9289,4 +9193,5 @@ msgstr "Les candidats sélectionnés sont invités à un entretien en présentie
 #: recruitment/templates/recruitment/apply_success.html
 msgid "Explore Other Openings"
 msgstr "Explorer d'autres Offres"
+
 
