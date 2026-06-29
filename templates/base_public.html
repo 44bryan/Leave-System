@@ -84,6 +84,23 @@
             pointer-events: none;
         }
         .pub-hero .hero-inner { position: relative; z-index: 1; }
+
+        /* ── Hero shape animations ──────────────────────────────────────────── */
+        @keyframes heroSpin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-20px); }
+        }
+        @keyframes heroPulse {
+            0%, 100% { transform: scale(1);    opacity: .07; }
+            50%       { transform: scale(1.18); opacity: .13; }
+        }
+        .hero-ring-spin  { animation: heroSpin  22s linear infinite; transform-origin: center; }
+        .hero-ring-float { animation: heroFloat 7s  ease-in-out infinite; }
+        .hero-dot-pulse  { animation: heroPulse 5s  ease-in-out infinite; }
         .hero-eyebrow {
             font-size: .7rem;
             font-weight: 700;
