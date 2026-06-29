@@ -367,15 +367,13 @@
                 <button type="submit" name="language" value="fr" class="nav-lang-btn {% if CURRENT_LANG == 'fr' %}active{% endif %}">FR</button>
             </form>
 
-            <!-- Social icons — update hrefs to actual MICEI pages -->
-            <div class="d-flex align-items-center gap-2">
-                <a href="https://web.facebook.com/micei" target="_blank" rel="noopener" class="nav-social" title="Facebook">
-                    <i class="bi bi-facebook"></i>
-                </a>
-                <a href="https://www.linkedin.com/company/micei" target="_blank" rel="noopener" class="nav-social" title="LinkedIn">
-                    <i class="bi bi-linkedin"></i>
-                </a>
-            </div>
+            <!-- Contact HR button -->
+            <a href="mailto:hr@micei.org"
+               style="display:inline-flex;align-items:center;gap:6px;background:#0A4D68;color:#fff;border-radius:8px;
+                      font-size:.75rem;font-weight:700;padding:.38em .9em;text-decoration:none;transition:background .18s;"
+               onmouseover="this.style.background='#083d54'" onmouseout="this.style.background='#0A4D68'">
+                <i class="bi bi-envelope" style="font-size:.82rem;"></i>{% trans "Contact HR" %}
+            </a>
         </div>
     </div>
 </nav>
