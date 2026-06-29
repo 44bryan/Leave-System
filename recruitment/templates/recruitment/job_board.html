@@ -6,8 +6,16 @@
 
 {% block extra_style %}
 #noResults { display: none; }
-.job-card { border-left: 3px solid var(--primary); }
-.job-card:hover { border-left-color: var(--dark); }
+.job-card {
+    border: 1.5px solid var(--border);
+    transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+.job-card:hover {
+    border-color: #a8dde4;
+    box-shadow: 0 12px 36px rgba(10,77,104,.13);
+    transform: translateY(-4px);
+}
+.job-card:hover .job-title { color: var(--primary); }
 .posted-ago { font-size: .72rem; color: var(--muted); }
 .badge-new {
     background: #fff3cd;
