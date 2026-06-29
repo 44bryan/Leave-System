@@ -359,8 +359,6 @@ def form_config(request, pk):
         return redirect('recruitment:list')
 
     posting = get_object_or_404(JobPosting, pk=pk)
-    # Ensure defaults exist
-    posting.create_default_fields()
 
     if request.method == 'POST':
         action = request.POST.get('action', '')
