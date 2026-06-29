@@ -25,8 +25,6 @@
                 <small style="opacity:.75;">{% trans "Enable/disable and reorder fields shown to applicants" %}</small>
             </div>
             <div class="card-body p-0">
-                {# Save form — wraps only hidden controls; inputs linked via form= attr.
-                   Delete forms are standalone below — no nesting. #}
                 <form id="saveForm" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="save_fields">
