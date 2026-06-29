@@ -338,6 +338,14 @@
         .step-label { font-size: .72rem; font-weight: 700; color: var(--dark); margin: 0; white-space: nowrap; }
         .step-arrow { color: #b0cdd4; font-size: .9rem; }
 
+        /* ── Wide-screen: stretch containers beyond Bootstrap's 1320px cap ── */
+        @media (min-width: 1400px) {
+            .container { max-width: min(94vw, 1700px); }
+        }
+        @media (min-width: 1920px) {
+            .container { max-width: min(92vw, 2200px); }
+        }
+
         @media (max-width: 576px) {
             .pub-hero { padding: 2.2rem 0 2rem; }
             .pub-hero h1 { font-size: 1.5rem; }

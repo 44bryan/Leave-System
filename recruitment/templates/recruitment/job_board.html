@@ -116,7 +116,7 @@
 
 <div class="row g-3" id="jobGrid">
     {% for job in postings %}
-    <div class="col-md-6 job-card-wrapper"
+    <div class="col-md-6 col-xl-4 col-xxl-3 job-card-wrapper"
          data-title="{{ job.title|lower }}"
          data-dept="{{ job.department|default:'general'|lower }}"
          data-type="{{ job.get_employment_type_display|lower }}"
