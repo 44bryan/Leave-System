@@ -45,9 +45,9 @@
         .pub-navbar img.logo { height: 46px; width: auto; display: block; }
         .nav-lang-btn {
             background: none; border: none;
-            font-size: .72rem; font-weight: 700;
+            font-size: .8rem; font-weight: 700;
             cursor: pointer; padding: .22em .42em;
-            color: #b0bec5; letter-spacing: .05em;
+            color: #b0bec5; letter-spacing: .08em;
             transition: color .15s; line-height: 1;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -357,6 +357,13 @@
         </a>
 
         <div class="d-flex align-items-center gap-3">
+            <!-- About MICEI link -->
+            <a href="https://www.micei.org" target="_blank" rel="noopener"
+               style="font-size:.82rem;font-weight:600;color:#0A4D68;text-decoration:none;white-space:nowrap;transition:color .15s;"
+               onmouseover="this.style.color='#2db4c3'" onmouseout="this.style.color='#0A4D68'">
+                {% trans "About MICEI" %} <i class="bi bi-box-arrow-up-right" style="font-size:.7rem;"></i>
+            </a>
+
             <!-- EN | FR language toggle -->
             {% get_current_language as CURRENT_LANG %}
             <form action="{% url 'set_language' %}" method="post" class="d-flex align-items-center gap-1 mb-0">
@@ -366,14 +373,6 @@
                 <span class="nav-lang-sep">|</span>
                 <button type="submit" name="language" value="fr" class="nav-lang-btn {% if CURRENT_LANG == 'fr' %}active{% endif %}">FR</button>
             </form>
-
-            <!-- Contact HR button -->
-            <a href="mailto:hr@micei.org"
-               style="display:inline-flex;align-items:center;gap:6px;background:#0A4D68;color:#fff;border-radius:8px;
-                      font-size:.75rem;font-weight:700;padding:.38em .9em;text-decoration:none;transition:background .18s;"
-               onmouseover="this.style.background='#083d54'" onmouseout="this.style.background='#0A4D68'">
-                <i class="bi bi-envelope" style="font-size:.82rem;"></i>{% trans "Contact HR" %}
-            </a>
         </div>
     </div>
 </nav>
