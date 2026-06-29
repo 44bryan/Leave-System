@@ -492,11 +492,13 @@ def scoring_config(request, pk):
             return redirect('recruitment:scoring_config', pk=pk)
 
     criteria = posting.scoring_criteria.all()
+    total_max_score = sum(c.points for c in criteria if c.points > 0)
     return render(request, 'recruitment/scoring_config.html', {
-        'posting':   posting,
-        'criteria':  criteria,
-        'fields':    fields,
-        'COND_CHOICES': ScoringCriterion.COND_CHOICES,
+        'posting':         posting,
+        'criteria':        criteria,
+        'fields':          fields,
+        'COND_CHOICES':    ScoringCriterion.COND_CHOICES,
+        'total_max_score': total_max_score,
     })
 
 

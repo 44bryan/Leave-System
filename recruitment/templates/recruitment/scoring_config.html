@@ -84,6 +84,18 @@
                             </tr>
                             {% endfor %}
                         </tbody>
+                        <tfoot style="background:#f0fafb;border-top:2px solid #2db4c3;">
+                            <tr>
+                                <td colspan="4" class="fw-bold ps-3" style="padding:.75rem 1rem;color:#0A4D68;font-size:.85rem;">
+                                    <i class="bi bi-calculator me-1"></i>{% trans "Maximum possible score" %}
+                                    <span class="text-muted fw-normal" style="font-size:.75rem;"> — {% trans "if a candidate matches ALL rules" %}</span>
+                                </td>
+                                <td class="text-center fw-bold" style="color:#0A4D68;font-size:1rem;">
+                                    {{ total_max_score }}
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
