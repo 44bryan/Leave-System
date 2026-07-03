@@ -80,7 +80,6 @@ def payslip_create(request):
         messages.error(request, "Access denied.")
         return redirect('payroll:list')
 
-    employees = Employee.objects.filter(is_active=True).order_by('user__last_name')
     today = date.today()
 
     if request.method == 'POST':
@@ -136,7 +135,6 @@ def payslip_create(request):
             messages.error(request, f"Error saving payslip: {e}")
 
     return render(request, 'payroll/payslip_form.html', {
-        'employees': employees,
         'months': MONTH_CHOICES,
         'years': list(range(today.year + 1, 2015, -1)),
         'current_year': today.year,

@@ -416,7 +416,7 @@ updateDays();
                 var item = document.createElement('div');
                 item.style.cssText = 'padding:8px 14px;cursor:pointer;font-size:.85rem;border-bottom:1px solid #f0f9fb;';
                 item.innerHTML = '<span style="font-weight:600;color:#0A4D68;">' + emp.name + '</span>' +
-                    ' <span style="color:#9ab4c0;font-size:.75rem;">' + emp.emp_id +
+                    ' <span style="color:#9ab4c0;font-size:.75rem;">' + (emp.emp_id || '') +
                     (emp.dept ? ' · ' + emp.dept : '') + '</span>';
                 item.addEventListener('mousedown', function (e) {
                     e.preventDefault();
@@ -435,7 +435,7 @@ updateDays();
         searchInput.value = '';
         searchInput.style.display = 'none';
         dropdown.style.display = 'none';
-        selectedName.textContent = emp.name + ' (' + emp.emp_id + ')';
+        selectedName.textContent = emp.label || (emp.name + (emp.emp_id ? ' (' + emp.emp_id + ')' : ''));
         selectedDiv.style.display = 'block';
     }
 
