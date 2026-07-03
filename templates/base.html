@@ -2112,7 +2112,7 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
           <li>
             <i class="bi bi-calendar-check-fill me-2" style="color:#0A4D68;"></i>
             <strong>{{ pending_leave_count }}</strong> leave request{{ pending_leave_count|pluralize }} awaiting your approval
-            <a href="{% url 'leaves:list' %}" class="ms-1 text-primary" style="font-size:.8rem;">review</a>
+            <a href="{{ pending_leave_url }}" class="ms-1 text-primary" style="font-size:.8rem;">review</a>
           </li>
           {% endif %}
           {% if pending_appraisals_count > 0 %}

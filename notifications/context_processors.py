@@ -57,10 +57,13 @@ def notifications_ctx(request):
 
             # Sidebar badge counts — role-specific pending approval queues
             from leaves.models import LeaveRequest
+            from django.urls import reverse
+            pending_leave_url = reverse('dashboard:home')
             if request.user.is_superuser or emp.is_hr():
                 pending_leave_count = LeaveRequest.objects.filter(
                     status=LeaveRequest.STATUS_MANAGER_APPROVED
                 ).count()
+                pending_leave_url = reverse('leaves:hr_approvals')
                 pending_discipline_proposals = DisciplineRecord.objects.filter(
                     is_proposal=True
                 ).count()
@@ -68,6 +71,7 @@ def notifications_ctx(request):
                 pending_leave_count = LeaveRequest.objects.filter(
                     status=LeaveRequest.STATUS_HR_APPROVED
                 ).count()
+                pending_leave_url = reverse('leaves:director_approvals')
                 pending_discipline_proposals = DisciplineRecord.objects.filter(
                     is_proposal=True
                 ).count()
@@ -75,6 +79,7 @@ def notifications_ctx(request):
                 pending_leave_count = LeaveRequest.objects.filter(
                     status=LeaveRequest.STATUS_HR_APPROVED
                 ).count()
+                pending_leave_url = reverse('leaves:director_approvals')
             elif emp.is_manager():
                 pending_leave_count = LeaveRequest.objects.filter(
                     status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED,
@@ -86,11 +91,13 @@ def notifications_ctx(request):
                     employee__supervisor=emp,
                     employee__unit_head__isnull=True,
                 ).count()
+                pending_leave_url = reverse('leaves:manager_approvals')
             elif emp.role == 'unit_head':
                 pending_leave_count = LeaveRequest.objects.filter(
                     status=LeaveRequest.STATUS_PENDING,
                     employee__unit_head=emp,
                 ).count()
+                pending_leave_url = reverse('leaves:unit_head_approvals')
 
             # Pending consultations sent to this user
             from leaves.models import LeaveConsultation
@@ -109,6 +116,7 @@ def notifications_ctx(request):
             'suspension_end': suspension_end,
             'pending_coworker_count': pending_coworker_count,
             'pending_leave_count': pending_leave_count,
+            'pending_leave_url': pending_leave_url,
             'pending_discipline_proposals': pending_discipline_proposals,
             'pending_appraisals_count': pending_appraisals_count,
             'pending_consultations_count': pending_consultations_count,
