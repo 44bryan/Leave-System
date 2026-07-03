@@ -1122,7 +1122,14 @@
                     <li><a class="dropdown-item" href="{% url 'dashboard:admin_settings' %}"><i class="bi bi-sliders me-2" style="color:#2db4c3;"></i>{% trans "System Settings" %}</a></li>
                     {% endif %}
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}" data-no-suspend><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}</a></li>
+                    <li>
+                        <form method="post" action="{% url 'accounts:logout' %}" class="m-0 p-0">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger" data-no-suspend style="border:none;background:none;width:100%;text-align:left;cursor:pointer;">
+                                <i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign Out" %}
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </div>
 
@@ -1594,10 +1601,13 @@
             <i class="bi bi-key sidebar-footer-icon"></i>
             <span>{% trans "Change Password" %}</span>
         </a>
-        <a href="{% url 'accounts:logout' %}" class="sidebar-footer-item" style="color:#dc2626;" data-no-suspend>
-            <i class="bi bi-box-arrow-right sidebar-footer-icon" style="color:#dc2626;"></i>
-            <span>{% trans "Sign Out" %}</span>
-        </a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="m-0 p-0">
+            {% csrf_token %}
+            <button type="submit" class="sidebar-footer-item" style="color:#dc2626;border:none;background:none;width:100%;text-align:left;cursor:pointer;" data-no-suspend>
+                <i class="bi bi-box-arrow-right sidebar-footer-icon" style="color:#dc2626;"></i>
+                <span>{% trans "Sign Out" %}</span>
+            </button>
+        </form>
     </div>
 
 </aside>
@@ -1677,9 +1687,12 @@
             <span style="font-size:0.85rem;font-weight:700;">{% blocktrans with end=suspension_end|date:"d F Y" %}Account Suspended until {{ end }}{% endblocktrans %}</span>
             <span style="font-size:0.75rem;opacity:0.85;margin-left:8px;">{% trans "Applying for leave is disabled. All other features remain accessible." %}</span>
         </div>
-        <a href="{% url 'accounts:logout' %}" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);font-size:0.78rem;padding:4px 12px;flex-shrink:0;">
-            <i class="bi bi-box-arrow-right me-1"></i>{% trans "Sign Out" %}
-        </a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="m-0 p-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);font-size:0.78rem;padding:4px 12px;flex-shrink:0;cursor:pointer;">
+                <i class="bi bi-box-arrow-right me-1"></i>{% trans "Sign Out" %}
+            </button>
+        </form>
     </div>
     {% endif %}
     <div class="page-content">

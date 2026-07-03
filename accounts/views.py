@@ -34,7 +34,9 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('accounts:login')
+    response = redirect('accounts:login')
+    response.delete_cookie('csrftoken')
+    return response
 
 
 @login_required
@@ -1822,6 +1824,7 @@ def employee_search_api(request):
         results = [
             {
                 'id': e.pk,
+                'label': e.get_full_name() + (' (' + e.employee_id + ')' if e.employee_id else ''),
                 'name': e.get_full_name(),
                 'emp_id': e.employee_id,
                 'dept': str(e.department) if e.department else '',
