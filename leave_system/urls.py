@@ -19,5 +19,6 @@ urlpatterns = [
     path('payroll/', include('payroll.urls')),
     path('recognition/', include('recognition.urls')),
     path('recruitment/', include('recruitment.urls')),
+    path('medical-leave/', include('medical_leave.urls')),
     path('', lambda request: redirect('dashboard:home'), name='home'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

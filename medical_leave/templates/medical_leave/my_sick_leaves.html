@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}My Sick Leaves — AEF HRM{% endblock %}
+{% block page_title %}My Medical Sick Leaves{% endblock %}
+{% block page_subtitle %}Sick leave certificates issued for you by the internal medicine specialist{% endblock %}
+
+{% block content %}
+<div class="card animate-in">
+    <div class="card-header" style="background:#0A4D68;color:#fff;">
+        <i class="bi bi-hospital me-2"></i>My Medical Sick Leave Records
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0" style="min-width:480px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Issued By</th>
+                    <th>Date Issued</th>
+                    <th>Period</th>
+                    <th>Days</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sl in leaves %}
+                <tr>
+                    <td class="text-muted small">MSL-{{ sl.pk|stringformat:"04d" }}</td>
+                    <td>
+                        <div class="fw-semibold">{{ sl.issued_by.get_full_name }}</div>
+                        <div class="t-secondary">{{ sl.issued_by.position|default:"Physician" }}</div>
+                    </td>
+                    <td class="t-sm">{{ sl.date_of_issuance|date:"d M Y" }}</td>
+                    <td class="t-sm text-nowrap">{{ sl.start_date }} → {{ sl.end_date }}</td>
+                    <td><strong>{{ sl.days_count }}d</strong></td>
+                    <td>
+                        <span class="badge bg-{{ sl.get_status_badge }}">{{ sl.get_status_display }}</span>
+                    </td>
+                    <td>
+                        <a href="{% url 'medical_leave:detail' sl.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if sl.is_fully_endorsed %}
+                        <a href="{% url 'medical_leave:print' sl.pk %}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                            <i class="bi bi-printer"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="bi bi-file-earmark-x fs-3 d-block mb-2"></i>
+                        No medical sick leave records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

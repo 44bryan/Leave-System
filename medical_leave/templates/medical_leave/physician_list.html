@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}My Issued Sick Leaves — AEF HRM{% endblock %}
+{% block page_title %}Medical Sick Leaves Issued{% endblock %}
+{% block page_subtitle %}All sick leave certificates you have issued{% endblock %}
+
+{% block content %}
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <span class="text-muted small">{{ leaves|length }} record(s)</span>
+    <a href="{% url 'medical_leave:issue' %}" class="btn btn-sm btn-primary" style="background:#0A4D68;border-color:#0A4D68;">
+        <i class="bi bi-plus-circle me-1"></i>Issue New Sick Leave
+    </a>
+</div>
+
+<div class="card animate-in">
+    <div class="card-header" style="background:#0A4D68;color:#fff;">
+        <i class="bi bi-file-earmark-medical me-2"></i>Issued Sick Leave Certificates
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0" style="min-width:520px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Employee</th>
+                    <th>Date Issued</th>
+                    <th>Period</th>
+                    <th>Days</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sl in leaves %}
+                <tr>
+                    <td class="text-muted small">MSL-{{ sl.pk|stringformat:"04d" }}</td>
+                    <td>
+                        <div class="fw-semibold">{{ sl.employee.get_full_name }}</div>
+                        <div class="t-secondary">{{ sl.employee.employee_id }}</div>
+                    </td>
+                    <td class="t-sm">{{ sl.date_of_issuance|date:"d M Y" }}</td>
+                    <td class="t-sm text-nowrap">{{ sl.start_date }} → {{ sl.end_date }}</td>
+                    <td><strong>{{ sl.days_count }}d</strong></td>
+                    <td>
+                        <span class="badge bg-{{ sl.get_status_badge }}">{{ sl.get_status_display }}</span>
+                    </td>
+                    <td>
+                        <a href="{% url 'medical_leave:detail' sl.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'medical_leave:print' sl.pk %}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                            <i class="bi bi-printer"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="bi bi-file-earmark-x fs-3 d-block mb-2"></i>
+                        No sick leave certificates issued yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

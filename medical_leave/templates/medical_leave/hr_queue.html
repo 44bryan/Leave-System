@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Medical Sick Leave — HR Queue — AEF HRM{% endblock %}
+{% block page_title %}Medical Sick Leave — HR Endorsements{% endblock %}
+{% block page_subtitle %}Line-manager-endorsed sick leaves awaiting your final HR endorsement{% endblock %}
+
+{% block content %}
+{% if leaves %}
+<div class="alert alert-info d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-info-circle-fill fs-5"></i>
+    <span><strong>{{ leaves|length }}</strong> sick leave(s) endorsed by Line Manager and awaiting HR sign-off.</span>
+</div>
+{% endif %}
+
+<div class="card animate-in">
+    <div class="card-header" style="background:#0A4D68;color:#fff;">
+        <i class="bi bi-clipboard2-check me-2"></i>Pending HR Endorsements
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0" style="min-width:540px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Employee</th>
+                    <th>Issued By</th>
+                    <th>Period</th>
+                    <th>Days</th>
+                    <th>Line Manager</th>
+                    <th>LM Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sl in leaves %}
+                <tr>
+                    <td class="text-muted small">MSL-{{ sl.pk|stringformat:"04d" }}</td>
+                    <td>
+                        <div class="fw-semibold">{{ sl.employee.get_full_name }}</div>
+                        <div class="t-secondary">{{ sl.employee.department|default:"—" }}</div>
+                    </td>
+                    <td class="t-sm">{{ sl.issued_by.get_full_name }}</td>
+                    <td class="t-sm text-nowrap">{{ sl.start_date }} → {{ sl.end_date }}</td>
+                    <td><strong>{{ sl.days_count }}d</strong></td>
+                    <td class="t-sm">{{ sl.line_manager_action_by.get_full_name|default:"—" }}</td>
+                    <td class="t-sm">{{ sl.line_manager_action_date|date:"d M Y"|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'medical_leave:hr_endorse' sl.pk %}" class="btn btn-sm btn-info text-white fw-semibold">
+                            <i class="bi bi-clipboard2-check me-1"></i>Endorse
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="bi bi-check2-all fs-3 d-block mb-2 text-success"></i>
+                        No pending HR endorsements.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Issue Medical Sick Leave — AEF HRM{% endblock %}
+{% block page_title %}Issue Medical Sick Leave{% endblock %}
+{% block page_subtitle %}Internal Medicine Specialist — issue a sick leave certificate for a staff member{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-7">
+
+{% if messages %}
+{% for msg in messages %}
+<div class="alert alert-{{ msg.tags }} alert-dismissible fade show mb-3">
+    {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="card animate-in">
+    <div class="card-header" style="background:#0A4D68;color:#fff;">
+        <i class="bi bi-file-earmark-medical me-2"></i>New Medical Sick Leave Certificate
+    </div>
+    <div class="card-body p-4">
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Staff Member <span class="text-danger">*</span></label>
+                <select name="employee" class="form-select" required id="employeeSelect">
+                    <option value="">— Select employee —</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.pk }}">{{ emp.get_full_name }} ({{ emp.employee_id }}) — {{ emp.position|default:"No position" }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">Select the staff member this sick leave is issued for.</div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                    <label class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
+                    <input type="date" name="start_date" class="form-control" required id="startDate">
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label fw-semibold">End Date <span class="text-danger">*</span></label>
+                    <input type="date" name="end_date" class="form-control" required id="endDate">
+                </div>
+            </div>
+
+            <div class="mb-3 p-3 rounded" style="background:#e0f7fa;border:1px solid #b2ebf2;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar-check" style="color:#0A4D68;font-size:1.1rem;"></i>
+                    <span id="dayCount" class="fw-semibold" style="color:#0A4D68;">Select dates to see duration</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Internal Notes <span class="text-muted small fw-normal">(optional, not printed on the form)</span></label>
+                <textarea name="notes" class="form-control" rows="3" placeholder="e.g. diagnosis, treatment plan notes..."></textarea>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="{% url 'medical_leave:physician_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="background:#0A4D68;border-color:#0A4D68;">
+                    <i class="bi bi-send me-1"></i>Issue Sick Leave
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+function updateDayCount() {
+    const s = document.getElementById('startDate').value;
+    const e = document.getElementById('endDate').value;
+    const el = document.getElementById('dayCount');
+    if (s && e) {
+        const sd = new Date(s), ed = new Date(e);
+        if (ed < sd) {
+            el.textContent = 'End date is before start date';
+            el.style.color = '#dc3545';
+        } else {
+            const diff = Math.round((ed - sd) / 86400000) + 1;
+            el.textContent = diff + ' day' + (diff !== 1 ? 's' : '') + ' of sick leave';
+            el.style.color = '#0A4D68';
+        }
+    }
+}
+document.getElementById('startDate').addEventListener('change', updateDayCount);
+document.getElementById('endDate').addEventListener('change', updateDayCount);
+</script>
+{% endblock %}

@@ -1196,6 +1196,11 @@
                 </a>
             </li>
             {% endif %}
+            <li class="nav-item-sidebar">
+                <a href="{% url 'medical_leave:my_sick_leaves' %}" class="nav-link-sidebar {% block nav_my_sick_leaves %}{% endblock %}">
+                    <i class="bi bi-hospital"></i> {% trans "My Sick Leaves" %}
+                </a>
+            </li>
             {% if system_settings.payroll_enabled or user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'payroll:my_payslips' %}" class="nav-link-sidebar {% block nav_my_payslips %}{% endblock %}">
@@ -1267,6 +1272,24 @@
         </ul>
     </div>
     {% endif %}
+    {% if user.employee.is_physician %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">{% trans "Medical" %}</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'medical_leave:issue' %}" class="nav-link-sidebar {% block nav_medical_issue %}{% endblock %}">
+                    <i class="bi bi-file-earmark-medical"></i> {% trans "Issue Sick Leave" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'medical_leave:physician_list' %}" class="nav-link-sidebar {% block nav_medical_list %}{% endblock %}">
+                    <i class="bi bi-journal-medical"></i> {% trans "My Issued Leaves" %}
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
     {% if user.employee.is_manager %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Approvals" %}</div>
@@ -1281,6 +1304,11 @@
                 <a href="{% url 'appraisals:pending_manager' %}" class="nav-link-sidebar {% block nav_appraisals_manager %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'medical_leave:lm_queue' %}" class="nav-link-sidebar {% block nav_medical_lm %}{% endblock %}">
+                    <i class="bi bi-file-earmark-medical"></i> {% trans "Medical Sick Leave" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1300,6 +1328,16 @@
                 <a href="{% url 'leaves:hr_approvals' %}" class="nav-link-sidebar {% block nav_hr_approvals %}{% endblock %}">
                     <i class="bi bi-clipboard2-check"></i> {% trans "HR Approvals" %}
                     {% if pending_leave_count > 0 %}<span class="nav-badge">{{ pending_leave_count }}</span>{% endif %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'medical_leave:hr_queue' %}" class="nav-link-sidebar {% block nav_medical_hr %}{% endblock %}">
+                    <i class="bi bi-file-earmark-medical"></i> {% trans "Medical Sick Leave" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'medical_leave:all_records' %}" class="nav-link-sidebar {% block nav_medical_all %}{% endblock %}">
+                    <i class="bi bi-journal-medical"></i> {% trans "All Sick Leave Records" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">

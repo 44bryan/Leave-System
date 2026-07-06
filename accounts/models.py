@@ -82,6 +82,12 @@ class Employee(models.Model):
     school_name = models.CharField(max_length=200, blank=True, default='', help_text='Name of university or school (interns only)')
     speciality = models.CharField(max_length=200, blank=True, default='', help_text='Field of study or speciality (interns only)')
 
+    # Physician flag — allows issuing Medical Sick Leave without changing primary role
+    is_physician = models.BooleanField(
+        default=False,
+        help_text='Grants access to issue Medical Sick Leave forms (internal medicine specialist).'
+    )
+
     # Two-Factor Authentication
     totp_secret = models.CharField(max_length=64, blank=True, default='', help_text='TOTP secret for 2FA')
     totp_enabled = models.BooleanField(default=False, help_text='2FA enabled for this account')
@@ -130,6 +136,9 @@ class Employee(models.Model):
 
     def is_ceo(self):
         return self.role == 'ceo' or self.acting_role == 'ceo'
+
+    def can_issue_sick_leave(self):
+        return self.is_physician
 
     def is_intern(self):
         return self.role == 'intern'

@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'payroll',
     'recognition',
     'recruitment',
+    'medical_leave',
 ]
 
 MIDDLEWARE = [
