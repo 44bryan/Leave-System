@@ -19,6 +19,7 @@ class Employee(models.Model):
         ('unit_head', 'Unit Head'),
         ('manager', 'Line Manager'),
         ('hr', 'HR Admin'),
+        ('generalist', 'Generalist'),
         ('admin_director', 'Administration Director'),
         ('medical_director', 'Medical Director'),
         ('finance_director', 'Finance Director'),
@@ -138,7 +139,7 @@ class Employee(models.Model):
         return self.role == 'ceo' or self.acting_role == 'ceo'
 
     def can_issue_sick_leave(self):
-        return self.is_physician
+        return self.is_physician or self.role == 'generalist' or self.acting_role == 'generalist'
 
     def is_intern(self):
         return self.role == 'intern'

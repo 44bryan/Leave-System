@@ -19,7 +19,7 @@ def _get_employee(request):
 def issue(request):
     """Physician creates a new Medical Sick Leave."""
     emp = _get_employee(request)
-    if not (emp.is_physician or request.user.is_superuser):
+    if not (emp.can_issue_sick_leave() or request.user.is_superuser):
         raise Http404
 
     employees = Employee.objects.filter(is_active=True).exclude(pk=emp.pk).order_by(
@@ -86,7 +86,7 @@ def issue(request):
 def physician_list(request):
     """All sick leaves issued by this physician."""
     emp = _get_employee(request)
-    if not (emp.is_physician or request.user.is_superuser):
+    if not (emp.can_issue_sick_leave() or request.user.is_superuser):
         raise Http404
     leaves = MedicalSickLeave.objects.filter(issued_by=emp).select_related(
         'employee__user', 'line_manager_action_by__user', 'hr_action_by__user'

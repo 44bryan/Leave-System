@@ -1272,7 +1272,7 @@
         </ul>
     </div>
     {% endif %}
-    {% if user.employee.is_physician %}
+    {% if user.employee.can_issue_sick_leave %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Medical" %}</div>
         <ul class="list-unstyled mb-0">
