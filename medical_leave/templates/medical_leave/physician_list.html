@@ -7,14 +7,14 @@
 {% block content %}
 <div class="mb-3 d-flex justify-content-between align-items-center">
     <span class="text-muted small">{{ leaves|length }} record(s)</span>
-    <a href="{% url 'medical_leave:issue' %}" class="btn btn-sm btn-primary" style="background:#0A4D68;border-color:#0A4D68;">
+    <a href="{% url 'medical_leave:issue' %}" class="btn btn-sm btn-primary">
         <i class="bi bi-plus-circle me-1"></i>Issue New Sick Leave
     </a>
 </div>
 
 <div class="card animate-in">
-    <div class="card-header" style="background:#0A4D68;color:#fff;">
-        <i class="bi bi-file-earmark-medical me-2"></i>Issued Sick Leave Certificates
+    <div class="card-header">
+        <i class="bi bi-file-earmark-medical me-2" style="color:#2db4c3;"></i>Issued Sick Leave Certificates
     </div>
     <div class="table-responsive">
         <table class="table mb-0" style="min-width:520px;">

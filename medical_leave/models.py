@@ -65,10 +65,21 @@ class MedicalSickLeave(models.Model):
         return (f"Medical Sick Leave — {self.employee.get_full_name()} "
                 f"({self.start_date} → {self.end_date})")
 
+    @staticmethod
+    def _count_working_days(start, end):
+        """Count Mon–Fri between start and end inclusive (same logic as LeaveRequest)."""
+        from datetime import timedelta
+        count = 0
+        current = start
+        while current <= end:
+            if current.weekday() < 5:  # 0=Mon … 4=Fri
+                count += 1
+            current += timedelta(days=1)
+        return count
+
     def save(self, *args, **kwargs):
         if self.start_date and self.end_date:
-            delta = (self.end_date - self.start_date).days + 1
-            self.days_count = max(delta, 0)
+            self.days_count = self._count_working_days(self.start_date, self.end_date)
         super().save(*args, **kwargs)
 
     def get_status_badge(self):

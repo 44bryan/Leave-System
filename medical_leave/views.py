@@ -13,6 +13,43 @@ def _get_employee(request):
     return get_object_or_404(Employee, user=request.user)
 
 
+def _create_leave_request_for_sick_leave(sl, hr_emp):
+    """
+    When a MedicalSickLeave is fully endorsed, automatically create
+    an approved, non-deductible LeaveRequest so it appears in the
+    employee's leave history and dashboard.
+    """
+    from leaves.models import LeaveRequest, LeaveType
+    leave_type, _ = LeaveType.objects.get_or_create(
+        name='Medical Sick Leave',
+        defaults={
+            'description': 'Sick leave issued by the Internal Medicine Specialist.',
+            'is_deductible': False,
+            'is_active': True,
+            'color': 'info',
+        },
+    )
+    # Avoid duplicates if somehow called twice
+    if LeaveRequest.objects.filter(
+        employee=sl.employee,
+        leave_type=leave_type,
+        start_date=sl.start_date,
+        end_date=sl.end_date,
+    ).exists():
+        return
+    LeaveRequest.objects.create(
+        employee=sl.employee,
+        leave_type=leave_type,
+        start_date=sl.start_date,
+        end_date=sl.end_date,
+        total_days=sl.days_count,
+        reason=f'Medical sick leave issued by {sl.issued_by.get_full_name()} (MSL-{sl.pk:04d}).',
+        status=LeaveRequest.STATUS_APPROVED,
+        hr_action_by=hr_emp,
+        hr_action_date=timezone.now(),
+    )
+
+
 # ─── Physician ────────────────────────────────────────────────────────────────
 
 @login_required
@@ -240,6 +277,7 @@ def hr_endorse(request, pk):
         if action == 'approve':
             sl.status = MedicalSickLeave.STATUS_APPROVED
             sl.save()
+            _create_leave_request_for_sick_leave(sl, emp)
             notify(
                 sl.employee.user,
                 'Medical Sick Leave Fully Endorsed',

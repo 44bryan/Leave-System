@@ -9,8 +9,8 @@
 <div class="col-lg-7">
 
 <div class="card animate-in mb-3">
-    <div class="card-header" style="background:#0A4D68;color:#fff;">
-        <i class="bi bi-file-earmark-medical me-2"></i>Sick Leave Summary
+    <div class="card-header">
+        <i class="bi bi-file-earmark-medical me-2" style="color:#2db4c3;"></i>Sick Leave Summary
     </div>
     <div class="card-body">
         <div class="row g-3">
@@ -29,7 +29,7 @@
                 <div class="fw-semibold">{{ sl.start_date|date:"d M Y" }} → {{ sl.end_date|date:"d M Y" }}</div>
             </div>
             <div class="col-sm-6">
-                <div class="t-secondary small">Duration</div>
+                <div class="t-secondary small">Duration (working days)</div>
                 <div class="fw-bold" style="color:#0A4D68;">{{ sl.days_count }} day{{ sl.days_count|pluralize }}</div>
             </div>
         </div>
@@ -42,8 +42,8 @@
 </div>
 
 <div class="card animate-in">
-    <div class="card-header" style="background:#0A4D68;color:#fff;">
-        <i class="bi bi-pen me-2"></i>Your Endorsement
+    <div class="card-header">
+        <i class="bi bi-pen me-2" style="color:#2db4c3;"></i>Your Endorsement
     </div>
     <div class="card-body p-4">
         <form method="post">
