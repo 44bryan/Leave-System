@@ -13,6 +13,7 @@ urlpatterns = [
     path('<int:pk>/scoring/',                             views.scoring_config,  name='scoring_config'),
     path('<int:pk>/applicants/',                          views.applicant_list,  name='applicant_list'),
     path('<int:posting_pk>/applicants/<int:pk>/',         views.applicant_detail, name='applicant_detail'),
+    path('<int:pk>/ai-analyse/',                          views.ai_analyse,       name='ai_analyse'),
 
     # Public job board (no login)
     path('jobs/',                views.job_board,     name='job_board'),

@@ -1,6 +1,8 @@
+import json
 import re
 import threading
 import uuid
+import requests as http_requests
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -10,7 +12,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.urls import reverse
 from django.utils import timezone
-from django.http import Http404
+from django.http import Http404, JsonResponse
 
 from accounts.models import Department, Employee
 from notifications.utils import notify
@@ -577,3 +579,109 @@ def applicant_detail(request, posting_pk, pk):
         'field_answers': field_answers,
         'STATUS_CHOICES': APPLICATION_STATUS_CHOICES,
     })
+
+
+# ─── AI Analysis ────────────────────────────────────────────────────────────────
+
+def _extract_cv_text(cv_file):
+    """Extract plain text from the applicant's CV (PDF only). Returns empty string on failure."""
+    try:
+        import fitz  # PyMuPDF
+        with fitz.open(cv_file.path) as doc:
+            return '\n'.join(page.get_text() for page in doc)[:4000]
+    except Exception:
+        return ''
+
+
+def _call_gemini(posting, application):
+    """
+    Send the applicant profile to Gemini 2.0 Flash and return a parsed dict with
+    keys: score (0-100), recommendation (invite|hold|reject), summary, strengths, gaps.
+    Raises requests.HTTPError or ValueError on failure.
+    """
+    answers = {a.field_name: a.value for a in application.answers.all()}
+    cv_text = _extract_cv_text(application.cv_file)
+
+    prompt = f"""You are an expert HR recruitment analyst. Evaluate this job application objectively and concisely.
+
+JOB TITLE: {posting.title}
+JOB REQUIREMENTS:
+{posting.requirements or 'Not specified'}
+
+APPLICANT: {application.applicant_name}
+Education Level: {answers.get('education_level', 'Not provided')}
+Years of Experience: {answers.get('years_experience', 'Not provided')}
+Current / Last Employer: {answers.get('current_employer', 'Not provided')}
+Expected Salary: {answers.get('expected_salary', 'Not provided')}
+Cover Letter: {answers.get('cover_letter', 'Not provided')}
+Nationality: {answers.get('nationality', 'Not provided')}
+Available From: {answers.get('available_from', 'Not provided')}
+How they heard about us: {answers.get('source', 'Not provided')}
+{f'CV / Resume Text (first 4000 chars):{chr(10)}{cv_text}' if cv_text else ''}
+
+Analyse the applicant against the job requirements. Return ONLY valid JSON — no markdown, no extra text:
+{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-3 sentence overall assessment>", "strengths": "<1-2 sentences on key strengths>", "gaps": "<1-2 sentences on missing qualifications or concerns>"}}"""
+
+    resp = http_requests.post(
+        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+        f'?key={settings.GEMINI_API_KEY}',
+        json={
+            'contents': [{'parts': [{'text': prompt}]}],
+            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 512},
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    raw = resp.json()['candidates'][0]['content']['parts'][0]['text']
+    # Strip possible markdown code fences
+    clean = raw.strip().lstrip('```json').lstrip('```').rstrip('```').strip()
+    return json.loads(clean)
+
+
+@login_required
+def ai_analyse(request, pk):
+    """AJAX endpoint: analyse one (app_pk in POST) or all applicants for a posting."""
+    if not _is_hr_or_admin(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    if not settings.GEMINI_API_KEY:
+        return JsonResponse({'error': 'GEMINI_API_KEY is not configured. Add it to your .env file.'}, status=503)
+
+    posting = get_object_or_404(JobPosting, pk=pk)
+    app_pk  = request.POST.get('app_pk', '').strip()
+
+    if app_pk:
+        apps = [get_object_or_404(Application, pk=app_pk, posting=posting)]
+    else:
+        apps = list(posting.applications.all())
+
+    results = []
+    errors  = []
+    for app in apps:
+        try:
+            data = _call_gemini(posting, app)
+            app.ai_score          = float(data.get('score', 0))
+            app.ai_recommendation = data.get('recommendation', '').lower()
+            app.ai_summary        = data.get('summary', '')
+            app.ai_strengths      = data.get('strengths', '')
+            app.ai_gaps           = data.get('gaps', '')
+            app.ai_analysed_at    = timezone.now()
+            app.save(update_fields=[
+                'ai_score', 'ai_recommendation', 'ai_summary',
+                'ai_strengths', 'ai_gaps', 'ai_analysed_at',
+            ])
+            results.append({
+                'app_pk':            app.pk,
+                'ai_score':          app.ai_score,
+                'ai_recommendation': app.ai_recommendation,
+                'ai_summary':        app.ai_summary,
+                'ai_strengths':      app.ai_strengths,
+                'ai_gaps':           app.ai_gaps,
+            })
+        except Exception as exc:
+            errors.append({'app_pk': app.pk, 'name': app.applicant_name, 'error': str(exc)})
+
+    return JsonResponse({'results': results, 'errors': errors})

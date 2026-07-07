@@ -201,6 +201,10 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='AEF HRM <pm@hr.micei.
 # Public URL used in email notification links
 SITE_URL = config('SITE_URL', default='https://hr.micei.org')
 
+# ── AI / Gemini Configuration ─────────────────────────────────────────────────
+# Get a free API key at https://aistudio.google.com/app/apikey
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+
 # ── WhatsApp / Twilio Configuration ─────────────────────────────────────────
 # Set WHATSAPP_NOTIFICATIONS_ENABLED=True and configure Twilio env vars.
 # TWILIO_WHATSAPP_FROM: your Twilio WhatsApp sender (e.g. whatsapp:+14155238886)

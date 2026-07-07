@@ -92,8 +92,85 @@
         </div>
     </div>
 
-    <!-- Right: Status controls -->
+    <!-- Right: AI Analysis + Status controls -->
     <div class="col-lg-5">
+
+        <!-- AI Analysis Card -->
+        <div class="card animate-in mb-4" id="aiCard">
+            <div class="card-header d-flex align-items-center justify-content-between"
+                 style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;">
+                <span><i class="bi bi-robot me-2"></i>{% trans "AI Analysis" %}</span>
+                <button id="aiAnalyseBtn" class="btn btn-sm"
+                        style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);font-size:.78rem;"
+                        data-url="{% url 'recruitment:ai_analyse' posting.pk %}">
+                    {% if app.ai_analysed_at %}
+                    <i class="bi bi-arrow-clockwise me-1"></i>{% trans "Re-analyse" %}
+                    {% else %}
+                    <i class="bi bi-stars me-1"></i>{% trans "Analyse with AI" %}
+                    {% endif %}
+                </button>
+            </div>
+            <div class="card-body p-4" id="aiCardBody">
+                {% if app.ai_analysed_at %}
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <!-- Circular score -->
+                    <div style="width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                background:conic-gradient(#6366f1 {{ app.ai_score|floatformat:0 }}%, #e5e7eb {{ app.ai_score|floatformat:0 }}%);
+                                position:relative;flex-shrink:0;">
+                        <div style="width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;">
+                            <span style="font-size:1rem;font-weight:700;color:#6366f1;">{{ app.ai_score|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        {% if app.ai_recommendation == 'invite' %}
+                        <span class="badge mb-1" style="background:#d1fae5;color:#065f46;font-size:.85rem;padding:.4em .8em;">
+                            <i class="bi bi-check-circle me-1"></i>{% trans "Invite for Interview" %}
+                        </span>
+                        {% elif app.ai_recommendation == 'hold' %}
+                        <span class="badge mb-1" style="background:#fef3c7;color:#92400e;font-size:.85rem;padding:.4em .8em;">
+                            <i class="bi bi-pause-circle me-1"></i>{% trans "Hold / Consider Later" %}
+                        </span>
+                        {% elif app.ai_recommendation == 'reject' %}
+                        <span class="badge mb-1" style="background:#fee2e2;color:#991b1b;font-size:.85rem;padding:.4em .8em;">
+                            <i class="bi bi-x-circle me-1"></i>{% trans "Reject" %}
+                        </span>
+                        {% endif %}
+                        <div style="font-size:.75rem;color:#9ab4c0;">
+                            {% trans "Analysed" %} {{ app.ai_analysed_at|date:"d M Y, H:i" }}
+                        </div>
+                    </div>
+                </div>
+                {% if app.ai_summary %}
+                <div class="mb-2">
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7a8d;">{% trans "Summary" %}</div>
+                    <p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">{{ app.ai_summary }}</p>
+                </div>
+                {% endif %}
+                {% if app.ai_strengths %}
+                <div class="mb-2">
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#065f46;">
+                        <i class="bi bi-check2 me-1"></i>{% trans "Strengths" %}
+                    </div>
+                    <p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">{{ app.ai_strengths }}</p>
+                </div>
+                {% endif %}
+                {% if app.ai_gaps %}
+                <div>
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;">
+                        <i class="bi bi-exclamation-triangle me-1"></i>{% trans "Gaps / Concerns" %}
+                    </div>
+                    <p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">{{ app.ai_gaps }}</p>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-3">
+                    <i class="bi bi-stars" style="font-size:2.5rem;color:#c4b5fd;display:block;margin-bottom:.5rem;"></i>
+                    <div style="font-size:.88rem;color:#6b7a8d;">{% trans "Click 'Analyse with AI' to get an instant AI-powered assessment of this applicant." %}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
         <div class="card animate-in mb-4">
             <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-arrow-right-circle me-2"></i>{% trans "Update Status" %}</div>
             <div class="card-body p-4">
@@ -160,5 +237,65 @@ function toggleStatusFields() {
     rejDiv.style.display = sel.value === 'rejected'  ? '' : 'none';
 }
 toggleStatusFields();
+
+// AI analysis for single applicant
+(function () {
+    var btn = document.getElementById('aiAnalyseBtn');
+    if (!btn) return;
+
+    function recBadge(rec) {
+        if (rec === 'invite') return '<span class="badge mb-1" style="background:#d1fae5;color:#065f46;font-size:.85rem;padding:.4em .8em;"><i class="bi bi-check-circle me-1"></i>Invite for Interview</span>';
+        if (rec === 'hold')   return '<span class="badge mb-1" style="background:#fef3c7;color:#92400e;font-size:.85rem;padding:.4em .8em;"><i class="bi bi-pause-circle me-1"></i>Hold / Consider Later</span>';
+        if (rec === 'reject') return '<span class="badge mb-1" style="background:#fee2e2;color:#991b1b;font-size:.85rem;padding:.4em .8em;"><i class="bi bi-x-circle me-1"></i>Reject</span>';
+        return '';
+    }
+
+    btn.addEventListener('click', function () {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analysing…';
+
+        fetch(btn.getAttribute('data-url'), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'app_pk={{ app.pk }}',
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.error) {
+                alert('AI Error: ' + data.error);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-stars me-1"></i>Analyse with AI';
+                return;
+            }
+            var r = (data.results || [])[0];
+            if (!r) { btn.disabled = false; return; }
+
+            var pct = Math.round(r.ai_score);
+            var bodyHtml = '<div class="d-flex align-items-center gap-3 mb-3">'
+                + '<div style="width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;'
+                + 'background:conic-gradient(#6366f1 ' + pct + '%, #e5e7eb ' + pct + '%);position:relative;flex-shrink:0;">'
+                + '<div style="width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;">'
+                + '<span style="font-size:1rem;font-weight:700;color:#6366f1;">' + pct + '</span></div></div>'
+                + '<div>' + recBadge(r.ai_recommendation)
+                + '<div style="font-size:.75rem;color:#9ab4c0;">Just analysed</div></div></div>';
+
+            if (r.ai_summary)    bodyHtml += '<div class="mb-2"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7a8d;">Summary</div><p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">' + r.ai_summary + '</p></div>';
+            if (r.ai_strengths)  bodyHtml += '<div class="mb-2"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#065f46;"><i class="bi bi-check2 me-1"></i>Strengths</div><p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">' + r.ai_strengths + '</p></div>';
+            if (r.ai_gaps)       bodyHtml += '<div><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;"><i class="bi bi-exclamation-triangle me-1"></i>Gaps / Concerns</div><p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">' + r.ai_gaps + '</p></div>';
+
+            document.getElementById('aiCardBody').innerHTML = bodyHtml;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Re-analyse';
+        })
+        .catch(function (err) {
+            alert('Network error: ' + err);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-stars me-1"></i>Analyse with AI';
+        });
+    });
+}());
 </script>
 {% endblock %}
