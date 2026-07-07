@@ -81,7 +81,7 @@
     <!-- Pending Proposals (HR/Superuser: see all; submitters: see their own) -->
     {% if proposals %}
     <div class="card mb-4" style="border:2px solid #0A4D68;">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,#0A4D68,#088395);color:#fff;">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <span>
                 <i class="bi bi-hourglass-split me-2"></i>{% trans "Pending Proposals — Awaiting HR Execution" %}
                 <span class="badge ms-2" style="background:rgba(255,255,255,.25);">{{ proposals|length }}</span>
@@ -185,14 +185,16 @@
                 </div>
                 <div>
                     <label class="form-label mb-1" style="font-size:0.78rem;">{% trans "Employee" %}</label>
-                    <select name="employee" id="discEmpSelect" class="form-select form-select-sm" style="min-width:190px;">
-                        <option value="">{% trans "All Employees" %}</option>
-                        {% for emp in all_employees %}
-                        <option value="{{ emp.pk }}"
-                                data-dept="{{ emp.department.pk|default:'' }}"
-                                {% if emp.pk|stringformat:"s" == emp_filter %}selected{% endif %}>{{ emp.get_full_name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="emp-ajax-wrap" style="min-width:190px;">
+                        <input type="text" class="form-control form-control-sm emp-ajax-input" placeholder="{% trans 'Type name to search…' %}" autocomplete="off">
+                        <div class="emp-ajax-dropdown"></div>
+                        <input type="hidden" name="employee" class="emp-ajax-value" value="{{ emp_filter }}">
+                        <div class="emp-ajax-selected mt-1" style="{% if not emp_filter %}display:none;{% endif %}font-size:.82rem;color:#0A4D68;">
+                            <i class="bi bi-person-check me-1"></i>
+                            <span class="emp-ajax-name">{% if emp_filter %}{% for e in all_employees %}{% if e.pk|stringformat:"s" == emp_filter %}{{ e.get_full_name }}{% endif %}{% endfor %}{% endif %}</span>
+                            <a href="#" class="emp-ajax-clear ms-2 text-danger">✕</a>
+                        </div>
+                    </div>
                 </div>
                 {% endif %}
                 <div class="d-flex gap-2 align-items-end">
@@ -355,29 +357,3 @@
 
 {% endblock %}
 
-{% block extra_js %}
-<script>
-(function () {
-    const deptSel = document.getElementById('discDeptSelect');
-    const empSel  = document.getElementById('discEmpSelect');
-    if (!deptSel || !empSel) return;
-    const allOpts = Array.from(empSel.querySelectorAll('option[data-dept]'));
-
-    function filterEmployees() {
-        const deptId = deptSel.value;
-        const current = empSel.value;
-        allOpts.forEach(opt => {
-            const match = !deptId || opt.dataset.dept === deptId;
-            opt.hidden   = !match;
-            opt.disabled = !match;
-        });
-        if (current && empSel.options[empSel.selectedIndex]?.hidden) {
-            empSel.value = '';
-        }
-    }
-
-    deptSel.addEventListener('change', filterEmployees);
-    filterEmployees();
-})();
-</script>
-{% endblock %}

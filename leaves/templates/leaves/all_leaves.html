@@ -38,14 +38,16 @@
             </div>
             <div class="col-6 col-md-3">
                 <label class="form-label">{% trans "Employee" %}</label>
-                <select name="employee" id="empSelect" class="form-select">
-                    <option value="">{% trans "All Employees" %}</option>
-                    {% for emp in all_employees %}
-                    <option value="{{ emp.pk }}"
-                            data-dept="{{ emp.department.pk|default:'' }}"
-                            {% if emp.pk|stringformat:"s" == emp_filter %}selected{% endif %}>{{ emp.get_full_name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
-                    {% endfor %}
-                </select>
+                <div class="emp-ajax-wrap">
+                    <input type="text" class="form-control emp-ajax-input" placeholder="{% trans 'Type name to search…' %}" autocomplete="off">
+                    <div class="emp-ajax-dropdown"></div>
+                    <input type="hidden" name="employee" class="emp-ajax-value" value="{{ emp_filter }}">
+                    <div class="emp-ajax-selected mt-1" style="{% if not emp_filter %}display:none;{% endif %}font-size:.85rem;color:#0A4D68;">
+                        <i class="bi bi-person-check me-1"></i>
+                        <span class="emp-ajax-name">{% if emp_filter %}{% for e in all_employees %}{% if e.pk|stringformat:"s" == emp_filter %}{{ e.get_full_name }}{% endif %}{% endfor %}{% endif %}</span>
+                        <a href="#" class="emp-ajax-clear ms-2 text-danger">✕</a>
+                    </div>
+                </div>
             </div>
             <div class="col-12 col-md-2">
                 <button type="submit" class="btn btn-primary w-100">
@@ -124,29 +126,4 @@
     </div>
 </div>
 
-{% block extra_js %}
-<script>
-(function () {
-    const deptSel = document.getElementById('deptSelect');
-    const empSel  = document.getElementById('empSelect');
-    const allOpts = Array.from(empSel.querySelectorAll('option[data-dept]'));
-
-    function filterEmployees() {
-        const deptId = deptSel.value;
-        const current = empSel.value;
-        allOpts.forEach(opt => {
-            const match = !deptId || opt.dataset.dept === deptId;
-            opt.hidden   = !match;
-            opt.disabled = !match;
-        });
-        if (current && empSel.options[empSel.selectedIndex]?.hidden) {
-            empSel.value = '';
-        }
-    }
-
-    deptSel.addEventListener('change', filterEmployees);
-    filterEmployees();
-})();
-</script>
-{% endblock %}
 {% endblock %}

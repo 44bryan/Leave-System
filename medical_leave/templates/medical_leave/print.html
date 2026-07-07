@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Sick Leave Certificate — {{ sl.employee.get_full_name }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Medical Sick Leave — {{ sl.employee.get_full_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Lato', sans-serif;
-            background: #e8e8e8;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f4f8;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -19,10 +19,9 @@
             padding: 30px 20px 60px;
         }
 
-        /* ─── Screen action bar ─── */
         .print-bar {
             width: 100%;
-            max-width: 680px;
+            max-width: 780px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -30,372 +29,285 @@
             gap: 10px;
         }
         .btn-print {
-            background: #0A4D68;
+            background: linear-gradient(135deg, #0A4D68, #2db4c3);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 10px 22px;
-            font-size: 0.88rem;
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-size: 0.9rem;
             font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
-            letter-spacing: 0.02em;
+            transition: all 0.2s;
         }
+        .btn-print:hover { background: linear-gradient(135deg, #0c5a7a, #0da8c0); transform: translateY(-1px); }
         .btn-back {
             background: white;
-            color: #444;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px 18px;
-            font-size: 0.85rem;
+            color: #0A4D68;
+            border: 1.5px solid #cde8ef;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 0.875rem;
             font-weight: 600;
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.2s;
         }
+        .btn-back:hover { background: #e8f6f9; color: #0A4D68; }
 
-        /* ─── Page / document ─── */
         .document {
             width: 100%;
-            max-width: 680px;
+            max-width: 780px;
             background: white;
-            box-shadow: 0 2px 24px rgba(0,0,0,0.18);
-            padding: 60px 64px 52px;
-            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+            overflow: hidden;
         }
 
-        /* ─── Letterhead ─── */
-        .letterhead {
+        .doc-header {
+            background: white;
+            border-bottom: 3px solid #2db4c3;
+            padding: 28px 40px 24px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
+            gap: 20px;
         }
-        .letterhead-left {
-            font-family: 'EB Garamond', serif;
-        }
-        .letterhead-left .inst-name {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            line-height: 1.3;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        .letterhead-left .dept-name {
-            font-size: 0.78rem;
-            color: #555;
-            margin-top: 3px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-        .letterhead-right {
-            text-align: right;
-            font-size: 0.78rem;
-            color: #555;
-            line-height: 1.7;
-        }
-        .letterhead-right .ref-no {
-            font-weight: 700;
-            color: #1a1a1a;
-            font-size: 0.8rem;
-        }
+        .doc-logo-box img { height: 56px; width: auto; display: block; }
+        .doc-header-meta { text-align: right; font-size: 0.78rem; color: #6b7a8d; line-height: 1.8; }
+        .doc-header-meta strong { color: #0d1b2a; }
 
-        /* ─── Divider ─── */
-        .divider-double {
-            border: none;
-            border-top: 3px double #1a1a1a;
-            margin: 12px 0 28px;
-        }
-
-        /* ─── Document title ─── */
-        .doc-title {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-        .doc-title h1 {
-            font-family: 'EB Garamond', serif;
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-        }
-        .doc-title .underline-accent {
-            display: block;
-            width: 60px;
-            height: 2px;
-            background: #1a1a1a;
-            margin: 8px auto 0;
-        }
-
-        /* ─── Endorsement stamp ─── */
-        .stamp-wrap {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-        .stamp {
-            border: 2px solid #2e7d32;
-            color: #2e7d32;
-            padding: 4px 14px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            transform: rotate(-2deg);
-            display: inline-block;
-        }
-        .stamp.pending {
-            border-color: #b45309;
-            color: #b45309;
-        }
-
-        /* ─── Body text ─── */
-        .body-para {
-            font-size: 0.93rem;
-            color: #1a1a1a;
-            line-height: 1.9;
-            margin-bottom: 14px;
-            text-align: justify;
-        }
-        .body-para .field {
-            display: inline-block;
-            border-bottom: 1px solid #1a1a1a;
-            min-width: 200px;
-            font-weight: 700;
-            padding: 0 2px;
-        }
-        .body-para .field.sm { min-width: 40px; text-align: center; }
-        .body-para .field.md { min-width: 110px; text-align: center; }
-
-        /* ─── Note paragraph ─── */
-        .note-para {
-            font-size: 0.82rem;
-            color: #444;
-            line-height: 1.8;
-            margin-bottom: 10px;
-            text-align: justify;
-        }
-
-        /* ─── NB ─── */
-        .nb-text {
-            font-size: 0.8rem;
-            color: #333;
-            line-height: 1.7;
-            margin: 24px 0 28px;
-            padding: 10px 14px;
-            border-left: 3px solid #1a1a1a;
-            background: #fafafa;
-        }
-        .nb-text strong { color: #1a1a1a; }
-
-        /* ─── Physician signature (centred) ─── */
-        .physician-sig {
-            text-align: center;
-            margin: 28px 0 20px;
-        }
-        .sig-space {
-            height: 38px; /* space for physical signature if printed */
-        }
-        .sig-rule {
-            border-top: 1px solid #1a1a1a;
-            display: inline-block;
-            min-width: 240px;
-            padding-top: 6px;
+        .doc-title-band {
+            background: #e0f7fa;
+            border-top: 3px solid #2db4c3;
+            border-bottom: 1px solid #cde8ef;
+            padding: 16px 40px;
             text-align: center;
         }
-        .sig-rule .sig-name  { font-weight: 700; font-size: 0.88rem; color: #1a1a1a; }
-        .sig-rule .sig-title { font-size: 0.75rem; color: #555; margin-top: 1px; }
-        .sig-rule .sig-date  { font-size: 0.72rem; color: #777; margin-top: 1px; }
+        .doc-title-band h2 {
+            font-size: 1.2rem; font-weight: 800; color: #0A4D68;
+            letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        .doc-title-band p { font-size: 0.78rem; color: #5a7a8d; margin-top: 2px; }
 
-        /* ─── Two endorsement blocks ─── */
-        .endorse-section {
-            display: flex;
-            justify-content: space-between;
-            gap: 48px;
-            margin-top: 36px;
-        }
-        .endorse-block { flex: 1; }
-        .endorse-block .endorse-label {
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #666;
-            margin-bottom: 34px;
-            font-weight: 700;
-        }
-        .endorse-block .endorse-rule {
-            border-top: 1px solid #1a1a1a;
-            padding-top: 6px;
-        }
-        .endorse-block .sig-name  { font-weight: 700; font-size: 0.85rem; color: #1a1a1a; }
-        .endorse-block .sig-title { font-size: 0.73rem; color: #555; margin-top: 1px; }
-        .endorse-block .sig-date  { font-size: 0.7rem; color: #777; margin-top: 1px; }
-        .endorse-block .sig-pending { font-size: 0.73rem; color: #999; font-style: italic; }
+        .doc-body { padding: 36px 40px; }
 
-        /* ─── Footer ─── */
+        .ref-line {
+            display: flex; justify-content: space-between;
+            font-size: 0.8rem; color: #6b7a8d;
+            margin-bottom: 24px; padding-bottom: 16px;
+            border-bottom: 1px dashed #cde8ef;
+        }
+        .ref-line strong { color: #0d1b2a; }
+
+        .endorsed-stamp { display: flex; justify-content: center; margin: 0 0 24px; }
+        .stamp-box {
+            border: 3px solid #1a8fa0; border-radius: 8px;
+            padding: 10px 28px; text-align: center;
+            transform: rotate(-3deg); display: inline-block;
+        }
+        .stamp-box.pending { border-color: #f59e0b; }
+        .stamp-box .stamp-text { font-size: 1.4rem; font-weight: 800; color: #1a8fa0; letter-spacing: 0.15em; text-transform: uppercase; }
+        .stamp-box.pending .stamp-text { color: #f59e0b; }
+        .stamp-box .stamp-sub { font-size: 0.65rem; color: #1a8fa0; letter-spacing: 0.1em; }
+        .stamp-box.pending .stamp-sub { color: #f59e0b; }
+
+        .letter-body { font-size: 0.92rem; color: #2d3a4a; line-height: 1.85; margin-bottom: 12px; }
+        .letter-body .field {
+            display: inline-block; border-bottom: 1.5px solid #0A4D68;
+            font-weight: 700; color: #0A4D68; padding: 0 4px; min-width: 60px;
+        }
+        .letter-body .field-name { min-width: 280px; }
+        .letter-body .field-date { min-width: 110px; text-align: center; }
+
+        .note-text { font-size: 0.85rem; color: #4a5568; line-height: 1.8; margin-bottom: 10px; }
+
+        .nb-box {
+            background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px;
+            padding: 10px 16px; font-size: 0.82rem; color: #5d4037;
+            margin: 24px 0 28px; line-height: 1.65;
+        }
+        .nb-box strong { color: #0A4D68; }
+
+        .physician-sig { text-align: center; margin: 24px 0 12px; }
+        .physician-sig .sig-space { height: 44px; }
+        .physician-sig .sig-line {
+            border-top: 1.5px solid #2db4c3; padding-top: 8px;
+            display: inline-block; min-width: 240px;
+        }
+        .physician-sig .sig-name  { font-weight: 700; font-size: 0.9rem; color: #0d1b2a; }
+        .physician-sig .sig-title { font-size: 0.75rem; color: #6b7a8d; }
+        .physician-sig .sig-date  { font-size: 0.72rem; color: #6b7a8d; margin-top: 2px; }
+        .physician-sig .sig-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: #9ab4c0; margin-top: 6px; }
+
+        .sig-section { display: flex; justify-content: space-between; gap: 40px; margin-top: 8px; }
+        .sig-block { flex: 1; }
+        .sig-block .sig-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7a8d; margin-bottom: 44px; }
+        .sig-block .sig-line { border-top: 1.5px solid #2db4c3; padding-top: 8px; }
+        .sig-block .sig-name  { font-weight: 700; font-size: 0.875rem; color: #0d1b2a; }
+        .sig-block .sig-title { font-size: 0.75rem; color: #6b7a8d; }
+        .sig-block .sig-date  { font-size: 0.72rem; color: #6b7a8d; margin-top: 2px; }
+        .sig-block .sig-pending { font-size: 0.75rem; color: #9ca3af; font-style: italic; }
+
         .doc-footer {
-            margin-top: 40px;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
-            text-align: center;
-            font-size: 0.65rem;
-            color: #aaa;
-            letter-spacing: 0.04em;
+            background: #f5fbfc; border-top: 1px solid #cde8ef;
+            padding: 14px 40px; text-align: center; font-size: 0.7rem; color: #9ab4c0;
         }
 
-        /* ─── PRINT ─── */
-        @page {
-            size: A4 portrait;
-            margin: 1.8cm 1.5cm;
-        }
+        @page { margin: 1cm; size: A4 portrait; }
         @media print {
-            body {
-                background: white;
-                padding: 0;
-                display: block;
-                align-items: unset;
-                min-height: unset;
-            }
+            body { background: white; padding: 0; display: block; align-items: unset; min-height: unset; font-size: 0.82rem; }
             .print-bar { display: none; }
-            .document {
-                box-shadow: none;
-                padding: 0;
-                max-width: 100%;
-                width: 100%;
-            }
-            .letterhead-left .inst-name { font-size: 1rem; }
-            .doc-title h1 { font-size: 1.2rem; }
-            .body-para { font-size: 0.88rem; line-height: 1.8; margin-bottom: 10px; }
-            .note-para { font-size: 0.78rem; line-height: 1.7; }
-            .nb-text { font-size: 0.75rem; margin: 16px 0 20px; }
-            .physician-sig { margin: 20px 0 14px; }
-            .endorse-section { margin-top: 24px; gap: 32px; }
-            .endorse-block .endorse-label { margin-bottom: 24px; }
-            .doc-footer { margin-top: 28px; }
+            .document { box-shadow: none; border-radius: 0; max-width: 100%; width: 100%; }
+            .doc-header { padding: 14px 24px 12px; }
+            .doc-logo-box img { height: 44px; }
+            .doc-title-band { padding: 8px 24px; }
+            .doc-title-band h2 { font-size: 1rem; }
+            .doc-body { padding: 18px 24px; }
+            .ref-line { margin-bottom: 12px; padding-bottom: 8px; }
+            .endorsed-stamp { margin-bottom: 14px; }
+            .stamp-box { padding: 6px 20px; }
+            .stamp-box .stamp-text { font-size: 1.1rem; }
+            .letter-body { font-size: 0.84rem; line-height: 1.65; margin-bottom: 8px; }
+            .note-text { font-size: 0.78rem; line-height: 1.65; }
+            .nb-box { margin: 14px 0 18px; padding: 8px 12px; font-size: 0.76rem; }
+            .physician-sig { margin: 16px 0 8px; }
+            .physician-sig .sig-space { height: 30px; }
+            .physician-sig .sig-line { min-width: 200px; }
+            .physician-sig .sig-name { font-size: 0.82rem; }
+            .sig-section { margin-top: 4px; gap: 20px; }
+            .sig-block .sig-label { margin-bottom: 28px; font-size: 0.65rem; }
+            .sig-block .sig-name { font-size: 0.8rem; }
+            .sig-block .sig-title, .sig-block .sig-date { font-size: 0.68rem; }
+            .doc-footer { padding: 8px 24px; font-size: 0.65rem; }
         }
     </style>
 </head>
 <body>
 
-<!-- Screen action bar -->
 <div class="print-bar">
-    <a href="{% url 'medical_leave:detail' sl.pk %}" class="btn-back">&#8592; Back</a>
-    <button class="btn-print" onclick="window.print()">&#128438;&nbsp; Print / Save as PDF</button>
+    <a href="{% url 'medical_leave:detail' sl.pk %}" class="btn-back">&#8592; Back to Record</a>
+    <button class="btn-print" onclick="window.print()">&#128438; Print / Save as PDF</button>
 </div>
 
-<!-- Document -->
 <div class="document">
 
-    <!-- Letterhead -->
-    <div class="letterhead">
-        <div class="letterhead-left">
-            <div class="inst-name">Magrabi Co Cameroon Eye Institute</div>
-            <div class="dept-name">Internal Medicine Department</div>
+    <!-- Header: logo only, no institution text -->
+    <div class="doc-header">
+        <div class="doc-logo-box">
+            <img src="{% static 'LOGO.png' %}" alt="Magrabi Co Cameroon Eye Institute">
         </div>
-        <div class="letterhead-right">
-            <div class="ref-no">Ref: MSL-{{ sl.pk|stringformat:"04d" }}</div>
-            <div>Date: {{ sl.date_of_issuance|date:"d F Y" }}</div>
+        <div class="doc-header-meta">
+            <div><strong>Ref:</strong> MSL-{{ sl.pk|stringformat:"04d" }}</div>
+            <div><strong>Date of Issuance:</strong> {{ sl.date_of_issuance|date:"d F Y" }}</div>
         </div>
     </div>
 
-    <hr class="divider-double">
-
-    <!-- Title -->
-    <div class="doc-title">
-        <h1>Medical Sick Leave</h1>
-        <span class="underline-accent"></span>
+    <!-- Title band -->
+    <div class="doc-title-band">
+        <h2>Medical Sick Leave</h2>
+        <p>Official certificate issued by the Internal Medicine Specialist</p>
     </div>
 
-    <!-- Endorsement stamp (top right, subtle) -->
-    <div class="stamp-wrap">
-        {% if sl.is_fully_endorsed %}
-        <div class="stamp">Endorsed</div>
-        {% else %}
-        <div class="stamp pending">Pending Endorsement</div>
-        {% endif %}
-    </div>
+    <div class="doc-body">
 
-    <!-- Body — matches the scanned form text exactly -->
-    <p class="body-para">
-        This document is issued for the purpose of authorizing sick leave for:
-    </p>
-    <p class="body-para">
-        &emsp;<span class="field" style="min-width:320px;">{{ sl.employee.get_full_name }}</span>
-    </p>
-
-    <p class="body-para">
-        Based on my evaluation and assessment of the staff's medical condition, it is my
-        professional opinion that the above requires time off from work for medical reasons.
-        The recommended period for sick leave is&nbsp;<span class="field sm">{{ sl.days_count }}</span>&nbsp;working
-        day{{ sl.days_count|pluralize }}, from
-        <span class="field md">{{ sl.start_date|date:"d/m/Y" }}</span>&nbsp; to &nbsp;<span class="field md">{{ sl.end_date|date:"d/m/Y" }}</span>.
-    </p>
-
-    <p class="note-para">
-        During this period of sick leave, it is essential for the staff to comply with the
-        prescribed medical treatment plan.
-    </p>
-    <p class="note-para">
-        The staff is requested to follow up with the Physician for a re-evaluation as needed
-        before the anticipated return date.
-    </p>
-
-    <!-- Physician signature -->
-    <div class="physician-sig">
-        <div class="sig-space"></div>
-        <div class="sig-rule">
-            <div class="sig-name">{{ sl.issued_by.get_full_name }}</div>
-            <div class="sig-title">Internal Medicine Specialist</div>
-            <div class="sig-date">{{ sl.date_of_issuance|date:"d M Y" }}</div>
+        <div class="ref-line">
+            <span>Ref: <strong>MSL-{{ sl.pk|stringformat:"04d" }}</strong></span>
+            <span>Issued: <strong>{{ sl.date_of_issuance|date:"d/m/Y" }}</strong></span>
         </div>
-        <div style="font-size:0.72rem;color:#888;margin-top:4px;letter-spacing:0.06em;text-transform:uppercase;">Physician's Signature</div>
-    </div>
 
-    <!-- NB -->
-    <div class="nb-text">
-        <strong>NB:</strong> This document is to be shown to, and endorsed by, the appropriate
-        <strong>Line Manager</strong> and the <strong>Human Resource Officer (HR)</strong>.
-    </div>
+        <div class="endorsed-stamp">
+            {% if sl.is_fully_endorsed %}
+            <div class="stamp-box">
+                <div class="stamp-text">ENDORSED</div>
+                <div class="stamp-sub">Line Manager &amp; Human Resources</div>
+            </div>
+            {% else %}
+            <div class="stamp-box pending">
+                <div class="stamp-text">PENDING</div>
+                <div class="stamp-sub">{{ sl.get_status_display }}</div>
+            </div>
+            {% endif %}
+        </div>
 
-    <!-- Two endorsement blocks -->
-    <div class="endorse-section">
-        <div class="endorse-block">
-            <div class="endorse-label">Line Manager</div>
-            <div class="endorse-rule">
-                {% if sl.line_manager_action_by %}
-                <div class="sig-name">{{ sl.line_manager_action_by.get_full_name }}</div>
-                <div class="sig-title">Line Manager</div>
-                <div class="sig-date">{{ sl.line_manager_action_date|date:"d M Y" }}</div>
-                {% else %}
-                <div class="sig-pending">Pending endorsement</div>
-                {% endif %}
+        <p class="letter-body">
+            This document is issued for the purpose of authorizing sick leave for:
+        </p>
+        <p class="letter-body" style="margin-bottom:20px;">
+            <span class="field field-name">{{ sl.employee.get_full_name }}</span>
+        </p>
+
+        <p class="letter-body">
+            Based on my evaluation and assessment of the staff's medical condition, it is my
+            professional opinion that the above requires time off from work for medical reasons.
+            The recommended period for sick leave is&nbsp;<span class="field">{{ sl.days_count }}</span>&nbsp;working
+            day{{ sl.days_count|pluralize }}, from
+            <span class="field field-date">{{ sl.start_date|date:"d/m/Y" }}</span>
+            &nbsp;to&nbsp;
+            <span class="field field-date">{{ sl.end_date|date:"d/m/Y" }}</span>.
+        </p>
+
+        <p class="note-text" style="margin-top:14px;">
+            During this period of sick leave, it is essential for the staff to comply with the
+            prescribed medical treatment plan.
+        </p>
+        <p class="note-text">
+            The staff is requested to follow up with the Physician for a re-evaluation as needed
+            before the anticipated return date.
+        </p>
+
+        <div class="physician-sig">
+            <div class="sig-space"></div>
+            <div class="sig-line">
+                <div class="sig-name">{{ sl.issued_by.get_full_name }}</div>
+                <div class="sig-title">Internal Medicine Specialist</div>
+                <div class="sig-date">{{ sl.date_of_issuance|date:"d M Y" }}</div>
+            </div>
+            <div class="sig-label">Physician's Signature</div>
+        </div>
+
+        <div class="nb-box">
+            <strong>NB:</strong> This document is to be shown to and endorsed by the appropriate
+            <strong>Line Manager</strong> and the <strong>Human Resource Officer (HR)</strong>.
+        </div>
+
+        <div class="sig-section">
+            <div class="sig-block">
+                <div class="sig-label">Line Manager</div>
+                <div class="sig-line">
+                    {% if sl.line_manager_action_by %}
+                    <div class="sig-name">{{ sl.line_manager_action_by.get_full_name }}</div>
+                    <div class="sig-title">Line Manager</div>
+                    <div class="sig-date">{{ sl.line_manager_action_date|date:"d M Y" }}</div>
+                    {% else %}
+                    <div class="sig-pending">Pending endorsement</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-label">Human Resource Officer</div>
+                <div class="sig-line">
+                    {% if sl.hr_action_by %}
+                    <div class="sig-name">{{ sl.hr_action_by.get_full_name }}</div>
+                    <div class="sig-title">HR Officer</div>
+                    <div class="sig-date">{{ sl.hr_action_date|date:"d M Y" }}</div>
+                    {% else %}
+                    <div class="sig-pending">Pending endorsement</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="endorse-block">
-            <div class="endorse-label">Human Resource Officer</div>
-            <div class="endorse-rule">
-                {% if sl.hr_action_by %}
-                <div class="sig-name">{{ sl.hr_action_by.get_full_name }}</div>
-                <div class="sig-title">HR Officer</div>
-                <div class="sig-date">{{ sl.hr_action_date|date:"d M Y" }}</div>
-                {% else %}
-                <div class="sig-pending">Pending endorsement</div>
-                {% endif %}
-            </div>
-        </div>
+
     </div>
 
-    <!-- Footer -->
     <div class="doc-footer">
-        MAGRABI CO CAMEROON EYE INSTITUTE &bull; INTERNAL MEDICINE &bull; CONFIDENTIAL &bull; MSL-{{ sl.pk|stringformat:"04d" }}
+        Internal Medicine Department &nbsp;&bull;&nbsp; Medical Sick Leave Certificate &nbsp;&bull;&nbsp; Confidential &nbsp;&bull;&nbsp; MSL-{{ sl.pk|stringformat:"04d" }}
     </div>
 
 </div>
-
 </body>
 </html>

@@ -21,14 +21,16 @@
       {% if is_hr %}
       <div class="col-sm-4">
         <label class="form-label" style="font-size:.75rem;font-weight:600;color:#6b7a8d;">{% trans "Employee" %}</label>
-        <select name="employee" class="form-select form-select-sm">
-          <option value="">{% trans "All Employees" %}</option>
-          {% for emp in employees %}
-          <option value="{{ emp.pk }}" {% if emp_filter == emp.pk|stringformat:"s" %}selected{% endif %}>
-            {{ emp.user.get_full_name }}
-          </option>
-          {% endfor %}
-        </select>
+        <div class="emp-ajax-wrap">
+            <input type="text" class="form-control form-control-sm emp-ajax-input" placeholder="{% trans 'Type name to search…' %}" autocomplete="off">
+            <div class="emp-ajax-dropdown"></div>
+            <input type="hidden" name="employee" class="emp-ajax-value" value="{{ emp_filter }}">
+            <div class="emp-ajax-selected mt-1" style="{% if not emp_filter %}display:none;{% endif %}font-size:.82rem;color:#0A4D68;">
+                <i class="bi bi-person-check me-1"></i>
+                <span class="emp-ajax-name">{% if emp_filter %}{% for e in employees %}{% if e.pk|stringformat:"s" == emp_filter %}{{ e.user.get_full_name }}{% endif %}{% endfor %}{% endif %}</span>
+                <a href="#" class="emp-ajax-clear ms-2 text-danger">✕</a>
+            </div>
+        </div>
       </div>
       {% endif %}
       <div class="col-sm-2">

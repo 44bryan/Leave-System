@@ -121,17 +121,6 @@
                     {% endfor %}
                 </select>
             </div>
-            <div>
-                <label class="form-label mb-1" style="font-size:.75rem;font-weight:600;">{% trans "Employee" %}</label>
-                <select name="employee" id="contractEmpSelect" class="form-select form-select-sm" style="min-width:180px;">
-                    <option value="">{% trans "All Employees" %}</option>
-                    {% for emp in all_employees %}
-                    <option value="{{ emp.pk }}"
-                            data-dept="{{ emp.department.pk|default:'' }}"
-                            {% if filter_emp == emp.pk|stringformat:"s" %}selected{% endif %}>{{ emp.get_full_name }}{% if emp.department %} ({{ emp.department }}){% endif %}</option>
-                    {% endfor %}
-                </select>
-            </div>
             <div class="d-flex gap-2 align-items-end">
                 <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>{% trans "Filter" %}</button>
                 <a href="{% url 'contracts:list' %}" class="btn btn-outline-secondary btn-sm">{% trans "Clear" %}</a>
@@ -279,29 +268,3 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-(function () {
-    const deptSel = document.getElementById('contractDeptSelect');
-    const empSel  = document.getElementById('contractEmpSelect');
-    if (!deptSel || !empSel) return;
-    const allOpts = Array.from(empSel.querySelectorAll('option[data-dept]'));
-
-    function filterEmployees() {
-        const deptId = deptSel.value;
-        const current = empSel.value;
-        allOpts.forEach(opt => {
-            const match = !deptId || opt.dataset.dept === deptId;
-            opt.hidden   = !match;
-            opt.disabled = !match;
-        });
-        if (current && empSel.options[empSel.selectedIndex]?.hidden) {
-            empSel.value = '';
-        }
-    }
-
-    deptSel.addEventListener('change', filterEmployees);
-    filterEmployees();
-})();
-</script>
-{% endblock %}
