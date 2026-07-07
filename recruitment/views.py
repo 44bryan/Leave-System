@@ -193,8 +193,16 @@ def apply(request, pk):
                     value=val,
                 ))
             ApplicationAnswer.objects.bulk_create(answers_to_create)
-            # Auto-score
+            # Auto-score (rule-based)
             app.compute_score()
+
+        # AI analysis in background — runs after the transaction commits
+        if settings.GEMINI_API_KEY:
+            threading.Thread(
+                target=_ai_analyse_background,
+                args=(posting, app),
+                daemon=True,
+            ).start()
 
         # Notify all HR users of the new application
         detail_url = reverse('recruitment:applicant_detail', kwargs={'posting_pk': posting.pk, 'pk': app.pk})
@@ -582,6 +590,26 @@ def applicant_detail(request, posting_pk, pk):
 
 
 # ─── AI Analysis ────────────────────────────────────────────────────────────────
+
+def _ai_analyse_background(posting, app):
+    """Run AI analysis in a background thread after application submission."""
+    import logging
+    logger = logging.getLogger(__name__)
+    try:
+        data = _call_gemini(posting, app)
+        app.ai_score          = float(data.get('score', 0))
+        app.ai_recommendation = data.get('recommendation', '').lower()
+        app.ai_summary        = data.get('summary', '')
+        app.ai_strengths      = data.get('strengths', '')
+        app.ai_gaps           = data.get('gaps', '')
+        app.ai_analysed_at    = timezone.now()
+        app.save(update_fields=[
+            'ai_score', 'ai_recommendation', 'ai_summary',
+            'ai_strengths', 'ai_gaps', 'ai_analysed_at',
+        ])
+    except Exception as exc:
+        logger.warning('Auto AI analysis failed for application %s: %s', app.pk, exc)
+
 
 def _extract_cv_text(cv_file):
     """Extract plain text from the applicant's CV (PDF only). Returns empty string on failure."""
