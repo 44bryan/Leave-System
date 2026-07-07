@@ -109,6 +109,13 @@ def issue(request):
                         'leave',
                         f'/medical-leave/{sl.pk}/view/',
                     )
+                    from dashboard.models import AuditLog
+                    AuditLog.log(
+                        request, AuditLog.ACTION_MEDICAL_LEAVE,
+                        f'Medical Sick Leave MSL-{sl.pk:04d} issued for {patient.get_full_name()} '
+                        f'({sl.start_date} → {sl.end_date}, {sl.days_count} day(s)).',
+                        target_user=patient.user,
+                    )
                     messages.success(request, 'Medical Sick Leave issued successfully.')
                     return redirect('medical_leave:detail', pk=sl.pk)
             except Employee.DoesNotExist:
@@ -226,6 +233,13 @@ def lm_endorse(request, pk):
                     'leave',
                     f'/medical-leave/{sl.pk}/endorse/hr/',
                 )
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_MEDICAL_LEAVE,
+                f'MSL-{sl.pk:04d} — Line Manager endorsed sick leave for {sl.employee.get_full_name()} '
+                f'and forwarded to HR.',
+                target_user=sl.employee.user,
+            )
             messages.success(request, 'Sick leave endorsed and forwarded to HR.')
         elif action == 'reject':
             sl.status = MedicalSickLeave.STATUS_REJECTED_LINE_MANAGER
@@ -236,6 +250,12 @@ def lm_endorse(request, pk):
                 f'Your medical sick leave ({sl.start_date} → {sl.end_date}) was not endorsed by your Line Manager.',
                 'leave',
                 f'/medical-leave/{sl.pk}/view/',
+            )
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_MEDICAL_LEAVE,
+                f'MSL-{sl.pk:04d} — Line Manager rejected sick leave for {sl.employee.get_full_name()}.',
+                target_user=sl.employee.user,
             )
             messages.warning(request, 'Sick leave has been rejected.')
 
@@ -285,6 +305,13 @@ def hr_endorse(request, pk):
                 'leave',
                 f'/medical-leave/{sl.pk}/view/',
             )
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_MEDICAL_LEAVE,
+                f'MSL-{sl.pk:04d} — HR fully endorsed sick leave for {sl.employee.get_full_name()} '
+                f'({sl.start_date} → {sl.end_date}).',
+                target_user=sl.employee.user,
+            )
             messages.success(request, 'Sick leave fully endorsed.')
         elif action == 'reject':
             sl.status = MedicalSickLeave.STATUS_REJECTED_HR
@@ -295,6 +322,12 @@ def hr_endorse(request, pk):
                 f'Your medical sick leave ({sl.start_date} → {sl.end_date}) was not endorsed by HR.',
                 'leave',
                 f'/medical-leave/{sl.pk}/view/',
+            )
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_MEDICAL_LEAVE,
+                f'MSL-{sl.pk:04d} — HR rejected sick leave for {sl.employee.get_full_name()}.',
+                target_user=sl.employee.user,
             )
             messages.warning(request, 'Sick leave has been rejected.')
 

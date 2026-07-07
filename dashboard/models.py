@@ -5,28 +5,30 @@ User = get_user_model()
 
 
 class AuditLog(models.Model):
-    ACTION_LOGIN         = 'login'
-    ACTION_LOGOUT        = 'logout'
-    ACTION_LEAVE_SUBMIT  = 'leave_submit'
-    ACTION_LEAVE_APPROVE = 'leave_approve'
-    ACTION_LEAVE_REJECT  = 'leave_reject'
-    ACTION_CONTRACT      = 'contract'
-    ACTION_DISCIPLINE    = 'discipline'
-    ACTION_APPRAISAL     = 'appraisal'
-    ACTION_EMPLOYEE      = 'employee'
-    ACTION_OTHER         = 'other'
+    ACTION_LOGIN          = 'login'
+    ACTION_LOGOUT         = 'logout'
+    ACTION_LEAVE_SUBMIT   = 'leave_submit'
+    ACTION_LEAVE_APPROVE  = 'leave_approve'
+    ACTION_LEAVE_REJECT   = 'leave_reject'
+    ACTION_CONTRACT       = 'contract'
+    ACTION_DISCIPLINE     = 'discipline'
+    ACTION_APPRAISAL      = 'appraisal'
+    ACTION_EMPLOYEE       = 'employee'
+    ACTION_MEDICAL_LEAVE  = 'medical_leave'
+    ACTION_OTHER          = 'other'
 
     ACTION_CHOICES = [
-        (ACTION_LOGIN,         'Login'),
-        (ACTION_LOGOUT,        'Logout'),
-        (ACTION_LEAVE_SUBMIT,  'Leave Submitted'),
-        (ACTION_LEAVE_APPROVE, 'Leave Approved'),
-        (ACTION_LEAVE_REJECT,  'Leave Rejected'),
-        (ACTION_CONTRACT,      'Contract Action'),
-        (ACTION_DISCIPLINE,    'Discipline Action'),
-        (ACTION_APPRAISAL,     'Appraisal Action'),
-        (ACTION_EMPLOYEE,      'Employee Management'),
-        (ACTION_OTHER,         'Other'),
+        (ACTION_LOGIN,          'Login'),
+        (ACTION_LOGOUT,         'Logout'),
+        (ACTION_LEAVE_SUBMIT,   'Leave Submitted'),
+        (ACTION_LEAVE_APPROVE,  'Leave Approved'),
+        (ACTION_LEAVE_REJECT,   'Leave Rejected'),
+        (ACTION_CONTRACT,       'Contract Action'),
+        (ACTION_DISCIPLINE,     'Discipline Action'),
+        (ACTION_APPRAISAL,      'Appraisal Action'),
+        (ACTION_EMPLOYEE,       'Employee Management'),
+        (ACTION_MEDICAL_LEAVE,  'Medical Sick Leave'),
+        (ACTION_OTHER,          'Other'),
     ]
 
     user        = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='audit_logs')

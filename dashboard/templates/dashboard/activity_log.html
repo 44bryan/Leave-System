@@ -24,14 +24,16 @@
             </div>
             <div class="col-sm-3">
                 <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">{% trans "User" %}</label>
-                <select name="user_id" class="form-select form-select-sm">
-                    <option value="">{% trans "All Users" %}</option>
-                    {% for u in users %}
-                    <option value="{{ u.pk }}" {% if user_filter == u.pk|stringformat:"s" %}selected{% endif %}>
-                        {{ u.get_full_name|default:u.username }}
-                    </option>
-                    {% endfor %}
-                </select>
+                <div class="emp-ajax-wrap">
+                    <input type="text" class="form-control form-control-sm emp-ajax-input" placeholder="{% trans 'Type name to search…' %}" autocomplete="off">
+                    <div class="emp-ajax-dropdown"></div>
+                    <input type="hidden" name="employee_pk" class="emp-ajax-value" value="{{ emp_filter }}">
+                    <div class="emp-ajax-selected mt-1" style="{% if not emp_filter %}display:none;{% endif %}font-size:.82rem;color:#0A4D68;">
+                        <i class="bi bi-person-check me-1"></i>
+                        <span class="emp-ajax-name">{{ emp_filter_name }}</span>
+                        <a href="#" class="emp-ajax-clear ms-2 text-danger">✕</a>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-2">
                 <label class="form-label" style="font-size:0.75rem;font-weight:600;color:#6b7a8d;">{% trans "From" %}</label>
@@ -119,6 +121,10 @@
                         <span class="badge" style="background:#f3e8ff;color:#7c3aed;">
                             <i class="bi bi-person me-1"></i>{% trans "Employee" %}
                         </span>
+                    {% elif log.action == 'medical_leave' %}
+                        <span class="badge" style="background:#cffafe;color:#0e7490;">
+                            <i class="bi bi-file-earmark-medical me-1"></i>{% trans "Medical Sick Leave" %}
+                        </span>
                     {% else %}
                         <span class="badge" style="background:#f3f4f6;color:#6b7280;">
                             {{ log.get_action_display }}
@@ -151,13 +157,13 @@
         </div>
         <div class="d-flex gap-1">
             {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}&action={{ action_filter }}&user_id={{ user_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
+            <a href="?page={{ page_obj.previous_page_number }}&action={{ action_filter }}&employee_pk={{ emp_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
                class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-chevron-left"></i> {% trans "Prev" %}
             </a>
             {% endif %}
             {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&action={{ action_filter }}&user_id={{ user_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
+            <a href="?page={{ page_obj.next_page_number }}&action={{ action_filter }}&employee_pk={{ emp_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
                class="btn btn-sm btn-outline-secondary">
                 {% trans "Next" %} <i class="bi bi-chevron-right"></i>
             </a>

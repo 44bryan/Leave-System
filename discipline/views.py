@@ -222,6 +222,13 @@ def issue_discipline(request):
                         notification_type='discipline',
                         url=reverse('discipline:detail', kwargs={'pk': record.pk}),
                     )
+                from dashboard.models import AuditLog
+                AuditLog.log(
+                    request, AuditLog.ACTION_DISCIPLINE,
+                    f'Discipline proposal ({record.get_action_type_display()}) submitted for '
+                    f'{target_employee.get_full_name()}. Forwarded to HR for execution.',
+                    target_user=target_employee.user,
+                )
                 messages.success(
                     request,
                     f"Proposal submitted. HR has been notified to review and formally execute the "
@@ -251,6 +258,13 @@ def issue_discipline(request):
                         f"HR and Admin must manually deactivate this employee's account."
                     )
 
+                from dashboard.models import AuditLog
+                AuditLog.log(
+                    request, AuditLog.ACTION_DISCIPLINE,
+                    f'{record.get_action_type_display()} formally issued to '
+                    f'{target_employee.get_full_name()}. Reason: {reason[:100]}.',
+                    target_user=target_employee.user,
+                )
                 messages.success(
                     request,
                     f"{record.get_action_type_display()} issued to {target_employee.get_full_name()} successfully."
@@ -319,6 +333,13 @@ def execute_proposal(request, pk):
             url=reverse('discipline:detail', kwargs={'pk': record.pk}),
         )
 
+        from dashboard.models import AuditLog
+        AuditLog.log(
+            request, AuditLog.ACTION_DISCIPLINE,
+            f'Discipline proposal executed: {record.get_action_type_display()} formally issued to '
+            f'{record.employee.get_full_name()} on {date.today().strftime("%d %b %Y")}.',
+            target_user=record.employee.user,
+        )
         messages.success(
             request,
             f"Proposal executed. {record.get_action_type_display()} formally issued to "

@@ -2228,14 +2228,14 @@ def activity_log(request):
 
     # Filters
     action_filter = request.GET.get('action', '')
-    user_filter   = request.GET.get('user_id', '')
+    emp_filter    = request.GET.get('employee_pk', '')
     date_from     = request.GET.get('date_from', '')
     date_to       = request.GET.get('date_to', '')
 
     if action_filter:
         qs = qs.filter(action=action_filter)
-    if user_filter:
-        qs = qs.filter(user_id=user_filter)
+    if emp_filter:
+        qs = qs.filter(user__employee__pk=emp_filter)
     if date_from:
         qs = qs.filter(timestamp__date__gte=date_from)
     if date_to:
@@ -2244,17 +2244,23 @@ def activity_log(request):
     paginator = Paginator(qs, 50)
     page_obj  = paginator.get_page(request.GET.get('page', 1))
 
-    users = User.objects.filter(audit_logs__isnull=False).distinct().order_by('last_name', 'first_name')
+    emp_filter_name = ''
+    if emp_filter:
+        from accounts.models import Employee as _Emp
+        try:
+            emp_filter_name = _Emp.objects.get(pk=emp_filter).get_full_name()
+        except _Emp.DoesNotExist:
+            emp_filter = ''
 
     return render(request, 'dashboard/activity_log.html', {
-        'page_obj':      page_obj,
-        'action_choices': AuditLog.ACTION_CHOICES,
-        'users':         users,
-        'action_filter': action_filter,
-        'user_filter':   user_filter,
-        'date_from':     date_from,
-        'date_to':       date_to,
-        'total_count':   qs.count(),
+        'page_obj':        page_obj,
+        'action_choices':  AuditLog.ACTION_CHOICES,
+        'action_filter':   action_filter,
+        'emp_filter':      emp_filter,
+        'emp_filter_name': emp_filter_name,
+        'date_from':       date_from,
+        'date_to':         date_to,
+        'total_count':     qs.count(),
     })
 
 
