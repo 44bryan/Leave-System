@@ -660,6 +660,7 @@ Score the applicant 0-100 and respond with ONLY this JSON (no markdown, no extra
                 'maxOutputTokens': 512,
                 'responseMimeType': 'application/json',
             },
+            'thinkingConfig': {'thinkingBudget': 0},
         },
         timeout=30,
     )
