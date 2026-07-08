@@ -416,23 +416,21 @@ def set_employee_signature(request, pk):
 @login_required
 def profile_save_signature(request):
     """Any logged-in employee can save/update their own signature from the profile page."""
+    from django.http import JsonResponse as _JsonResponse
     if request.method != 'POST':
-        return redirect('accounts:profile')
+        return _JsonResponse({'error': 'Method not allowed'}, status=405)
 
     try:
         employee = request.user.employee
     except Exception:
-        messages.error(request, "Employee profile not found.")
-        return redirect('accounts:profile')
+        return _JsonResponse({'error': 'Employee profile not found'}, status=400)
 
     b64_data = request.POST.get('signature_data', '')
     if not b64_data or not b64_data.startswith('data:image/png;base64,'):
-        messages.error(request, "No signature drawn.")
-        return redirect('accounts:profile')
+        return _JsonResponse({'error': 'No signature drawn'}, status=400)
 
     import base64
     from django.core.files.base import ContentFile
-    # Always save b64 to DB first so it persists even if the file write fails
     employee.signature_b64 = b64_data
     save_fields = ['signature_b64']
     try:
@@ -448,8 +446,7 @@ def profile_save_signature(request):
     except Exception:
         pass
     employee.save(update_fields=save_fields)
-    messages.success(request, "Signature saved successfully.")
-    return redirect('accounts:profile')
+    return _JsonResponse({'ok': True})
 
 
 def _mask_email(email):

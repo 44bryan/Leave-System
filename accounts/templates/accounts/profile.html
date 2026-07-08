@@ -357,4 +357,97 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+<!-- Signature Section -->
+<div class="card animate-in mt-4">
+    <div class="card-header" style="background:#0A4D68;color:#fff;">
+        <i class="bi bi-pen me-2"></i>{% trans "My Signature" %}
+    </div>
+    <div class="card-body">
+        {% if employee.signature_b64 %}
+        <div class="mb-3">
+            <p class="text-muted mb-2" style="font-size:.85rem;">{% trans "Current signature on file:" %}</p>
+            <div style="border:1px solid #dee2e6;border-radius:8px;padding:12px;background:#f8f9fa;display:inline-block;">
+                <img src="{{ employee.signature_b64 }}" alt="Signature" style="max-height:80px;max-width:300px;">
+            </div>
+        </div>
+        {% endif %}
+        <p class="text-muted mb-3" style="font-size:.85rem;">
+            {% trans "Draw your signature below. It will appear automatically on official documents such as sick leave certificates." %}
+        </p>
+        <canvas id="sigCanvas" width="480" height="120"
+                style="border:1.5px solid #dee2e6;border-radius:8px;background:#fff;cursor:crosshair;touch-action:none;display:block;max-width:100%;"></canvas>
+        <div class="d-flex gap-2 mt-2">
+            <button type="button" id="sigClear" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-eraser me-1"></i>{% trans "Clear" %}
+            </button>
+            <button type="button" id="sigSave" class="btn btn-sm" style="background:#0A4D68;color:#fff;">
+                <i class="bi bi-save me-1"></i>{% trans "Save Signature" %}
+            </button>
+            <span id="sigMsg" class="align-self-center" style="font-size:.82rem;display:none;"></span>
+        </div>
+        <form id="sigForm" action="{% url 'accounts:profile_save_signature' %}" method="post" style="display:none;">
+            {% csrf_token %}
+            <input type="hidden" name="signature_data" id="sigData">
+        </form>
+    </div>
+</div>
+
+<script>
+(function(){
+    var canvas = document.getElementById('sigCanvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var drawing = false, lastX = 0, lastY = 0;
+
+    function getPos(e) {
+        var r = canvas.getBoundingClientRect();
+        var sx = canvas.width / r.width, sy = canvas.height / r.height;
+        if (e.touches) return {x:(e.touches[0].clientX-r.left)*sx, y:(e.touches[0].clientY-r.top)*sy};
+        return {x:(e.clientX-r.left)*sx, y:(e.clientY-r.top)*sy};
+    }
+    canvas.addEventListener('mousedown',  function(e){drawing=true; var p=getPos(e); lastX=p.x; lastY=p.y;});
+    canvas.addEventListener('mouseup',    function(){drawing=false;});
+    canvas.addEventListener('mouseleave', function(){drawing=false;});
+    canvas.addEventListener('mousemove',  function(e){
+        if (!drawing) return;
+        var p=getPos(e);
+        ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(p.x,p.y);
+        ctx.strokeStyle='#0A4D68'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.stroke();
+        lastX=p.x; lastY=p.y;
+    });
+    canvas.addEventListener('touchstart', function(e){e.preventDefault(); drawing=true; var p=getPos(e); lastX=p.x; lastY=p.y;}, {passive:false});
+    canvas.addEventListener('touchend',   function(){drawing=false;});
+    canvas.addEventListener('touchmove',  function(e){
+        if (!drawing) return; e.preventDefault();
+        var p=getPos(e);
+        ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(p.x,p.y);
+        ctx.strokeStyle='#0A4D68'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.stroke();
+        lastX=p.x; lastY=p.y;
+    }, {passive:false});
+
+    document.getElementById('sigClear').addEventListener('click', function(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+    });
+    document.getElementById('sigSave').addEventListener('click', function(){
+        document.getElementById('sigData').value = canvas.toDataURL('image/png');
+        var form = document.getElementById('sigForm');
+        fetch(form.action, {method:'POST', body: new FormData(form)})
+        .then(function(r){return r.json();})
+        .then(function(d){
+            var msg = document.getElementById('sigMsg');
+            msg.style.display = '';
+            if (d.ok) {
+                msg.textContent = '{% trans "Signature saved!" %}';
+                msg.className = 'align-self-center text-success';
+                var img = document.querySelector('img[alt="Signature"]');
+                if (img) img.src = canvas.toDataURL('image/png');
+            } else {
+                msg.textContent = d.error || '{% trans "Error saving." %}';
+                msg.className = 'align-self-center text-danger';
+            }
+        });
+    });
+})();
+</script>
+
 {% endblock %}
