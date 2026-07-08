@@ -5,16 +5,54 @@
 {% block page_subtitle %}{{ posting.title }}{% endblock %}
 
 {% block content %}
-<div class="d-flex gap-2 mb-4 flex-wrap">
+<div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
     <a href="{% url 'recruitment:list' %}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Postings" %}
-    </a>
-    <a href="{% url 'recruitment:scoring_config' posting.pk %}" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-star me-1"></i>{% trans "Scoring Rules" %}
     </a>
     <a href="{% url 'recruitment:applicant_list' posting.pk %}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-people me-1"></i>{% trans "View Applicants" %}
     </a>
+</div>
+
+<!-- Step progress -->
+<div class="card mb-4" style="border:1px solid #e0f0f5;border-radius:10px;">
+    <div class="card-body py-3 px-4">
+        <div class="d-flex align-items-center gap-0 flex-wrap" style="font-size:.82rem;">
+            <!-- Step 1 -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-circle d-flex align-items-center justify-content-center"
+                      style="width:26px;height:26px;background:#d1fae5;color:#065f46;font-weight:700;">✓</span>
+                <span style="color:#065f46;font-weight:600;">{% trans "Create Posting" %}</span>
+            </div>
+            <div style="width:32px;height:2px;background:#dee2e6;margin:0 6px;"></div>
+            <!-- Step 2 -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-circle d-flex align-items-center justify-content-center"
+                      style="width:26px;height:26px;background:#0A4D68;color:#fff;font-weight:700;">2</span>
+                <span style="color:#0A4D68;font-weight:700;">{% trans "Configure Form" %} ← {% trans "you are here" %}</span>
+            </div>
+            <div style="width:32px;height:2px;background:#dee2e6;margin:0 6px;"></div>
+            <!-- Step 3 -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-circle d-flex align-items-center justify-content-center"
+                      style="width:26px;height:26px;background:#f3f4f6;color:#6b7280;font-weight:700;">3</span>
+                <a href="{% url 'recruitment:scoring_config' posting.pk %}" class="text-decoration-none" style="color:#6b7280;">{% trans "Scoring Rules" %} <span style="font-size:.72rem;">({% trans "optional" %})</span></a>
+            </div>
+            <div style="width:32px;height:2px;background:#dee2e6;margin:0 6px;"></div>
+            <!-- Step 4 -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-circle d-flex align-items-center justify-content-center"
+                      style="width:26px;height:26px;background:#f3f4f6;color:#6b7280;font-weight:700;">4</span>
+                <a href="{% url 'recruitment:edit' posting.pk %}" class="text-decoration-none" style="color:#6b7280;">{% trans "Publish Posting" %}</a>
+            </div>
+        </div>
+        <div class="mt-2" style="font-size:.78rem;color:#6b7a8d;">
+            {% trans "After saving your form, go to" %}
+            <strong>{% trans "Step 4 → Publish Posting" %}</strong>
+            {% trans "— change the status to" %} <strong>Open</strong>
+            {% trans "to make it live on the job board for candidates to apply." %}
+        </div>
+    </div>
 </div>
 
 <div class="row g-4">
@@ -48,7 +86,8 @@
                             <tr>
                                 <td style="padding:.8rem 1rem;">
                                     <input form="saveForm" type="number" name="order_{{ field.pk }}" value="{{ field.field_order }}"
-                                           class="form-control form-control-sm" style="width:52px;">
+                                           class="form-control form-control-sm text-center fw-bold"
+                                           style="width:58px;color:#0A4D68;background:#f0f9fb;border-color:#b6dfe8;">
                                 </td>
                                 <td>
                                     <input form="saveForm" type="text" name="label_{{ field.pk }}" value="{{ field.label }}"
@@ -99,10 +138,17 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="p-3 border-top">
+                <div class="p-3 border-top d-flex gap-2 flex-wrap align-items-center">
                     <button type="submit" form="saveForm" class="btn" style="background:#0A4D68;color:#fff;">
                         <i class="bi bi-save me-1"></i>{% trans "Save Configuration" %}
                     </button>
+                    <a href="{% url 'recruitment:scoring_config' posting.pk %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-star me-1"></i>{% trans "Scoring Rules" %}
+                    </a>
+                    <a href="{% url 'recruitment:edit' posting.pk %}" class="btn btn-sm ms-auto"
+                       style="background:#2db4c3;color:#fff;">
+                        {% trans "Next: Publish Posting" %} <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
                 </div>
             </div>
         </div>
