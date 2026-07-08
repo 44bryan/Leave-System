@@ -630,25 +630,48 @@ def _call_gemini(posting, application):
     answers = {a.field_name: a.value for a in application.answers.all()}
     cv_text = _extract_cv_text(application.cv_file)
 
-    prompt = f"""You are an expert HR recruitment analyst. Evaluate this job application objectively and concisely.
+    # Build applicant block from all answers that have a value
+    field_labels = {
+        'education_level':  'Education Level',
+        'years_experience': 'Years of Experience',
+        'current_employer': 'Current / Last Employer',
+        'expected_salary':  'Expected Salary',
+        'cover_letter':     'Cover Letter / Motivation',
+        'nationality':      'Nationality',
+        'available_from':   'Available From',
+        'source':           'How they heard about us',
+    }
+    answer_lines = []
+    for key, label in field_labels.items():
+        val = answers.get(key, '').strip()
+        if val:
+            answer_lines.append(f'{label}: {val}')
+    for key, val in answers.items():
+        if key not in field_labels and val and str(val).strip():
+            answer_lines.append(f'{key.replace("_", " ").title()}: {str(val).strip()}')
+    applicant_block = '\n'.join(answer_lines) or 'No answers provided.'
+    cv_block = f'\nCV / Resume:\n{cv_text}' if cv_text else ''
 
-JOB TITLE: {posting.title}
-JOB REQUIREMENTS:
-{posting.requirements or 'Not specified'}
+    prompt = f"""You are a senior HR analyst. Evaluate this application strictly against the stated job requirements.
+
+POSITION: {posting.title}
+
+JOB REQUIREMENTS (use these as your scoring criteria):
+{posting.requirements or 'Not specified — score based on general suitability for the role title.'}
 
 APPLICANT: {application.applicant_name}
-Education Level: {answers.get('education_level', 'Not provided')}
-Years of Experience: {answers.get('years_experience', 'Not provided')}
-Current / Last Employer: {answers.get('current_employer', 'Not provided')}
-Expected Salary: {answers.get('expected_salary', 'Not provided')}
-Cover Letter: {answers.get('cover_letter', 'Not provided')}
-Nationality: {answers.get('nationality', 'Not provided')}
-Available From: {answers.get('available_from', 'Not provided')}
-How they heard about us: {answers.get('source', 'Not provided')}
-{f'CV Summary:{chr(10)}{cv_text}' if cv_text else ''}
+--- Application ---
+{applicant_block}{cv_block}
+--- End ---
 
-Score the applicant 0-100 and respond with ONLY this JSON (no markdown, no extra text):
-{{"score": 0-100, "recommendation": "invite|hold|reject", "summary": "one sentence", "strengths": "one phrase", "gaps": "one phrase"}}"""
+Scoring guide:
+- 80-100: strongly meets requirements → invite
+- 50-79:  partially meets requirements → hold
+- 0-49:   does not meet requirements → reject
+
+Base your score ONLY on how well the applicant matches the requirements above.
+Respond with ONLY valid JSON, no markdown:
+{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<one sentence overall fit>", "strengths": "<key matching qualifications>", "gaps": "<key missing requirements>"}}"""
 
     resp = http_requests.post(
         f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
