@@ -647,22 +647,26 @@ Available From: {answers.get('available_from', 'Not provided')}
 How they heard about us: {answers.get('source', 'Not provided')}
 {f'CV / Resume Text (first 4000 chars):{chr(10)}{cv_text}' if cv_text else ''}
 
-Analyse the applicant against the job requirements. Return ONLY valid JSON — no markdown, no extra text:
-{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-3 sentence overall assessment>", "strengths": "<1-2 sentences on key strengths>", "gaps": "<1-2 sentences on missing qualifications or concerns>"}}"""
+Analyse the applicant against the job requirements. Return ONLY valid JSON — no markdown, no code fences, no extra text:
+{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<one sentence>", "strengths": "<one sentence>", "gaps": "<one sentence>"}}"""
 
     resp = http_requests.post(
         f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
         f'?key={settings.GEMINI_API_KEY}',
         json={
             'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 1024},
+            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 2048},
         },
         timeout=30,
     )
     resp.raise_for_status()
-    raw = resp.json()['candidates'][0]['content']['parts'][0]['text']
-    # Strip possible markdown code fences
-    clean = raw.strip().lstrip('```json').lstrip('```').rstrip('```').strip()
+    candidate = resp.json()['candidates'][0]
+    if candidate.get('finishReason') == 'MAX_TOKENS':
+        raise ValueError('Gemini response was truncated (MAX_TOKENS). Try a shorter CV.')
+    raw = candidate['content']['parts'][0]['text']
+    import re as _re
+    clean = _re.sub(r'^```[a-z]*\n?', '', raw.strip())
+    clean = _re.sub(r'\n?```$', '', clean).strip()
     return json.loads(clean)
 
 
