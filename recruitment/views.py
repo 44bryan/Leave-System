@@ -722,3 +722,238 @@ def ai_analyse(request, pk):
             errors.append({'app_pk': app.pk, 'name': app.applicant_name, 'error': str(exc)})
 
     return JsonResponse({'results': results, 'errors': errors})
+
+
+@login_required
+def shortlist_report(request, pk):
+    """Generate a PDF shortlist report for the CEO."""
+    if not _is_hr_or_admin(request.user):
+        raise Http404
+
+    from io import BytesIO
+    from django.http import HttpResponse
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.platypus import (
+        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
+        HRFlowable, KeepTogether,
+    )
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+
+    posting = get_object_or_404(JobPosting, pk=pk)
+
+    # Which candidates to include: filter by status or AI recommendation
+    filter_by = request.GET.get('filter', 'invite')  # 'invite', 'all', 'shortlisted'
+    apps = posting.applications.all().order_by('-ai_score', '-score')
+    if filter_by == 'invite':
+        apps = apps.filter(ai_recommendation='invite')
+    elif filter_by == 'shortlisted':
+        apps = apps.filter(status='shortlisted')
+    apps = list(apps)
+
+    # ── Document setup ──────────────────────────────────────────────────────────
+    buf = BytesIO()
+    doc = SimpleDocTemplate(
+        buf, pagesize=A4,
+        leftMargin=2*cm, rightMargin=2*cm,
+        topMargin=2*cm, bottomMargin=2*cm,
+    )
+
+    PRIMARY   = colors.HexColor('#0A4D68')
+    ACCENT    = colors.HexColor('#2db4c3')
+    INVITE_BG = colors.HexColor('#d1fae5')
+    HOLD_BG   = colors.HexColor('#fef3c7')
+    REJECT_BG = colors.HexColor('#fee2e2')
+    LIGHT_BG  = colors.HexColor('#f8f9fa')
+    WHITE     = colors.white
+    DARK_TEXT = colors.HexColor('#1f2937')
+    MUTED     = colors.HexColor('#6b7280')
+
+    styles = getSampleStyleSheet()
+    h1  = ParagraphStyle('h1',  fontSize=20, textColor=WHITE,     leading=24, spaceAfter=4,  fontName='Helvetica-Bold', alignment=TA_CENTER)
+    h2  = ParagraphStyle('h2',  fontSize=11, textColor=WHITE,     leading=14, spaceAfter=0,  fontName='Helvetica-Bold', alignment=TA_CENTER)
+    h3  = ParagraphStyle('h3',  fontSize=10, textColor=PRIMARY,   leading=13, spaceBefore=4, fontName='Helvetica-Bold')
+    bod = ParagraphStyle('bod', fontSize=8,  textColor=DARK_TEXT, leading=11, fontName='Helvetica')
+    sm  = ParagraphStyle('sm',  fontSize=7,  textColor=MUTED,     leading=10, fontName='Helvetica')
+    lbl = ParagraphStyle('lbl', fontSize=7,  textColor=MUTED,     leading=9,  fontName='Helvetica-Bold')
+    ctr = ParagraphStyle('ctr', fontSize=8,  textColor=DARK_TEXT, leading=11, fontName='Helvetica', alignment=TA_CENTER)
+
+    story = []
+
+    # ── Header banner ───────────────────────────────────────────────────────────
+    header_data = [[
+        Paragraph('AEF HRM', h1),
+        Paragraph('Interview Shortlist Report', h2),
+        Paragraph(f'Generated {timezone.now().strftime("%d %b %Y")}', ParagraphStyle('rt', fontSize=8, textColor=WHITE, fontName='Helvetica', alignment=TA_RIGHT)),
+    ]]
+    header_tbl = Table(header_data, colWidths=[4*cm, 9*cm, 4*cm])
+    header_tbl.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), PRIMARY),
+        ('VALIGN',     (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 14),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 14),
+        ('LEFTPADDING',  (0,0), (0,-1), 12),
+        ('RIGHTPADDING', (-1,0), (-1,-1), 12),
+    ]))
+    story.append(header_tbl)
+    story.append(Spacer(1, 0.4*cm))
+
+    # ── Job info bar ────────────────────────────────────────────────────────────
+    job_data = [[
+        Paragraph(f'<b>Position:</b> {posting.title}', bod),
+        Paragraph(f'<b>Status:</b> {posting.get_status_display()}', bod),
+        Paragraph(f'<b>Total Applications:</b> {posting.applications.count()}', bod),
+        Paragraph(f'<b>Shortlisted:</b> {len(apps)}', bod),
+    ]]
+    job_tbl = Table(job_data, colWidths=[5*cm, 3.5*cm, 4*cm, 4.5*cm])
+    job_tbl.setStyle(TableStyle([
+        ('BACKGROUND',    (0,0), (-1,-1), LIGHT_BG),
+        ('TOPPADDING',    (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('LEFTPADDING',   (0,0), (-1,-1), 10),
+        ('BOX',           (0,0), (-1,-1), 0.5, colors.HexColor('#dee2e6')),
+        ('LINEAFTER',     (0,0), (2,-1),  0.5, colors.HexColor('#dee2e6')),
+    ]))
+    story.append(job_tbl)
+    story.append(Spacer(1, 0.5*cm))
+
+    if not apps:
+        story.append(Paragraph('No candidates matched the selected filter.', bod))
+    else:
+        # ── Summary table ────────────────────────────────────────────────────────
+        story.append(Paragraph('Candidate Rankings', h3))
+        story.append(Spacer(1, 0.2*cm))
+
+        tbl_head = ['#', 'Candidate', 'Email', 'AI Score', 'Verdict', 'Status']
+        tbl_rows = [tbl_head]
+        for i, app in enumerate(apps, 1):
+            verdict = (app.ai_recommendation or '—').title()
+            tbl_rows.append([
+                str(i),
+                app.applicant_name,
+                app.applicant_email,
+                f'{int(app.ai_score)}/100' if app.ai_score is not None else '—',
+                verdict,
+                app.get_status_display(),
+            ])
+        summary_tbl = Table(tbl_rows, colWidths=[0.8*cm, 4.5*cm, 4.5*cm, 1.8*cm, 2*cm, 2.4*cm])
+        ts = TableStyle([
+            ('BACKGROUND',    (0,0), (-1,0),  PRIMARY),
+            ('TEXTCOLOR',     (0,0), (-1,0),  WHITE),
+            ('FONTNAME',      (0,0), (-1,0),  'Helvetica-Bold'),
+            ('FONTSIZE',      (0,0), (-1,-1), 7.5),
+            ('TOPPADDING',    (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('LEFTPADDING',   (0,0), (-1,-1), 6),
+            ('ROWBACKGROUNDS', (0,1), (-1,-1), [WHITE, LIGHT_BG]),
+            ('GRID',          (0,0), (-1,-1), 0.3, colors.HexColor('#dee2e6')),
+            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+            ('ALIGN',         (3,0), (3,-1),  'CENTER'),
+            ('ALIGN',         (4,0), (4,-1),  'CENTER'),
+        ])
+        # Colour AI score cells
+        for i, app in enumerate(apps, 1):
+            score = app.ai_score or 0
+            if score >= 70:
+                ts.add('TEXTCOLOR', (3,i), (3,i), colors.HexColor('#065f46'))
+                ts.add('BACKGROUND', (3,i), (3,i), INVITE_BG)
+            elif score >= 50:
+                ts.add('TEXTCOLOR', (3,i), (3,i), colors.HexColor('#92400e'))
+                ts.add('BACKGROUND', (3,i), (3,i), HOLD_BG)
+            else:
+                ts.add('TEXTCOLOR', (3,i), (3,i), colors.HexColor('#991b1b'))
+                ts.add('BACKGROUND', (3,i), (3,i), REJECT_BG)
+        summary_tbl.setStyle(ts)
+        story.append(summary_tbl)
+        story.append(Spacer(1, 0.6*cm))
+
+        # ── Per-candidate detail cards ───────────────────────────────────────────
+        story.append(HRFlowable(width='100%', thickness=1, color=ACCENT, spaceAfter=8))
+        story.append(Paragraph('Candidate Profiles', h3))
+        story.append(Spacer(1, 0.3*cm))
+
+        REC_COLORS = {
+            'invite': (colors.HexColor('#065f46'), INVITE_BG),
+            'hold':   (colors.HexColor('#92400e'), HOLD_BG),
+            'reject': (colors.HexColor('#991b1b'), REJECT_BG),
+        }
+
+        for rank, app in enumerate(apps, 1):
+            rec = (app.ai_recommendation or '').lower()
+            txt_c, bg_c = REC_COLORS.get(rec, (DARK_TEXT, LIGHT_BG))
+            score_str = f'{int(app.ai_score)}/100' if app.ai_score is not None else 'N/A'
+
+            # Card header row
+            card_head = Table([[
+                Paragraph(f'<b>#{rank}  {app.applicant_name}</b>', ParagraphStyle('ch', fontSize=10, textColor=WHITE, fontName='Helvetica-Bold')),
+                Paragraph(f'AI Score: <b>{score_str}</b>', ParagraphStyle('cs', fontSize=9, textColor=WHITE, fontName='Helvetica', alignment=TA_RIGHT)),
+            ]], colWidths=[11*cm, 6*cm])
+            card_head.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,-1), PRIMARY),
+                ('TOPPADDING', (0,0), (-1,-1), 7), ('BOTTOMPADDING', (0,0), (-1,-1), 7),
+                ('LEFTPADDING', (0,0), (0,-1), 10), ('RIGHTPADDING', (-1,0), (-1,-1), 10),
+            ]))
+
+            # Contact + verdict row
+            contact_verdict = Table([[
+                Paragraph(f'{app.applicant_email}  ·  Applied {app.submitted_at.strftime("%d %b %Y")}', sm),
+                Paragraph(f'<b>{rec.upper() or "—"}</b>', ParagraphStyle('vt', fontSize=8, textColor=txt_c, fontName='Helvetica-Bold', alignment=TA_RIGHT)),
+            ]], colWidths=[11*cm, 6*cm])
+            contact_verdict.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,-1), bg_c),
+                ('TOPPADDING', (0,0), (-1,-1), 5), ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+                ('LEFTPADDING', (0,0), (-1,-1), 10), ('RIGHTPADDING', (-1,0), (-1,-1), 10),
+            ]))
+
+            # Analysis body
+            def ai_row(label, text):
+                return [Paragraph(label, lbl), Paragraph(text or '—', bod)]
+
+            analysis_rows = []
+            if app.ai_summary:
+                analysis_rows.append(ai_row('SUMMARY', app.ai_summary))
+            if app.ai_strengths:
+                analysis_rows.append(ai_row('STRENGTHS', app.ai_strengths))
+            if app.ai_gaps:
+                analysis_rows.append(ai_row('GAPS / CONCERNS', app.ai_gaps))
+
+            if analysis_rows:
+                body_tbl = Table(analysis_rows, colWidths=[3*cm, 14*cm])
+                body_tbl.setStyle(TableStyle([
+                    ('BACKGROUND',    (0,0), (-1,-1), WHITE),
+                    ('TOPPADDING',    (0,0), (-1,-1), 5),
+                    ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+                    ('LEFTPADDING',   (0,0), (-1,-1), 10),
+                    ('LINEBELOW',     (0,0), (-1,-2), 0.3, colors.HexColor('#e5e7eb')),
+                    ('BOX',           (0,0), (-1,-1), 0.3, colors.HexColor('#dee2e6')),
+                    ('VALIGN',        (0,0), (-1,-1), 'TOP'),
+                ]))
+                card_elements = [card_head, contact_verdict, body_tbl]
+            else:
+                no_ai = Table([[Paragraph('No AI analysis yet. Click "Analyse with AI" on the applicant list.', sm)]],
+                              colWidths=[17*cm])
+                no_ai.setStyle(TableStyle([
+                    ('BACKGROUND', (0,0), (-1,-1), WHITE),
+                    ('TOPPADDING', (0,0), (-1,-1), 8), ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+                    ('LEFTPADDING', (0,0), (-1,-1), 10),
+                    ('BOX', (0,0), (-1,-1), 0.3, colors.HexColor('#dee2e6')),
+                ]))
+                card_elements = [card_head, contact_verdict, no_ai]
+
+            story.append(KeepTogether(card_elements))
+            story.append(Spacer(1, 0.4*cm))
+
+    # ── Footer note ─────────────────────────────────────────────────────────────
+    story.append(HRFlowable(width='100%', thickness=0.5, color=colors.HexColor('#dee2e6'), spaceBefore=8))
+    story.append(Paragraph(
+        f'Confidential — AEF HRM · Generated by {request.user.get_full_name() or request.user.username} · {timezone.now().strftime("%d %b %Y %H:%M")}',
+        ParagraphStyle('ft', fontSize=7, textColor=MUTED, fontName='Helvetica', alignment=TA_CENTER, spaceBefore=4),
+    ))
+
+    doc.build(story)
+    buf.seek(0)
+    filename = f'shortlist_{posting.pk}_{timezone.now().strftime("%Y%m%d")}.pdf'
+    return HttpResponse(buf, content_type='application/pdf',
+                        headers={'Content-Disposition': f'attachment; filename="{filename}"'})

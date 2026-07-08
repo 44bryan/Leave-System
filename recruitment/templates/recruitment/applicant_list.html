@@ -27,6 +27,10 @@
     </div>
 
     {% if applications %}
+    <a href="{% url 'recruitment:shortlist_report' posting.pk %}?filter=invite"
+       class="btn btn-sm" style="background:#0A4D68;color:#fff;border:none;">
+        <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download Shortlist PDF" %}
+    </a>
     <button id="analyseAllBtn" class="btn btn-sm"
             style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;"
             data-url="{% url 'recruitment:ai_analyse' posting.pk %}">
