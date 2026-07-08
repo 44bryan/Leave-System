@@ -183,7 +183,7 @@
                     if (scoreCell) scoreCell.innerHTML = '<span class="fw-bold" style="color:#6366f1;">' + Math.round(r.ai_score) + '</span><small class="text-muted">/100</small>';
                     if (recCell)   recCell.innerHTML   = recBadge(r.ai_recommendation);
                 });
-                var errs = (data.errors || []).map(function(e){ return e.name; }).join(', ');
+                var errs = (data.errors || []).map(function(e){ return e.name + ': ' + e.error; }).join(' | ');
                 statusEl.textContent = 'Done: ' + (data.results||[]).length + ' analysed' + (errs ? '. Errors: ' + errs : '.');
                 statusEl.style.color = '#198754';
             }
