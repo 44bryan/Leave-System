@@ -655,7 +655,7 @@ Analyse the applicant against the job requirements. Return ONLY valid JSON — n
         f'?key={settings.GEMINI_API_KEY}',
         json={
             'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 512},
+            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 1024},
         },
         timeout=30,
     )
