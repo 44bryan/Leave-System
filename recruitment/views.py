@@ -616,7 +616,7 @@ def _extract_cv_text(cv_file):
     try:
         import fitz  # PyMuPDF
         with fitz.open(cv_file.path) as doc:
-            return '\n'.join(page.get_text() for page in doc)[:4000]
+            return '\n'.join(page.get_text() for page in doc)[:1500]
     except Exception:
         return ''
 
@@ -645,17 +645,21 @@ Cover Letter: {answers.get('cover_letter', 'Not provided')}
 Nationality: {answers.get('nationality', 'Not provided')}
 Available From: {answers.get('available_from', 'Not provided')}
 How they heard about us: {answers.get('source', 'Not provided')}
-{f'CV / Resume Text (first 4000 chars):{chr(10)}{cv_text}' if cv_text else ''}
+{f'CV Summary:{chr(10)}{cv_text}' if cv_text else ''}
 
-Analyse the applicant against the job requirements. Return ONLY valid JSON — no markdown, no code fences, no extra text:
-{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<one sentence>", "strengths": "<one sentence>", "gaps": "<one sentence>"}}"""
+Score the applicant 0-100 and respond with ONLY this JSON (no markdown, no extra text):
+{{"score": 0-100, "recommendation": "invite|hold|reject", "summary": "one sentence", "strengths": "one phrase", "gaps": "one phrase"}}"""
 
     resp = http_requests.post(
         f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
         f'?key={settings.GEMINI_API_KEY}',
         json={
             'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 2048},
+            'generationConfig': {
+                'temperature': 0.1,
+                'maxOutputTokens': 512,
+                'responseMimeType': 'application/json',
+            },
         },
         timeout=30,
     )
