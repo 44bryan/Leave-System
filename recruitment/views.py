@@ -651,7 +651,7 @@ Analyse the applicant against the job requirements. Return ONLY valid JSON — n
 {{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-3 sentence overall assessment>", "strengths": "<1-2 sentences on key strengths>", "gaps": "<1-2 sentences on missing qualifications or concerns>"}}"""
 
     resp = http_requests.post(
-        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
         f'?key={settings.GEMINI_API_KEY}',
         json={
             'contents': [{'parts': [{'text': prompt}]}],
