@@ -917,6 +917,69 @@ def bulk_renew_contracts(request):
 
 
 @login_required
+def edit_contract(request, pk):
+    """Allow HR/admin to edit start date, end date, contract number, notes and status."""
+    if not _can_manage_contracts(request.user):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    contract = get_object_or_404(Contract, pk=pk)
+
+    if request.method == 'POST':
+        start_date   = request.POST.get('start_date', '').strip()
+        end_date     = request.POST.get('end_date', '').strip() or None
+        contract_num = request.POST.get('contract_number', '').strip()
+        notes        = request.POST.get('notes', '').strip()
+        status       = request.POST.get('status', contract.status)
+
+        parsed_start = _parse_date(start_date)
+        if not parsed_start:
+            messages.error(request, "Invalid start date.")
+            return redirect('contracts:edit', pk=pk)
+
+        parsed_end = None
+        if end_date:
+            parsed_end = _parse_date(end_date)
+            if not parsed_end:
+                messages.error(request, "Invalid end date.")
+                return redirect('contracts:edit', pk=pk)
+
+        if contract.contract_type in ('CDD', 'INTERN', 'WACS') and not parsed_end:
+            messages.error(request, "End date is required for this contract type.")
+            return redirect('contracts:edit', pk=pk)
+
+        if parsed_end and parsed_end <= parsed_start:
+            messages.error(request, "End date must be after start date.")
+            return redirect('contracts:edit', pk=pk)
+
+        contract.start_date      = parsed_start
+        contract.end_date        = parsed_end
+        contract.contract_number = contract_num
+        contract.notes           = notes
+        contract.status          = status
+        contract.save()
+
+        try:
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_CONTRACT,
+                f"Edited contract ({contract.contract_type}) for {contract.employee.get_full_name()} "
+                f"— dates: {parsed_start} → {parsed_end or 'open-ended'}",
+                target_user=contract.employee.user,
+            )
+        except Exception:
+            pass
+
+        messages.success(request, "Contract updated successfully.")
+        return redirect('contracts:detail', pk=pk)
+
+    return render(request, 'contracts/edit_contract.html', {
+        'contract': contract,
+        'STATUS_CHOICES': Contract.STATUS_CHOICES,
+    })
+
+
+@login_required
 def delete_contract(request, pk):
     """Permanently delete a contract record — superuser only."""
     if not request.user.is_superuser:
