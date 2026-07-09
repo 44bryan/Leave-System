@@ -12,7 +12,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.urls import reverse
 from django.utils import timezone
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 
 from accounts.models import Department, Employee
 from notifications.utils import notify
@@ -531,6 +531,102 @@ def applicant_list(request, pk):
         'status_filter':  status_filter,
         'STATUS_CHOICES': APPLICATION_STATUS_CHOICES,
     })
+
+
+@login_required
+def applicant_export_excel(request, pk):
+    """Export ranked applicant list to Excel (.xlsx)."""
+    if not _is_hr_or_admin(request.user):
+        return redirect('recruitment:list')
+
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    posting = get_object_or_404(JobPosting, pk=pk)
+    apps = posting.applications.all().order_by('-ai_score', '-score')
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Applicants'
+
+    # ── Styles ──
+    header_font   = Font(bold=True, color='FFFFFF', size=11)
+    header_fill   = PatternFill('solid', fgColor='0A4D68')
+    center        = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    left          = Alignment(horizontal='left',   vertical='center', wrap_text=True)
+    thin          = Side(style='thin', color='CCCCCC')
+    border        = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+    rec_fills = {
+        'invite': PatternFill('solid', fgColor='D1FAE5'),
+        'hold':   PatternFill('solid', fgColor='FEF3C7'),
+        'reject': PatternFill('solid', fgColor='FEE2E2'),
+    }
+
+    # ── Title row ──
+    ws.merge_cells('A1:K1')
+    title_cell = ws['A1']
+    title_cell.value     = f'Applicants — {posting.title}'
+    title_cell.font      = Font(bold=True, size=13, color='0A4D68')
+    title_cell.alignment = center
+    ws.row_dimensions[1].height = 28
+
+    # ── Header row ──
+    headers = [
+        'Rank', 'Name', 'Email', 'Applied Date', 'Status',
+        'Rule Score', 'AI Score (/100)', 'Recommendation',
+        'AI Summary', 'Strengths', 'Gaps',
+    ]
+    col_widths = [6, 22, 28, 14, 14, 11, 14, 14, 40, 35, 35]
+
+    for col, (h, w) in enumerate(zip(headers, col_widths), 1):
+        cell = ws.cell(row=2, column=col, value=h)
+        cell.font      = header_font
+        cell.fill      = header_fill
+        cell.alignment = center
+        cell.border    = border
+        ws.column_dimensions[get_column_letter(col)].width = w
+    ws.row_dimensions[2].height = 22
+
+    # ── Data rows ──
+    for rank, app in enumerate(apps, 1):
+        row = rank + 2
+        rec = (app.ai_recommendation or '').lower()
+        row_fill = rec_fills.get(rec)
+
+        values = [
+            rank,
+            app.applicant_name,
+            app.applicant_email,
+            app.submitted_at.strftime('%d %b %Y') if app.submitted_at else '',
+            app.get_status_display(),
+            int(app.score) if app.score is not None else '',
+            int(app.ai_score) if app.ai_score is not None else 'N/A',
+            (app.ai_recommendation or '').upper() or '—',
+            app.ai_summary or '',
+            app.ai_strengths or '',
+            app.ai_gaps or '',
+        ]
+        for col, val in enumerate(values, 1):
+            cell = ws.cell(row=row, column=col, value=val)
+            cell.border    = border
+            cell.alignment = center if col in (1, 5, 6, 7, 8) else left
+            if row_fill:
+                cell.fill = row_fill
+        ws.row_dimensions[row].height = 18
+
+    # Freeze header rows
+    ws.freeze_panes = 'A3'
+
+    # ── Write response ──
+    filename = f'applicants_{posting.pk}_{timezone.now().strftime("%Y%m%d")}.xlsx'
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
 
 
 @login_required

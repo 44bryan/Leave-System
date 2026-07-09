@@ -31,6 +31,10 @@
        class="btn btn-sm" style="background:#0A4D68;color:#fff;border:none;">
         <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download Shortlist PDF" %}
     </a>
+    <a href="{% url 'recruitment:applicant_export' posting.pk %}"
+       class="btn btn-sm" style="background:#1d6f42;color:#fff;border:none;">
+        <i class="bi bi-file-earmark-excel me-1"></i>{% trans "Export to Excel" %}
+    </a>
     <button id="analyseAllBtn" class="btn btn-sm"
             style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;"
             data-url="{% url 'recruitment:ai_analyse' posting.pk %}">
