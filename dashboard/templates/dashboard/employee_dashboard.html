@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <style>
-.pbi-kpi { border-radius:14px;padding:18px 12px;text-align:center;background:white;box-shadow:0 2px 10px rgba(10,77,104,0.07);transition:transform .15s,box-shadow .15s;display:block;border-top:3px solid var(--kpi-color,#2db4c3); }
+.pbi-kpi { border-radius:14px;padding:18px 12px;text-align:center;background:white;box-shadow:0 2px 10px rgba(10,77,104,0.07);transition:transform .15s,box-shadow .15s;display:block; }
 .pbi-kpi:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,77,104,0.13); }
 .pbi-kpi-icon { width:48px;height:48px;border-radius:12px;background:color-mix(in srgb,var(--kpi-color,#2db4c3) 12%,white);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--kpi-color,#2db4c3);margin:0 auto 10px; }
 .pbi-kpi-val { font-size:2rem;font-weight:800;line-height:1;color:var(--kpi-color,#0A4D68); }
@@ -79,7 +79,7 @@
                         <div style="font-size: 1.4rem; font-weight: 700;">{{ balance.used_days }}</div>
                         <div style="font-size: 0.68rem; opacity: 0.75;">{% trans "Used" %}</div>
                     </div>
-                    <div class="col" style="border-left: 1px solid rgba(255,255,255,0.2);">
+                    <div class="col">
                         <div style="font-size: 1.4rem; font-weight: 700;">{{ balance.remaining_days }}</div>
                         <div style="font-size: 0.68rem; opacity: 0.75;">{% trans "Remaining" %}</div>
                     </div>
@@ -187,7 +187,7 @@
 
 <!-- Contract Info Card -->
 {% if active_contract %}
-<div class="card mb-4 animate-in delay-3" style="border-left:4px solid #2db4c3;">
+<div class="card mb-4 animate-in delay-3">
     <div class="card-body py-3 px-4">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">

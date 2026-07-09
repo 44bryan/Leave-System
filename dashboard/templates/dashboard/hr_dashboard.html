@@ -247,7 +247,7 @@
 <div class="row g-3 mb-3 animate-in pipeline-steps-row">
     <!-- Step 1 -->
     <div class="col-6 col-md-3">
-        <div class="hr-kpi-card" style="{% if pending_manager > 0 %}border-left:4px solid #d97706;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+        <div class="hr-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="hr-kpi-icon" style="background:{% if pending_manager > 0 %}#fffbeb{% else %}#f8fafc{% endif %};color:{% if pending_manager > 0 %}#d97706{% else %}#cbd5e1{% endif %};">
                     <i class="bi bi-person-clock"></i>
@@ -260,7 +260,7 @@
     </div>
     <!-- Step 2 -->
     <div class="col-6 col-md-3">
-        <div class="hr-kpi-card" style="{% if pending_unit_approved > 0 %}border-left:4px solid #d97706;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+        <div class="hr-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="hr-kpi-icon" style="background:{% if pending_unit_approved > 0 %}#fffbeb{% else %}#f8fafc{% endif %};color:{% if pending_unit_approved > 0 %}#d97706{% else %}#cbd5e1{% endif %};">
                     <i class="bi bi-person-check"></i>
@@ -273,7 +273,7 @@
     </div>
     <!-- Step 3 — HR's queue -->
     <div class="col-6 col-md-3">
-        <div class="hr-kpi-card" style="{% if pending_hr > 0 %}border-left:4px solid #2db4c3;background:linear-gradient(135deg,#f0fdff,#fff);{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+        <div class="hr-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="hr-kpi-icon" style="background:{% if pending_hr > 0 %}#e0f7fa{% else %}#f8fafc{% endif %};color:{% if pending_hr > 0 %}#2db4c3{% else %}#cbd5e1{% endif %};">
                     <i class="bi bi-clipboard2-check-fill"></i>
@@ -286,7 +286,7 @@
     </div>
     <!-- Step 4 -->
     <div class="col-6 col-md-3">
-        <div class="hr-kpi-card" style="{% if pending_director > 0 %}border-left:4px solid #0A4D68;{% else %}border-left:4px solid #e2e8f0;{% endif %}">
+        <div class="hr-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="hr-kpi-icon" style="background:{% if pending_director > 0 %}#e3f2fd{% else %}#f8fafc{% endif %};color:{% if pending_director > 0 %}#0A4D68{% else %}#cbd5e1{% endif %};">
                     <i class="bi bi-award-fill"></i>
@@ -347,28 +347,28 @@
 <!-- ── Rate Indicators ── -->
 <div class="row g-3 mb-3 animate-in">
     <div class="col-6 col-sm-3">
-        <div class="hr-kpi-card" style="border-left:4px solid #059669;">
+        <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#e8f5e9;color:#059669;"><i class="bi bi-percent"></i></div>
             <div class="hr-kpi-value" style="color:#059669;">{{ approval_rate }}%</div>
             <div class="hr-kpi-label">{% trans "Approval Rate" %} {{ year }}</div>
         </div>
     </div>
     <div class="col-6 col-sm-3">
-        <div class="hr-kpi-card" style="border-left:4px solid #d97706;">
+        <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#fff3e0;color:#d97706;"><i class="bi bi-bar-chart-fill"></i></div>
             <div class="hr-kpi-value" style="color:#d97706;">{{ on_leave_pct }}%</div>
             <div class="hr-kpi-label">{% trans "% Staff on Leave Today" %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-3">
-        <div class="hr-kpi-card" style="border-left:4px solid #2db4c3;">
+        <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#e0f7fa;color:#2db4c3;"><i class="bi bi-person-check-fill"></i></div>
             <div class="hr-kpi-value" style="color:#2db4c3;">{{ on_leave_count }}</div>
             <div class="hr-kpi-label">{% trans "Absent Today (count)" %}</div>
         </div>
     </div>
     <div class="col-6 col-sm-3">
-        <div class="hr-kpi-card" style="border-left:4px solid #0A4D68;">
+        <div class="hr-kpi-card">
             <div class="hr-kpi-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-check2-square"></i></div>
             <div class="hr-kpi-value" style="color:#0A4D68;">{{ approved_year|add:rejected_year }}</div>
             <div class="hr-kpi-label">{% trans "Decisions Made" %} {{ year }}</div>
@@ -382,7 +382,7 @@
 <div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
 <div class="d-flex flex-wrap gap-2 mb-4 animate-in delay-1">
     <a href="{% url 'discipline:stats' %}" class="text-decoration-none flex-fill" style="min-width:140px;">
-        <div class="disc-pill" style="border-left:3px solid #d97706;">
+        <div class="disc-pill">
             <div style="width:32px;height:32px;border-radius:8px;background:#fff8e1;color:#d97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-exclamation-triangle-fill"></i></div>
             <div>
                 <div style="font-size:1.15rem;font-weight:800;color:#d97706;line-height:1;">{{ discipline_warned }}</div>
@@ -391,7 +391,7 @@
         </div>
     </a>
     <a href="{% url 'discipline:stats' %}" class="text-decoration-none flex-fill" style="min-width:140px;">
-        <div class="disc-pill" style="border-left:3px solid #374151;">
+        <div class="disc-pill">
             <div style="width:32px;height:32px;border-radius:8px;background:#f3f4f6;color:#374151;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-person-slash"></i></div>
             <div>
                 <div style="font-size:1.15rem;font-weight:800;color:#374151;line-height:1;">{{ discipline_suspended }}</div>
@@ -400,7 +400,7 @@
         </div>
     </a>
     <a href="{% url 'discipline:stats' %}" class="text-decoration-none flex-fill" style="min-width:140px;">
-        <div class="disc-pill" style="border-left:3px solid #dc2626;">
+        <div class="disc-pill">
             <div style="width:32px;height:32px;border-radius:8px;background:#fce4ec;color:#dc2626;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-person-x-fill"></i></div>
             <div>
                 <div style="font-size:1.15rem;font-weight:800;color:#dc2626;line-height:1;">{{ discipline_dismissed }}</div>

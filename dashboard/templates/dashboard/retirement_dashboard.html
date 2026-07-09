@@ -17,13 +17,13 @@
 <!-- Summary strip -->
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="card animate-in text-center py-3" style="border-left:3px solid #dc2626;">
+        <div class="card animate-in text-center py-3">
             <div style="font-size:2rem;font-weight:800;color:#dc2626;line-height:1;">{{ total }}</div>
             <div style="font-size:0.72rem;color:#6b7a8d;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">{% trans "Approaching Retirement" %}</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card animate-in text-center py-3" style="border-left:3px solid #d97706;">
+        <div class="card animate-in text-center py-3">
             <div style="font-size:2rem;font-weight:800;color:#d97706;line-height:1;">
                 {{ near_retirement|length }}
             </div>
@@ -31,7 +31,7 @@
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card animate-in text-center py-3" style="border-left:3px solid #2db4c3;">
+        <div class="card animate-in text-center py-3">
             <div style="font-size:2rem;font-weight:800;color:#2db4c3;line-height:1;">
                 {% for item in near_retirement %}{% if item.years_to_retirement <= 1 %}1{% endif %}{% endfor %}
             </div>
@@ -39,7 +39,7 @@
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card animate-in text-center py-3" style="border-left:3px solid #059669;">
+        <div class="card animate-in text-center py-3">
             <div style="font-size:2rem;font-weight:800;color:#059669;line-height:1;">
                 {% for item in near_retirement %}{% if item.years_to_retirement == 3 %}1{% endif %}{% endfor %}
             </div>

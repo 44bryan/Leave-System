@@ -7,57 +7,57 @@
 <!-- Contract KPI Strip -->
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;" class="mb-4 animate-in">
     <a href="{% url 'contracts:list' %}" class="text-decoration-none">
-        <div class="stat-card" style="border-top:3px solid #2db4c3;">
+        <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#2db4c3;"><i class="bi bi-file-earmark-text-fill"></i></div>
             <div class="stat-value">{{ contract_total_active }}</div>
             <div class="stat-label">{% trans "Active Contracts" %}</div>
         </div>
     </a>
     <a href="{% url 'contracts:list' %}?type=CDI" class="text-decoration-none">
-        <div class="stat-card" style="border-top:3px solid #2db4c3;">
+        <div class="stat-card">
             <div class="stat-icon" style="background:#dcfce7;color:#2db4c3;"><i class="bi bi-infinity"></i></div>
             <div class="stat-value">{{ contract_total_cdi }}</div>
             <div class="stat-label">{% trans "CDI (Permanent)" %}</div>
         </div>
     </a>
     <a href="{% url 'contracts:list' %}?type=CDD" class="text-decoration-none">
-        <div class="stat-card" style="border-top:3px solid #ca8a04;">
+        <div class="stat-card">
             <div class="stat-icon" style="background:#fef9c3;color:#ca8a04;"><i class="bi bi-calendar-range"></i></div>
             <div class="stat-value">{{ contract_total_cdd }}</div>
             <div class="stat-label">{% trans "CDD (Fixed Term)" %}</div>
         </div>
     </a>
     <a href="{% url 'contracts:list' %}?type=INTERN" class="text-decoration-none">
-        <div class="stat-card" style="border-top:3px solid #2db4c3;">
+        <div class="stat-card">
             <div class="stat-icon" style="background:#cffafe;color:#2db4c3;"><i class="bi bi-mortarboard-fill"></i></div>
             <div class="stat-value">{{ contract_total_intern }}</div>
             <div class="stat-label">{% trans "Internship" %}</div>
         </div>
     </a>
     <a href="{% url 'contracts:list' %}?type=WACS" class="text-decoration-none">
-        <div class="stat-card" style="border-top:3px solid #2db4c3;">
+        <div class="stat-card">
             <div class="stat-icon" style="background:#ede9fe;color:#2db4c3;"><i class="bi bi-hospital-fill"></i></div>
             <div class="stat-value">{{ contract_total_wacs }}</div>
             <div class="stat-label">{% trans "Residents" %}</div>
         </div>
     </a>
-    <div class="stat-card" style="border-top:3px solid {% if contracts_expiring_30 %}#dc2626{% else %}#e5e7eb{% endif %};">
+    <div class="stat-card">
         <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-alarm-fill"></i></div>
         <div class="stat-value" style="color:{% if contracts_expiring_30 %}#dc2626{% endif %};">{{ contracts_expiring_30|length }}</div>
         <div class="stat-label">{% trans "Expiring ≤ 30 days" %}</div>
     </div>
-    <div class="stat-card" style="border-top:3px solid {% if contracts_expired_active %}#374151{% else %}#e5e7eb{% endif %};">
+    <div class="stat-card">
         <div class="stat-icon" style="background:#f3f4f6;color:#374151;"><i class="bi bi-x-circle-fill"></i></div>
         <div class="stat-value" style="color:{% if contracts_expired_active %}#dc2626{% endif %};">{{ contracts_expired_active|length }}</div>
         <div class="stat-label">{% trans "Expired (Active)" %}</div>
     </div>
-    <div class="stat-card" style="border-top:3px solid {% if contracts_near_retirement %}#d97706{% else %}#e5e7eb{% endif %};">
+    <div class="stat-card">
         <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="bi bi-hourglass-split"></i></div>
         <div class="stat-value" style="color:{% if contracts_near_retirement %}#d97706{% endif %};">{{ contracts_near_retirement|length }}</div>
         <div class="stat-label">{% trans "Near Retirement" %}</div>
     </div>
     {% if contract_avg_age %}
-    <div class="stat-card" style="border-top:3px solid #2db4c3;">
+    <div class="stat-card">
         <div class="stat-icon" style="background:#ede9fe;color:#2db4c3;"><i class="bi bi-person-badge"></i></div>
         <div class="stat-value">{{ contract_avg_age }}</div>
         <div class="stat-label">{% trans "Avg. Staff Age" %}</div>

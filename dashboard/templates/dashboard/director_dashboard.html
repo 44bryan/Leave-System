@@ -62,25 +62,25 @@
 <!-- ── Org Health Rate Indicators ── -->
 <div class="row g-3 mb-4 animate-in">
     <div class="col-6 col-md-3">
-        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #059669;">
+        <div class="card text-center p-3" style="border-radius:14px">
             <div style="font-size:2.2rem;font-weight:800;color:#059669;line-height:1;">{{ approval_rate }}%</div>
             <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Approval Rate" %} {{ year }}</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #d97706;">
+        <div class="card text-center p-3" style="border-radius:14px">
             <div style="font-size:2.2rem;font-weight:800;color:#d97706;line-height:1;">{{ on_leave_pct }}%</div>
             <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Staff on Leave Today" %}</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #2db4c3;">
+        <div class="card text-center p-3" style="border-radius:14px">
             <div style="font-size:2.2rem;font-weight:800;color:#2db4c3;line-height:1;">{{ on_leave_count }}</div>
             <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Absent Today" %}</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card text-center p-3" style="border-radius:14px;border-left:4px solid #0A4D68;">
+        <div class="card text-center p-3" style="border-radius:14px">
             <div style="font-size:2.2rem;font-weight:800;color:#0A4D68;line-height:1;">{{ pending_director }}</div>
             <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:#9ab4c0;margin-top:5px;">{% trans "Awaiting Your Signature" %}</div>
         </div>
@@ -272,7 +272,7 @@
 
 {% block extra_css %}
 .section-label { font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#9ab4c0;font-weight:700;margin-bottom:12px; }
-.pbi-kpi { border-radius:14px;padding:18px 12px;text-align:center;background:white;box-shadow:0 2px 10px rgba(10,77,104,0.07);transition:transform .15s,box-shadow .15s;display:block;border-top:3px solid var(--kpi-color,#2db4c3); }
+.pbi-kpi { border-radius:14px;padding:18px 12px;text-align:center;background:white;box-shadow:0 2px 10px rgba(10,77,104,0.07);transition:transform .15s,box-shadow .15s;display:block; }
 .pbi-kpi:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,77,104,0.13); }
 .pbi-kpi-icon { width:48px;height:48px;border-radius:12px;background:color-mix(in srgb,var(--kpi-color,#2db4c3) 12%,white);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--kpi-color,#2db4c3);margin:0 auto 10px; }
 .pbi-kpi-val { font-size:2rem;font-weight:800;line-height:1;color:var(--kpi-color,#0A4D68); }
