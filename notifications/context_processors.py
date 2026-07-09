@@ -129,6 +129,7 @@ def notifications_ctx(request):
             'suspension_end': None,
             'pending_coworker_count': 0,
             'pending_leave_count': 0,
+            'pending_leave_url': '',
             'pending_discipline_proposals': 0,
             'pending_appraisals_count': 0,
             'pending_consultations_count': 0,
