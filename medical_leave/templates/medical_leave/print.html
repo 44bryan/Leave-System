@@ -261,8 +261,11 @@
         </p>
 
         <div class="physician-sig">
-            {% if sl.issued_by.employee.signature_b64 %}
-            <img src="{{ sl.issued_by.employee.signature_b64 }}" alt="Physician Signature"
+            {% if sl.issued_sig_b64 %}
+            <img src="{{ sl.issued_sig_b64 }}" alt="Physician Signature"
+                 style="max-height:60px;max-width:200px;display:block;margin:0 auto 4px;">
+            {% elif sl.issued_by.signature_b64 %}
+            <img src="{{ sl.issued_by.signature_b64 }}" alt="Physician Signature"
                  style="max-height:60px;max-width:200px;display:block;margin:0 auto 4px;">
             {% else %}
             <div class="sig-space"></div>
@@ -283,8 +286,11 @@
         <div class="sig-section">
             <div class="sig-block">
                 <div class="sig-label">Line Manager</div>
-                {% if sl.line_manager_action_by and sl.line_manager_action_by.employee.signature_b64 %}
-                <img src="{{ sl.line_manager_action_by.employee.signature_b64 }}" alt="LM Signature"
+                {% if sl.lm_sig_b64 %}
+                <img src="{{ sl.lm_sig_b64 }}" alt="LM Signature"
+                     style="max-height:50px;max-width:160px;display:block;margin-bottom:4px;">
+                {% elif sl.line_manager_action_by and sl.line_manager_action_by.signature_b64 %}
+                <img src="{{ sl.line_manager_action_by.signature_b64 }}" alt="LM Signature"
                      style="max-height:50px;max-width:160px;display:block;margin-bottom:4px;">
                 {% endif %}
                 <div class="sig-line">
@@ -299,8 +305,11 @@
             </div>
             <div class="sig-block">
                 <div class="sig-label">Human Resource Officer</div>
-                {% if sl.hr_action_by and sl.hr_action_by.employee.signature_b64 %}
-                <img src="{{ sl.hr_action_by.employee.signature_b64 }}" alt="HR Signature"
+                {% if sl.hr_sig_b64 %}
+                <img src="{{ sl.hr_sig_b64 }}" alt="HR Signature"
+                     style="max-height:50px;max-width:160px;display:block;margin-bottom:4px;">
+                {% elif sl.hr_action_by and sl.hr_action_by.signature_b64 %}
+                <img src="{{ sl.hr_action_by.signature_b64 }}" alt="HR Signature"
                      style="max-height:50px;max-width:160px;display:block;margin-bottom:4px;">
                 {% endif %}
                 <div class="sig-line">

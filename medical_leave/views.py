@@ -68,6 +68,7 @@ def issue(request):
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         notes = request.POST.get('notes', '')
+        sig_b64 = request.POST.get('signature_data', '')
 
         if not (patient_id and start_date and end_date):
             messages.error(request, 'Please fill in all required fields.')
@@ -80,6 +81,11 @@ def issue(request):
                 if ed < sd:
                     messages.error(request, 'End date cannot be before start date.')
                 else:
+                    issued_sig = sig_b64 if sig_b64.startswith('data:image/') else (emp.signature_b64 or '')
+                    # Save drawn signature back to profile
+                    if sig_b64.startswith('data:image/'):
+                        from leaves.views import _save_drawn_signature
+                        _save_drawn_signature(emp, sig_b64)
                     sl = MedicalSickLeave.objects.create(
                         employee=patient,
                         issued_by=emp,
@@ -87,6 +93,7 @@ def issue(request):
                         start_date=sd,
                         end_date=ed,
                         notes=notes,
+                        issued_sig_b64=issued_sig,
                         status=MedicalSickLeave.STATUS_PENDING_LINE_MANAGER,
                     )
                     # Notify the patient's line manager
@@ -123,7 +130,10 @@ def issue(request):
             except ValueError:
                 messages.error(request, 'Invalid date format.')
 
-    return render(request, 'medical_leave/issue.html', {'employees': employees})
+    return render(request, 'medical_leave/issue.html', {
+        'employees': employees,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
 
 
 @login_required
@@ -215,11 +225,17 @@ def lm_endorse(request, pk):
     if request.method == 'POST':
         action = request.POST.get('action')
         remarks = request.POST.get('remarks', '')
+        sig_b64 = request.POST.get('signature_data', '')
         sl.line_manager_action_by = emp
         sl.line_manager_action_date = timezone.now()
         sl.line_manager_remarks = remarks
 
         if action == 'approve':
+            lm_sig = sig_b64 if sig_b64.startswith('data:image/') else (emp.signature_b64 or '')
+            sl.lm_sig_b64 = lm_sig
+            if sig_b64.startswith('data:image/'):
+                from leaves.views import _save_drawn_signature
+                _save_drawn_signature(emp, sig_b64)
             sl.status = MedicalSickLeave.STATUS_PENDING_HR
             sl.save()
             # Notify HR
@@ -261,7 +277,10 @@ def lm_endorse(request, pk):
 
         return redirect('medical_leave:lm_queue')
 
-    return render(request, 'medical_leave/lm_endorse.html', {'sl': sl})
+    return render(request, 'medical_leave/lm_endorse.html', {
+        'sl': sl,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
 
 
 # ─── HR Endorsement ───────────────────────────────────────────────────────────
@@ -290,11 +309,17 @@ def hr_endorse(request, pk):
     if request.method == 'POST':
         action = request.POST.get('action')
         remarks = request.POST.get('remarks', '')
+        sig_b64 = request.POST.get('signature_data', '')
         sl.hr_action_by = emp
         sl.hr_action_date = timezone.now()
         sl.hr_remarks = remarks
 
         if action == 'approve':
+            hr_sig = sig_b64 if sig_b64.startswith('data:image/') else (emp.signature_b64 or '')
+            sl.hr_sig_b64 = hr_sig
+            if sig_b64.startswith('data:image/'):
+                from leaves.views import _save_drawn_signature
+                _save_drawn_signature(emp, sig_b64)
             sl.status = MedicalSickLeave.STATUS_APPROVED
             sl.save()
             _create_leave_request_for_sick_leave(sl, emp)
@@ -333,7 +358,10 @@ def hr_endorse(request, pk):
 
         return redirect('medical_leave:hr_queue')
 
-    return render(request, 'medical_leave/hr_endorse.html', {'sl': sl})
+    return render(request, 'medical_leave/hr_endorse.html', {
+        'sl': sl,
+        'current_sig_b64': emp.signature_b64 or '',
+    })
 
 
 # ─── All Records (HR / Admin) ─────────────────────────────────────────────────

@@ -64,9 +64,46 @@
                 <textarea name="notes" class="form-control" rows="3" placeholder="e.g. diagnosis, treatment plan notes..."></textarea>
             </div>
 
+            <!-- Physician Signature -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    <i class="bi bi-pen me-1" style="color:#2db4c3;"></i>Your Signature <span class="text-danger">*</span>
+                </label>
+                <input type="hidden" name="signature_data" id="signatureData">
+                <input type="hidden" id="savedSigB64" value="{{ current_sig_b64 }}">
+                <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #cbd5e0;">
+                    {% if current_sig_b64 %}
+                    <div style="font-size:0.78rem;color:#1a8fa0;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                        <i class="bi bi-check-circle-fill" style="color:#059669;"></i>
+                        Your saved signature will be used. Draw below to replace it.
+                    </div>
+                    {% else %}
+                    <div style="font-size:0.78rem;color:#6b7a8d;margin-bottom:8px;">
+                        Sign below to authorise this medical sick leave certificate.
+                    </div>
+                    {% endif %}
+                    <div style="position:relative;background:#fff;border-radius:8px;border:1px solid #e2e8f0;overflow:hidden;">
+                        <canvas id="sigCanvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;"></canvas>
+                        <div id="sigPlaceholder" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#c0c8d0;font-size:0.85rem;pointer-events:none;user-select:none;text-align:center;">
+                            <i class="bi bi-pen" style="font-size:1.4rem;display:block;margin-bottom:4px;"></i>
+                            Draw your signature here
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span id="sigError" class="text-danger small" style="display:none;">
+                            <i class="bi bi-exclamation-circle me-1"></i>Please draw your signature before issuing.
+                        </span>
+                        <span></span>
+                        <button type="button" id="clearSig" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-eraser me-1"></i>Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex gap-2 justify-content-end">
                 <a href="{% url 'medical_leave:physician_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
                     <i class="bi bi-send me-1"></i>Issue Sick Leave
                 </button>
             </div>
@@ -77,7 +114,79 @@
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
+// ── Signature Pad ─────────────────────────────────────────────────────────────
+(function () {
+    var canvas      = document.getElementById('sigCanvas');
+    var placeholder = document.getElementById('sigPlaceholder');
+    var dataInput   = document.getElementById('signatureData');
+    var sigError    = document.getElementById('sigError');
+    var savedSigB64 = (document.getElementById('savedSigB64') || {}).value || '';
+    var signaturePad = null;
+
+    function initPad() {
+        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+        var w = canvas.offsetWidth || (canvas.parentElement && canvas.parentElement.offsetWidth) || 600;
+        canvas.width  = Math.round(w * ratio);
+        canvas.height = Math.round(160 * ratio);
+        canvas.style.height = '160px';
+        canvas.getContext('2d').scale(ratio, ratio);
+        if (signaturePad) { try { signaturePad.off(); } catch(e){} }
+        signaturePad = new SignaturePad(canvas, { minWidth: 1, maxWidth: 3, penColor: '#0a2d45' });
+        signaturePad.addEventListener('beginStroke', function () {
+            placeholder.style.display = 'none';
+            sigError.style.display    = 'none';
+        });
+    }
+
+    function loadSavedSig() {
+        if (savedSigB64 && signaturePad) {
+            var img = new Image();
+            img.onload = function () {
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                placeholder.style.display = 'none';
+            };
+            img.src = savedSigB64;
+        }
+    }
+
+    function safeInit() {
+        requestAnimationFrame(function () { initPad(); loadSavedSig(); });
+    }
+
+    if (document.readyState === 'complete') { safeInit(); }
+    else { window.addEventListener('load', safeInit); }
+
+    var _rt;
+    window.addEventListener('resize', function () {
+        clearTimeout(_rt);
+        _rt = setTimeout(function () {
+            if (!signaturePad) return;
+            var data = signaturePad.toData();
+            initPad();
+            if (data && data.length) { signaturePad.fromData(data); }
+            else { loadSavedSig(); if (!savedSigB64) placeholder.style.display = 'block'; }
+        }, 200);
+    });
+
+    document.getElementById('clearSig').addEventListener('click', function () {
+        if (signaturePad) { signaturePad.clear(); placeholder.style.display = 'block'; }
+    });
+
+    document.getElementById('issueForm').addEventListener('submit', function (e) {
+        if (signaturePad && !signaturePad.isEmpty()) {
+            dataInput.value = signaturePad.toDataURL('image/png');
+        } else if (savedSigB64) {
+            dataInput.value = savedSigB64;
+        } else {
+            e.preventDefault();
+            sigError.style.display = 'inline';
+            canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+})();
+
 function countWorkingDays(startStr, endStr) {
     var sd = new Date(startStr), ed = new Date(endStr);
     if (ed < sd) return -1;

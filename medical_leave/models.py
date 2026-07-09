@@ -53,6 +53,11 @@ class MedicalSickLeave(models.Model):
     hr_action_date = models.DateTimeField(null=True, blank=True)
     hr_remarks = models.TextField(blank=True)
 
+    # Signature snapshots (captured at time of action, survive profile changes)
+    issued_sig_b64 = models.TextField(blank=True, default='')
+    lm_sig_b64 = models.TextField(blank=True, default='')
+    hr_sig_b64 = models.TextField(blank=True, default='')
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
