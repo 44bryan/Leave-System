@@ -23,6 +23,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://31.97.114.107',
 ]
 
+# Never show the ugly Django 403 CSRF page — redirect gracefully instead
+CSRF_FAILURE_VIEW = 'leave_system.views.csrf_failure'
+
 # Explicit CSRF cookie age (1 year) — prevents Safari ITP from expiring it early
 CSRF_COOKIE_AGE = 31449600
 
