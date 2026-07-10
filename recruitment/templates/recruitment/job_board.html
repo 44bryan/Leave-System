@@ -1,103 +1,278 @@
 {% extends 'base_public.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Careers at MICEI" %}{% endblock %}
+{% block title %}{% trans "Careers at MICEI" %} — Magrabi ICO Cameroon Eye Institute{% endblock %}
 {% block meta_description %}{% trans "Join the team at Magrabi ICO Cameroon Eye Institute — explore open positions in ophthalmology, nursing, administration and more." %}{% endblock %}
 
 {% block extra_style %}
 #noResults { display: none; }
-.job-card {
-    border: 1.5px solid var(--border);
-    transition: border-color .2s, box-shadow .2s, transform .2s;
+.job-board-search {
+    position: relative;
 }
-.job-card:hover {
-    border-color: #a8dde4;
-    box-shadow: 0 12px 36px rgba(10,77,104,.13);
-    transform: translateY(-4px);
+.job-board-search .search-icon {
+    position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%); color: #0A4D68;
+    font-size: .9rem; pointer-events: none; z-index: 1;
 }
-.job-card:hover .job-title { color: var(--primary); }
-.posted-ago { font-size: .72rem; color: var(--muted); }
-.badge-new {
-    background: #fff3cd;
-    color: #92600a;
-    font-size: .65rem;
-    font-weight: 700;
-    padding: .18em .6em;
-    border-radius: 10px;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    vertical-align: middle;
+.job-board-search .form-control {
+    padding-left: 42px; border-radius: 12px; border: none;
+    height: 48px; font-size: .9rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,.16);
+    font-weight: 500;
+}
+.job-board-search .form-control:focus {
+    box-shadow: 0 4px 24px rgba(0,0,0,.16), 0 0 0 3px rgba(45,180,195,.25);
+    border-color: transparent;
+}
+/* Why section */
+.why-section {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 2.6rem 0 2.2rem;
+}
+.why-section .section-title {
+    font-size: .67rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .12em;
+    color: var(--primary); margin-bottom: .35rem;
+}
+.why-section h2 {
+    font-size: clamp(1.3rem,2.5vw,1.75rem);
+    font-weight: 800; color: var(--dark);
+    margin-bottom: .55rem; line-height: 1.25;
+}
+.why-section .lead {
+    font-size: .88rem; color: var(--muted);
+    line-height: 1.7; margin-bottom: 0;
+}
+/* Benefits bar */
+.benefits-bar {
+    background: linear-gradient(90deg, #e8f5f8, #f0fafb);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: .9rem 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.benefits-bar::-webkit-scrollbar { display: none; }
+.benefits-inner {
+    display: flex; align-items: center;
+    gap: .75rem; white-space: nowrap;
+    min-width: max-content;
+    padding: 0 .5rem;
+}
+/* Process section */
+.process-section {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 2.2rem 0;
+}
+.process-step {
+    text-align: center; flex: 1;
+    padding: 0 1rem; position: relative;
+}
+.process-step:not(:last-child)::after {
+    content: '';
+    position: absolute; right: 0; top: 20px;
+    width: 1px; height: 40px;
+    background: var(--border);
+}
+.process-num {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--dark), var(--accent2));
+    color: #fff; font-weight: 800; font-size: .9rem;
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; margin: 0 auto .7rem;
+    box-shadow: 0 4px 14px rgba(10,77,104,.25);
+}
+.process-step h6 { font-weight: 700; font-size: .84rem; color: var(--dark); margin-bottom: .25rem; }
+.process-step p { font-size: .76rem; color: var(--muted); margin: 0; line-height: 1.5; }
+/* Bottom CTA */
+.bottom-cta {
+    background: linear-gradient(135deg, #073d54 0%, #0a6580 50%, #0891b2 100%);
+    border-radius: 20px; padding: 2.6rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+    margin-top: 3rem;
+}
+.bottom-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.2' fill='%23fff' fill-opacity='0.07'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+/* Jobs section label */
+.jobs-header {
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+    margin-bottom: 1.2rem;
+}
+.jobs-header h3 {
+    font-size: 1.15rem; font-weight: 800;
+    color: var(--dark); margin: 0;
 }
 {% endblock %}
 
 {% block hero %}
-<section class="pub-hero">
-    <!-- Decorative animated rings -->
-    <div class="hero-ring-spin"  style="position:absolute;top:-60px;right:-60px;width:320px;height:320px;border-radius:50%;border:40px solid rgba(255,255,255,.08);pointer-events:none;"></div>
-    <div class="hero-ring-float" style="position:absolute;bottom:-80px;right:12%;width:220px;height:220px;border-radius:50%;border:28px solid rgba(255,255,255,.06);pointer-events:none;"></div>
-    <div class="hero-dot-pulse"  style="position:absolute;top:30px;right:22%;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none;"></div>
+<section class="pub-hero" style="padding:3.5rem 0 3.2rem;">
+    <!-- Decorative rings -->
+    <div class="hero-ring-spin"  style="position:absolute;top:-80px;right:-80px;width:360px;height:360px;border-radius:50%;border:44px solid rgba(255,255,255,.07);pointer-events:none;"></div>
+    <div class="hero-ring-float" style="position:absolute;bottom:-90px;right:8%;width:250px;height:250px;border-radius:50%;border:30px solid rgba(255,255,255,.05);pointer-events:none;"></div>
+    <div class="hero-dot-pulse"  style="position:absolute;top:40px;right:25%;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none;"></div>
+
     <div class="container hero-inner">
-        <p class="hero-eyebrow">{% trans "Careers at MICEI" %}</p>
-        <h1>{% trans "Promoting Sight," %}<br><span style="color:rgba(255,255,255,.88);">{% trans "Enhancing Life." %}</span></h1>
-        <p class="hero-sub">
-            {% trans "Magrabi ICO Cameroon Eye Institute — Cameroon's leading subspecialty eye care hospital, dedicated to improving vision and transforming lives across Central Africa." %}
-        </p>
+        <div class="row align-items-center g-4 g-xl-5">
 
-        <div class="mt-4" style="max-width:460px;">
-            <div style="position:relative;">
-                <i class="bi bi-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#0A4D68;font-size:.9rem;z-index:1;pointer-events:none;"></i>
-                <input type="text" id="jobSearch" class="form-control"
-                       style="padding-left:42px;border-radius:12px;border:none;height:46px;font-size:.9rem;box-shadow:0 4px 24px rgba(0,0,0,.18);"
-                       placeholder="{% trans "Search positions, departments…" %}" oninput="filterJobs()">
+            <!-- Left: text + search -->
+            <div class="col-lg-7">
+                <p class="hero-eyebrow">{% trans "Careers at MICEI" %}</p>
+                <h1 style="font-size:clamp(1.9rem,4vw,2.9rem);line-height:1.15;">
+                    {% trans "Where Vision Meets" %}<br>
+                    <span style="color:rgba(255,255,255,.82);">{% trans "Opportunity." %}</span>
+                </h1>
+                <p class="hero-sub" style="max-width:500px;font-size:.94rem;margin-bottom:1.5rem;">
+                    {% trans "Join Cameroon's leading subspecialty eye care hospital. Be part of a mission-driven team that restores sight and transforms lives across Central Africa." %}
+                </p>
+
+                <!-- Search -->
+                <div class="job-board-search" style="max-width:470px;margin-bottom:1.2rem;">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="jobSearch" class="form-control"
+                           placeholder="{% trans "Search positions, departments…" %}" oninput="filterJobs()">
+                </div>
+
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    {% if postings %}
+                    <span style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:22px;font-size:.79rem;font-weight:700;padding:.35em 1.1em;">
+                        <i class="bi bi-briefcase-fill"></i>
+                        {% blocktrans count num=postings|length %}{{ num }} open position{% plural %}{{ num }} open positions{% endblocktrans %}
+                    </span>
+                    {% endif %}
+                    <a href="mailto:hr@micei.org" class="btn-ghost-pub" style="font-size:.78rem;padding:.35rem 1rem;">
+                        <i class="bi bi-envelope"></i>{% trans "Send your CV" %}
+                    </a>
+                </div>
             </div>
-        </div>
 
-        {% if postings %}
-        <div class="mt-3">
-            {% with num=postings|length %}
-            <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;font-size:.79rem;font-weight:600;padding:.32em 1em;">
-                <i class="bi bi-briefcase-fill"></i>
-                {% blocktrans count num=postings|length %}{{ num }} open position{% plural %}{{ num }} open positions{% endblocktrans %}
-            </span>
-            {% endwith %}
+            <!-- Right: stats card -->
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="hero-stats-card">
+                    <div class="stat-item">
+                        <i class="bi bi-eye stat-icon"></i>
+                        <span class="stat-num">10K+</span>
+                        <span class="stat-lbl">{% trans "Patients Served Annually" %}</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="bi bi-heart-pulse stat-icon"></i>
+                        <span class="stat-num">8+</span>
+                        <span class="stat-lbl">{% trans "Subspecialty Services" %}</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="bi bi-mortarboard stat-icon"></i>
+                        <span class="stat-num">100+</span>
+                        <span class="stat-lbl">{% trans "Professionals Trained" %}</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="bi bi-globe2 stat-icon"></i>
+                        <span class="stat-num">#1</span>
+                        <span class="stat-lbl">{% trans "Eye Hospital in Cameroon" %}</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        {% endif %}
     </div>
 </section>
 {% endblock %}
 
 {% block after_hero %}
-<!-- Why MICEI — 4 values -->
-<div class="values-strip">
+
+<!-- ── Why join MICEI ─────────────────────────────────────────────────── -->
+<div class="why-section">
     <div class="container">
-        <div class="row g-2 justify-content-center">
-            <div class="col-6 col-md-3">
-                <div class="value-card">
-                    <i class="bi bi-eye-fill value-icon"></i>
-                    <p class="value-label">{% trans "Pioneer in Eye Care" %}</p>
-                    <p class="value-sub">{% trans "Cameroon's first subspecialty ophthalmology centre of excellence" %}</p>
+        <div class="row align-items-end mb-4 g-3">
+            <div class="col-md-7">
+                <p class="section-title">{% trans "Why Choose MICEI" %}</p>
+                <h2>{% trans "More Than a Job —" %}<br>{% trans "A Mission That Matters." %}</h2>
+            </div>
+            <div class="col-md-5">
+                <p class="lead">
+                    {% trans "MICEI offers a unique environment where clinical excellence, education and community impact converge. Grow your career while changing lives." %}
+                </p>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-sm-6 col-xl-3">
+                <div class="why-card">
+                    <div class="why-icon-wrap"><i class="bi bi-eye-fill"></i></div>
+                    <h6>{% trans "Pioneer in Eye Care" %}</h6>
+                    <p>{% trans "Cameroon's first subspecialty ophthalmology centre of excellence — recognized across Central Africa and aligned with international standards." %}</p>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="value-card">
-                    <i class="bi bi-mortarboard-fill value-icon"></i>
-                    <p class="value-label">{% trans "Academic Centre" %}</p>
-                    <p class="value-sub">{% trans "Training, fellowships & continuous professional development" %}</p>
+            <div class="col-sm-6 col-xl-3">
+                <div class="why-card">
+                    <div class="why-icon-wrap"><i class="bi bi-mortarboard-fill"></i></div>
+                    <h6>{% trans "Academic & Training Centre" %}</h6>
+                    <p>{% trans "Continuous professional development, fellowships, and international training partnerships with ICO help you stay at the forefront of your field." %}</p>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="value-card">
-                    <i class="bi bi-globe2 value-icon"></i>
-                    <p class="value-label">{% trans "International Standards" %}</p>
-                    <p class="value-sub">{% trans "World-class care aligned with global medical best practices" %}</p>
+            <div class="col-sm-6 col-xl-3">
+                <div class="why-card">
+                    <div class="why-icon-wrap"><i class="bi bi-globe2"></i></div>
+                    <h6>{% trans "International Standards" %}</h6>
+                    <p>{% trans "Part of the globally respected Magrabi group, working to world-class care standards with access to cutting-edge equipment and practices." %}</p>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="value-card">
-                    <i class="bi bi-heart-pulse-fill value-icon"></i>
-                    <p class="value-label">{% trans "Not-for-Profit Mission" %}</p>
-                    <p class="value-sub">{% trans "Serving patients across Cameroon & Central Africa" %}</p>
+            <div class="col-sm-6 col-xl-3">
+                <div class="why-card">
+                    <div class="why-icon-wrap"><i class="bi bi-heart-pulse-fill"></i></div>
+                    <h6>{% trans "Not-for-Profit Mission" %}</h6>
+                    <p>{% trans "Every role supports a greater purpose — expanding access to quality eye care for underserved communities across Cameroon and the region." %}</p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Benefits bar ───────────────────────────────────────────────────── -->
+<div class="benefits-bar">
+    <div class="container">
+        <div class="benefits-inner">
+            <span class="benefit-chip"><i class="bi bi-shield-check-fill"></i>{% trans "Health Coverage" %}</span>
+            <span class="benefit-chip"><i class="bi bi-graph-up-arrow"></i>{% trans "Career Growth" %}</span>
+            <span class="benefit-chip"><i class="bi bi-award-fill"></i>{% trans "Professional Development" %}</span>
+            <span class="benefit-chip"><i class="bi bi-people-fill"></i>{% trans "Collaborative Team" %}</span>
+            <span class="benefit-chip"><i class="bi bi-lightbulb-fill"></i>{% trans "Innovation Culture" %}</span>
+            <span class="benefit-chip"><i class="bi bi-globe2"></i>{% trans "International Network" %}</span>
+            <span class="benefit-chip"><i class="bi bi-calendar2-check-fill"></i>{% trans "Work-Life Balance" %}</span>
+            <span class="benefit-chip"><i class="bi bi-patch-check-fill"></i>{% trans "Meaningful Impact" %}</span>
+        </div>
+    </div>
+</div>
+
+<!-- ── Hiring process ─────────────────────────────────────────────────── -->
+<div class="process-section">
+    <div class="container">
+        <p class="section-label text-center mb-3">{% trans "How We Hire" %}</p>
+        <div class="d-flex align-items-start justify-content-center gap-0 flex-wrap flex-md-nowrap" style="max-width:780px;margin:0 auto;">
+            <div class="process-step">
+                <div class="process-num">1</div>
+                <h6>{% trans "Apply Online" %}</h6>
+                <p>{% trans "Submit your application and CV directly through this portal — quick and simple." %}</p>
+            </div>
+            <div class="process-step">
+                <div class="process-num">2</div>
+                <h6>{% trans "Application Review" %}</h6>
+                <p>{% trans "Our HR team carefully reviews every application and shortlists qualifying candidates." %}</p>
+            </div>
+            <div class="process-step">
+                <div class="process-num">3</div>
+                <h6>{% trans "Interview" %}</h6>
+                <p>{% trans "Selected candidates are invited for an in-person or virtual interview with our team." %}</p>
+            </div>
+            <div class="process-step">
+                <div class="process-num">4</div>
+                <h6>{% trans "Join the Team" %}</h6>
+                <p>{% trans "Successful candidates receive an offer and are welcomed into the MICEI family." %}</p>
             </div>
         </div>
     </div>
@@ -106,53 +281,62 @@
 {% endblock %}
 
 {% block content %}
+
 {% if postings %}
 
-<!-- Department filter pills -->
+<!-- Department filter + count -->
+<div class="jobs-header">
+    <h3>{% trans "Open Positions" %}</h3>
+    <span id="jobCount" class="section-label">
+        {% blocktrans count num=postings|length %}{{ num }} position{% plural %}{{ num }} positions{% endblocktrans %}
+    </span>
+</div>
+
 {% if departments %}
 <div class="d-flex gap-2 flex-wrap align-items-center mb-4">
-    <span class="section-label me-1">{% trans "Filter:" %}</span>
     <button class="dept-pill active" data-dept="all" onclick="setDept(this)">{% trans "All" %}</button>
     {% for dept in departments %}
     <button class="dept-pill" data-dept="{{ dept.name|lower }}" onclick="setDept(this)">
         {{ dept.name }} <span class="dept-count">{{ dept.count }}</span>
     </button>
     {% endfor %}
-    <span id="jobCount" class="section-label ms-auto mb-0">{% blocktrans count num=postings|length %}{{ num }} position{% plural %}{{ num }} positions{% endblocktrans %}</span>
-</div>
-{% else %}
-<div class="d-flex justify-content-end mb-3">
-    <span id="jobCount" class="section-label">{% blocktrans count num=postings|length %}{{ num }} position{% plural %}{{ num }} positions{% endblocktrans %}</span>
 </div>
 {% endif %}
 
-<div class="row g-3" id="jobGrid">
+<!-- Job grid -->
+<div class="row g-3 g-xl-4" id="jobGrid">
     {% for job in postings %}
-    <div class="col-md-6 col-xl-4 col-xxl-3 job-card-wrapper"
+    <div class="col-md-6 col-xl-4 job-card-wrapper"
          data-title="{{ job.title|lower }}"
          data-dept="{{ job.department|default:'general'|lower }}"
-         data-type="{{ job.get_employment_type_display|lower }}"
-         data-days="{{ job.created_at|timesince }}">
+         data-type="{{ job.get_employment_type_display|lower }}">
         <a href="{% url 'recruitment:job_detail' job.pk %}" class="job-card">
+            <!-- Tags row -->
             <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
-                <div class="d-flex gap-1 flex-wrap">
+                <div class="d-flex gap-1 flex-wrap align-items-center">
                     <span class="tag">{{ job.get_employment_type_display }}</span>
                     {% if job.created_at %}
                     <span class="badge-new">{% trans "New" %}</span>
                     {% endif %}
                 </div>
                 {% if job.deadline %}
-                <span class="tag tag-deadline"><i class="bi bi-clock me-1"></i>{% trans "Closes" %} {{ job.deadline|date:"d M Y" }}</span>
+                <span class="tag tag-deadline" style="font-size:.67rem;">
+                    <i class="bi bi-clock me-1"></i>{% trans "Closes" %} {{ job.deadline|date:"d M Y" }}
+                </span>
                 {% endif %}
             </div>
-            <p class="job-title mb-1">{{ job.title }}</p>
+            <!-- Title -->
+            <p class="job-title">{{ job.title }}</p>
+            <!-- Meta -->
             <div class="job-meta">
                 {% if job.department %}<span><i class="bi bi-building"></i>{{ job.department }}</span>{% endif %}
                 {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
             </div>
-            <p class="job-excerpt">{{ job.description|truncatechars:120 }}</p>
+            <!-- Excerpt -->
+            <p class="job-excerpt">{{ job.description|truncatechars:130 }}</p>
+            <!-- Footer -->
             <div class="job-card-footer">
-                <span class="posted-ago"><i class="bi bi-calendar3 me-1"></i>{% blocktrans with time=job.created_at|timesince %}{{ time }} ago{% endblocktrans %}</span>
+                <span class="posted-ago"><i class="bi bi-calendar3"></i>{% blocktrans with time=job.created_at|timesince %}{{ time }} ago{% endblocktrans %}</span>
                 <span class="apply-btn">{% trans "Apply Now" %} <i class="bi bi-arrow-right"></i></span>
             </div>
         </a>
@@ -160,36 +344,57 @@
     {% endfor %}
 </div>
 
+<!-- No results -->
 <div id="noResults" class="text-center py-5">
-    <div style="width:56px;height:56px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+    <div style="width:60px;height:60px;background:#e4f3f7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
         <i class="bi bi-search" style="font-size:1.3rem;color:#2db4c3;"></i>
     </div>
     <h6 class="fw-bold mb-1" style="color:#0A4D68;">{% trans "No positions match your search" %}</h6>
-    <p class="text-muted mb-3" style="font-size:.84rem;">{% trans "Try different keywords or browse all departments." %}</p>
-    <button class="btn-outline-pub" onclick="clearFilters()" style="font-size:.82rem;padding:.35rem .9rem;">
-        <i class="bi bi-x-circle me-1"></i>{% trans "Clear Filters" %}
+    <p class="text-muted mb-3" style="font-size:.85rem;">{% trans "Try different keywords or browse all departments." %}</p>
+    <button class="btn-outline-pub" onclick="clearFilters()" style="font-size:.82rem;padding:.38rem .9rem;">
+        <i class="bi bi-x-circle"></i>{% trans "Clear Filters" %}
     </button>
 </div>
 
 {% else %}
-<div class="text-center py-5">
-    <div style="width:68px;height:68px;background:#e8f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
-        <i class="bi bi-briefcase" style="font-size:1.8rem;color:#2db4c3;"></i>
+<!-- No openings at all -->
+<div class="text-center py-5 my-3">
+    <div style="width:72px;height:72px;background:linear-gradient(135deg,#e4f3f7,#cde8ef);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.3rem;">
+        <i class="bi bi-briefcase" style="font-size:1.9rem;color:#2db4c3;"></i>
     </div>
     <h5 class="fw-bold mb-1" style="color:#0A4D68;">{% trans "No open positions at the moment" %}</h5>
-    <p class="text-muted mb-1" style="font-size:.87rem;">{% trans "Check back soon — new opportunities are posted regularly." %}</p>
-    <p class="text-muted" style="font-size:.82rem;">
-        {% trans "You can also send your CV to" %} <a href="mailto:hr@micei.org" style="color:#0A4D68;font-weight:600;">hr@micei.org</a>
+    <p class="text-muted mb-1" style="font-size:.88rem;">{% trans "Check back soon — new opportunities are posted regularly." %}</p>
+    <p class="text-muted" style="font-size:.83rem;">
+        {% trans "You can also send your CV directly to" %}
+        <a href="mailto:hr@micei.org" style="color:#0A4D68;font-weight:700;">hr@micei.org</a>
     </p>
 </div>
 {% endif %}
+
+<!-- ── Bottom CTA ──────────────────────────────────────────────────────── -->
+<div class="bottom-cta">
+    <div style="position:relative;z-index:1;">
+        <p style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:.5rem;">{% trans "Don't see the right fit?" %}</p>
+        <h4 style="color:#fff;font-weight:800;font-size:clamp(1.15rem,2.5vw,1.6rem);margin-bottom:.6rem;">
+            {% trans "Send us your CV and we'll keep you in mind." %}
+        </h4>
+        <p style="color:rgba(255,255,255,.65);font-size:.88rem;margin-bottom:1.5rem;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.65;">
+            {% trans "We're always looking for talented, passionate people. Share your profile with our HR team and we'll reach out when the right opportunity arises." %}
+        </p>
+        <a href="mailto:hr@micei.org?subject=Spontaneous Application — MICEI" class="btn-primary-pub"
+           style="background:#fff;color:#0A4D68 !important;box-shadow:0 4px 18px rgba(0,0,0,.2);">
+            <i class="bi bi-envelope-fill" style="color:#2db4c3;"></i>{% trans "Email HR Team" %}
+        </a>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_script %}
 <script>
 var activeDept = 'all';
 function filterJobs() {
-    var s = document.getElementById('jobSearch').value.toLowerCase().trim();
+    var s = (document.getElementById('jobSearch').value || '').toLowerCase().trim();
     var visible = 0;
     document.querySelectorAll('.job-card-wrapper').forEach(function(c) {
         var ok = (!s || (c.dataset.title||'').includes(s) || (c.dataset.dept||'').includes(s) || (c.dataset.type||'').includes(s))
