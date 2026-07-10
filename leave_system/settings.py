@@ -19,14 +19,18 @@ CSRF_TRUSTED_ORIGINS = [
     'http://hr.micei.org',
     'https://www.hr.micei.org',
     'http://www.hr.micei.org',
+    'http://31.97.114.107',
+    'https://31.97.114.107',
 ]
 
 # Explicit CSRF cookie age (1 year) — prevents Safari ITP from expiring it early
 CSRF_COOKIE_AGE = 31449600
 
-# Secure cookies — True in production (any non-DEBUG environment), False for local dev
-CSRF_COOKIE_SECURE    = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
+# CSRF_COOKIE_SECURE must be False when the site is served over plain HTTP (no TLS).
+# Setting it True on an HTTP site causes 403s because browsers refuse to send
+# Secure-flagged cookies over HTTP. Override to True only if you have HTTPS.
+CSRF_COOKIE_SECURE    = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
 
 # SameSite=Lax fixes CSRF 403 on mobile browsers (avoids over-blocking POST requests)
 CSRF_COOKIE_SAMESITE    = 'Lax'
