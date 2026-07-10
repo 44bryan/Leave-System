@@ -27,58 +27,189 @@ from .models import (
 
 # ─── Applicant email helper ────────────────────────────────────────────────────
 
-_STATUS_EMAIL_TEMPLATES = {
-    'under_review': (
-        'Your Application is Under Review — {title}',
-        'Thank you for applying for the {title} position at Africa Eye Foundation.\n\n'
-        'We are pleased to inform you that your application is currently under review by our HR team. '
-        'We will be in touch with further updates.\n\nBest regards,\nAEF HR Team',
-    ),
-    'shortlisted': (
-        "You've Been Shortlisted — {title}",
-        'Congratulations! We are pleased to inform you that your application for the {title} position '
-        'has been shortlisted.\n\nWe will contact you shortly with the next steps in our selection process.'
-        '\n\nBest regards,\nAEF HR Team',
-    ),
-    'interview': (
-        'Interview Invitation — {title}',
-        'Congratulations! You have been selected for an interview for the {title} position at Africa Eye Foundation.\n\n'
-        'Our HR team will contact you directly with the interview schedule and details.\n\nBest regards,\nAEF HR Team',
-    ),
-    'hired': (
-        'Congratulations — You Have Been Selected! — {title}',
-        'Dear Applicant,\n\nWe are delighted to inform you that you have been selected for the {title} position '
-        'at Africa Eye Foundation.\n\nOur HR team will be reaching out to you shortly with further details '
-        'regarding your offer and onboarding.\n\nWelcome to the AEF family!\n\nBest regards,\nAEF HR Team',
-    ),
-    'rejected': (
-        'Application Update — {title}',
-        'Thank you for your interest in the {title} position at Africa Eye Foundation and for the time '
-        'you invested in your application.\n\nAfter careful consideration, we regret to inform you that '
-        'we will not be moving forward with your application at this time. We encourage you to apply for '
-        'future openings that match your qualifications.\n\nWe wish you all the best in your career journey.'
-        '\n\nBest regards,\nAEF HR Team',
-    ),
+_STATUS_CONFIG = {
+    'under_review': {
+        'subject': 'Your Application is Under Review — {title}',
+        'headline': 'Application Under Review',
+        'color': '#088395',
+        'icon': '🔍',
+        'body': (
+            'Thank you for applying for the <strong>{title}</strong> position at '
+            'Magrabi ICO Cameroon Eye Institute (MICEI).<br><br>'
+            'We are pleased to inform you that your application is currently under review '
+            'by our HR team. We will be in touch with further updates.'
+        ),
+        'next': 'Our team will review your application and notify you of the next steps.',
+    },
+    'shortlisted': {
+        'subject': "You've Been Shortlisted — {title}",
+        'headline': "You've Been Shortlisted! 🎉",
+        'color': '#0A4D68',
+        'icon': '⭐',
+        'body': (
+            'Congratulations! We are pleased to inform you that your application for '
+            'the <strong>{title}</strong> position has been shortlisted.<br><br>'
+            'This means your profile stood out among all candidates. Well done!'
+        ),
+        'next': 'Our HR team will contact you shortly with the next steps in our selection process.',
+    },
+    'interview': {
+        'subject': 'Interview Invitation — {title}',
+        'headline': 'You Are Invited for an Interview!',
+        'color': '#6366f1',
+        'icon': '📅',
+        'body': (
+            'Congratulations! You have been selected for an interview for the '
+            '<strong>{title}</strong> position at MICEI.<br><br>'
+            '{interview_block}'
+            'Please confirm your availability by replying to this email or contacting our HR department.'
+        ),
+        'next': 'Prepare for your interview — review the job description and research MICEI at micei.org.',
+    },
+    'offered': {
+        'subject': 'Job Offer — {title} | MICEI',
+        'headline': 'Congratulations — You Have Received an Offer!',
+        'color': '#059669',
+        'icon': '🏆',
+        'body': (
+            'We are delighted to extend a job offer for the <strong>{title}</strong> position '
+            'at Magrabi ICO Cameroon Eye Institute.<br><br>'
+            'Our HR team will contact you shortly with your formal offer letter and all the details '
+            'regarding your compensation, start date, and onboarding process.'
+        ),
+        'next': 'Please wait for your formal offer letter from our HR team.',
+    },
+    'hired': {
+        'subject': 'Welcome to MICEI — {title}',
+        'headline': 'Welcome to the MICEI Family! 🎊',
+        'color': '#059669',
+        'icon': '🎊',
+        'body': (
+            'We are thrilled to confirm that you have been selected for the '
+            '<strong>{title}</strong> position at Magrabi ICO Cameroon Eye Institute.<br><br>'
+            'Welcome aboard! You are joining a team dedicated to restoring vision and improving '
+            'lives across Central Africa.'
+        ),
+        'next': 'Our HR team will reach out with your onboarding details and start date confirmation.',
+    },
+    'rejected': {
+        'subject': 'Application Update — {title}',
+        'headline': 'Thank You for Applying',
+        'color': '#64748b',
+        'icon': '📝',
+        'body': (
+            'Thank you for your interest in the <strong>{title}</strong> position at MICEI and '
+            'for the time you invested in your application.<br><br>'
+            'After careful consideration, we regret to inform you that we will not be moving '
+            'forward with your application at this time.{rejection_block}'
+            '<br><br>We encourage you to apply for future openings that match your qualifications.'
+        ),
+        'next': 'We wish you all the best in your career journey. Keep an eye on our careers page for future opportunities.',
+    },
 }
 
+_EMAIL_HTML = """<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(10,77,104,.10);">
+  <!-- Header -->
+  <tr><td style="background:linear-gradient(135deg,{color} 0%,#2db4c3 100%);padding:36px 40px;text-align:center;">
+    <div style="font-size:2.4rem;margin-bottom:8px;">{icon}</div>
+    <h1 style="margin:0;color:#fff;font-size:1.4rem;font-weight:700;line-height:1.35;">{headline}</h1>
+  </td></tr>
+  <!-- Body -->
+  <tr><td style="padding:36px 40px;">
+    <p style="margin:0 0 16px;color:#1a2b3c;font-size:1rem;">Dear <strong>{name}</strong>,</p>
+    <p style="margin:0 0 24px;color:#374151;font-size:.95rem;line-height:1.7;">{body}</p>
+    <!-- Next step box -->
+    <div style="background:#f0f9ff;border-left:4px solid {color};border-radius:8px;padding:16px 20px;margin-bottom:28px;">
+      <p style="margin:0;font-size:.85rem;color:#0A4D68;font-weight:600;">What happens next?</p>
+      <p style="margin:4px 0 0;font-size:.85rem;color:#374151;">{next}</p>
+    </div>
+    <p style="margin:0;color:#374151;font-size:.9rem;">You can check your application status anytime at:<br>
+      <a href="{status_url}" style="color:#2db4c3;font-weight:600;">{status_url}</a>
+    </p>
+  </td></tr>
+  <!-- Footer -->
+  <tr><td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:24px 40px;text-align:center;">
+    <p style="margin:0 0 4px;font-size:.8rem;color:#64748b;">Magrabi ICO Cameroon Eye Institute</p>
+    <p style="margin:0;font-size:.75rem;color:#94a3b8;">This is an automated message — please do not reply directly to this email.</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>"""
 
-def _email_applicant(applicant_name, applicant_email, status, posting_title):
-    """Send a status-update email to an applicant in a background thread."""
+
+def _email_applicant(applicant_name, applicant_email, status, posting_title,
+                     interview_date=None, rejection_reason='', status_url=''):
+    """Send a branded HTML status-update email to an applicant."""
     if not getattr(settings, 'EMAIL_NOTIFICATIONS_ENABLED', False):
         return
     if not applicant_email:
         return
-    tpl = _STATUS_EMAIL_TEMPLATES.get(status)
-    if not tpl:
+    cfg = _STATUS_CONFIG.get(status)
+    if not cfg:
         return
-    subject = tpl[0].format(title=posting_title)
-    body = f'Dear {applicant_name},\n\n' + tpl[1].format(title=posting_title)
+
+    # Build dynamic blocks
+    interview_block = ''
+    if status == 'interview' and interview_date:
+        fmt = interview_date.strftime('%A, %d %B %Y at %H:%M')
+        interview_block = (
+            f'<div style="background:#f0f0ff;border-radius:8px;padding:14px 18px;margin:16px 0;">'
+            f'<strong style="color:#6366f1;">📅 Interview Scheduled:</strong><br>'
+            f'<span style="font-size:1.05rem;color:#1a2b3c;font-weight:700;">{fmt}</span>'
+            f'</div>'
+        )
+
+    rejection_block = ''
+    if status == 'rejected' and rejection_reason:
+        rejection_block = (
+            f'<br><br><div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:6px;'
+            f'padding:12px 16px;margin-top:8px;">'
+            f'<strong style="color:#991b1b;font-size:.85rem;">Feedback:</strong><br>'
+            f'<span style="color:#374151;font-size:.88rem;">{rejection_reason}</span>'
+            f'</div>'
+        )
+
+    body_html = cfg['body'].format(
+        title=posting_title,
+        interview_block=interview_block,
+        rejection_block=rejection_block,
+    )
+
+    html = _EMAIL_HTML.format(
+        color=cfg['color'],
+        icon=cfg['icon'],
+        headline=cfg['headline'],
+        name=applicant_name,
+        body=body_html,
+        next=cfg['next'],
+        status_url=status_url or 'https://micei.org/careers/jobs/my-application/',
+    )
+
+    plain = (
+        f"Dear {applicant_name},\n\n"
+        f"{cfg['headline']}\n\n"
+        f"Position: {posting_title}\n\n"
+        + (f"Interview: {interview_date.strftime('%A, %d %B %Y at %H:%M')}\n\n" if interview_date else '')
+        + (f"Feedback: {rejection_reason}\n\n" if rejection_reason else '')
+        + f"{cfg['next']}\n\n"
+        f"Check your application status: {status_url}\n\n"
+        f"Best regards,\nMICEI HR Team"
+    )
+
     try:
         send_mail(
-            subject=f'[AEF HRM] {subject}',
-            message=body,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'AEF HRM <noreply@aef-hrm.com>'),
+            subject=cfg['subject'].format(title=posting_title),
+            message=plain,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'MICEI Careers <careers@micei.org>'),
             recipient_list=[applicant_email],
+            html_message=html,
             fail_silently=True,
         )
     except Exception:
@@ -236,6 +367,28 @@ def apply(request, pk):
 def apply_success(request, pk):
     posting = get_object_or_404(JobPosting, pk=pk)
     return render(request, 'recruitment/apply_success.html', {'posting': posting})
+
+
+def check_status(request):
+    """Public: applicant can look up their application status by email."""
+    applications = []
+    searched = False
+    email = ''
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        searched = True
+        if email:
+            applications = list(
+                Application.objects
+                .filter(applicant_email__iexact=email)
+                .select_related('posting')
+                .order_by('-submitted_at')
+            )
+    return render(request, 'recruitment/check_status.html', {
+        'applications': applications,
+        'searched': searched,
+        'email': email,
+    })
 
 
 # ─── HR views (login required) ────────────────────────────────────────────────
@@ -669,9 +822,17 @@ def applicant_detail(request, posting_pk, pk):
                             pass
                 app.save()
                 # Email the applicant about their status change (background thread)
+                status_url = request.build_absolute_uri(
+                    reverse('recruitment:check_status')
+                )
                 threading.Thread(
                     target=_email_applicant,
                     args=(app.applicant_name, app.applicant_email, new_status, posting.title),
+                    kwargs={
+                        'interview_date': app.interview_date if new_status == 'interview' else None,
+                        'rejection_reason': app.rejection_reason if new_status == 'rejected' else '',
+                        'status_url': status_url,
+                    },
                     daemon=True,
                 ).start()
                 messages.success(request, f'Status updated to {app.get_status_display()}.')

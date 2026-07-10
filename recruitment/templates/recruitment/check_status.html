@@ -1,0 +1,284 @@
+{% extends 'base_public.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Check My Application" %} — {% trans "MICEI Careers" %}{% endblock %}
+{% block meta_description %}{% trans "Check the status of your job application at MICEI." %}{% endblock %}
+
+{% block extra_style %}
+.status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: .35em 1em; border-radius: 20px; font-size: .8rem; font-weight: 700;
+}
+.status-submitted   { background:#e0f2fe; color:#0369a1; }
+.status-under_review{ background:#fef9c3; color:#854d0e; }
+.status-shortlisted { background:#dcfce7; color:#166534; }
+.status-interview   { background:#ede9fe; color:#5b21b6; }
+.status-offered     { background:#d1fae5; color:#065f46; }
+.status-hired       { background:#d1fae5; color:#065f46; }
+.status-rejected    { background:#fee2e2; color:#991b1b; }
+.app-card {
+    border-radius: 14px; border: 1px solid #e0eaf0;
+    background: #fff; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(10,77,104,.06);
+    transition: box-shadow .2s;
+}
+.app-card:hover { box-shadow: 0 6px 24px rgba(10,77,104,.12); }
+.app-card-header {
+    background: linear-gradient(135deg, #0A4D68, #088395);
+    padding: 1.2rem 1.6rem;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+}
+.step-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 800; flex-shrink: 0;
+}
+.step-active  { background: linear-gradient(135deg, #0A4D68, #2db4c3); color: #fff; }
+.step-done    { background: #dcfce7; color: #166534; }
+.step-pending { background: #f1f5f9; color: #94a3b8; }
+.step-line    { flex: 1; height: 2px; background: #e2e8f0; min-width: 12px; }
+.step-line.done { background: linear-gradient(90deg, #0A4D68, #2db4c3); }
+{% endblock %}
+
+{% block hero %}
+<section class="pub-hero" style="padding:2.4rem 0 2.2rem;">
+    <div class="hero-ring-spin" style="position:absolute;top:-50px;right:-50px;width:260px;height:260px;border-radius:50%;border:36px solid rgba(255,255,255,.07);pointer-events:none;"></div>
+    <div class="container hero-inner">
+        <p class="hero-eyebrow">
+            <a href="{% url 'recruitment:job_board' %}" style="color:rgba(255,255,255,.5);text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
+                <i class="bi bi-arrow-left"></i>{% trans "All Openings" %}
+            </a>
+        </p>
+        <h1 style="font-size:clamp(1.4rem,3vw,2rem);margin-bottom:.6rem;">{% trans "Check Your Application Status" %}</h1>
+        <p class="hero-sub">{% trans "Enter the email address you used when applying to see the latest update on your application(s)." %}</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6">
+
+        <!-- Search form -->
+        <div class="card mb-4" style="overflow:hidden;">
+            <div style="height:4px;background:linear-gradient(90deg,#0A4D68,#2db4c3);"></div>
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <label class="form-label fw-semibold" style="color:#0A4D68;">
+                        <i class="bi bi-envelope me-1" style="color:#2db4c3;"></i>{% trans "Your Email Address" %}
+                    </label>
+                    <div class="d-flex gap-2">
+                        <input type="email" name="email" value="{{ email }}"
+                               class="form-control" required
+                               placeholder="you@example.com"
+                               style="border-radius:10px;">
+                        <button type="submit" class="btn-primary-pub" style="white-space:nowrap;flex-shrink:0;">
+                            <i class="bi bi-search"></i>{% trans "Check Status" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if searched %}
+            {% if applications %}
+                <p class="text-muted mb-3" style="font-size:.85rem;">
+                    <i class="bi bi-info-circle me-1" style="color:#2db4c3;"></i>
+                    {% blocktrans count n=applications|length %}
+                        Found {{ n }} application for <strong>{{ email }}</strong>
+                    {% plural %}
+                        Found {{ n }} applications for <strong>{{ email }}</strong>
+                    {% endblocktrans %}
+                </p>
+
+                {% for app in applications %}
+                <div class="app-card mb-4">
+                    <!-- Card header -->
+                    <div class="app-card-header">
+                        <div>
+                            <p class="mb-0 fw-bold" style="color:#fff;font-size:1rem;">{{ app.posting.title }}</p>
+                            {% if app.posting.department %}
+                            <p class="mb-0" style="color:rgba(255,255,255,.6);font-size:.78rem;">
+                                <i class="bi bi-building me-1"></i>{{ app.posting.department }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <span class="status-badge status-{{ app.status }}">
+                            {% if app.status == 'submitted' %}<i class="bi bi-send-check"></i>{% trans "Submitted" %}
+                            {% elif app.status == 'under_review' %}<i class="bi bi-hourglass-split"></i>{% trans "Under Review" %}
+                            {% elif app.status == 'shortlisted' %}<i class="bi bi-star-fill"></i>{% trans "Shortlisted" %}
+                            {% elif app.status == 'interview' %}<i class="bi bi-calendar-event"></i>{% trans "Interview" %}
+                            {% elif app.status == 'offered' %}<i class="bi bi-trophy"></i>{% trans "Offered" %}
+                            {% elif app.status == 'hired' %}<i class="bi bi-patch-check-fill"></i>{% trans "Hired" %}
+                            {% elif app.status == 'rejected' %}<i class="bi bi-x-circle"></i>{% trans "Not Selected" %}
+                            {% else %}{{ app.get_status_display }}{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="p-4">
+                        <!-- Applied date -->
+                        <p class="text-muted mb-3" style="font-size:.8rem;">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            {% trans "Applied on" %} {{ app.submitted_at|date:"d M Y" }}
+                        </p>
+
+                        <!-- Progress steps -->
+                        {% with s=app.status %}
+                        <div class="d-flex align-items-center mb-4" style="gap:4px;">
+                            <!-- 1: Submitted -->
+                            <div class="text-center" style="min-width:52px;">
+                                <div class="step-dot {% if s == 'submitted' %}step-active{% else %}step-done{% endif %} mx-auto mb-1">
+                                    {% if s == 'submitted' %}<i class="bi bi-send-fill" style="font-size:.65rem;"></i>
+                                    {% else %}<i class="bi bi-check-lg" style="font-size:.8rem;"></i>{% endif %}
+                                </div>
+                                <div style="font-size:.6rem;color:#64748b;line-height:1.2;">{% trans "Applied" %}</div>
+                            </div>
+                            <div class="step-line {% if s != 'submitted' %}done{% endif %}"></div>
+                            <!-- 2: Review -->
+                            <div class="text-center" style="min-width:52px;">
+                                {% with review_done=s|slice:"0:3" %}
+                                <div class="step-dot
+                                    {% if s == 'under_review' %}step-active
+                                    {% elif s == 'submitted' %}step-pending
+                                    {% else %}step-done{% endif %} mx-auto mb-1">
+                                    {% if s == 'under_review' %}<i class="bi bi-hourglass-split" style="font-size:.65rem;"></i>
+                                    {% elif s == 'submitted' %}2
+                                    {% else %}<i class="bi bi-check-lg" style="font-size:.8rem;"></i>{% endif %}
+                                </div>
+                                {% endwith %}
+                                <div style="font-size:.6rem;color:#64748b;line-height:1.2;">{% trans "Review" %}</div>
+                            </div>
+                            <div class="step-line {% if s == 'shortlisted' or s == 'interview' or s == 'offered' or s == 'hired' %}done{% endif %}"></div>
+                            <!-- 3: Shortlisted -->
+                            <div class="text-center" style="min-width:52px;">
+                                <div class="step-dot
+                                    {% if s == 'shortlisted' %}step-active
+                                    {% elif s == 'interview' or s == 'offered' or s == 'hired' %}step-done
+                                    {% else %}step-pending{% endif %} mx-auto mb-1">
+                                    {% if s == 'shortlisted' %}<i class="bi bi-star-fill" style="font-size:.65rem;"></i>
+                                    {% elif s == 'interview' or s == 'offered' or s == 'hired' %}<i class="bi bi-check-lg" style="font-size:.8rem;"></i>
+                                    {% else %}3{% endif %}
+                                </div>
+                                <div style="font-size:.6rem;color:#64748b;line-height:1.2;">{% trans "Shortlisted" %}</div>
+                            </div>
+                            <div class="step-line {% if s == 'interview' or s == 'offered' or s == 'hired' %}done{% endif %}"></div>
+                            <!-- 4: Interview -->
+                            <div class="text-center" style="min-width:52px;">
+                                <div class="step-dot
+                                    {% if s == 'interview' %}step-active
+                                    {% elif s == 'offered' or s == 'hired' %}step-done
+                                    {% else %}step-pending{% endif %} mx-auto mb-1">
+                                    {% if s == 'interview' %}<i class="bi bi-camera-video-fill" style="font-size:.65rem;"></i>
+                                    {% elif s == 'offered' or s == 'hired' %}<i class="bi bi-check-lg" style="font-size:.8rem;"></i>
+                                    {% else %}4{% endif %}
+                                </div>
+                                <div style="font-size:.6rem;color:#64748b;line-height:1.2;">{% trans "Interview" %}</div>
+                            </div>
+                            <div class="step-line {% if s == 'offered' or s == 'hired' %}done{% endif %}"></div>
+                            <!-- 5: Decision -->
+                            <div class="text-center" style="min-width:52px;">
+                                <div class="step-dot
+                                    {% if s == 'offered' or s == 'hired' %}step-done
+                                    {% elif s == 'rejected' %}step-pending
+                                    {% else %}step-pending{% endif %} mx-auto mb-1">
+                                    {% if s == 'offered' or s == 'hired' %}<i class="bi bi-patch-check-fill" style="font-size:.8rem;"></i>
+                                    {% else %}5{% endif %}
+                                </div>
+                                <div style="font-size:.6rem;color:#64748b;line-height:1.2;">{% trans "Decision" %}</div>
+                            </div>
+                        </div>
+                        {% endwith %}
+
+                        <!-- Status message -->
+                        {% if app.status == 'submitted' %}
+                        <div class="d-flex gap-3 p-3" style="background:#f0f9ff;border-radius:10px;border:1px solid #bae6fd;">
+                            <i class="bi bi-send-check" style="color:#0369a1;font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                            <div>
+                                <p class="fw-semibold mb-1" style="color:#0369a1;font-size:.88rem;">{% trans "Application Received" %}</p>
+                                <p class="mb-0 text-muted" style="font-size:.82rem;">{% trans "Your application has been received. Our HR team will begin reviewing it shortly." %}</p>
+                            </div>
+                        </div>
+                        {% elif app.status == 'under_review' %}
+                        <div class="d-flex gap-3 p-3" style="background:#fefce8;border-radius:10px;border:1px solid #fde047;">
+                            <i class="bi bi-hourglass-split" style="color:#ca8a04;font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                            <div>
+                                <p class="fw-semibold mb-1" style="color:#92400e;font-size:.88rem;">{% trans "Under Review" %}</p>
+                                <p class="mb-0 text-muted" style="font-size:.82rem;">{% trans "Our HR team is currently reviewing your application. This process typically takes 5–10 business days." %}</p>
+                            </div>
+                        </div>
+                        {% elif app.status == 'shortlisted' %}
+                        <div class="d-flex gap-3 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #86efac;">
+                            <i class="bi bi-star-fill" style="color:#16a34a;font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                            <div>
+                                <p class="fw-semibold mb-1" style="color:#166534;font-size:.88rem;">{% trans "Congratulations — You've Been Shortlisted!" %}</p>
+                                <p class="mb-0 text-muted" style="font-size:.82rem;">{% trans "Your profile stood out. Our HR team will contact you shortly with next steps." %}</p>
+                            </div>
+                        </div>
+                        {% elif app.status == 'interview' %}
+                        <div class="d-flex gap-3 p-3" style="background:#f5f3ff;border-radius:10px;border:1px solid #c4b5fd;">
+                            <i class="bi bi-calendar-event" style="color:#7c3aed;font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                            <div>
+                                <p class="fw-semibold mb-1" style="color:#5b21b6;font-size:.88rem;">{% trans "Interview Invitation" %}</p>
+                                {% if app.interview_date %}
+                                <p class="mb-1" style="font-size:.88rem;color:#1a2b3c;font-weight:700;">
+                                    <i class="bi bi-clock me-1"></i>{{ app.interview_date|date:"l, d M Y" }} {% trans "at" %} {{ app.interview_date|time:"H:i" }}
+                                </p>
+                                {% endif %}
+                                <p class="mb-0 text-muted" style="font-size:.82rem;">{% trans "Please check your email for full details and confirm your availability with our HR team." %}</p>
+                            </div>
+                        </div>
+                        {% elif app.status == 'offered' %}
+                        <div class="d-flex gap-3 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #86efac;">
+                            <i class="bi bi-trophy-fill" style="color:#16a34a;font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                            <div>
+                                <p class="fw-semibold mb-1" style="color:#166534;font-size:.88rem;">{% trans "You Have Received a Job Offer!" %}</p>
+                                <p class="mb-0 text-muted" style="font-size:.82rem;">{% trans "Congratulations! Our HR team will contact you with your formal offer letter and onboarding details." %}</p>
+                            </div>
+                        </div>
+                        {% elif app.status == 'hired' %}
+                        <div class="d-flex gap-3 p-3" style="background:#f0fdf4;border-radius:10px;border:1px solid #86efac;">
+                            <i class="bi bi-patch-check-fill" style="color:#16a34a;font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                            <div>
+                                <p class="fw-semibold mb-1" style="color:#166534;font-size:.88rem;">{% trans "Welcome to MICEI!" %}</p>
+                                <p class="mb-0 text-muted" style="font-size:.82rem;">{% trans "You have been selected and confirmed for this position. Welcome to the MICEI family!" %}</p>
+                            </div>
+                        </div>
+                        {% elif app.status == 'rejected' %}
+                        <div class="d-flex gap-3 p-3" style="background:#fef2f2;border-radius:10px;border:1px solid #fca5a5;">
+                            <i class="bi bi-x-circle" style="color:#dc2626;font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                            <div>
+                                <p class="fw-semibold mb-1" style="color:#991b1b;font-size:.88rem;">{% trans "Application Not Successful" %}</p>
+                                <p class="mb-0 text-muted" style="font-size:.82rem;">{% trans "Thank you for applying. We have decided to move forward with other candidates. We encourage you to apply for future openings." %}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="text-center mt-2">
+                    <a href="{% url 'recruitment:job_board' %}" class="btn-outline-pub">
+                        <i class="bi bi-briefcase"></i>{% trans "Browse Open Positions" %}
+                    </a>
+                </div>
+
+            {% else %}
+                <!-- No applications found -->
+                <div class="card text-center p-5">
+                    <i class="bi bi-search" style="font-size:3rem;color:#c4d4dc;display:block;margin-bottom:1rem;"></i>
+                    <h5 class="fw-bold mb-2" style="color:#0A4D68;">{% trans "No Applications Found" %}</h5>
+                    <p class="text-muted mb-4" style="font-size:.88rem;">
+                        {% blocktrans %}We could not find any applications submitted with <strong>{{ email }}</strong>.<br>
+                        Please double-check the email address you used when applying.{% endblocktrans %}
+                    </p>
+                    <a href="{% url 'recruitment:job_board' %}" class="btn-primary-pub d-inline-flex mx-auto" style="width:fit-content;">
+                        <i class="bi bi-briefcase"></i>{% trans "View Open Positions" %}
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

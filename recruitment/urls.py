@@ -18,8 +18,9 @@ urlpatterns = [
     path('<int:pk>/applicants/export/',                   views.applicant_export_excel, name='applicant_export'),
 
     # Public job board (no login)
-    path('jobs/',                views.job_board,     name='job_board'),
-    path('jobs/<int:pk>/',       views.job_detail,    name='job_detail'),
-    path('jobs/<int:pk>/apply/', views.apply,         name='apply'),
-    path('jobs/<int:pk>/apply/success/', views.apply_success, name='apply_success'),
+    path('jobs/',                          views.job_board,     name='job_board'),
+    path('jobs/<int:pk>/',                 views.job_detail,    name='job_detail'),
+    path('jobs/<int:pk>/apply/',           views.apply,         name='apply'),
+    path('jobs/<int:pk>/apply/success/',   views.apply_success, name='apply_success'),
+    path('jobs/my-application/',           views.check_status,  name='check_status'),
 ]

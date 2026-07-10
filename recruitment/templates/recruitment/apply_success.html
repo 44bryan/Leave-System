@@ -58,9 +58,14 @@
                     </div>
                 </div>
 
-                <a href="{% url 'recruitment:job_board' %}" class="btn-primary-pub">
-                    <i class="bi bi-briefcase me-1"></i>{% trans "Explore Other Openings" %}
-                </a>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{% url 'recruitment:job_board' %}" class="btn-primary-pub">
+                        <i class="bi bi-briefcase me-1"></i>{% trans "Explore Other Openings" %}
+                    </a>
+                    <a href="{% url 'recruitment:check_status' %}" class="btn-outline-pub">
+                        <i class="bi bi-search me-1"></i>{% trans "Check My Application Status" %}
+                    </a>
+                </div>
             </div>
         </div>
 
