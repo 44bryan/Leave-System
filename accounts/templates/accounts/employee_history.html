@@ -73,6 +73,33 @@
     .ct-dot  { width: 28px; height: 28px; font-size: .75rem; }
     .ct-card { padding: 10px 12px; }
 }
+
+/* ── Nav Tabs — system blue override ── */
+.nav-tabs {
+    border-bottom: 2px solid #d0e8f0;
+}
+.nav-tabs .nav-link {
+    color: #4a7d94;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    border-radius: 0;
+    font-weight: 500;
+    font-size: .88rem;
+    padding: .6rem 1rem;
+    transition: color .15s, border-color .15s;
+}
+.nav-tabs .nav-link:hover {
+    color: #0A4D68;
+    border-bottom-color: #2db4c3;
+    background: transparent;
+}
+.nav-tabs .nav-link.active {
+    color: #0A4D68;
+    font-weight: 700;
+    border-bottom: 2px solid #0A4D68;
+    background: transparent;
+}
 </style>
 {% endblock %}
 
