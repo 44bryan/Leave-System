@@ -1,8 +1,10 @@
 import json
+import os
 import re
 import threading
 import uuid
 import requests as http_requests
+from django.core.files.storage import default_storage
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -184,7 +186,12 @@ def apply(request, pk):
             for field in fields:
                 if field.field_type == 'file':
                     uploaded_file = request.FILES.get(field.field_name)
-                    val = uploaded_file.name if uploaded_file else ''
+                    if uploaded_file:
+                        save_path = os.path.join('recruitment', 'field_uploads', uploaded_file.name)
+                        saved = default_storage.save(save_path, uploaded_file)
+                        val = saved
+                    else:
+                        val = ''
                 else:
                     val = request.POST.get(field.field_name, '').strip()
                 answers_to_create.append(ApplicationAnswer(
