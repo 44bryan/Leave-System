@@ -13,17 +13,19 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; }
 
-        /* ── Brand tokens — derived directly from the logo ── */
+        /* ── Brand tokens — system colors matching the logo ── */
         :root {
-            --teal:      #2db4c3;   /* logo circle fill */
-            --teal-dark: #1a9aaa;   /* darker teal for hover */
-            --blue:      #1e6fbf;   /* logo ring / text blue */
-            --blue-dark: #175da6;
-            --bg:        #f4fbfc;   /* barely-there teal tint */
-            --border:    #d6eef2;
+            --teal:      #2db4c3;   /* logo circle fill / accent */
+            --teal-dark: #1a9aaa;
+            --blue:      #0A4D68;   /* logo ring + text / primary */
+            --blue-dark: #083d54;
+            --dark:      #0A4D68;
+            --darker:    #083d54;
+            --bg:        #e8f6f9;   /* system background */
+            --border:    #c8e6ec;
             --text:      #0d1f2d;
-            --sub:       #3a5a6a;
-            --muted:     #6b8a97;
+            --sub:       #2d4a5a;
+            --muted:     #637d8e;
         }
 
         body {
