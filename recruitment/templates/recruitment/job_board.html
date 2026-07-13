@@ -48,36 +48,7 @@
 </section>
 {% endblock %}
 
-{% block after_hero %}
-<!-- Hiring process -->
-<div style="background:#fff;border-bottom:1px solid var(--border);padding:2rem 0;">
-    <div class="container">
-        <p class="section-label text-center mb-3" style="color:var(--teal);">How We Hire</p>
-        <div class="d-flex align-items-start justify-content-center flex-wrap flex-md-nowrap" style="max-width:760px;margin:0 auto;gap:0;">
-            {% for step, title, desc in steps %}
-            <div style="text-align:center;flex:1;padding:0 1rem;position:relative;">
-                {% if not forloop.last %}<div style="position:absolute;right:0;top:21px;width:1px;height:38px;background:var(--border);"></div>{% endif %}
-                <div class="process-num">{{ forloop.counter }}</div>
-                <p style="font-size:.83rem;font-weight:700;color:var(--blue);margin-bottom:.2rem;">{{ title }}</p>
-                <p style="font-size:.75rem;color:var(--muted);margin:0;line-height:1.5;">{{ desc }}</p>
-            </div>
-            {% empty %}
-            {% for item in "1234" %}
-            <div style="text-align:center;flex:1;padding:0 1rem;position:relative;">
-                {% if not forloop.last %}<div style="position:absolute;right:0;top:21px;width:1px;height:38px;background:var(--border);"></div>{% endif %}
-                <div class="process-num">{{ forloop.counter }}</div>
-                {% if forloop.counter == 1 %}<p style="font-size:.83rem;font-weight:700;color:var(--blue);margin-bottom:.2rem;">Apply Online</p><p style="font-size:.75rem;color:var(--muted);margin:0;line-height:1.5;">Submit your application and CV directly through this portal.</p>
-                {% elif forloop.counter == 2 %}<p style="font-size:.83rem;font-weight:700;color:var(--blue);margin-bottom:.2rem;">Application Review</p><p style="font-size:.75rem;color:var(--muted);margin:0;line-height:1.5;">Our HR team carefully reviews every application.</p>
-                {% elif forloop.counter == 3 %}<p style="font-size:.83rem;font-weight:700;color:var(--blue);margin-bottom:.2rem;">Interview</p><p style="font-size:.75rem;color:var(--muted);margin:0;line-height:1.5;">Selected candidates are invited for an interview.</p>
-                {% else %}<p style="font-size:.83rem;font-weight:700;color:var(--blue);margin-bottom:.2rem;">Join the Team</p><p style="font-size:.75rem;color:var(--muted);margin:0;line-height:1.5;">Successful candidates receive an offer and join MICEI.</p>
-                {% endif %}
-            </div>
-            {% endfor %}
-            {% endfor %}
-        </div>
-    </div>
-</div>
-{% endblock %}
+{% block after_hero %}{% endblock %}
 
 {% block content %}
 {% if postings %}
