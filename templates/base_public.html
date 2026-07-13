@@ -1,35 +1,31 @@
 {% load static i18n %}
-{% get_current_language as CURRENT_LANG %}
 <!DOCTYPE html>
-<html lang="{{ CURRENT_LANG }}">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% trans "Careers — MICEI" %}{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}{% trans "Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute." %}{% endblock %}">
+    <title>{% block title %}Careers — MICEI{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Join the MICEI team — explore open positions at Magrabi ICO Cameroon Eye Institute.{% endblock %}">
     <link rel="icon" type="image/png" href="{% static 'logo.jpg' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
+
+        /* ── Brand tokens — derived directly from the logo ── */
         :root {
-            --primary:   #2db4c3;
-            --dark:      #0A4D68;
-            --darker:    #073d54;
-            --accent:    #2db4c3;
-            --accent2:   #0891b2;
-            --gold:      #d97706;
-            --gold-bg:   #fffbeb;
-            --green:     #059669;
-            --bg:        #f0f8fa;
-            --bg2:       #e8f4f8;
-            --border:    #c8e6ec;
+            --teal:      #2db4c3;   /* logo circle fill */
+            --teal-dark: #1a9aaa;   /* darker teal for hover */
+            --blue:      #1e6fbf;   /* logo ring / text blue */
+            --blue-dark: #175da6;
+            --bg:        #f4fbfc;   /* barely-there teal tint */
+            --border:    #d6eef2;
             --text:      #0d1f2d;
-            --sub:       #2d4a5a;
-            --muted:     #637d8e;
-            --card-bg:   #ffffff;
+            --sub:       #3a5a6a;
+            --muted:     #6b8a97;
         }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg);
@@ -41,442 +37,395 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Top info bar ────────────────────────────────────────────────────── */
-        .top-bar {
-            background: var(--dark);
-            color: rgba(255,255,255,.72);
-            font-size: .72rem;
-            font-weight: 500;
-            padding: .32rem 0;
-            letter-spacing: .02em;
-        }
-        .top-bar a { color: rgba(255,255,255,.72); text-decoration: none; transition: color .15s; }
-        .top-bar a:hover { color: #fff; }
-        .top-bar i { font-size: .68rem; }
-
-        /* ── Navbar ─────────────────────────────────────────────────────────── */
+        /* ── Navbar ──────────────────────────────────────────────────────── */
         .pub-navbar {
             background: #fff;
-            padding: .75rem 0;
-            box-shadow: 0 1px 0 var(--border), 0 4px 20px rgba(10,77,104,.08);
+            border-bottom: 1.5px solid var(--border);
+            padding: .8rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 2px 16px rgba(29,111,191,.07);
         }
-        .pub-navbar img.logo { height: 48px; width: auto; display: block; }
-        .nav-lang-btn {
-            background: none; border: none;
-            font-size: .75rem; font-weight: 700;
-            cursor: pointer; padding: .2em .38em;
-            color: #b0c4ce; letter-spacing: .08em;
-            transition: color .15s; line-height: 1;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .nav-lang-btn.active, .nav-lang-btn:hover { color: var(--dark); }
-        .nav-lang-sep { color: #dce8ef; font-size: .68rem; line-height: 1; }
-        .nav-cta {
-            background: var(--dark);
-            color: #fff !important;
-            border: none;
-            border-radius: 8px;
+        .pub-navbar .logo { height: 44px; width: auto; display: block; }
+        .pub-navbar .nav-pill {
+            background: var(--teal);
+            color: #fff;
             font-size: .78rem;
             font-weight: 700;
-            padding: .42rem 1.1rem;
-            text-decoration: none !important;
+            padding: .38rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: background .18s, transform .18s;
-            white-space: nowrap;
+            transition: background .2s;
         }
-        .nav-cta:hover { background: var(--darker); transform: translateY(-1px); }
-        .nav-divider { width: 1px; height: 20px; background: var(--border); }
+        .pub-navbar .nav-pill:hover { background: var(--teal-dark); color: #fff; }
 
-        /* ── Hero ───────────────────────────────────────────────────────────── */
+        /* ── Hero ────────────────────────────────────────────────────────── */
         .pub-hero {
-            background: linear-gradient(135deg, var(--darker) 0%, #0a6580 40%, var(--accent2) 75%, var(--primary) 100%);
+            background: linear-gradient(135deg, var(--blue) 0%, #1a85c2 45%, var(--teal) 100%);
             padding: 3.2rem 0 3rem;
             position: relative;
             overflow: hidden;
         }
+        /* Subtle dot texture */
         .pub-hero::before {
             content: '';
-            position: absolute;
-            inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='28' height='28' viewBox='0 0 28 28' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.4' fill='%23fff' fill-opacity='0.07'/%3E%3C/svg%3E");
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.2' fill='%23fff' fill-opacity='0.06'/%3E%3C/svg%3E");
             pointer-events: none;
         }
+        /* Decorative ring */
         .pub-hero::after {
             content: '';
             position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(circle 400px at 95% 50%, rgba(45,180,195,.18) 0%, transparent 65%),
-                radial-gradient(circle 250px at 80% 110%, rgba(255,255,255,.07) 0%, transparent 60%),
-                radial-gradient(circle 300px at -5% 80%, rgba(7,61,84,.35) 0%, transparent 60%),
-                radial-gradient(circle 200px at 50% -20%, rgba(255,255,255,.06) 0%, transparent 65%);
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            border: 50px solid rgba(255,255,255,.06);
+            top: -120px; right: -100px;
             pointer-events: none;
         }
         .pub-hero .hero-inner { position: relative; z-index: 1; }
-
-        @keyframes heroSpin  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
-        @keyframes heroPulse { 0%,100% { transform: scale(1); opacity:.07; } 50% { transform: scale(1.15); opacity:.13; } }
-        .hero-ring-spin  { animation: heroSpin  24s linear infinite; transform-origin: center; }
-        .hero-ring-float { animation: heroFloat 8s ease-in-out infinite; }
-        .hero-dot-pulse  { animation: heroPulse 5s ease-in-out infinite; }
-
-        .hero-eyebrow {
-            font-size: .68rem; font-weight: 700;
-            letter-spacing: .15em; text-transform: uppercase;
-            color: rgba(255,255,255,.5);
-            margin-bottom: .55rem;
+        .pub-hero .hero-eyebrow {
+            font-size: .7rem; font-weight: 700;
+            letter-spacing: .14em; text-transform: uppercase;
+            color: rgba(255,255,255,.55); margin-bottom: .5rem;
         }
         .pub-hero h1 {
             color: #fff; font-weight: 800;
-            font-size: clamp(1.75rem, 3.8vw, 2.6rem);
-            line-height: 1.18; margin-bottom: .75rem;
+            font-size: clamp(1.7rem, 3.8vw, 2.6rem);
+            line-height: 1.18; margin-bottom: .6rem;
         }
-        .hero-sub {
-            color: rgba(255,255,255,.72);
-            font-size: .92rem; line-height: 1.75;
-            max-width: 480px; margin-bottom: 0;
+        .pub-hero .hero-sub {
+            color: rgba(255,255,255,.75);
+            font-size: .92rem; line-height: 1.7; max-width: 460px;
         }
 
-        /* ── Values strip ───────────────────────────────────────────────────── */
-        .values-strip { background: #fff; border-bottom: 1px solid var(--border); padding: 1.4rem 0; }
-        .value-card { text-align: center; padding: .6rem .8rem; }
-        .value-icon { font-size: 1.5rem; color: var(--accent); display: block; margin-bottom: .35rem; }
-        .value-label { font-weight: 700; font-size: .79rem; color: var(--dark); margin-bottom: .12rem; }
-        .value-sub { font-size: .71rem; color: var(--muted); margin-bottom: 0; line-height: 1.45; }
+        /* ── Main ────────────────────────────────────────────────────────── */
+        .pub-main { flex: 1; padding: 2.5rem 0 4.5rem; }
 
-        /* ── Main ───────────────────────────────────────────────────────────── */
-        .pub-main { flex: 1; padding: 2.4rem 0 4.5rem; }
-
-        /* ── Cards ──────────────────────────────────────────────────────────── */
+        /* ── Cards ───────────────────────────────────────────────────────── */
         .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
+            background: #fff;
+            border: 1.5px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 2px 14px rgba(10,77,104,.055);
+            box-shadow: 0 2px 14px rgba(30,111,191,.06);
+        }
+        .card-header-pub {
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            color: #fff;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1rem 1.4rem;
         }
 
-        /* ── Job cards ──────────────────────────────────────────────────────── */
+        /* ── Job cards ───────────────────────────────────────────────────── */
         .job-card {
-            background: var(--card-bg);
+            background: #fff;
             border: 1.5px solid var(--border);
             border-radius: 14px;
-            padding: 1.5rem 1.65rem;
-            transition: border-color .18s, box-shadow .18s, transform .18s;
+            padding: 1.4rem 1.6rem;
             text-decoration: none !important;
             display: flex; flex-direction: column;
             color: inherit !important; height: 100%;
             position: relative; overflow: hidden;
+            transition: border-color .2s, box-shadow .2s, transform .2s;
         }
         .job-card::before {
             content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
+            position: absolute; top: 0; left: 0; right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--dark), var(--primary));
-            opacity: 0;
-            transition: opacity .22s;
+            background: linear-gradient(90deg, var(--blue), var(--teal));
+            opacity: 0; transition: opacity .2s;
         }
-        .job-card:hover { border-color: var(--accent); box-shadow: 0 10px 32px rgba(10,77,104,.13); transform: translateY(-4px); }
+        .job-card:hover {
+            border-color: var(--teal);
+            box-shadow: 0 8px 28px rgba(45,180,195,.15);
+            transform: translateY(-3px);
+        }
         .job-card:hover::before { opacity: 1; }
-        .job-title { font-size: 1.02rem; font-weight: 700; color: var(--dark); margin-bottom: .28rem; line-height: 1.3; }
-        .job-card:hover .job-title { color: var(--accent2); }
-        .job-meta { font-size: .78rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .7rem; }
+        .job-title {
+            font-size: 1.02rem; font-weight: 700;
+            color: var(--blue); margin-bottom: .3rem; line-height: 1.3;
+        }
+        .job-card:hover .job-title { color: var(--teal-dark); }
+        .job-meta {
+            font-size: .79rem; color: var(--muted);
+            display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .7rem;
+        }
         .job-meta span { display: flex; align-items: center; gap: 4px; }
-        .job-excerpt { font-size: .83rem; color: #4a5e6e; line-height: 1.65; flex: 1; }
+        .job-excerpt { font-size: .84rem; color: var(--sub); line-height: 1.65; flex: 1; }
         .job-card-footer {
-            margin-top: 1rem; padding-top: .85rem;
-            border-top: 1px solid #eef2f7;
+            margin-top: 1rem; padding-top: .8rem;
+            border-top: 1px solid #eef4f7;
             display: flex; justify-content: space-between; align-items: center;
         }
         .posted-ago { font-size: .72rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
         .apply-btn {
             display: inline-flex; align-items: center; gap: 5px;
-            background: var(--dark); color: #fff !important;
+            background: var(--teal); color: #fff !important;
             font-size: .73rem; font-weight: 700;
             padding: .32em 1.05em; border-radius: 20px;
-            transition: background .16s, transform .16s;
+            transition: background .18s;
         }
-        .job-card:hover .apply-btn { background: var(--accent2); transform: translateX(2px); }
+        .job-card:hover .apply-btn { background: var(--teal-dark); }
 
-        /* ── Tags ───────────────────────────────────────────────────────────── */
+        /* ── Tags ────────────────────────────────────────────────────────── */
         .tag {
             display: inline-block;
-            background: #e4f3f6; color: #0a7a8a;
-            font-weight: 600; font-size: .68rem;
-            padding: .22em .72em; border-radius: 20px;
+            background: #e4f6f9; color: var(--teal-dark);
+            font-weight: 600; font-size: .7rem;
+            padding: .22em .75em; border-radius: 20px;
         }
-        .tag-deadline { background: var(--gold-bg); color: var(--gold); }
-        .badge-new {
-            background: #fff3cd; color: #92600a;
-            font-size: .63rem; font-weight: 700;
-            padding: .16em .55em; border-radius: 10px;
-            letter-spacing: .04em; text-transform: uppercase;
-            vertical-align: middle;
+        .tag-deadline {
+            background: #e8f2fb; color: var(--blue);
         }
 
-        /* ── Filter / search ────────────────────────────────────────────────── */
+        /* ── Filter pills ────────────────────────────────────────────────── */
         .dept-pill {
-            background: #f0f6f9; color: var(--muted);
+            background: #fff; color: var(--muted);
             border: 1.5px solid var(--border); border-radius: 20px;
             font-size: .75rem; font-weight: 600;
-            padding: .3em .9em; cursor: pointer;
+            padding: .32em .95em; cursor: pointer;
             transition: all .16s; white-space: nowrap;
         }
-        .dept-pill:hover, .dept-pill.active { background: var(--dark); color: #fff; border-color: var(--dark); }
-        .dept-count { background: rgba(255,255,255,.22); border-radius: 10px; font-size: .65rem; padding: .06em .38em; margin-left: 3px; }
-        .dept-pill:not(.active) .dept-count { background: #dde8ef; color: var(--muted); }
-        .section-label { font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+        .dept-pill:hover, .dept-pill.active {
+            background: var(--teal); color: #fff; border-color: var(--teal);
+        }
+        .dept-count {
+            font-size: .63rem; background: rgba(255,255,255,.22);
+            border-radius: 10px; padding: .05em .4em; margin-left: 2px;
+        }
+        .dept-pill:not(.active) .dept-count { background: #e0eef2; color: var(--muted); }
 
-        /* ── Buttons ────────────────────────────────────────────────────────── */
+        /* ── Section label ───────────────────────────────────────────────── */
+        .section-label {
+            font-size: .68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .1em;
+            color: var(--muted);
+        }
+
+        /* ── Buttons ─────────────────────────────────────────────────────── */
         .btn-primary-pub {
-            background: var(--dark); color: #fff !important;
-            border: none; border-radius: 10px; font-weight: 700;
-            padding: .65rem 1.6rem; font-size: .9rem;
-            box-shadow: 0 4px 14px rgba(10,77,104,.22);
-            text-decoration: none !important; display: inline-flex;
-            align-items: center; gap: 7px;
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            color: #fff !important; border: none; border-radius: 10px;
+            font-weight: 700; padding: .65rem 1.6rem; font-size: .9rem;
+            box-shadow: 0 4px 14px rgba(30,111,191,.22);
+            text-decoration: none !important;
+            display: inline-flex; align-items: center; gap: 7px;
             transition: all .2s; cursor: pointer;
         }
-        .btn-primary-pub:hover { background: var(--darker); transform: translateY(-2px); box-shadow: 0 8px 22px rgba(10,77,104,.3); }
+        .btn-primary-pub:hover {
+            background: linear-gradient(135deg, var(--blue-dark), var(--teal-dark));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(30,111,191,.3);
+        }
         .btn-outline-pub {
-            background: transparent; color: var(--dark);
-            border: 1.5px solid #9dd4db; border-radius: 10px;
+            background: transparent; color: var(--blue);
+            border: 1.5px solid var(--border); border-radius: 10px;
             font-weight: 600; padding: .5rem 1.15rem; font-size: .86rem;
             text-decoration: none; transition: all .18s;
             display: inline-flex; align-items: center; gap: 6px;
         }
-        .btn-outline-pub:hover { border-color: var(--dark); background: #e8f7f9; color: var(--dark); }
-        .btn-ghost-pub {
-            background: transparent; color: rgba(255,255,255,.82);
-            border: 1.5px solid rgba(255,255,255,.28); border-radius: 10px;
+        .btn-outline-pub:hover {
+            border-color: var(--teal); color: var(--teal-dark); background: #f0fafb;
+        }
+        .btn-ghost-hero {
+            background: rgba(255,255,255,.14); color: rgba(255,255,255,.88);
+            border: 1.5px solid rgba(255,255,255,.3); border-radius: 10px;
             font-weight: 600; padding: .5rem 1.1rem; font-size: .84rem;
             text-decoration: none; transition: all .18s;
             display: inline-flex; align-items: center; gap: 6px;
         }
-        .btn-ghost-pub:hover { border-color: rgba(255,255,255,.6); color: #fff; background: rgba(255,255,255,.1); }
+        .btn-ghost-hero:hover { background: rgba(255,255,255,.24); color: #fff; }
 
-        /* ── Forms ──────────────────────────────────────────────────────────── */
+        /* ── Form controls ───────────────────────────────────────────────── */
         .form-control, .form-select {
-            border: 1.5px solid #d0e0e8; border-radius: 10px;
-            padding: 9px 13px; font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: .88rem; color: var(--text);
-            transition: border-color .18s, box-shadow .18s; background: #fff;
+            border: 1.5px solid #cde5ec; border-radius: 10px;
+            padding: 10px 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: .9rem; color: var(--text);
+            transition: border-color .18s, box-shadow .18s;
         }
-        .form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,180,195,.12); outline: none; }
-        .form-control::placeholder { color: #a0aec0; }
-        .form-label { font-weight: 600; font-size: .82rem; color: var(--sub); margin-bottom: 5px; }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(45,180,195,.13);
+            outline: none;
+        }
+        .form-control::placeholder { color: #a0bbc5; }
+        .form-label { font-weight: 600; font-size: .83rem; color: var(--sub); margin-bottom: 5px; }
 
-        /* ── Detail icon box ────────────────────────────────────────────────── */
-        .detail-icon-box { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        /* ── Detail icon box ─────────────────────────────────────────────── */
+        .icon-box {
+            width: 38px; height: 38px;
+            background: #e4f6f9; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .icon-box i { color: var(--teal-dark); font-size: .95rem; }
 
-        /* ── Alert / misc ───────────────────────────────────────────────────── */
-        .alert { border-radius: 10px; border: none; font-size: .88rem; }
-
-        /* ── File drop zone ─────────────────────────────────────────────────── */
+        /* ── Drop zone ───────────────────────────────────────────────────── */
         .drop-zone {
-            border: 2px dashed var(--border); border-radius: 14px;
-            background: #f5fbfd; padding: 2rem;
-            text-align: center; transition: border-color .2s, background .2s;
+            border: 2px dashed var(--border); border-radius: 12px;
+            background: #f8fdfe; padding: 1.8rem;
+            text-align: center; transition: all .2s;
             cursor: pointer; position: relative;
         }
-        .drop-zone.dragover { border-color: var(--accent); background: #e4f5f8; }
-        .drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-        .drop-zone-label { font-size: .85rem; color: var(--muted); margin: 0; }
-        .drop-zone-label strong { color: var(--accent2); }
-        .drop-file-name { font-size: .82rem; color: var(--primary); font-weight: 600; margin-top: .5rem; display: none; }
-
-        /* ── Process steps ──────────────────────────────────────────────────── */
-        .step-bubble {
-            width: 40px; height: 40px; background: var(--dark);
-            color: #fff; font-weight: 800; font-size: .82rem;
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; margin: 0 auto .5rem; flex-shrink: 0;
+        .drop-zone.dragover { border-color: var(--teal); background: #eaf8fa; }
+        .drop-zone input[type=file] {
+            position: absolute; inset: 0; opacity: 0;
+            cursor: pointer; width: 100%; height: 100%;
         }
-        .step-label { font-size: .73rem; font-weight: 700; color: var(--dark); margin: 0; white-space: nowrap; }
-        .step-arrow { color: #b0cdd4; font-size: .9rem; }
+        .drop-zone-label { font-size: .85rem; color: var(--muted); margin: 0; }
+        .drop-zone-label strong { color: var(--teal-dark); }
+        .drop-file-name { font-size: .82rem; color: var(--teal-dark); font-weight: 600; margin-top: .5rem; display: none; }
 
-        /* ── Benefit chip ───────────────────────────────────────────────────── */
+        /* ── Alerts ──────────────────────────────────────────────────────── */
+        .alert { border-radius: 10px; border: none; font-size: .88rem; }
+
+        /* ── Why cards ───────────────────────────────────────────────────── */
+        .why-card {
+            background: #fff; border: 1.5px solid var(--border);
+            border-radius: 16px; padding: 1.6rem 1.4rem; height: 100%;
+            transition: box-shadow .2s, transform .2s;
+        }
+        .why-card:hover { box-shadow: 0 8px 28px rgba(45,180,195,.12); transform: translateY(-3px); }
+        .why-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, #e4f6f9, #c8edf3);
+            border-radius: 14px; display: flex;
+            align-items: center; justify-content: center; margin-bottom: .9rem;
+        }
+        .why-icon i { font-size: 1.35rem; color: var(--blue); }
+        .why-card h6 { font-weight: 700; font-size: .9rem; color: var(--blue); margin-bottom: .45rem; }
+        .why-card p { font-size: .81rem; color: var(--muted); line-height: 1.6; margin: 0; }
+
+        /* ── Benefits bar ────────────────────────────────────────────────── */
+        .benefits-bar {
+            background: linear-gradient(90deg, #eaf8fa, #e0f3f7);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: .85rem 0; overflow-x: auto; scrollbar-width: none;
+        }
+        .benefits-bar::-webkit-scrollbar { display: none; }
+        .benefits-inner { display: flex; align-items: center; gap: .65rem; white-space: nowrap; min-width: max-content; padding: 0 .5rem; }
         .benefit-chip {
             display: inline-flex; align-items: center; gap: 7px;
-            background: #fff; border: 1.5px solid var(--border);
-            border-radius: 22px; padding: .4em 1.15em;
-            font-size: .79rem; font-weight: 600; color: var(--dark);
+            background: #fff; border: 1.5px solid #c8e8ee;
+            border-radius: 22px; padding: .38em 1.1em;
+            font-size: .78rem; font-weight: 600; color: var(--blue);
             white-space: nowrap;
         }
-        .benefit-chip i { color: var(--primary); font-size: .88rem; }
+        .benefit-chip i { color: var(--teal); }
 
-        /* ── Stats card (hero) ──────────────────────────────────────────────── */
-        .hero-stats-card {
-            background: rgba(255,255,255,.12);
-            border: 1px solid rgba(255,255,255,.2);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 2rem 1.8rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem 1.8rem;
-        }
-        .stat-item { text-align: center; }
-        .stat-num {
-            font-size: clamp(1.6rem,3vw,2.2rem);
-            font-weight: 800; color: #fff;
-            line-height: 1; display: block; margin-bottom: .18rem;
-        }
-        .stat-lbl {
-            font-size: .72rem; color: rgba(255,255,255,.65);
-            font-weight: 600; line-height: 1.3; display: block;
-            letter-spacing: .01em;
-        }
-        .stat-icon { font-size: 1.4rem; color: rgba(255,255,255,.5); display: block; margin-bottom: .4rem; }
-
-        /* ── Why MICEI cards ────────────────────────────────────────────────── */
-        .why-card {
-            background: #fff; border: 1px solid var(--border);
-            border-radius: 16px; padding: 1.8rem 1.5rem;
-            height: 100%; transition: box-shadow .2s, transform .2s;
-        }
-        .why-card:hover { box-shadow: 0 8px 28px rgba(10,77,104,.1); transform: translateY(-3px); }
-        .why-icon-wrap {
-            width: 52px; height: 52px;
-            background: linear-gradient(135deg, #e4f4f8, #cce9ef);
-            border-radius: 14px; display: flex;
+        /* ── Process ─────────────────────────────────────────────────────── */
+        .process-num {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--blue), var(--teal));
+            color: #fff; font-weight: 800; font-size: .88rem;
+            border-radius: 50%; display: flex;
             align-items: center; justify-content: center;
-            margin-bottom: 1rem;
+            margin: 0 auto .65rem;
+            box-shadow: 0 4px 14px rgba(30,111,191,.22);
         }
-        .why-icon-wrap i { font-size: 1.4rem; color: var(--dark); }
-        .why-card h6 { font-weight: 700; font-size: .92rem; color: var(--dark); margin-bottom: .5rem; }
-        .why-card p { font-size: .82rem; color: var(--muted); line-height: 1.6; margin: 0; }
 
-        /* ── CTA banner ─────────────────────────────────────────────────────── */
+        /* ── CTA banner ──────────────────────────────────────────────────── */
         .cta-banner {
-            background: linear-gradient(135deg, var(--darker) 0%, var(--accent2) 100%);
-            border-radius: 20px;
-            padding: 2.4rem 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(135deg, var(--blue) 0%, #1a85c2 50%, var(--teal) 100%);
+            border-radius: 18px; padding: 2.6rem 2rem;
+            text-align: center; position: relative; overflow: hidden; margin-top: 3rem;
         }
         .cta-banner::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.2' fill='%23fff' fill-opacity='0.07'/%3E%3C/svg%3E");
+            content: ''; position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.1' fill='%23fff' fill-opacity='0.07'/%3E%3C/svg%3E");
             pointer-events: none;
         }
 
-        /* ── Footer ─────────────────────────────────────────────────────────── */
-        .pub-footer-main {
-            background: var(--dark);
-            padding: 3rem 0 2rem;
-            color: rgba(255,255,255,.65);
+        /* ── Footer ──────────────────────────────────────────────────────── */
+        .pub-footer {
+            background: linear-gradient(135deg, var(--blue), #1a85c2 50%, var(--teal));
+            color: rgba(255,255,255,.7);
+            padding: 2.8rem 0 1.4rem;
             font-size: .82rem;
         }
-        .pub-footer-main h6 {
-            color: #fff; font-weight: 700; font-size: .8rem;
-            text-transform: uppercase; letter-spacing: .1em;
-            margin-bottom: 1rem;
-        }
-        .footer-logo { height: 38px; width: auto; margin-bottom: .9rem; filter: brightness(0) invert(1); opacity: .9; }
-        .footer-tagline { font-size: .79rem; color: rgba(255,255,255,.55); line-height: 1.65; margin-bottom: 1.1rem; }
-        .footer-link-list { list-style: none; padding: 0; margin: 0; }
-        .footer-link-list li { margin-bottom: .5rem; }
-        .footer-link-list a {
-            color: rgba(255,255,255,.55); text-decoration: none;
-            font-size: .8rem; transition: color .15s;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .footer-link-list a:hover { color: var(--primary); }
-        .footer-contact-item {
-            display: flex; align-items: flex-start; gap: 9px;
-            margin-bottom: .7rem; font-size: .8rem; color: rgba(255,255,255,.55);
-        }
-        .footer-contact-item i { font-size: .85rem; color: var(--primary); margin-top: 1px; flex-shrink: 0; }
-        .footer-contact-item a { color: rgba(255,255,255,.55); text-decoration: none; transition: color .15s; }
-        .footer-contact-item a:hover { color: var(--primary); }
-        .footer-social { display: flex; gap: .6rem; margin-top: .8rem; }
-        .footer-social a {
-            width: 32px; height: 32px; border-radius: 8px;
-            background: rgba(255,255,255,.1); color: rgba(255,255,255,.6);
-            display: flex; align-items: center; justify-content: center;
-            font-size: .9rem; text-decoration: none;
-            transition: background .15s, color .15s;
-        }
-        .footer-social a:hover { background: var(--primary); color: #fff; }
+        .pub-footer .footer-logo { height: 36px; width: auto; filter: brightness(0) invert(1); opacity: .9; margin-bottom: .7rem; }
+        .pub-footer .footer-tagline { font-size: .78rem; color: rgba(255,255,255,.55); line-height: 1.6; }
+        .pub-footer h6 { color: #fff; font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .85rem; }
+        .pub-footer ul { list-style: none; padding: 0; margin: 0; }
+        .pub-footer ul li { margin-bottom: .45rem; }
+        .pub-footer ul a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .8rem; transition: color .15s; }
+        .pub-footer ul a:hover { color: #fff; }
+        .pub-footer .contact-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: .55rem; font-size: .8rem; color: rgba(255,255,255,.55); }
+        .pub-footer .contact-item i { color: var(--teal); margin-top: 1px; flex-shrink: 0; }
+        .pub-footer .contact-item a { color: rgba(255,255,255,.55); text-decoration: none; }
+        .pub-footer .contact-item a:hover { color: #fff; }
         .pub-footer-bottom {
-            background: rgba(0,0,0,.2);
-            border-top: 1px solid rgba(255,255,255,.08);
-            padding: .75rem 0;
+            background: rgba(0,0,0,.15);
+            border-top: 1px solid rgba(255,255,255,.1);
+            padding: .75rem 0; margin-top: 1.5rem;
+            font-size: .72rem; text-align: center;
             color: rgba(255,255,255,.35);
-            font-size: .7rem; text-align: center;
         }
-        .pub-footer-bottom a { color: rgba(255,255,255,.4); text-decoration: none; }
-        .pub-footer-bottom a:hover { color: rgba(255,255,255,.7); }
+        .pub-footer-bottom a { color: rgba(255,255,255,.45); text-decoration: none; }
+        .pub-footer-bottom a:hover { color: rgba(255,255,255,.8); }
 
-        /* ── Responsive ─────────────────────────────────────────────────────── */
-        @media (min-width: 1400px) { .container { max-width: min(94vw, 1700px); } }
-        @media (min-width: 1920px) { .container { max-width: min(92vw, 2200px); } }
+        /* ── Jobs header ─────────────────────────────────────────────────── */
+        .jobs-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.1rem; }
+        .jobs-header h3 { font-size: 1.15rem; font-weight: 800; color: var(--blue); margin: 0; }
+
+        /* ── Search ──────────────────────────────────────────────────────── */
+        .search-wrap { position: relative; }
+        .search-wrap .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--teal); font-size: .88rem; pointer-events: none; z-index: 1; }
+        .search-wrap .form-control { padding-left: 40px; border-radius: 10px; height: 46px; background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.25); color: #fff; font-size: .88rem; }
+        .search-wrap .form-control::placeholder { color: rgba(255,255,255,.5); }
+        .search-wrap .form-control:focus { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.5); box-shadow: none; }
+
+        /* ── Stats card ──────────────────────────────────────────────────── */
+        .stats-card {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            backdrop-filter: blur(10px);
+            border-radius: 18px; padding: 1.8rem 1.5rem;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem 1.6rem;
+        }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: clamp(1.5rem,2.5vw,2rem); font-weight: 800; color: #fff; line-height: 1; display: block; margin-bottom: .15rem; }
+        .stat-lbl { font-size: .7rem; color: rgba(255,255,255,.6); font-weight: 600; display: block; line-height: 1.3; }
+        .stat-icon { font-size: 1.2rem; color: rgba(255,255,255,.45); display: block; margin-bottom: .35rem; }
+
+        /* ── Responsive ──────────────────────────────────────────────────── */
         @media (max-width: 576px) {
-            .pub-hero { padding: 2.4rem 0 2.2rem; }
+            .pub-hero { padding: 2.2rem 0 2rem; }
             .pub-hero h1 { font-size: 1.55rem; }
             .pub-main { padding: 1.6rem 0 3rem; }
-            .job-card { padding: 1.15rem 1.25rem; }
-            .top-bar .top-bar-right { display: none; }
+            .job-card { padding: 1.1rem 1.2rem; }
         }
+
         {% block extra_style %}{% endblock %}
     </style>
 </head>
 <body>
 
-<!-- ── Top info bar ──────────────────────────────────────────────────────── -->
-<div class="top-bar">
-    <div class="container d-flex align-items-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-3">
-            <span><i class="bi bi-telephone-fill me-1"></i> +237 679 993 789</span>
-            <span class="d-none d-sm-inline"><i class="bi bi-envelope-fill me-1"></i> <a href="mailto:hr@micei.org">hr@micei.org</a></span>
-        </div>
-        <div class="top-bar-right d-flex align-items-center gap-3">
-            <span><i class="bi bi-geo-alt-fill me-1"></i> Yaoundé, Cameroon</span>
-            <a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-globe2 me-1"></i>micei.org</a>
-        </div>
-    </div>
-</div>
-
-<!-- ── Navbar ────────────────────────────────────────────────────────────── -->
+<!-- Navbar -->
 <nav class="pub-navbar">
-    <div class="container d-flex align-items-center justify-content-between gap-3">
+    <div class="container d-flex align-items-center justify-content-between">
         <a href="{% url 'recruitment:job_board' %}">
-            <img src="{% static 'LOGO.png' %}" alt="MICEI" class="logo">
+            <img src="{% static 'LOGO.png' %}" alt="Magrabi ICO Cameroon Eye Institute" class="logo">
         </a>
-
-        <div class="d-flex align-items-center gap-3">
-            <div class="nav-divider d-none d-md-block"></div>
-            {% get_current_language as CURRENT_LANG %}
-            <form action="{% url 'set_language' %}" method="post" class="d-flex align-items-center gap-1 mb-0">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <button type="submit" name="language" value="en" class="nav-lang-btn {% if CURRENT_LANG == 'en' %}active{% endif %}">EN</button>
-                <span class="nav-lang-sep">|</span>
-                <button type="submit" name="language" value="fr" class="nav-lang-btn {% if CURRENT_LANG == 'fr' %}active{% endif %}">FR</button>
-            </form>
-            <a href="{% url 'recruitment:job_board' %}" class="nav-cta d-none d-sm-inline-flex">
-                <i class="bi bi-briefcase-fill"></i>{% trans "Open Roles" %}
-            </a>
-        </div>
+        <a href="{% url 'recruitment:job_board' %}" class="nav-pill">
+            <i class="bi bi-briefcase-fill"></i>
+            <span class="d-none d-sm-inline">Open Roles</span>
+        </a>
     </div>
 </nav>
 
 {% block hero %}
 <section class="pub-hero">
     <div class="container hero-inner">
-        <p class="hero-eyebrow">{% trans "Join Our Team" %}</p>
-        <h1>{% trans "Current Openings at MICEI" %}</h1>
-        <p class="hero-sub">{% trans "Explore open positions and apply directly online." %}</p>
+        <p class="hero-eyebrow">Careers</p>
+        <h1>Join Our Team</h1>
+        <p class="hero-sub">Explore open positions and apply directly online.</p>
     </div>
 </section>
 {% endblock %}
@@ -499,66 +448,37 @@
     </div>
 </main>
 
-<!-- ── Footer ────────────────────────────────────────────────────────────── -->
+<!-- Footer -->
 <footer>
-    <div class="pub-footer-main">
+    <div class="pub-footer">
         <div class="container">
             <div class="row g-4">
-                <!-- Brand column -->
                 <div class="col-lg-4 col-md-6">
                     <img src="{% static 'LOGO.png' %}" alt="MICEI" class="footer-logo">
-                    <p class="footer-tagline">
-                        Magrabi ICO Cameroon Eye Institute — Cameroon's premier subspecialty eye care centre. Promoting sight, improving life across Central Africa.
-                    </p>
-                    <div class="footer-social">
-                        <a href="https://www.micei.org" target="_blank" rel="noopener" title="Website"><i class="bi bi-globe2"></i></a>
-                        <a href="mailto:hr@micei.org" title="Email HR"><i class="bi bi-envelope-fill"></i></a>
-                        <a href="https://www.linkedin.com/company/micei" target="_blank" rel="noopener" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
-                        <a href="https://www.facebook.com/micei.org" target="_blank" rel="noopener" title="Facebook"><i class="bi bi-facebook"></i></a>
-                    </div>
+                    <p class="footer-tagline">Cameroon's premier subspecialty eye care centre — dedicated to restoring vision and improving lives across Central Africa.</p>
                 </div>
-
-                <!-- Quick links -->
                 <div class="col-lg-2 col-md-6 col-6">
-                    <h6>{% trans "Careers" %}</h6>
-                    <ul class="footer-link-list">
-                        <li><a href="{% url 'recruitment:job_board' %}"><i class="bi bi-chevron-right"></i>{% trans "All Openings" %}</a></li>
-                        <li><a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-chevron-right"></i>{% trans "About MICEI" %}</a></li>
-                        <li><a href="mailto:hr@micei.org"><i class="bi bi-chevron-right"></i>{% trans "Send your CV" %}</a></li>
+                    <h6>Careers</h6>
+                    <ul>
+                        <li><a href="{% url 'recruitment:job_board' %}">All Openings</a></li>
+                        <li><a href="mailto:hr@micei.org">Send Your CV</a></li>
                     </ul>
                 </div>
-
-                <!-- Specialties -->
                 <div class="col-lg-3 col-md-6 col-6">
-                    <h6>{% trans "Our Specialties" %}</h6>
-                    <ul class="footer-link-list">
-                        <li><a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-eye"></i>{% trans "General Ophthalmology" %}</a></li>
-                        <li><a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-eye"></i>{% trans "Cataract Surgery" %}</a></li>
-                        <li><a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-eye"></i>{% trans "Retina & Glaucoma" %}</a></li>
-                        <li><a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-eye"></i>{% trans "Pediatric Ophthalmology" %}</a></li>
-                        <li><a href="https://www.micei.org" target="_blank" rel="noopener"><i class="bi bi-eye"></i>{% trans "Cornea & Refractive" %}</a></li>
+                    <h6>Our Specialties</h6>
+                    <ul>
+                        <li><a href="#">General Ophthalmology</a></li>
+                        <li><a href="#">Cataract Surgery</a></li>
+                        <li><a href="#">Retina &amp; Glaucoma</a></li>
+                        <li><a href="#">Pediatric Eye Care</a></li>
+                        <li><a href="#">Cornea &amp; Refractive</a></li>
                     </ul>
                 </div>
-
-                <!-- Contact -->
                 <div class="col-lg-3 col-md-6">
-                    <h6>{% trans "Get in Touch" %}</h6>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <span>Obak Village, Road to Okola, Yaoundé — Centre Region, Cameroon</span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-telephone-fill"></i>
-                        <span><a href="tel:+237679993789">+237 679 993 789</a><br><a href="tel:+237679992543">+237 679 992 543</a></span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-envelope-fill"></i>
-                        <a href="mailto:hr@micei.org">hr@micei.org</a>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-globe2"></i>
-                        <a href="https://www.micei.org" target="_blank" rel="noopener">www.micei.org</a>
-                    </div>
+                    <h6>Get in Touch</h6>
+                    <div class="contact-item"><i class="bi bi-geo-alt-fill"></i><span>Obak Village, Road to Okola, Yaoundé, Cameroon</span></div>
+                    <div class="contact-item"><i class="bi bi-telephone-fill"></i><span><a href="tel:+237679993789">+237 679 993 789</a></span></div>
+                    <div class="contact-item"><i class="bi bi-envelope-fill"></i><a href="mailto:hr@micei.org">hr@micei.org</a></div>
                 </div>
             </div>
         </div>
@@ -566,7 +486,6 @@
     <div class="pub-footer-bottom">
         <div class="container">
             &copy; {% now "Y" %} Magrabi ICO Cameroon Eye Institute &nbsp;&middot;&nbsp;
-            <a href="https://www.micei.org" target="_blank" rel="noopener">micei.org</a> &nbsp;&middot;&nbsp;
             <a href="mailto:hr@micei.org">hr@micei.org</a>
         </div>
     </div>
