@@ -21,14 +21,6 @@
 .req-check i { font-size: .55rem; color: #fff; }
 .desc-content { white-space: pre-wrap; line-height: 1.85; color: #2d4a5a; font-size: .9rem; }
 @media (min-width: 992px) { .sticky-sidebar { position: sticky; top: 90px; } }
-.share-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    border: 1.5px solid var(--border); border-radius: 9px;
-    background: #fff; color: var(--sub); font-size: .77rem;
-    font-weight: 600; padding: .38rem .9rem;
-    text-decoration: none; transition: all .16s;
-}
-.share-btn:hover { border-color: var(--accent); color: var(--accent2); }
 .about-micei-card {
     background: linear-gradient(135deg, #073d54, #0a6580);
     border-radius: 14px; padding: 1.6rem 1.4rem; color: rgba(255,255,255,.78);
@@ -45,9 +37,6 @@
 
 {% block hero %}
 <section class="pub-hero" style="padding:2.6rem 0 2.4rem;">
-    <div class="hero-ring-spin"  style="position:absolute;top:-50px;right:-50px;width:280px;height:280px;border-radius:50%;border:38px solid rgba(255,255,255,.07);pointer-events:none;"></div>
-    <div class="hero-ring-float" style="position:absolute;bottom:-60px;right:16%;width:190px;height:190px;border-radius:50%;border:24px solid rgba(255,255,255,.05);pointer-events:none;"></div>
-
     <div class="container hero-inner">
         <p class="hero-eyebrow">
             <a href="{% url 'recruitment:job_board' %}" style="color:rgba(255,255,255,.5);text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
@@ -121,8 +110,7 @@
         <div class="sticky-sidebar">
 
             <!-- Quick Apply CTA -->
-            <div class="card mb-3" style="overflow:hidden;">
-                <div style="height:4px;background:linear-gradient(90deg,#0A4D68,#2db4c3);"></div>
+            <div class="card mb-3">
                 <div class="card-body p-4">
                     <a href="{% url 'recruitment:apply' posting.pk %}" class="btn-primary-pub d-flex justify-content-center mb-3">
                         <i class="bi bi-send-fill"></i>{% trans "Apply Now" %}
@@ -190,27 +178,6 @@
                                 <p class="fw-semibold mb-0" style="font-size:.87rem;color:#0A4D68;">{{ posting.created_at|date:"d M Y" }}</p>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Share -->
-            <div class="card mb-3">
-                <div class="card-body p-3">
-                    <p class="section-label mb-2">{% trans "Share This Role" %}</p>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}"
-                           target="_blank" rel="noopener" class="share-btn">
-                            <i class="bi bi-linkedin" style="color:#0a66c2;"></i>LinkedIn
-                        </a>
-                        <a href="https://wa.me/?text={{ posting.title|urlencode }}%20at%20MICEI%20%E2%80%94%20{{ request.build_absolute_uri|urlencode }}"
-                           target="_blank" rel="noopener" class="share-btn">
-                            <i class="bi bi-whatsapp" style="color:#25d366;"></i>WhatsApp
-                        </a>
-                        <a href="mailto:?subject={{ posting.title|urlencode }}%20-%20MICEI&body={{ request.build_absolute_uri|urlencode }}"
-                           class="share-btn">
-                            <i class="bi bi-envelope" style="color:#2db4c3;"></i>Email
-                        </a>
                     </div>
                 </div>
             </div>
