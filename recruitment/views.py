@@ -7,6 +7,7 @@ import requests as http_requests
 from django.core.files.storage import default_storage
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
@@ -230,6 +231,7 @@ def _is_hr_or_admin(user):
 
 # ─── Public views (no login required) ─────────────────────────────────────────
 
+@never_cache
 def job_board(request):
     """Public job board: list all open postings."""
     postings = list(JobPosting.objects.filter(status=JobPosting.STATUS_OPEN).select_related('department'))
@@ -244,12 +246,14 @@ def job_board(request):
     })
 
 
+@never_cache
 def job_detail(request, pk):
     """Public: view job description."""
     posting = get_object_or_404(JobPosting, pk=pk, status=JobPosting.STATUS_OPEN)
     return render(request, 'recruitment/job_detail.html', {'posting': posting})
 
 
+@never_cache
 def apply(request, pk):
     """Public: submit an application for a job posting."""
     posting = get_object_or_404(JobPosting, pk=pk, status=JobPosting.STATUS_OPEN)
@@ -364,11 +368,13 @@ def apply(request, pk):
     })
 
 
+@never_cache
 def apply_success(request, pk):
     posting = get_object_or_404(JobPosting, pk=pk)
     return render(request, 'recruitment/apply_success.html', {'posting': posting})
 
 
+@never_cache
 def check_status(request):
     """Public: applicant can look up their application status by email."""
     applications = []
