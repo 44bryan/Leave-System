@@ -324,10 +324,34 @@
         <a href="{% url 'recruitment:job_board' %}">
             <img src="{% static 'LOGO.png' %}" alt="Magrabi ICO Cameroon Eye Institute" class="logo">
         </a>
-        <a href="{% url 'recruitment:job_board' %}" class="nav-link-right">
-            <i class="bi bi-briefcase"></i>
-            <span class="d-none d-sm-inline">Open Positions</span>
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            <!-- Language switcher -->
+            <div class="dropdown">
+                <button class="btn btn-sm d-flex align-items-center gap-1" style="border:1.5px solid var(--border);border-radius:8px;font-size:.78rem;font-weight:600;color:var(--primary);background:#fff;padding:.3rem .75rem;" data-bs-toggle="dropdown">
+                    {% get_current_language as CURRENT_LANG %}
+                    {% if CURRENT_LANG == 'fr' %}🇫🇷 FR{% else %}🇬🇧 EN{% endif %}
+                    <i class="bi bi-chevron-down" style="font-size:.6rem;"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" style="min-width:130px;font-size:.82rem;">
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                            {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" name="language" value="en" class="dropdown-item {% if CURRENT_LANG == 'en' %}fw-bold{% endif %}">🇬🇧 English</button>
+                        </form>
+                    </li>
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                            {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" name="language" value="fr" class="dropdown-item {% if CURRENT_LANG == 'fr' %}fw-bold{% endif %}">🇫🇷 Français</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <a href="{% url 'recruitment:job_board' %}" class="nav-link-right">
+                <i class="bi bi-briefcase"></i>
+                <span class="d-none d-sm-inline">{% trans "Open Positions" %}</span>
+            </a>
+        </div>
     </div>
 </nav>
 
