@@ -77,7 +77,8 @@
             justify-content: space-between;
             gap: 20px;
         }
-        .doc-logo-box img { height: 72px; width: auto; display: block; background: white; mix-blend-mode: multiply; }
+        .doc-logo-box { background: white; padding: 4px; border-radius: 4px; }
+        .doc-logo-box img { height: 72px; width: auto; display: block; }
 
         .doc-title-band {
             background: #e0f7fa;
@@ -156,9 +157,10 @@
             padding: 14px 40px; text-align: center; font-size: 0.7rem; color: #9ab4c0;
         }
 
-        @page { margin: 1cm; size: A4 portrait; }
+        /* @page margin:0 suppresses browser-generated date/time/URL/title lines */
+        @page { margin: 0; size: A4 portrait; }
         @media print {
-            body { background: white; padding: 0; display: block; align-items: unset; min-height: unset; font-size: 0.82rem; }
+            body { background: white; padding: 8mm 0 0; display: block; align-items: unset; min-height: unset; font-size: 0.82rem; }
             .print-bar { display: none; }
             .document { box-shadow: none; border-radius: 0; max-width: 100%; width: 100%; }
             .doc-header { padding: 14px 24px 12px; }
@@ -194,20 +196,21 @@
 
 <div class="document">
 
-    <!-- Header: logo + ref/date -->
+    <!-- Header: logo only -->
     <div class="doc-header">
         <div class="doc-logo-box">
             <img src="{% static 'LOGO.png' %}" alt="Magrabi Co Cameroon Eye Institute">
         </div>
-        <div style="text-align:right;font-size:0.78rem;color:#6b7a8d;line-height:1.8;">
-            <div><strong style="color:#0d1b2a;">Ref:</strong> MSL-{{ sl.pk|stringformat:"04d" }}</div>
-            <div><strong style="color:#0d1b2a;">Date of Issuance:</strong> {{ sl.date_of_issuance|date:"d F Y" }}</div>
-        </div>
     </div>
 
-    <!-- Title band -->
+    <!-- Title band + ref/date below it -->
     <div class="doc-title-band">
         <h2>Medical Sick Leave</h2>
+        <p style="font-size:0.78rem;color:#5a7a8d;margin-top:6px;">
+            <strong style="color:#0d1b2a;">Ref:</strong> MSL-{{ sl.pk|stringformat:"04d" }}
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            <strong style="color:#0d1b2a;">Date of Issuance:</strong> {{ sl.date_of_issuance|date:"d F Y" }}
+        </p>
     </div>
 
     <div class="doc-body">
