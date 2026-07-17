@@ -5,7 +5,15 @@
       "Bash(python manage.py shell -c \"from leaves.models import LeaveType; [print\\(lt.id, repr\\(lt.name\\), lt.is_deductible\\) for lt in LeaveType.objects.all\\(\\)]\")",
       "PowerShell($cred = [System.Net.NetworkCredential]::new\\(\"\", \\(Get-StoredCredential -Target \"git:https://github.com\" -AsCredentialObject\\).Password\\); $cred.Password)",
       "Bash(git credential *)",
-      "Bash(python3 -c \"import nacl; print\\('ok'\\)\")"
+      "Bash(python3 -c \"import nacl; print\\('ok'\\)\")",
+      "Bash(py -c \":*)",
+      "Bash(git add templates/base_public.html)",
+      "Bash(git add recruitment/views.py)",
+      "Bash(python -c \":*)",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe -c \":*)",
+      "Bash(git add templates/base_public.html recruitment/templates/recruitment/job_detail.html)",
+      "WebFetch(domain:www.micei.org)",
+      "Bash(git add recruitment/templates/recruitment/job_board.html recruitment/templates/recruitment/job_detail.html)"
     ]
   }
 }
