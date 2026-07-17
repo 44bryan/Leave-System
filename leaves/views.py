@@ -1704,10 +1704,15 @@ def seek_consultation(request, leave_pk):
             messages.success(request, f"Guidance request sent privately to {consulted.get_full_name()}.")
             return redirect('leaves:detail', pk=leave_pk)
 
+    import json as _json
     existing = LeaveConsultation.objects.filter(leave_request=leave, requested_by=employee)
+    candidates_json = _json.dumps([
+        {'id': e.pk, 'name': e.get_full_name(), 'role': e.get_role_display()}
+        for e in candidates
+    ])
     return render(request, 'leaves/seek_consultation.html', {
         'leave': leave,
-        'candidates': candidates,
+        'candidates_json': candidates_json,
         'existing': existing,
     })
 

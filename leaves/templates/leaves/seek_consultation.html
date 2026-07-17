@@ -52,12 +52,18 @@
 
         <div class="mb-4">
           <label class="form-label fw-semibold">Ask guidance from <span class="text-danger">*</span></label>
-          <select name="consulted_with" class="form-select" required>
-            <option value="">— Select a person —</option>
-            {% for emp in candidates %}
-            <option value="{{ emp.pk }}">{{ emp.get_full_name }} ({{ emp.get_role_display }})</option>
-            {% endfor %}
-          </select>
+          <script>window.CONSULT_CANDIDATES = {{ candidates_json|safe }};</script>
+          <div class="emp-ajax-wrap">
+            <input type="text" class="form-control emp-ajax-input" placeholder="Type name to search…" autocomplete="off">
+            <div class="emp-ajax-dropdown"></div>
+            <input type="hidden" name="consulted_with" class="emp-ajax-value" required>
+            <div class="emp-ajax-selected mt-1" style="display:none;font-size:.85rem;color:#0A4D68;">
+              <i class="bi bi-person-check me-1"></i>
+              <span class="emp-ajax-name"></span>
+              <a href="#" class="emp-ajax-clear ms-2 text-danger" style="font-size:.78rem;">Change</a>
+            </div>
+          </div>
+          <div class="form-text">Start typing the person's name to search.</div>
         </div>
 
         <div class="mb-4">
@@ -102,4 +108,76 @@
   </div>
 </div>
 </div>
+
+{% block extra_js %}
+<script>
+(function () {
+    var wrap    = document.querySelector('.emp-ajax-wrap');
+    if (!wrap) return;
+    var input    = wrap.querySelector('.emp-ajax-input');
+    var dropdown = wrap.querySelector('.emp-ajax-dropdown');
+    var hidden   = wrap.querySelector('.emp-ajax-value');
+    var selDiv   = wrap.querySelector('.emp-ajax-selected');
+    var selName  = wrap.querySelector('.emp-ajax-name');
+    var clearBtn = wrap.querySelector('.emp-ajax-clear');
+
+    function filter(q) {
+        var list = window.CONSULT_CANDIDATES || [];
+        q = q.toLowerCase();
+        return list.filter(function (e) {
+            return e.name.toLowerCase().indexOf(q) !== -1 ||
+                   e.role.toLowerCase().indexOf(q) !== -1;
+        }).slice(0, 12);
+    }
+
+    function showDropdown(results) {
+        dropdown.innerHTML = '';
+        if (!results.length) {
+            var empty = document.createElement('div');
+            empty.className = 'emp-ajax-empty';
+            empty.textContent = 'No results found.';
+            dropdown.appendChild(empty);
+        } else {
+            results.forEach(function (r) {
+                var item = document.createElement('div');
+                item.className = 'emp-ajax-item';
+                item.innerHTML = '<strong>' + r.name + '</strong> <span style="font-size:.78rem;color:#9ab4c0;">· ' + r.role + '</span>';
+                function pick(e) {
+                    e.preventDefault();
+                    hidden.value = r.id;
+                    input.style.display = 'none';
+                    dropdown.classList.remove('open');
+                    selName.textContent = r.name + ' (' + r.role + ')';
+                    selDiv.style.display = '';
+                }
+                item.addEventListener('mousedown', pick);
+                item.addEventListener('touchstart', pick, {passive: false});
+                dropdown.appendChild(item);
+            });
+        }
+        dropdown.classList.add('open');
+    }
+
+    input.addEventListener('input', function () {
+        var q = this.value.trim();
+        if (q.length < 2) { dropdown.classList.remove('open'); return; }
+        showDropdown(filter(q));
+    });
+    input.addEventListener('blur', function () {
+        setTimeout(function () { dropdown.classList.remove('open'); }, 200);
+    });
+    input.addEventListener('focus', function () {
+        if (this.value.trim().length >= 2) dropdown.classList.add('open');
+    });
+    clearBtn && clearBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        hidden.value = '';
+        input.value = '';
+        input.style.display = '';
+        input.focus();
+        selDiv.style.display = 'none';
+    });
+})();
+</script>
+{% endblock %}
 {% endblock %}
