@@ -5,7 +5,7 @@
 {% block page_subtitle %}{{ target.get_full_name }} · {{ target.employee_id }}{% endblock %}
 
 {% block topbar_actions %}
-<a href="{% url 'accounts:health_insurance_pdf' target.pk %}" class="btn btn-sm" style="background:#0A4D68;color:#fff;" target="_blank">
+<a href="{% url 'accounts:health_insurance_pdf' target.pk %}" class="btn btn-sm" target="_blank">
     <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Individual PDF" %}
 </a>
 <div class="dropdown">
@@ -157,7 +157,7 @@
             </div>
 
             <div class="d-flex gap-2 mt-3">
-                <button type="submit" class="btn" style="background:#0A4D68;color:#fff;">
+                <button type="submit" class="btn">
                     <i class="bi bi-check-circle me-1"></i>{% trans "Save Health Insurance Data" %}
                 </button>
                 <a href="{% url 'accounts:employee_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>

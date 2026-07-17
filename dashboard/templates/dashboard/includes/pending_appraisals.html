@@ -38,7 +38,7 @@
                         {% if rec.status == 'employee' and rec.employee == employee %}
                             <span class="badge bg-warning text-dark">{% trans "Fill Self-Assessment" %}</span>
                         {% elif rec.status == 'unit_head' %}
-                            <span class="badge" style="background:#0A4D68;color:#fff;">{% trans "Supervisor Comment" %}</span>
+                            <span class="badge">{% trans "Supervisor Comment" %}</span>
                         {% elif rec.status == 'manager' %}
                             <span class="badge bg-primary">{% trans "Manager Rating & Grades" %}</span>
                         {% elif rec.status == 'hr' %}
