@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -244,7 +245,6 @@ def submit_leave(request):
                     pass
                 return redirect('leaves:my_requests')
 
-    import json
     leave_types = LeaveType.objects.filter(is_active=True).values('id', 'is_deductible')
     deductible_map = json.dumps({str(lt['id']): lt['is_deductible'] for lt in leave_types})
 
@@ -1013,7 +1013,6 @@ def leave_edit(request, pk):
                            notification_type='leave_submitted', url=detail_url)
                 return redirect('leaves:detail', pk=pk)
 
-    import json
     leave_types = LeaveType.objects.filter(is_active=True).values('id', 'is_deductible')
     deductible_map = json.dumps({str(lt['id']): lt['is_deductible'] for lt in leave_types})
 

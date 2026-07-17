@@ -80,7 +80,7 @@
                         <span style="color:#059669;font-size:.75rem;font-weight:600;">{% trans "Does not affect appraisal score" %}</span>
                         {% else %}
                         <i class="bi bi-person me-1"></i>
-                        {% trans "By" %} {{ notice.issued_by.get_full_name|default:notice.issued_by.username }}
+                        {% trans "By" %} {% if notice.issued_by %}{{ notice.issued_by.get_full_name|default:notice.issued_by.username }}{% else %}—{% endif %}
                         {% endif %}
                     </div>
                     <div style="font-size:.88rem;color:#0d1b2a;">{{ notice.reason }}</div>

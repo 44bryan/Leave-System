@@ -60,7 +60,7 @@
                         <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;opacity:.8;">{% trans "Pending HR Execution — Proposal" %}</div>
                         <div style="font-size:1.05rem;font-weight:800;">{{ record.get_action_type_display }}</div>
                         <div style="font-size:0.82rem;opacity:0.85;">
-                            {% blocktrans with name=record.issued_by.get_full_name|default:record.issued_by.username date=record.date_issued|date:"d F Y" %}Proposed by {{ name }} on {{ date }}{% endblocktrans %}
+                            {% with name=record.issued_by.get_full_name|default:"Unknown" %}{% blocktrans with date=record.date_issued|date:"d F Y" %}Proposed by {{ name }} on {{ date }}{% endblocktrans %}{% endwith %}
                         </div>
                     </div>
                     {% if request.user.is_superuser or request.user.employee.is_hr %}
@@ -169,7 +169,7 @@
                                 {% if record.is_system_generated %}
                                 <span style="color:#0A4D68;font-weight:600;"><i class="bi bi-robot me-1"></i>AEF HRM System</span>
                                 {% else %}
-                                {{ record.issued_by.get_full_name|default:record.issued_by.username }}
+                                {% if record.issued_by %}{{ record.issued_by.get_full_name|default:record.issued_by.username }}{% else %}—{% endif %}
                                 {% endif %}
                             </div>
                         </div>

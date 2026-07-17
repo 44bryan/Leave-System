@@ -185,7 +185,7 @@
                     </div>
                     <div class="col-sm-6">
                         <div style="font-size:.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:.06em;">{% trans "Issued By" %}</div>
-                        <div class="mt-1" style="font-size:.875rem;">{{ contract.created_by.get_full_name|default:contract.created_by.username|default:"HR Department" }}</div>
+                        <div class="mt-1" style="font-size:.875rem;">{% if contract.created_by %}{{ contract.created_by.get_full_name|default:contract.created_by.username }}{% else %}HR Department{% endif %}</div>
                     </div>
                 </div>
             </div>

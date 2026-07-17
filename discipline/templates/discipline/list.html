@@ -118,7 +118,7 @@
                             </span>
                         </td>
                         <td><div class="disc-reason-preview" title="{{ prop.reason }}">{{ prop.reason|truncatechars:70 }}</div></td>
-                        <td style="font-size:.82rem;">{{ prop.issued_by.get_full_name|default:prop.issued_by.username }}</td>
+                        <td style="font-size:.82rem;">{% if prop.issued_by %}{{ prop.issued_by.get_full_name|default:prop.issued_by.username }}{% else %}—{% endif %}</td>
                         <td style="white-space:nowrap;font-size:.82rem;">{{ prop.date_issued|date:"d M Y" }}</td>
                         <td>
                             <a href="{% url 'discipline:detail' prop.pk %}" class="btn btn-sm btn-outline-primary">
@@ -306,7 +306,7 @@
                                 <i class="bi bi-robot me-1"></i>AEF HRM System
                             </span>
                             {% else %}
-                            {{ record.issued_by.get_full_name|default:record.issued_by.username }}
+                            {% if record.issued_by %}{{ record.issued_by.get_full_name|default:record.issued_by.username }}{% else %}—{% endif %}
                             {% endif %}
                         </td>
                         <td style="font-size:.82rem;">{{ record.employee.department|default:"—" }}</td>
