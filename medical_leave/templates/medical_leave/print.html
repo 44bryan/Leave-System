@@ -194,10 +194,14 @@
 
 <div class="document">
 
-    <!-- Header: logo only -->
+    <!-- Header: logo + ref/date -->
     <div class="doc-header">
         <div class="doc-logo-box">
             <img src="{% static 'LOGO.png' %}" alt="Magrabi Co Cameroon Eye Institute">
+        </div>
+        <div style="text-align:right;font-size:0.78rem;color:#6b7a8d;line-height:1.8;">
+            <div><strong style="color:#0d1b2a;">Ref:</strong> MSL-{{ sl.pk|stringformat:"04d" }}</div>
+            <div><strong style="color:#0d1b2a;">Date of Issuance:</strong> {{ sl.date_of_issuance|date:"d F Y" }}</div>
         </div>
     </div>
 
@@ -263,7 +267,6 @@
                 <div class="sig-title">Internal Medicine Specialist</div>
                 <div class="sig-date">{{ sl.date_of_issuance|date:"d M Y" }}</div>
             </div>
-            <div class="sig-label">Physician's Signature</div>
         </div>
 
         <div class="sig-section">
@@ -310,7 +313,7 @@
     </div>
 
     <div class="doc-footer">
-        Internal Medicine Department &nbsp;&bull;&nbsp; Medical Sick Leave Certificate &nbsp;&bull;&nbsp; Confidential &nbsp;&bull;&nbsp; MSL-{{ sl.pk|stringformat:"04d" }}
+        &nbsp;
     </div>
 
 </div>
