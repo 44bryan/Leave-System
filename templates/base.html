@@ -2101,7 +2101,7 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
                     var item = document.createElement('div');
                     item.className = 'emp-ajax-item';
                     item.textContent = r.label;
-                    item.addEventListener('mousedown', function (e) {
+                    function pickItem(e) {
                         e.preventDefault();
                         hidden.value = r.id;
                         input.style.display = 'none';
@@ -2110,7 +2110,9 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
                             selName.textContent = r.label;
                             selDiv.style.display = '';
                         }
-                    });
+                    }
+                    item.addEventListener('mousedown', pickItem);
+                    item.addEventListener('touchstart', pickItem, {passive: false});
                     dropdown.appendChild(item);
                 });
             }

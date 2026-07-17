@@ -426,10 +426,9 @@ updateDays();
                 item.innerHTML = '<span style="font-weight:600;color:#0A4D68;">' + emp.name + '</span>' +
                     (emp.dept ? ' <span style="color:#9ab4c0;font-size:.75rem;"> · ' + emp.dept + '</span>' : '') +
                     (emp.unavailable ? ' <span style="font-size:.72rem;color:#d97706;margin-left:6px;">On Leave</span>' : '');
-                item.addEventListener('mousedown', function (e) {
-                    e.preventDefault();
-                    selectEmployee(emp);
-                });
+                function pickEmp(e) { e.preventDefault(); selectEmployee(emp); }
+                item.addEventListener('mousedown', pickEmp);
+                item.addEventListener('touchstart', pickEmp, {passive: false});
                 item.addEventListener('mouseover', function () { this.style.background = '#eff6ff'; });
                 item.addEventListener('mouseout',  function () { this.style.background = ''; });
                 dropdown.appendChild(item);
