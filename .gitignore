@@ -21,6 +21,12 @@ staticfiles/
 .DS_Store
 Thumbs.db
 
+# Temp Office files
+~$*.xlsx
+~$*.docx
+~$*.xls
+~$*.doc
+
 # IDE
 .vscode/
 .idea/
