@@ -285,7 +285,10 @@ const memberRemain = [{% for tb in team_balances %}{{ tb.balance.remaining_days 
 
 // ── Team Leave Usage — Horizontal Bar ─────────────────────────────────────────
 const barColors = memberUsage.map(u => u >= 90 ? '#dc2626' : u >= 70 ? '#d97706' : '#088395');
-new Chart(document.getElementById('teamRadarChart'), {
+// Set height BEFORE creating chart (required for maintainAspectRatio: false)
+const radarCanvas = document.getElementById('teamRadarChart');
+radarCanvas.style.height = Math.max(160, memberNames.length * 34) + 'px';
+new Chart(radarCanvas, {
     type: 'bar',
     data: {
         labels: memberNames,
@@ -296,7 +299,6 @@ new Chart(document.getElementById('teamRadarChart'), {
             borderColor: barColors,
             borderWidth: 2,
             borderRadius: 6,
-            borderSkipped: false,
         }]
     },
     options: {
@@ -313,8 +315,6 @@ new Chart(document.getElementById('teamRadarChart'), {
         }
     }
 });
-// Dynamically size canvas height based on number of members
-document.getElementById('teamRadarChart').style.height = Math.max(160, memberNames.length * 34) + 'px';
 
 // ── Team Attendance Donut ──────────────────────────────────────────────────────
 const mgrTeamTotal = {{ subordinates|length }};
