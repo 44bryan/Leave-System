@@ -137,34 +137,47 @@
         /* Logged-in user chip */
         .user-chip {
             height: 40px;
-            width: 40px;
-            padding: 0;
+            width: auto;
+            padding: 0 12px 0 6px;
             border-radius: 10px;
-            border: 1.5px solid #cde8ef;
-            background: white;
+            border: 2px solid #f59e0b;
+            background: #fffbeb;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
             cursor: default;
         }
         .user-chip-avatar {
-            width: 26px; height: 26px;
+            width: 28px; height: 28px;
             border-radius: 7px;
-            background: linear-gradient(135deg, #2db4c3, #0da8c0);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
             font-weight: 800;
             font-size: 0.7rem;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
+        .user-chip-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
         .user-chip-name {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #0d1b2a;
-            max-width: 130px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #92400e;
+            max-width: 140px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        .user-chip-role {
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: #b45309;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
         }
 
         /* Settings button */
@@ -1028,6 +1041,11 @@
 
         <!-- Mobile: language + search (notifications are in the page topbar below) -->
         <div class="d-flex align-items-center gap-2 d-lg-none">
+            <!-- Mobile "who am I" chip -->
+            <div class="user-chip" style="padding:0 8px 0 5px;gap:5px;border-radius:8px;" title="Logged in as {{ user.get_full_name }}">
+                <div class="user-chip-avatar" style="width:24px;height:24px;font-size:.62rem;border-radius:5px;">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+                <span style="font-size:.72rem;font-weight:700;color:#92400e;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;">{{ user.first_name }}</span>
+            </div>
             <!-- Mobile language toggle -->
             <div class="dropdown">
                 <button class="mobile-search-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
@@ -1087,14 +1105,22 @@
                 </ul>
             </div>
 
-            <!-- Logged-in user chip -->
-            <div class="user-chip">
+            <!-- Logged-in user chip — always visible so you never lose track of which account is active -->
+            <div class="user-chip" title="You are currently logged in as {{ user.get_full_name }}">
                 <div class="user-chip-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
-                {% if user.employee.acting_role %}
-                <span style="font-size:.65rem;font-weight:700;color:#f59e0b;letter-spacing:.04em;text-transform:uppercase;">
-                    <i class="bi bi-person-badge-fill"></i> Acting {{ user.employee.acting_role|title|cut:"_" }}
-                </span>
-                {% endif %}
+                <div class="user-chip-info">
+                    <span class="user-chip-name">{{ user.get_full_name|default:user.username }}</span>
+                    <span class="user-chip-role">
+                        {% if user.is_superuser %}Admin
+                        {% elif user.employee.role == 'hr' %}HR Officer
+                        {% elif user.employee.role == 'director' %}Director
+                        {% elif user.employee.role == 'manager' %}Manager
+                        {% elif user.employee.role == 'ceo' %}CEO
+                        {% elif user.employee.role == 'doctor' %}Doctor
+                        {% else %}Staff{% endif %}
+                        {% if user.employee.acting_role %} · Acting{% endif %}
+                    </span>
+                </div>
             </div>
 
             <!-- Settings dropdown -->
