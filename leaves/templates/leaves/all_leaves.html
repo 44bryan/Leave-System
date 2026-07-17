@@ -62,7 +62,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-list-ul me-2"></i>{{ leave_requests|length }} Record(s)</span>
         {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
-        <a href="{% url 'dashboard:export_leaves' %}?year={{ year_filter }}&department={{ dept_filter }}&employee={{ emp_filter }}" class="btn btn-sm btn-primary" title="Download exactly what you see as PDF">
+        <a href="{% url 'dashboard:export_leaves' %}?year={{ year_filter }}&department={{ dept_filter }}&employee={{ emp_filter }}&status={{ status_filter }}" class="btn btn-sm btn-primary" title="Download exactly what you see as PDF">
             <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download PDF" %}
         </a>
         {% endif %}

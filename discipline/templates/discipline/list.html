@@ -215,7 +215,7 @@
                 <span class="badge bg-secondary ms-2">{{ records|length }}</span>
             </span>
             {% if is_privileged %}
-            <a href="{% url 'dashboard:export_discipline' %}?department={{ dept_filter }}&type={{ type_filter }}" class="btn btn-sm btn-primary" title="{% trans 'Download PDF' %}">
+            <a href="{% url 'dashboard:export_discipline' %}?department={{ dept_filter }}&type={{ type_filter }}&employee={{ emp_filter }}" class="btn btn-sm btn-primary" title="{% trans 'Download PDF' %}">
                 <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download PDF" %}
             </a>
             {% endif %}

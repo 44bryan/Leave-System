@@ -163,11 +163,11 @@ def generate_contract_pdf(contract):
     title = title_map.get(contract.contract_type, "EMPLOYMENT CONTRACT")
     c.drawCentredString(W / 2, y, title)
 
-    if contract.contract_number:
-        y -= 7*mm
-        c.setFont("Helvetica", 9)
-        c.setFillColorRGB(*_LABEL)
-        c.drawCentredString(W / 2, y, f"Ref: {contract.contract_number}")
+    ref = contract.contract_number or f"CON-{contract.pk:04d}"
+    y -= 7*mm
+    c.setFont("Helvetica", 9)
+    c.setFillColorRGB(*_LABEL)
+    c.drawCentredString(W / 2, y, f"Ref: {ref}")
 
     y -= 10*mm
 

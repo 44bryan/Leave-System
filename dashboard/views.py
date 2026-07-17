@@ -1531,12 +1531,16 @@ def export_leaves_excel(request):
         year = int(request.GET.get('year', date.today().year))
     except (ValueError, TypeError):
         year = date.today().year
-    dept_id = request.GET.get('department', '')
-    emp_id = request.GET.get('employee', '')
+    dept_id       = request.GET.get('department', '')
+    emp_id        = request.GET.get('employee', '')
+    status_filter = request.GET.get('status', '')
 
     records = LeaveRequest.objects.filter(
         start_date__year=year
     ).select_related('employee__user', 'employee__department', 'leave_type').order_by('-start_date')
+
+    if status_filter:
+        records = records.filter(status=status_filter)
 
     # Apply filters
     filter_label = f'Year {year}'
@@ -1619,13 +1623,32 @@ def export_contracts_excel(request):
     from contracts.models import Contract
     import io
 
-    contract_type = request.GET.get('type', '')   # '', 'EMPLOYEE', 'INTERN', 'WACS'
-    dept_id       = request.GET.get('department', '')
-    emp_id        = request.GET.get('employee', '')
+    contract_type   = request.GET.get('type', '')
+    dept_id         = request.GET.get('department', '')
+    emp_id          = request.GET.get('employee', '')
+    status_filter   = request.GET.get('status', '')
+    expiring_filter = request.GET.get('expiring', '')
 
-    qs = Contract.objects.filter(status='active').select_related(
+    qs = Contract.objects.select_related(
         'employee__user', 'employee__department'
     ).order_by('employee__user__last_name')
+
+    if status_filter == 'expired':
+        qs = qs.filter(status__in=['expired', 'active'], end_date__lt=date.today())
+    elif status_filter in ('terminated', 'renewed'):
+        qs = qs.filter(status=status_filter)
+    elif expiring_filter == '30':
+        from django.utils.timezone import now
+        from datetime import timedelta
+        cutoff = date.today() + timedelta(days=30)
+        qs = qs.filter(status='active', end_date__isnull=False, end_date__lte=cutoff, end_date__gte=date.today())
+    elif expiring_filter == '60':
+        from django.utils.timezone import now
+        from datetime import timedelta
+        cutoff = date.today() + timedelta(days=60)
+        qs = qs.filter(status='active', end_date__isnull=False, end_date__lte=cutoff, end_date__gte=date.today())
+    else:
+        qs = qs.filter(status='active')
 
     type_label_map = {
         'EMPLOYEE': 'Employees (CDI / CDD)',
@@ -1679,7 +1702,7 @@ def export_contracts_excel(request):
             c.start_date.strftime('%d/%m/%Y'),
             c.end_date.strftime('%d/%m/%Y') if c.end_date else 'Open-ended',
             str(days_left) if days_left is not None else '—',
-            c.contract_number or '—',
+            c.contract_number or f'CON-{c.pk:04d}',
         ])
 
     col_widths = [8*mm, 45*mm, 25*mm, 40*mm, 18*mm, 25*mm, 25*mm, 18*mm, 30*mm]

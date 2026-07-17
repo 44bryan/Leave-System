@@ -136,7 +136,7 @@
             <span class="badge bg-secondary ms-2">{{ contracts|length }}</span>
         </span>
         {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
-        <a href="{% url 'dashboard:export_contracts' %}?type={{ filter_type }}&department={{ filter_dept }}&employee={{ filter_emp }}" class="btn btn-sm btn-primary" title="{% trans 'Download exactly what you see as PDF' %}">
+        <a href="{% url 'dashboard:export_contracts' %}?type={{ filter_type }}&department={{ filter_dept }}&employee={{ filter_emp }}&status={{ filter_status }}&expiring={{ filter_expiring }}" class="btn btn-sm btn-primary" title="{% trans 'Download exactly what you see as PDF' %}">
             <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download PDF" %}
         </a>
         {% endif %}
