@@ -1977,6 +1977,9 @@ if (typeof Chart !== 'undefined') {
     Chart.defaults.font.size   = 12;
 }
 </script>
+<!-- ── Global Employee Picker data — must load BEFORE extra_js blocks ── -->
+<script>window.ALL_EMPLOYEES = {{ all_employees_json|safe }};</script>
+
 {% block extra_js %}{% endblock %}
 
 <!-- ── Collapsible Info Hints ────────────────────────────────────────── -->
@@ -2049,7 +2052,6 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
 </script>
 
 <!-- ── Global Employee Picker (client-side, no AJAX) ─────────────────── -->
-<script>window.ALL_EMPLOYEES = {{ all_employees_json|safe }};</script>
 <style>
 .emp-ajax-wrap { position:relative; }
 .emp-ajax-dropdown {

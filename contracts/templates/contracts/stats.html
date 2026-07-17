@@ -259,7 +259,7 @@
 <div class="row g-4 mb-4">
     <div class="col-12">
         <div class="card animate-in">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-clock-history me-2" ></i>{% trans "Years of Service Breakdown" %}</div>
+            <div class="card-header"><i class="bi bi-clock-history me-2" ></i>{% trans "Years of Service Breakdown" %}</div>
             <div class="card-body p-4">
                 <div class="row g-3">
                 {% for s in service_dist %}
@@ -288,7 +288,7 @@
     <!-- Age Pyramid -->
     <div class="col-lg-6">
         <div class="card h-100 animate-in">
-            <div class="card-header" style="background:#2db4c3;color:#fff;">
+            <div class="card-header">
                 <i class="bi bi-bar-chart-fill me-2" ></i>
                 {% trans "Age Distribution" %}
                 {% if avg_age %}<small class="text-muted fw-normal ms-2">{% blocktrans with a=avg_age %}Avg: {{ a }} yrs{% endblocktrans %}</small>{% endif %}
@@ -317,7 +317,7 @@
     <!-- Department Breakdown -->
     <div class="col-lg-6">
         <div class="card h-100 animate-in">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-building me-2" ></i>{% trans "Contracts by Department" %}</div>
+            <div class="card-header"><i class="bi bi-building me-2" ></i>{% trans "Contracts by Department" %}</div>
             <div class="table-responsive">
                 <table class="table mb-0">
                     <thead>
@@ -365,7 +365,7 @@
     <!-- Long Service Hall of Fame -->
     <div class="col-lg-6">
         <div class="card animate-in">
-            <div class="card-header" style="background:#2db4c3;color:#fff;">
+            <div class="card-header">
                 <i class="bi bi-trophy-fill me-2" ></i>{% trans "Longest-Serving Staff (CDI)" %}
             </div>
             {% if long_service %}
@@ -401,7 +401,7 @@
     <!-- Recent Contract Activity -->
     <div class="col-lg-6">
         <div class="card animate-in">
-            <div class="card-header" style="background:#2db4c3;color:#fff;"><i class="bi bi-activity me-2" ></i>{% trans "Recent Contract Activity" %}</div>
+            <div class="card-header"><i class="bi bi-activity me-2" ></i>{% trans "Recent Contract Activity" %}</div>
             <div class="list-group list-group-flush">
                 {% for c in recent_activity %}
                 <div class="list-group-item px-4 py-2">

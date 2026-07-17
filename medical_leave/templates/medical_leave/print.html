@@ -268,7 +268,9 @@
             <img src="{{ sl.issued_by.signature_b64 }}" alt="Physician Signature"
                  style="max-height:60px;max-width:200px;display:block;margin:0 auto 4px;">
             {% else %}
-            <div class="sig-space"></div>
+            <div class="sig-space" style="height:44px;display:flex;align-items:center;justify-content:center;">
+                <span style="font-size:0.72rem;color:#c0c8d0;font-style:italic;">— Signature not yet captured —</span>
+            </div>
             {% endif %}
             <div class="sig-line">
                 <div class="sig-name">{{ sl.issued_by.get_full_name }}</div>

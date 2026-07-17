@@ -62,15 +62,8 @@
                     <ul class="list-group list-group-flush">
                         {% for emp in warned_employees %}
                         <li class="list-group-item px-4 py-3">
-                            <div class="d-flex align-items-center gap-3">
-                                <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                    {{ emp.user.first_name|first|upper }}{{ emp.user.last_name|first|upper }}
-                                </div>
-                                <div>
-                                    <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
-                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
-                                </div>
-                            </div>
+                            <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
                         </li>
                         {% empty %}
                         <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">{% trans "No warned employees" %}</li>
@@ -91,15 +84,8 @@
                     <ul class="list-group list-group-flush">
                         {% for emp in suspended_employees %}
                         <li class="list-group-item px-4 py-3">
-                            <div class="d-flex align-items-center gap-3">
-                                <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#374151,#1f2937);color:white;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                    {{ emp.user.first_name|first|upper }}{{ emp.user.last_name|first|upper }}
-                                </div>
-                                <div>
-                                    <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
-                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
-                                </div>
-                            </div>
+                            <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
                         </li>
                         {% empty %}
                         <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">{% trans "No suspended employees" %}</li>
@@ -119,19 +105,14 @@
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         {% for emp in dismissed_employees %}
-                        <li class="list-group-item px-4 py-3">
-                            <div class="d-flex align-items-center gap-3">
-                                <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                    {{ emp.user.first_name|first|upper }}{{ emp.user.last_name|first|upper }}
-                                </div>
-                                <div style="flex:1;">
-                                    <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
-                                    <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
-                                </div>
-                                <a href="{% url 'accounts:employee_edit' emp.pk %}" class="btn btn-sm btn-outline-danger" style="font-size:0.72rem;">
-                                    <i class="bi bi-person-x me-1"></i>{% trans "Deactivate" %}
-                                </a>
+                        <li class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div style="font-size:0.875rem;font-weight:600;">{{ emp.get_full_name }}</div>
+                                <div style="font-size:0.75rem;color:#9ab4c0;">{{ emp.department|default:"—" }}</div>
                             </div>
+                            <a href="{% url 'accounts:employee_edit' emp.pk %}" class="btn btn-sm btn-outline-danger" style="font-size:0.72rem;">
+                                <i class="bi bi-person-x me-1"></i>{% trans "Deactivate" %}
+                            </a>
                         </li>
                         {% empty %}
                         <li class="list-group-item text-center py-4 text-muted" style="font-size:0.875rem;">{% trans "No dismissals on record" %}</li>

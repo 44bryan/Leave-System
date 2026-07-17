@@ -16,7 +16,7 @@
 </a>
 {% endif %}
 {% if request.user.is_superuser or request.user.employee.is_hr %}
-<a href="{% url 'contracts:edit' contract.pk %}" class="btn btn-sm" style="background:#2db4c3;color:#fff;">
+<a href="{% url 'contracts:edit' contract.pk %}" class="btn btn-sm">
     <i class="bi bi-pencil me-1"></i> {% trans "Edit" %}
 </a>
 {% endif %}
