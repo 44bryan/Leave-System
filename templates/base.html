@@ -2070,9 +2070,8 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
 </style>
 <script>
 (function () {
-    var ALL_EMP = window.ALL_EMPLOYEES || [];
-
     function filterEmployees(q) {
+        var ALL_EMP = window.ALL_EMPLOYEES || [];
         q = q.toLowerCase();
         return ALL_EMP.filter(function (e) {
             return e.name.toLowerCase().indexOf(q) !== -1 ||
