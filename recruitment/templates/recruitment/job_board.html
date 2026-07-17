@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block hero %}
-<section class="pub-hero" style="padding:3.5rem 0 3.2rem;">
-    <div style="position:absolute;top:-80px;right:-80px;width:340px;height:340px;border-radius:50%;border:44px solid rgba(255,255,255,.06);pointer-events:none;"></div>
-    <div style="position:absolute;bottom:-90px;right:10%;width:220px;height:220px;border-radius:50%;border:28px solid rgba(255,255,255,.05);pointer-events:none;"></div>
+<section class="pub-hero" style="padding:3.5rem 0 3.2rem;overflow:visible;">
+    <div style="position:absolute;top:20px;right:-60px;width:300px;height:300px;border-radius:50%;border:40px solid rgba(255,255,255,.10);pointer-events:none;z-index:0;"></div>
+    <div style="position:absolute;bottom:10px;right:12%;width:190px;height:190px;border-radius:50%;border:26px solid rgba(255,255,255,.08);pointer-events:none;z-index:0;"></div>
     <div class="container hero-inner">
         <div class="row align-items-center g-4">
             <div class="col-lg-7">
@@ -125,9 +125,27 @@
         <h4 style="color:#fff;font-weight:800;font-size:clamp(1.1rem,2.5vw,1.55rem);margin-bottom:.6rem;">Send us your CV — we'll keep you in mind.</h4>
         <p style="color:rgba(255,255,255,.62);font-size:.87rem;margin-bottom:1.4rem;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.65;">We're always looking for talented people. Share your profile and we'll reach out when the right opportunity arises.</p>
         <a href="mailto:hr@micei.org?subject=Spontaneous Application — MICEI" class="btn-primary-pub"
-           style="background:#fff;color:var(--blue) !important;box-shadow:0 4px 18px rgba(0,0,0,.18);">
-            <i class="bi bi-envelope-fill" style="color:var(--teal);"></i>Email HR Team
+           style="background:#fff;color:var(--primary) !important;box-shadow:0 4px 18px rgba(0,0,0,.18);">
+            <i class="bi bi-envelope-fill" style="color:var(--accent);"></i>Email HR Team
         </a>
+        <div style="margin-top:1.8rem;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.15);display:flex;flex-wrap:wrap;justify-content:center;gap:1.8rem;">
+            <div style="text-align:center;">
+                <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.25rem;">Address</div>
+                <div style="font-size:.82rem;color:rgba(255,255,255,.75);">Cite Verte, Yaoundé, Cameroon</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.25rem;">HR Email</div>
+                <div style="font-size:.82rem;"><a href="mailto:hr@micei.org" style="color:rgba(255,255,255,.75);text-decoration:none;">hr@micei.org</a></div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.25rem;">Website</div>
+                <div style="font-size:.82rem;"><a href="https://www.micei.org" target="_blank" rel="noopener" style="color:rgba(255,255,255,.75);text-decoration:none;">www.micei.org</a></div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.25rem;">Phone</div>
+                <div style="font-size:.82rem;color:rgba(255,255,255,.75);">+237 222 20 47 92</div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
