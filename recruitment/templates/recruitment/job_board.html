@@ -119,7 +119,9 @@
 {% endif %}
 
 <!-- Bottom CTA -->
-<div class="cta-banner">
+<div class="cta-banner" style="position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-60px;left:-60px;width:260px;height:260px;border-radius:50%;border:36px solid rgba(255,255,255,.07);pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-50px;right:-40px;width:180px;height:180px;border-radius:50%;border:24px solid rgba(255,255,255,.06);pointer-events:none;"></div>
     <div style="position:relative;z-index:1;">
         <p style="font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:.5rem;">Don't see the right fit?</p>
         <h4 style="color:#fff;font-weight:800;font-size:clamp(1.1rem,2.5vw,1.55rem);margin-bottom:.6rem;">Send us your CV — we'll keep you in mind.</h4>
@@ -130,6 +132,7 @@
         </a>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_script %}
