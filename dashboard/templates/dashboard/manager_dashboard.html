@@ -284,37 +284,47 @@ const memberUsage  = [{% for tb in team_balances %}{{ tb.balance.usage_percentag
 const memberRemain = [{% for tb in team_balances %}{{ tb.balance.remaining_days }}{% if not forloop.last %},{% endif %}{% endfor %}];
 
 // ── Team Leave Usage — Horizontal Bar ─────────────────────────────────────────
-const barColors = memberUsage.map(u => u >= 90 ? '#dc2626' : u >= 70 ? '#d97706' : '#088395');
-// Set height BEFORE creating chart (required for maintainAspectRatio: false)
-const radarCanvas = document.getElementById('teamRadarChart');
-radarCanvas.style.height = Math.max(160, memberNames.length * 34) + 'px';
-new Chart(radarCanvas, {
-    type: 'bar',
-    data: {
-        labels: memberNames,
-        datasets: [{
-            label: '{% trans "Leave Used" %} %',
-            data: memberUsage,
-            backgroundColor: barColors.map(c => c + '33'),
-            borderColor: barColors,
-            borderWidth: 2,
-            borderRadius: 6,
-        }]
-    },
-    options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.raw}% {% trans "leave used" %}` } }
+try {
+    const MAX_BAR   = 15;
+    const barNames  = memberNames.slice(0, MAX_BAR);
+    const barUsage  = memberUsage.slice(0, MAX_BAR);
+    const barColors = barUsage.map(u => u >= 90 ? '#dc2626' : u >= 70 ? '#d97706' : '#088395');
+    const radarCanvas = document.getElementById('teamRadarChart');
+    radarCanvas.style.height = Math.min(320, Math.max(160, barNames.length * 30)) + 'px';
+    radarCanvas.style.width = '100%';
+    new Chart(radarCanvas, {
+        type: 'bar',
+        data: {
+            labels: barNames,
+            datasets: [{
+                label: '{% trans "Leave Used" %} %',
+                data: barUsage,
+                backgroundColor: barColors.map(c => c + '33'),
+                borderColor: barColors,
+                borderWidth: 2,
+                borderRadius: 5,
+            }]
         },
-        scales: {
-            x: { min: 0, max: 100, ticks: { callback: v => v + '%', font: { size: 10 } }, grid: { color: '#f0f4f8' } },
-            y: { ticks: { font: { size: 11 } }, grid: { display: false } }
+        options: {
+            indexAxis: 'y',
+            responsive: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { backgroundColor: '#0d1b2a', padding: 10, cornerRadius: 8, callbacks: { label: c => ` ${c.raw}% {% trans "leave used" %}` } }
+            },
+            scales: {
+                x: { min: 0, max: 100, ticks: { callback: v => v + '%', font: { size: 10 } }, grid: { color: '#f0f4f8' } },
+                y: { ticks: { font: { size: 10 } }, grid: { display: false } }
+            }
         }
-    }
-});
+    });
+    {% if team_balances|length > 15 %}
+    const note = document.createElement('p');
+    note.style.cssText = 'font-size:.7rem;color:#9ab4c0;text-align:center;margin-top:4px;margin-bottom:0;';
+    note.textContent = '{% trans "Top 15 shown" %} — {{ team_balances|length }} {% trans "total members" %}';
+    radarCanvas.parentNode.appendChild(note);
+    {% endif %}
+} catch(e) { console.warn('Team bar chart error:', e); }
 
 // ── Team Attendance Donut ──────────────────────────────────────────────────────
 const mgrTeamTotal = {{ subordinates|length }};
