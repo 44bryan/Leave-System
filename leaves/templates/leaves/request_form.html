@@ -72,7 +72,8 @@
 
                     <div class="mb-4">
                         <label class="form-label">{% trans "Back-up Employee" %} <span class="text-danger">*</span></label>
-                        <!-- AJAX autocomplete backup picker -->
+                        <!-- Backup picker — data embedded from view (backup_choices) -->
+                        <script>window.BACKUP_CHOICES = {{ backup_choices_json|safe }};</script>
                         <div class="position-relative" id="backupPickerWrap">
                             <input type="text" id="backupSearch" class="form-control" autocomplete="off"
                                    placeholder="{% trans 'Type a name to search…' %}" style="font-size:.88rem;">
@@ -406,12 +407,11 @@ updateDays();
     if (!searchInput) return;
 
     function filterEmployees(q) {
-        var ALL_EMP = window.ALL_EMPLOYEES || [];
+        var choices = window.BACKUP_CHOICES || [];
         q = q.toLowerCase();
-        return ALL_EMP.filter(function (e) {
+        return choices.filter(function (e) {
             return e.name.toLowerCase().indexOf(q) !== -1 ||
-                   e.emp_id.toLowerCase().indexOf(q) !== -1 ||
-                   e.dept.toLowerCase().indexOf(q) !== -1;
+                   (e.dept || '').toLowerCase().indexOf(q) !== -1;
         }).slice(0, 12);
     }
 
@@ -424,8 +424,8 @@ updateDays();
                 var item = document.createElement('div');
                 item.style.cssText = 'padding:8px 14px;cursor:pointer;font-size:.85rem;border-bottom:1px solid #f0f9fb;';
                 item.innerHTML = '<span style="font-weight:600;color:#0A4D68;">' + emp.name + '</span>' +
-                    ' <span style="color:#9ab4c0;font-size:.75rem;">' + (emp.emp_id || '') +
-                    (emp.dept ? ' · ' + emp.dept : '') + '</span>';
+                    (emp.dept ? ' <span style="color:#9ab4c0;font-size:.75rem;"> · ' + emp.dept + '</span>' : '') +
+                    (emp.unavailable ? ' <span style="font-size:.72rem;color:#d97706;margin-left:6px;">On Leave</span>' : '');
                 item.addEventListener('mousedown', function (e) {
                     e.preventDefault();
                     selectEmployee(emp);
@@ -443,7 +443,7 @@ updateDays();
         searchInput.value = '';
         searchInput.style.display = 'none';
         dropdown.style.display = 'none';
-        selectedName.textContent = emp.label || (emp.name + (emp.emp_id ? ' (' + emp.emp_id + ')' : ''));
+        selectedName.textContent = emp.name + (emp.dept ? ' — ' + emp.dept : '');
         selectedDiv.style.display = 'block';
     }
 

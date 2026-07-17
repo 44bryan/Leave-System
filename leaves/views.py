@@ -100,16 +100,16 @@ def submit_leave(request):
         if not backup_id:
             messages.error(request, "Please select a back-up employee to cover you during your leave.")
             return render(request, 'leaves/request_form.html', {
-                'form': form, 'balance': balance, 'backup_choices': backup_choices,
-                'leave_types': LeaveType.objects.filter(is_active=True),
+                'form': form, 'balance': balance, 'backup_choices_json': json.dumps(backup_choices),
+                'employee': employee, 'current_sig_b64': employee.signature_b64 or '',
             })
         try:
             leave.backup_employee = Employee.objects.get(pk=backup_id)
         except Employee.DoesNotExist:
             messages.error(request, "Selected back-up employee not found.")
             return render(request, 'leaves/request_form.html', {
-                'form': form, 'balance': balance, 'backup_choices': backup_choices,
-                'leave_types': LeaveType.objects.filter(is_active=True),
+                'form': form, 'balance': balance, 'backup_choices_json': json.dumps(backup_choices),
+                'employee': employee, 'current_sig_b64': employee.signature_b64 or '',
             })
 
         # Validate balance (only for deductible leave types)
@@ -252,7 +252,7 @@ def submit_leave(request):
         'form': form,
         'balance': balance,
         'deductible_map': deductible_map,
-        'backup_choices': backup_choices,
+        'backup_choices_json': json.dumps(backup_choices),
         'employee': employee,
         'current_sig_b64': employee.signature_b64 or '',
     })
