@@ -77,9 +77,7 @@
             justify-content: space-between;
             gap: 20px;
         }
-        .doc-logo-box img { height: 56px; width: auto; display: block; }
-        .doc-header-meta { text-align: right; font-size: 0.78rem; color: #6b7a8d; line-height: 1.8; }
-        .doc-header-meta strong { color: #0d1b2a; }
+        .doc-logo-box img { height: 72px; width: auto; display: block; background: white; mix-blend-mode: multiply; }
 
         .doc-title-band {
             background: #e0f7fa;
@@ -196,29 +194,19 @@
 
 <div class="document">
 
-    <!-- Header: logo only, no institution text -->
+    <!-- Header: logo only -->
     <div class="doc-header">
         <div class="doc-logo-box">
             <img src="{% static 'LOGO.png' %}" alt="Magrabi Co Cameroon Eye Institute">
-        </div>
-        <div class="doc-header-meta">
-            <div><strong>Ref:</strong> MSL-{{ sl.pk|stringformat:"04d" }}</div>
-            <div><strong>Date of Issuance:</strong> {{ sl.date_of_issuance|date:"d F Y" }}</div>
         </div>
     </div>
 
     <!-- Title band -->
     <div class="doc-title-band">
         <h2>Medical Sick Leave</h2>
-        <p>Official certificate issued by the Internal Medicine Specialist</p>
     </div>
 
     <div class="doc-body">
-
-        <div class="ref-line">
-            <span>Ref: <strong>MSL-{{ sl.pk|stringformat:"04d" }}</strong></span>
-            <span>Issued: <strong>{{ sl.date_of_issuance|date:"d/m/Y" }}</strong></span>
-        </div>
 
         <div class="endorsed-stamp">
             {% if sl.is_fully_endorsed %}
@@ -234,11 +222,9 @@
             {% endif %}
         </div>
 
-        <p class="letter-body">
-            This document is issued for the purpose of authorizing sick leave for:
-        </p>
         <p class="letter-body" style="margin-bottom:20px;">
-            <span class="field field-name">{{ sl.employee.get_full_name }}</span>
+            This document is issued to the staff:
+            <span class="field field-name">{{ sl.employee.get_full_name }}</span>{% if sl.employee.employee_id %} — <span class="field">{{ sl.employee.employee_id }}</span>{% endif %}
         </p>
 
         <p class="letter-body">
@@ -278,11 +264,6 @@
                 <div class="sig-date">{{ sl.date_of_issuance|date:"d M Y" }}</div>
             </div>
             <div class="sig-label">Physician's Signature</div>
-        </div>
-
-        <div class="nb-box">
-            <strong>NB:</strong> This document is to be shown to and endorsed by the appropriate
-            <strong>Line Manager</strong> and the <strong>Human Resource Officer (HR)</strong>.
         </div>
 
         <div class="sig-section">
