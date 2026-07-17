@@ -395,7 +395,7 @@ updateDays();
     });
 })();
 
-// Backup employee AJAX autocomplete
+// Backup employee picker — client-side filter (no AJAX)
 (function () {
     var searchInput  = document.getElementById('backupSearch');
     var dropdown     = document.getElementById('backupDropdown');
@@ -405,7 +405,16 @@ updateDays();
     var clearBtn     = document.getElementById('backupClear');
     if (!searchInput) return;
 
-    var debounceTimer = null;
+    var ALL_EMP = window.ALL_EMPLOYEES || [];
+
+    function filterEmployees(q) {
+        q = q.toLowerCase();
+        return ALL_EMP.filter(function (e) {
+            return e.name.toLowerCase().indexOf(q) !== -1 ||
+                   e.emp_id.toLowerCase().indexOf(q) !== -1 ||
+                   e.dept.toLowerCase().indexOf(q) !== -1;
+        }).slice(0, 12);
+    }
 
     function showDropdown(results) {
         dropdown.innerHTML = '';
@@ -450,14 +459,8 @@ updateDays();
 
     searchInput.addEventListener('input', function () {
         var q = this.value.trim();
-        clearTimeout(debounceTimer);
         if (q.length < 2) { dropdown.style.display = 'none'; return; }
-        debounceTimer = setTimeout(function () {
-            fetch('/accounts/employee-search/?q=' + encodeURIComponent(q))
-                .then(function (r) { return r.json(); })
-                .then(function (data) { showDropdown(data.results); })
-                .catch(function () { dropdown.style.display = 'none'; });
-        }, 220);
+        showDropdown(filterEmployees(q));
     });
 
     searchInput.addEventListener('blur', function () {

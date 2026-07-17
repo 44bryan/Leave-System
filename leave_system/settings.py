@@ -113,6 +113,7 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'notifications.context_processors.notifications_ctx',
                 'dashboard.context_processors.system_settings_ctx',
+                'dashboard.context_processors.all_employees_ctx',
             ],
         },
     },

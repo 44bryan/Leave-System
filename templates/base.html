@@ -2048,7 +2048,8 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
 });
 </script>
 
-<!-- ── Global AJAX Employee Picker ──────────────────────────────────── -->
+<!-- ── Global Employee Picker (client-side, no AJAX) ─────────────────── -->
+<script>window.ALL_EMPLOYEES = {{ all_employees_json|safe }};</script>
 <style>
 .emp-ajax-wrap { position:relative; }
 .emp-ajax-dropdown {
@@ -2067,6 +2068,17 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
 </style>
 <script>
 (function () {
+    var ALL_EMP = window.ALL_EMPLOYEES || [];
+
+    function filterEmployees(q) {
+        q = q.toLowerCase();
+        return ALL_EMP.filter(function (e) {
+            return e.name.toLowerCase().indexOf(q) !== -1 ||
+                   e.emp_id.toLowerCase().indexOf(q) !== -1 ||
+                   e.dept.toLowerCase().indexOf(q) !== -1;
+        }).slice(0, 12);
+    }
+
     document.querySelectorAll('.emp-ajax-wrap').forEach(function (wrap) {
         var input    = wrap.querySelector('.emp-ajax-input');
         var dropdown = wrap.querySelector('.emp-ajax-dropdown');
@@ -2076,7 +2088,6 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
         var clearBtn = wrap.querySelector('.emp-ajax-clear');
         if (!input || !hidden) return;
 
-        var timer;
         function showDropdown(results) {
             dropdown.innerHTML = '';
             if (!results || !results.length) {
@@ -2107,14 +2118,8 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
 
         input.addEventListener('input', function () {
             var q = this.value.trim();
-            clearTimeout(timer);
             if (q.length < 2) { dropdown.classList.remove('open'); return; }
-            timer = setTimeout(function () {
-                fetch('/accounts/employee-search/?q=' + encodeURIComponent(q))
-                    .then(function (r) { return r.json(); })
-                    .then(function (d) { showDropdown(d.results); })
-                    .catch(function () { dropdown.classList.remove('open'); });
-            }, 220);
+            showDropdown(filterEmployees(q));
         });
 
         input.addEventListener('blur', function () {
