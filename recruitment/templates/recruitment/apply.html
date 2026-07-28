@@ -144,6 +144,26 @@
                     </div>
                     {% endif %}
 
+                    <!-- Additional Documents -->
+                    <hr style="border-color:#edf2f7;" class="mt-4 mb-4">
+                    <p class="section-label mb-1">{% trans "Additional Documents" %} <span style="font-size:.7rem;font-weight:400;color:#94aab5;">({% trans "optional" %})</span></p>
+                    <p style="font-size:.78rem;color:#94aab5;margin-bottom:.85rem;">{% trans "Upload any supporting documents: degree certificates, diplomas, professional licences, portfolio, etc. Up to 10 files." %}</p>
+
+                    <div id="extraDropZone"
+                         style="border:2px dashed #c8dde5;border-radius:12px;padding:1.2rem 1rem;cursor:pointer;background:#f8fdfe;text-align:center;transition:border-color .2s,background .2s;"
+                         onclick="document.getElementById('extraDocsInput').click()"
+                         ondragover="event.preventDefault();this.style.borderColor='#2db4c3';this.style.background='#e8f6f9';"
+                         ondragleave="this.style.borderColor='#c8dde5';this.style.background='#f8fdfe';"
+                         ondrop="handleExtraDrop(event)">
+                        <i class="bi bi-files" style="font-size:1.8rem;color:#2db4c3;display:block;margin-bottom:.4rem;"></i>
+                        <p style="margin:0;font-size:.82rem;font-weight:700;color:#0A4D68;">{% trans "Click or drag & drop additional documents" %}</p>
+                        <p style="margin:.15rem 0 0;font-size:.72rem;color:#94aab5;">{% trans "PDF, DOC, DOCX, JPG, PNG — max 10 MB each" %}</p>
+                    </div>
+                    <input type="file" id="extraDocsInput" name="extra_docs" multiple
+                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                           style="display:none;" onchange="addExtraDocs(this.files)">
+                    <ul id="extraDocList" style="list-style:none;padding:0;margin:.6rem 0 0;display:flex;flex-wrap:wrap;gap:.4rem;"></ul>
+
                     <hr class="mt-4" style="border-color:#edf2f7;">
                     <div class="d-flex gap-3 align-items-center mt-3 flex-wrap">
                         <button type="submit" class="btn-primary-pub" id="submitBtn">
@@ -179,6 +199,49 @@
         e.preventDefault(); dropZone.classList.remove('dragover');
         if (e.dataTransfer.files.length) { cvInput.files = e.dataTransfer.files; handleFile(cvInput); }
     });
+    // ── Extra documents multi-upload ──────────────────────────────────────
+    var extraFilesStore = new DataTransfer();
+
+    function renderExtraList() {
+        var list = document.getElementById('extraDocList');
+        list.innerHTML = '';
+        var zone = document.getElementById('extraDropZone');
+        var count = extraFilesStore.files.length;
+        zone.style.borderColor = count > 0 ? '#2db4c3' : '';
+        zone.style.background  = count > 0 ? '#e8f6f9' : '';
+        Array.from(extraFilesStore.files).forEach(function(f, i) {
+            var li = document.createElement('li');
+            li.style.cssText = 'display:inline-flex;align-items:center;gap:5px;background:#e4f3f6;border-radius:20px;padding:.25em .75em;font-size:.72rem;font-weight:600;color:#0A4D68;';
+            li.innerHTML = '<i class="bi bi-file-earmark-check" style="color:#2db4c3;"></i>' + f.name +
+                '<button type="button" onclick="removeExtraDoc(' + i + ')" style="background:none;border:none;padding:0;margin-left:2px;color:#94aab5;cursor:pointer;font-size:.8rem;line-height:1;">&times;</button>';
+            list.appendChild(li);
+        });
+        document.getElementById('extraDocsInput').files = extraFilesStore.files;
+    }
+
+    function addExtraDocs(fileList) {
+        Array.from(fileList).forEach(function(f) {
+            if (extraFilesStore.files.length < 10) extraFilesStore.items.add(f);
+        });
+        renderExtraList();
+    }
+
+    function removeExtraDoc(index) {
+        var newDT = new DataTransfer();
+        Array.from(extraFilesStore.files).forEach(function(f, i) {
+            if (i !== index) newDT.items.add(f);
+        });
+        extraFilesStore = newDT;
+        renderExtraList();
+    }
+
+    function handleExtraDrop(e) {
+        e.preventDefault();
+        var zone = document.getElementById('extraDropZone');
+        zone.style.borderColor = ''; zone.style.background = '';
+        addExtraDocs(e.dataTransfer.files);
+    }
+
     function markDocUploaded(fieldName, input) {
         var box = document.getElementById('box_' + fieldName);
         var lbl = document.getElementById('lbl_' + fieldName);

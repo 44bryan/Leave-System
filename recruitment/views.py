@@ -335,6 +335,24 @@ def apply(request, pk):
                     value=val,
                 ))
             ApplicationAnswer.objects.bulk_create(answers_to_create)
+
+            # Save extra/additional documents (multiple files)
+            _ALLOWED_DOC_EXTS = {'.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png'}
+            extra_files = request.FILES.getlist('extra_docs')
+            extra_answers = []
+            for i, doc in enumerate(extra_files[:10]):  # cap at 10 extra docs
+                ext = _os.path.splitext(doc.name)[1].lower()
+                if ext in _ALLOWED_DOC_EXTS and doc.size <= _MAX_CV_BYTES:
+                    save_path = os.path.join('recruitment', 'extra_docs', doc.name)
+                    saved = default_storage.save(save_path, doc)
+                    extra_answers.append(ApplicationAnswer(
+                        application=app,
+                        field_name=f'extra_doc_{i}',
+                        value=saved,
+                    ))
+            if extra_answers:
+                ApplicationAnswer.objects.bulk_create(extra_answers)
+
             # Auto-score (rule-based)
             app.compute_score()
 
@@ -806,6 +824,11 @@ def applicant_detail(request, posting_pk, pk):
     answer_map = {a.field_name: a.value for a in app.answers.all()}
     fields     = posting.form_fields.filter(is_enabled=True).order_by('field_order')
     field_answers = [(f, answer_map.get(f.field_name, '')) for f in fields]
+    extra_docs = [
+        (a.field_name, a.value)
+        for a in app.answers.filter(field_name__startswith='extra_doc_').order_by('field_name')
+        if a.value
+    ]
 
     if request.method == 'POST':
         action = request.POST.get('action', '')
@@ -855,6 +878,7 @@ def applicant_detail(request, posting_pk, pk):
         'posting':       posting,
         'app':           app,
         'field_answers': field_answers,
+        'extra_docs':    extra_docs,
         'STATUS_CHOICES': APPLICATION_STATUS_CHOICES,
     })
 
@@ -899,6 +923,20 @@ def _call_gemini(posting, application):
     """
     answers = {a.field_name: a.value for a in application.answers.all()}
     cv_text = _extract_cv_text(application.cv_file)
+
+    # Extract text from any extra uploaded PDFs and append to cv_text
+    extra_texts = []
+    for key, path in answers.items():
+        if key.startswith('extra_doc_') and path and path.lower().endswith('.pdf'):
+            try:
+                import fitz
+                full_path = os.path.join(settings.MEDIA_ROOT, path)
+                with fitz.open(full_path) as doc:
+                    extra_texts.append('\n'.join(page.get_text() for page in doc)[:2000])
+            except Exception:
+                pass
+    if extra_texts:
+        cv_text = (cv_text + '\n\n--- Additional Documents ---\n' + '\n\n'.join(extra_texts))[:6000]
 
     # Use actual form field labels configured by HR for this posting
     field_label_map = {

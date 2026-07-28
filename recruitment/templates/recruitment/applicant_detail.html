@@ -77,6 +77,22 @@
                     {% endfor %}
                 </div>
                 {% endif %}
+
+                {% if extra_docs %}
+                <hr>
+                <h6 class="fw-semibold mb-3" style="color:#0A4D68;">
+                    <i class="bi bi-files me-2" style="color:#2db4c3;"></i>{% trans "Additional Documents" %}
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for fname, fpath in extra_docs %}
+                    <a href="{{ MEDIA_URL }}{{ fpath }}" target="_blank"
+                       class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                        <i class="bi bi-file-earmark-arrow-down"></i>
+                        {% trans "Document" %} {{ forloop.counter }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
         </div>
 
