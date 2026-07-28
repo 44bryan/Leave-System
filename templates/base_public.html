@@ -369,6 +369,10 @@
                     </li>
                 </ul>
             </div>
+            <a href="{% url 'recruitment:check_status' %}" class="nav-link-right" title="{% trans 'Check your application status' %}">
+                <i class="bi bi-search"></i>
+                <span class="d-none d-sm-inline">{% trans "My Application" %}</span>
+            </a>
             <a href="{% url 'recruitment:job_board' %}" class="nav-link-right">
                 <i class="bi bi-briefcase"></i>
                 <span class="d-none d-sm-inline">{% trans "Open Positions" %}</span>
