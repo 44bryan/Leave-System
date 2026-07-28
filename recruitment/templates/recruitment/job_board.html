@@ -73,24 +73,32 @@
     <div class="col-md-6 col-xl-4 job-card-wrapper"
          data-title="{{ job.title|lower }}"
          data-dept="{{ job.department|default:'general'|lower }}"
-         data-type="{{ job.get_employment_type_display|lower }}">
+         data-type="{{ job.get_employment_type_display|lower }}"
+         data-created="{{ job.created_at|date:'U' }}">
         <a href="{% url 'recruitment:job_detail' job.pk %}" class="job-card">
-            <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
-                <div class="d-flex gap-1 flex-wrap">
+            <!-- Tags row -->
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3 flex-wrap tags-row">
+                <div class="d-flex gap-1 flex-wrap align-items-center">
+                    <span class="new-badge" style="display:none;"><i class="bi bi-stars"></i> {% trans "New" %}</span>
                     <span class="tag">{{ job.get_employment_type_display }}</span>
                 </div>
                 {% if job.deadline %}
                 <span class="tag tag-deadline" style="font-size:.67rem;"><i class="bi bi-clock me-1"></i>{% trans "Closes" %} {{ job.deadline|date:"d M Y" }}</span>
                 {% endif %}
             </div>
+            <!-- Title -->
             <p class="job-title">{{ job.title }}</p>
+            <!-- Meta -->
             <div class="job-meta">
                 {% if job.department %}<span><i class="bi bi-building"></i>{{ job.department }}</span>{% endif %}
+                {% if job.department and job.location %}<span class="meta-sep">•</span>{% endif %}
                 {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
             </div>
-            <p class="job-excerpt">{{ job.description|truncatechars:120 }}</p>
+            <!-- Excerpt -->
+            <p class="job-excerpt">"{{ job.description|truncatechars:110 }}"</p>
+            <!-- Footer -->
             <div class="job-card-footer">
-                <span class="posted-ago"><i class="bi bi-calendar3"></i>{{ job.created_at|timesince }} ago</span>
+                <span class="posted-ago"><i class="bi bi-clock-history"></i>{{ job.created_at|timesince }} {% trans "ago" %}</span>
                 <span class="apply-btn">{% trans "View Role" %} <i class="bi bi-arrow-right"></i></span>
             </div>
         </a>
@@ -137,6 +145,16 @@
 
 {% block extra_script %}
 <script>
+// Show "New" badge for jobs posted within 7 days
+document.querySelectorAll('.job-card-wrapper[data-created]').forEach(function(wrapper) {
+    var created = parseInt(wrapper.dataset.created) * 1000;
+    var sevenDays = 7 * 24 * 60 * 60 * 1000;
+    if (Date.now() - created < sevenDays) {
+        var badge = wrapper.querySelector('.new-badge');
+        if (badge) badge.style.display = 'inline-flex';
+    }
+});
+
 var activeDept = 'all';
 function filterJobs() {
     var s = (document.getElementById('jobSearch').value || '').toLowerCase().trim();
