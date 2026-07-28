@@ -45,6 +45,20 @@ def _check_rate_limit(key, max_calls, period_seconds):
 # ─── Applicant email helper ────────────────────────────────────────────────────
 
 _STATUS_CONFIG = {
+    'submitted': {
+        'subject': 'Application Received — {title} | MICEI',
+        'headline': 'We Received Your Application!',
+        'color': '#0A4D68',
+        'icon': '✅',
+        'body': (
+            'Thank you for applying for the <strong>{title}</strong> position at '
+            'Magrabi ICO Cameroon Eye Institute (MICEI).<br><br>'
+            'We have successfully received your application and our HR team will '
+            'begin reviewing it shortly. You will receive an email update as your '
+            'application progresses.'
+        ),
+        'next': 'Our HR team will review your application and notify you of the next steps. This typically takes 5–10 business days.',
+    },
     'under_review': {
         'subject': 'Your Application is Under Review — {title}',
         'headline': 'Application Under Review',
@@ -132,10 +146,14 @@ _EMAIL_HTML = """<!DOCTYPE html>
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:32px 16px;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(10,77,104,.10);">
+  <!-- Logo bar -->
+  <tr><td style="background:#fff;padding:20px 40px;text-align:center;border-bottom:1px solid #e9eef2;">
+    <img src="{logo_url}" alt="MICEI" style="height:52px;width:auto;display:inline-block;">
+  </td></tr>
   <!-- Header -->
-  <tr><td style="background:linear-gradient(135deg,{color} 0%,#2db4c3 100%);padding:36px 40px;text-align:center;">
-    <div style="font-size:2.4rem;margin-bottom:8px;">{icon}</div>
-    <h1 style="margin:0;color:#fff;font-size:1.4rem;font-weight:700;line-height:1.35;">{headline}</h1>
+  <tr><td style="background:linear-gradient(135deg,{color} 0%,#2db4c3 100%);padding:28px 40px;text-align:center;">
+    <div style="font-size:2.2rem;margin-bottom:8px;">{icon}</div>
+    <h1 style="margin:0;color:#fff;font-size:1.35rem;font-weight:700;line-height:1.35;">{headline}</h1>
   </td></tr>
   <!-- Body -->
   <tr><td style="padding:36px 40px;">
@@ -199,6 +217,8 @@ def _email_applicant(applicant_name, applicant_email, status, posting_title,
         rejection_block=rejection_block,
     )
 
+    site_url = getattr(settings, 'SITE_URL', 'https://hr.micei.org')
+    logo_url = f'{site_url}/static/LOGO.png'
     html = _EMAIL_HTML.format(
         color=cfg['color'],
         icon=cfg['icon'],
@@ -206,7 +226,8 @@ def _email_applicant(applicant_name, applicant_email, status, posting_title,
         name=applicant_name,
         body=body_html,
         next=cfg['next'],
-        status_url=status_url or 'https://micei.org/careers/jobs/my-application/',
+        status_url=status_url or f'{site_url}/recruitment/jobs/my-application/',
+        logo_url=logo_url,
     )
 
     plain = (
@@ -229,6 +250,55 @@ def _email_applicant(applicant_name, applicant_email, status, posting_title,
             html_message=html,
             fail_silently=True,
         )
+    except Exception:
+        pass
+
+
+def _notify_hr_email(applicant_name, applicant_email, posting_title, detail_url):
+    """Send a notification email to HR when a new application is submitted."""
+    if not getattr(settings, 'EMAIL_NOTIFICATIONS_ENABLED', False):
+        return
+    site_url = getattr(settings, 'SITE_URL', 'https://hr.micei.org')
+    logo_url = f'{site_url}/static/LOGO.png'
+    subject = f'New Application — {posting_title}'
+    html = f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(10,77,104,.10);">
+  <tr><td style="background:#fff;padding:20px 40px;text-align:center;border-bottom:1px solid #e9eef2;">
+    <img src="{logo_url}" alt="MICEI" style="height:52px;width:auto;display:inline-block;">
+  </td></tr>
+  <tr><td style="background:linear-gradient(135deg,#0A4D68 0%,#2db4c3 100%);padding:28px 40px;text-align:center;">
+    <div style="font-size:2.2rem;margin-bottom:8px;">📥</div>
+    <h1 style="margin:0;color:#fff;font-size:1.35rem;font-weight:700;">New Application Received</h1>
+  </td></tr>
+  <tr><td style="padding:32px 40px;">
+    <p style="margin:0 0 16px;color:#1a2b3c;font-size:1rem;">Hello HR Team,</p>
+    <p style="margin:0 0 20px;color:#374151;font-size:.95rem;line-height:1.7;">
+      A new application has been submitted for the <strong>{posting_title}</strong> position.
+    </p>
+    <table cellpadding="0" cellspacing="0" width="100%" style="background:#f0f9ff;border-radius:10px;padding:18px 22px;margin-bottom:24px;">
+      <tr><td style="font-size:.85rem;color:#0A4D68;padding:4px 0;"><strong>Applicant:</strong></td><td style="font-size:.85rem;color:#374151;padding:4px 0;">{applicant_name}</td></tr>
+      <tr><td style="font-size:.85rem;color:#0A4D68;padding:4px 0;"><strong>Email:</strong></td><td style="font-size:.85rem;color:#374151;padding:4px 0;">{applicant_email}</td></tr>
+      <tr><td style="font-size:.85rem;color:#0A4D68;padding:4px 0;"><strong>Position:</strong></td><td style="font-size:.85rem;color:#374151;padding:4px 0;">{posting_title}</td></tr>
+    </table>
+    <a href="{detail_url}" style="display:inline-block;background:#0A4D68;color:#fff;text-decoration:none;font-weight:700;font-size:.9rem;padding:12px 28px;border-radius:8px;">Review Application →</a>
+  </td></tr>
+  <tr><td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 40px;text-align:center;">
+    <p style="margin:0;font-size:.75rem;color:#94a3b8;">MICEI HRM — This is an automated notification.</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>"""
+    plain = f"New application received.\nApplicant: {applicant_name}\nEmail: {applicant_email}\nPosition: {posting_title}\nReview: {detail_url}"
+    try:
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'MICEI HRM <pm@hr.micei.org>')
+        hr_email = getattr(settings, 'HR_EMAIL', 'hr@micei.org')
+        send_mail(subject, plain, from_email, [hr_email], html_message=html, fail_silently=True)
     except Exception:
         pass
 
@@ -452,6 +522,23 @@ def apply(request, pk):
                 notification_type='system',
                 url=detail_url,
             )
+
+        # Confirmation email to applicant
+        status_url = request.build_absolute_uri(reverse('recruitment:check_status'))
+        threading.Thread(
+            target=_email_applicant,
+            args=(name, email, 'submitted', posting.title),
+            kwargs={'status_url': status_url},
+            daemon=True,
+        ).start()
+
+        # Email notification to HR
+        abs_detail_url = request.build_absolute_uri(detail_url)
+        threading.Thread(
+            target=_notify_hr_email,
+            args=(name, email, posting.title, abs_detail_url),
+            daemon=True,
+        ).start()
 
         return redirect('recruitment:apply_success', pk=posting.pk)
 
