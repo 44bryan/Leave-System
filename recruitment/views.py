@@ -11,7 +11,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
-from django.db import transaction
+from django.db import models, transaction
 from django.db.models import Max
 from django.urls import reverse
 from django.utils import timezone
@@ -233,8 +233,15 @@ def _is_hr_or_admin(user):
 
 @never_cache
 def job_board(request):
-    """Public job board: list all open postings."""
-    postings = list(JobPosting.objects.filter(status=JobPosting.STATUS_OPEN).select_related('department'))
+    """Public job board: list all open postings that haven't passed their deadline."""
+    from django.utils import timezone as _tz
+    today = _tz.localdate()
+    postings = list(
+        JobPosting.objects
+        .filter(status=JobPosting.STATUS_OPEN)
+        .filter(models.Q(deadline__isnull=True) | models.Q(deadline__gte=today))
+        .select_related('department')
+    )
     dept_counts = {}
     for p in postings:
         key = str(p.department) if p.department else 'General'
@@ -256,7 +263,12 @@ def job_detail(request, pk):
 @never_cache
 def apply(request, pk):
     """Public: submit an application for a job posting."""
+    from django.utils import timezone as _tz
     posting = get_object_or_404(JobPosting, pk=pk, status=JobPosting.STATUS_OPEN)
+    # Block if deadline has passed
+    if posting.deadline and posting.deadline < _tz.localdate():
+        messages.error(request, 'The application deadline for this position has passed.')
+        return redirect('recruitment:job_detail', pk=pk)
     fields = posting.form_fields.filter(is_enabled=True).order_by('field_order', 'pk')
 
     if request.method == 'POST':
