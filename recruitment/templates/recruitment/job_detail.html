@@ -173,7 +173,8 @@
                            style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.42rem .5rem;border-radius:8px;font-size:.72rem;font-weight:700;text-decoration:none;background:#2ca5e0;color:#fff;">
                             <i class="bi bi-telegram"></i><span>Telegram</span>
                         </a>
-                        <a href="mailto:?subject={{ posting.title|urlencode }}%20—%20MICEI%20Careers&body={{ request.build_absolute_uri|urlencode }}"
+                        <a href="#"
+                           onclick="window.location.href='mailto:?subject=' + encodeURIComponent('{{ posting.title }} \u2014 MICEI Careers') + '&body=' + encodeURIComponent('{{ request.build_absolute_uri }}'); return false;"
                            title="Share by Email"
                            style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.42rem .5rem;border-radius:8px;font-size:.72rem;font-weight:700;text-decoration:none;background:#6b7a8d;color:#fff;">
                             <i class="bi bi-envelope-fill"></i><span>Email</span>
