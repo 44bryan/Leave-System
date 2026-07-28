@@ -122,6 +122,33 @@
                 </div>
             </div>
 
+            <!-- Share -->
+            <div class="card mb-3">
+                <div class="card-body p-3">
+                    <p class="section-label mb-2">{% trans "Share This Role" %}</p>
+                    <div class="d-flex gap-2">
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri|urlencode }}&title={{ posting.title|urlencode }}"
+                           target="_blank" rel="noopener"
+                           title="Share on LinkedIn"
+                           style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.45rem .6rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none;background:#0077b5;color:#fff;">
+                            <i class="bi bi-linkedin"></i><span class="d-none d-sm-inline">LinkedIn</span>
+                        </a>
+                        <a href="https://wa.me/?text={{ posting.title|urlencode }}%20—%20MICEI%20Careers%3A%20{{ request.build_absolute_uri|urlencode }}"
+                           target="_blank" rel="noopener"
+                           title="Share on WhatsApp"
+                           style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.45rem .6rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none;background:#25d366;color:#fff;">
+                            <i class="bi bi-whatsapp"></i><span class="d-none d-sm-inline">WhatsApp</span>
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}"
+                           target="_blank" rel="noopener"
+                           title="Share on Facebook"
+                           style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.45rem .6rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none;background:#1877f2;color:#fff;">
+                            <i class="bi bi-facebook"></i><span class="d-none d-sm-inline">Facebook</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Position details -->
             <div class="card mb-3">
                 <div class="card-body p-4">

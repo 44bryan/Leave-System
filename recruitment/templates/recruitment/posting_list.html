@@ -74,39 +74,29 @@
                             </a>
                         </td>
                         <td>
-                            <div class="d-flex gap-1">
+                            <div class="d-flex gap-1 flex-wrap">
                                 <a href="{% url 'recruitment:applicant_list' job.pk %}" class="btn btn-sm btn-outline-primary" title="{% trans 'View Applicants' %}">
                                     <i class="bi bi-people"></i>
                                 </a>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-three-dots-vertical"></i>
+                                <a href="{% url 'recruitment:edit' job.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans 'Edit Posting' %}">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'recruitment:form_config' job.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans 'Configure Form' %}">
+                                    <i class="bi bi-sliders"></i>
+                                </a>
+                                <a href="{% url 'recruitment:scoring_config' job.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans 'Scoring Rules' %}">
+                                    <i class="bi bi-star"></i>
+                                </a>
+                                <a href="{% url 'recruitment:job_detail' job.pk %}" target="_blank" class="btn btn-sm btn-outline-secondary" title="{% trans 'Preview (Public)' %}">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <form method="post" action="{% url 'recruitment:delete' job.pk %}" class="d-inline"
+                                      onsubmit="return confirm('Delete posting: {{ job.title }}?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}">
+                                        <i class="bi bi-trash"></i>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="{% url 'recruitment:edit' job.pk %}">
-                                            <i class="bi bi-pencil me-2"></i>{% trans "Edit Posting" %}
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{% url 'recruitment:form_config' job.pk %}">
-                                            <i class="bi bi-sliders me-2"></i>{% trans "Configure Form" %}
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{% url 'recruitment:scoring_config' job.pk %}">
-                                            <i class="bi bi-star me-2"></i>{% trans "Scoring Rules" %}
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{% url 'recruitment:job_detail' job.pk %}" target="_blank">
-                                            <i class="bi bi-eye me-2"></i>{% trans "Preview (Public)" %}
-                                        </a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <form method="post" action="{% url 'recruitment:delete' job.pk %}"
-                                                  onsubmit="return confirm('Delete posting: {{ job.title }}?')">
-                                                {% csrf_token %}
-                                                <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="bi bi-trash me-2"></i>{% trans "Delete" %}
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
+                                </form>
                             </div>
                         </td>
                     </tr>
