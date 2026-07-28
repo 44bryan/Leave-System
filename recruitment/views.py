@@ -289,6 +289,10 @@ def apply(request, pk):
             elif cv.size > _MAX_CV_BYTES:
                 errors.append('CV file size must not exceed 10 MB.')
 
+        # Additional documents are required
+        if not request.FILES.getlist('extra_docs'):
+            errors.append('Please upload at least one additional document (certificate, diploma, licence, etc.).')
+
         # Validate enabled required fields
         for field in fields:
             if field.is_required:

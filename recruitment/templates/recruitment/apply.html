@@ -164,8 +164,8 @@
 
                     <!-- Additional Documents -->
                     <hr style="border-color:#edf2f7;" class="mt-4 mb-4">
-                    <p class="section-label mb-1">{% trans "Additional Documents" %} <span style="font-size:.7rem;font-weight:400;color:#94aab5;">({% trans "optional" %})</span></p>
-                    <p style="font-size:.78rem;color:#94aab5;margin-bottom:.85rem;">{% trans "Upload any supporting documents: degree certificates, diplomas, professional licences, portfolio, etc. Up to 10 files." %}</p>
+                    <p class="section-label mb-1">{% trans "Additional Documents" %} <span class="text-danger">*</span></p>
+                    <p style="font-size:.78rem;color:#94aab5;margin-bottom:.85rem;">{% trans "Upload your supporting documents: degree certificates, diplomas, professional licences, portfolio, etc. Up to 10 files." %}</p>
 
                     <div id="extraDropZone"
                          style="border:2px dashed #c8dde5;border-radius:12px;padding:1.2rem 1rem;cursor:pointer;background:#f8fdfe;text-align:center;transition:border-color .2s,background .2s;"
@@ -313,7 +313,15 @@
             lbl.style.display = 'inline';
         }
     }
-    document.getElementById('applyForm').addEventListener('submit', function() {
+    document.getElementById('applyForm').addEventListener('submit', function(e) {
+        if (extraFilesStore.files.length === 0) {
+            e.preventDefault();
+            var zone = document.getElementById('extraDropZone');
+            zone.style.borderColor = '#dc3545';
+            zone.style.background  = '#fff5f5';
+            zone.scrollIntoView({behavior:'smooth', block:'center'});
+            return;
+        }
         var btn = document.getElementById('submitBtn');
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{% trans "Submitting…" %}';
