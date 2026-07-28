@@ -16,31 +16,31 @@
     <div class="container hero-inner">
         <div class="row align-items-center g-4">
             <div class="col-lg-7">
-                <p class="hero-eyebrow">Careers at MICEI</p>
+                <p class="hero-eyebrow">{% trans "Careers at MICEI" %}</p>
                 <h1 style="font-size:clamp(1.9rem,4vw,2.8rem);">
-                    Promoting Sight,<br>
-                    <span style="color:rgba(255,255,255,.8);">Improving Life.</span>
+                    {% trans "Promoting Sight," %}<br>
+                    <span style="color:rgba(255,255,255,.8);">{% trans "Improving Life." %}</span>
                 </h1>
                 <p class="hero-sub" style="margin-bottom:1.5rem;">
-                    Join Cameroon's leading subspecialty eye care hospital. Be part of a mission-driven team that restores sight and transforms lives.
+                    {% trans "Join Cameroon's leading subspecialty eye care hospital. Be part of a mission-driven team that restores sight and transforms lives." %}
                 </p>
                 <div class="search-wrap" style="max-width:440px;margin-bottom:1.2rem;">
                     <i class="bi bi-search search-icon" style="color:rgba(255,255,255,.6);"></i>
-                    <input type="text" id="jobSearch" class="form-control" placeholder="Search positions, departments…" oninput="filterJobs()">
+                    <input type="text" id="jobSearch" class="form-control" placeholder="{% trans 'Search positions, departments…' %}" oninput="filterJobs()">
                 </div>
                 {% if postings %}
                 <span style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.25);border-radius:22px;font-size:.78rem;font-weight:700;padding:.35em 1.1em;">
                     <i class="bi bi-briefcase-fill"></i>
-                    {{ postings|length }} open position{{ postings|length|pluralize }}
+                    {{ postings|length }} {% trans "open position" %}{{ postings|length|pluralize }}
                 </span>
                 {% endif %}
             </div>
             <div class="col-lg-5 d-none d-lg-block">
                 <div class="stats-card">
-                    <div class="stat-item"><i class="bi bi-people stat-icon"></i><span class="stat-num">450K+</span><span class="stat-lbl">Consultations</span></div>
-                    <div class="stat-item"><i class="bi bi-heart-pulse stat-icon"></i><span class="stat-num">12+</span><span class="stat-lbl">Subspecialty Services</span></div>
-                    <div class="stat-item"><i class="bi bi-hospital stat-icon"></i><span class="stat-num">85</span><span class="stat-lbl">Hospital Beds</span></div>
-                    <div class="stat-item"><i class="bi bi-eye stat-icon"></i><span class="stat-num">85K+</span><span class="stat-lbl">Patients Sensitized</span></div>
+                    <div class="stat-item"><i class="bi bi-people stat-icon"></i><span class="stat-num">450K+</span><span class="stat-lbl">{% trans "Consultations" %}</span></div>
+                    <div class="stat-item"><i class="bi bi-heart-pulse stat-icon"></i><span class="stat-num">12+</span><span class="stat-lbl">{% trans "Subspecialty Services" %}</span></div>
+                    <div class="stat-item"><i class="bi bi-hospital stat-icon"></i><span class="stat-num">85</span><span class="stat-lbl">{% trans "Hospital Beds" %}</span></div>
+                    <div class="stat-item"><i class="bi bi-eye stat-icon"></i><span class="stat-num">85K+</span><span class="stat-lbl">{% trans "Patients Sensitized" %}</span></div>
                 </div>
             </div>
         </div>
@@ -53,13 +53,13 @@
 {% block content %}
 {% if postings %}
 <div class="jobs-header">
-    <h3>Open Positions</h3>
-    <span id="jobCount" class="section-label">{{ postings|length }} position{{ postings|length|pluralize }}</span>
+    <h3>{% trans "Open Positions" %}</h3>
+    <span id="jobCount" class="section-label">{{ postings|length }} {% trans "position" %}{{ postings|length|pluralize }}</span>
 </div>
 
 {% if departments %}
 <div class="d-flex gap-2 flex-wrap mb-4">
-    <button class="dept-pill active" data-dept="all" onclick="setDept(this)">All</button>
+    <button class="dept-pill active" data-dept="all" onclick="setDept(this)">{% trans "All" %}</button>
     {% for dept in departments %}
     <button class="dept-pill" data-dept="{{ dept.name|lower }}" onclick="setDept(this)">
         {{ dept.name }} <span class="dept-count">{{ dept.count }}</span>
@@ -80,7 +80,7 @@
                     <span class="tag">{{ job.get_employment_type_display }}</span>
                 </div>
                 {% if job.deadline %}
-                <span class="tag tag-deadline" style="font-size:.67rem;"><i class="bi bi-clock me-1"></i>Closes {{ job.deadline|date:"d M Y" }}</span>
+                <span class="tag tag-deadline" style="font-size:.67rem;"><i class="bi bi-clock me-1"></i>{% trans "Closes" %} {{ job.deadline|date:"d M Y" }}</span>
                 {% endif %}
             </div>
             <p class="job-title">{{ job.title }}</p>
@@ -91,7 +91,7 @@
             <p class="job-excerpt">{{ job.description|truncatechars:120 }}</p>
             <div class="job-card-footer">
                 <span class="posted-ago"><i class="bi bi-calendar3"></i>{{ job.created_at|timesince }} ago</span>
-                <span class="apply-btn">View Role <i class="bi bi-arrow-right"></i></span>
+                <span class="apply-btn">{% trans "View Role" %} <i class="bi bi-arrow-right"></i></span>
             </div>
         </a>
     </div>
@@ -102,9 +102,9 @@
     <div style="width:58px;height:58px;background:#e4f6f9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
         <i class="bi bi-search" style="font-size:1.3rem;color:var(--teal);"></i>
     </div>
-    <h6 class="fw-bold mb-1" style="color:var(--blue);">No positions match your search</h6>
-    <p class="text-muted mb-3" style="font-size:.85rem;">Try different keywords or browse all departments.</p>
-    <button class="btn-outline-pub" onclick="clearFilters()" style="font-size:.82rem;">Clear Filters</button>
+    <h6 class="fw-bold mb-1" style="color:var(--blue);">{% trans "No positions match your search" %}</h6>
+    <p class="text-muted mb-3" style="font-size:.85rem;">{% trans "Try different keywords or browse all departments." %}</p>
+    <button class="btn-outline-pub" onclick="clearFilters()" style="font-size:.82rem;">{% trans "Clear Filters" %}</button>
 </div>
 
 {% else %}
@@ -112,9 +112,9 @@
     <div style="width:70px;height:70px;background:linear-gradient(135deg,#e4f6f9,#c8edf3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;">
         <i class="bi bi-briefcase" style="font-size:1.8rem;color:var(--teal);"></i>
     </div>
-    <h5 class="fw-bold mb-1" style="color:var(--blue);">No open positions at the moment</h5>
-    <p class="text-muted mb-1" style="font-size:.88rem;">Check back soon — new opportunities are posted regularly.</p>
-    <p class="text-muted" style="font-size:.83rem;">You can also send your CV directly to <a href="mailto:hr@micei.org" style="color:var(--blue);font-weight:700;">hr@micei.org</a></p>
+    <h5 class="fw-bold mb-1" style="color:var(--blue);">{% trans "No open positions at the moment" %}</h5>
+    <p class="text-muted mb-1" style="font-size:.88rem;">{% trans "Check back soon — new opportunities are posted regularly." %}</p>
+    <p class="text-muted" style="font-size:.83rem;">{% trans "You can also send your CV directly to" %} <a href="mailto:hr@micei.org" style="color:var(--blue);font-weight:700;">hr@micei.org</a></p>
 </div>
 {% endif %}
 
@@ -123,12 +123,12 @@
     <div style="position:absolute;top:-60px;left:-60px;width:260px;height:260px;border-radius:50%;border:36px solid rgba(255,255,255,.07);pointer-events:none;"></div>
     <div style="position:absolute;bottom:-50px;right:-40px;width:180px;height:180px;border-radius:50%;border:24px solid rgba(255,255,255,.06);pointer-events:none;"></div>
     <div style="position:relative;z-index:1;">
-        <p style="font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:.5rem;">Don't see the right fit?</p>
-        <h4 style="color:#fff;font-weight:800;font-size:clamp(1.1rem,2.5vw,1.55rem);margin-bottom:.6rem;">Send us your CV — we'll keep you in mind.</h4>
-        <p style="color:rgba(255,255,255,.62);font-size:.87rem;margin-bottom:1.4rem;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.65;">We're always looking for talented people. Share your profile and we'll reach out when the right opportunity arises.</p>
+        <p style="font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:.5rem;">{% trans "Don't see the right fit?" %}</p>
+        <h4 style="color:#fff;font-weight:800;font-size:clamp(1.1rem,2.5vw,1.55rem);margin-bottom:.6rem;">{% trans "Send us your CV — we'll keep you in mind." %}</h4>
+        <p style="color:rgba(255,255,255,.62);font-size:.87rem;margin-bottom:1.4rem;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.65;">{% trans "We're always looking for talented people. Share your profile and we'll reach out when the right opportunity arises." %}</p>
         <a href="mailto:hr@micei.org?subject=Spontaneous Application — MICEI" class="btn-primary-pub"
            style="background:#fff;color:var(--primary) !important;box-shadow:0 4px 18px rgba(0,0,0,.18);">
-            <i class="bi bi-envelope-fill" style="color:var(--accent);"></i>Email HR Team
+            <i class="bi bi-envelope-fill" style="color:var(--accent);"></i>{% trans "Email HR Team" %}
         </a>
     </div>
 </div>

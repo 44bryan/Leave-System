@@ -9046,6 +9046,62 @@ msgstr "Revenez bientôt — de nouvelles opportunités sont publiées réguliè
 msgid "You can also send your CV to"
 msgstr "Vous pouvez également envoyer votre CV à"
 
+#: recruitment/templates/recruitment/job_board.html
+msgid "You can also send your CV directly to"
+msgstr "Vous pouvez également envoyer votre CV directement à"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Join Cameroon's leading subspecialty eye care hospital. Be part of a mission-driven team that restores sight and transforms lives."
+msgstr "Rejoignez le premier hôpital ophtalmologique spécialisé du Cameroun. Faites partie d'une équipe dédiée qui restaure la vue et transforme des vies."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Open Positions"
+msgstr "Postes Ouverts"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "open position"
+msgstr "poste ouvert"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "position"
+msgstr "poste"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "View Role"
+msgstr "Voir le Poste"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Consultations"
+msgstr "Consultations"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Subspecialty Services"
+msgstr "Services Spécialisés"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Hospital Beds"
+msgstr "Lits d'Hôpital"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Patients Sensitized"
+msgstr "Patients Sensibilisés"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Don't see the right fit?"
+msgstr "Vous ne trouvez pas votre poste ?"
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Send us your CV — we'll keep you in mind."
+msgstr "Envoyez-nous votre CV — nous vous garderons à l'esprit."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "We're always looking for talented people. Share your profile and we'll reach out when the right opportunity arises."
+msgstr "Nous cherchons toujours des personnes talentueuses. Partagez votre profil et nous vous contacterons dès qu'une opportunité se présente."
+
+#: recruitment/templates/recruitment/job_board.html
+msgid "Email HR Team"
+msgstr "Contacter l'Équipe RH"
+
 #: recruitment/templates/recruitment/job_detail.html
 msgid "MICEI Careers"
 msgstr "Carrières MICEI"
