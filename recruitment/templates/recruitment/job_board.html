@@ -95,7 +95,7 @@
                 {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
             </div>
             <!-- Excerpt -->
-            <p class="job-excerpt">"{{ job.description|truncatechars:110 }}"</p>
+            <p class="job-excerpt">{% if job.about %}"{{ job.about|truncatechars:120 }}"{% else %}"{{ job.description|truncatechars:110 }}"{% endif %}</p>
             <!-- Footer -->
             <div class="job-card-footer">
                 <span class="posted-ago"><i class="bi bi-clock-history"></i>{{ job.created_at|timesince }} {% trans "ago" %}</span>
