@@ -294,6 +294,8 @@ def apply(request, pk):
             if field.is_required:
                 if field.field_type == 'file':
                     val = request.FILES.get(field.field_name)
+                elif field.field_type == 'file_multi':
+                    val = request.FILES.getlist(field.field_name)
                 else:
                     val = request.POST.get(field.field_name, '').strip()
                 if not val:
@@ -318,6 +320,8 @@ def apply(request, pk):
             )
             # Save answers for all enabled fields
             answers_to_create = []
+            _ALLOWED_DOC_EXTS = {'.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png'}
+            _MAX_CV_BYTES = 10 * 1024 * 1024
             for field in fields:
                 if field.field_type == 'file':
                     uploaded_file = request.FILES.get(field.field_name)
@@ -327,13 +331,27 @@ def apply(request, pk):
                         val = saved
                     else:
                         val = ''
+                    answers_to_create.append(ApplicationAnswer(
+                        application=app, field_name=field.field_name, value=val,
+                    ))
+                elif field.field_type == 'file_multi':
+                    # Save each file as fieldname_0, fieldname_1, …
+                    multi_files = request.FILES.getlist(field.field_name)
+                    for i, mf in enumerate(multi_files[:10]):
+                        ext = _os.path.splitext(mf.name)[1].lower()
+                        if ext in _ALLOWED_DOC_EXTS and mf.size <= _MAX_CV_BYTES:
+                            save_path = os.path.join('recruitment', 'field_uploads', mf.name)
+                            saved = default_storage.save(save_path, mf)
+                            answers_to_create.append(ApplicationAnswer(
+                                application=app,
+                                field_name=f'{field.field_name}_{i}',
+                                value=saved,
+                            ))
                 else:
                     val = request.POST.get(field.field_name, '').strip()
-                answers_to_create.append(ApplicationAnswer(
-                    application=app,
-                    field_name=field.field_name,
-                    value=val,
-                ))
+                    answers_to_create.append(ApplicationAnswer(
+                        application=app, field_name=field.field_name, value=val,
+                    ))
             ApplicationAnswer.objects.bulk_create(answers_to_create)
 
             # Save extra/additional documents (multiple files)
@@ -823,7 +841,22 @@ def applicant_detail(request, posting_pk, pk):
     app        = get_object_or_404(Application, pk=pk, posting=posting)
     answer_map = {a.field_name: a.value for a in app.answers.all()}
     fields     = posting.form_fields.filter(is_enabled=True).order_by('field_order')
-    field_answers = [(f, answer_map.get(f.field_name, '')) for f in fields]
+
+    # For file_multi fields, collect all saved file paths grouped by field
+    field_multi_files = {}  # {field_name: [path, path, ...]}
+    for key, val in answer_map.items():
+        if val:
+            for f in fields.filter(field_type='file_multi'):
+                if key.startswith(f'{f.field_name}_'):
+                    field_multi_files.setdefault(f.field_name, []).append(val)
+
+    field_answers = []
+    for f in fields:
+        if f.field_type == 'file_multi':
+            field_answers.append((f, field_multi_files.get(f.field_name, [])))
+        else:
+            field_answers.append((f, answer_map.get(f.field_name, '')))
+
     extra_docs = [
         (a.field_name, a.value)
         for a in app.answers.filter(field_name__startswith='extra_doc_').order_by('field_name')

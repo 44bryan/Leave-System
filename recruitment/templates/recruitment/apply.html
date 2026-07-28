@@ -113,6 +113,24 @@
                             <input type="date" name="{{ field.field_name }}" class="form-control"
                                    {% if field.is_required %}required{% endif %}>
 
+                            {% elif field.field_type == 'file_multi' %}
+                            <div id="mbox_{{ field.field_name }}"
+                                 style="border:2px dashed #c8dde5;border-radius:10px;padding:.9rem 1rem;cursor:pointer;background:#f8fdfe;text-align:center;transition:border-color .2s,background .2s;"
+                                 onclick="document.getElementById('minp_{{ field.field_name }}').click()"
+                                 ondragover="event.preventDefault();this.style.borderColor='#2db4c3';this.style.background='#e8f6f9';"
+                                 ondragleave="this.style.borderColor='#c8dde5';this.style.background='#f8fdfe';"
+                                 ondrop="handleFieldMultiDrop('{{ field.field_name }}',event)">
+                                <i class="bi bi-files" style="font-size:1.6rem;color:#2db4c3;display:block;margin-bottom:.3rem;"></i>
+                                <p style="margin:0;font-size:.78rem;font-weight:700;color:#0A4D68;">{% trans "Click or drag & drop" %} ({% trans "multiple files allowed" %})</p>
+                                <p style="margin:.1rem 0 0;font-size:.68rem;color:#94aab5;">{% trans "PDF, DOC, DOCX, JPG, PNG — max 10 MB each" %}</p>
+                            </div>
+                            <input type="file" id="minp_{{ field.field_name }}" name="{{ field.field_name }}" multiple
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                   {% if field.is_required %}required{% endif %}
+                                   style="display:none;"
+                                   onchange="addFieldMultiDocs('{{ field.field_name }}',this.files)">
+                            <ul id="mlist_{{ field.field_name }}" style="list-style:none;padding:0;margin:.5rem 0 0;display:flex;flex-wrap:wrap;gap:.4rem;"></ul>
+
                             {% elif field.field_type == 'file' %}
                             <div class="doc-upload-box" id="box_{{ field.field_name }}" onclick="document.getElementById('inp_{{ field.field_name }}').click()"
                                  style="border:2px dashed #c8dde5;border-radius:10px;padding:.9rem 1rem;cursor:pointer;background:#f8fdfe;display:flex;align-items:center;gap:.65rem;transition:border-color .2s,background .2s;">
@@ -240,6 +258,49 @@
         var zone = document.getElementById('extraDropZone');
         zone.style.borderColor = ''; zone.style.background = '';
         addExtraDocs(e.dataTransfer.files);
+    }
+
+    // ── Named multi-file fields (file_multi type) ─────────────────────────
+    var fieldStores = {};
+    function getFieldStore(name) {
+        if (!fieldStores[name]) fieldStores[name] = new DataTransfer();
+        return fieldStores[name];
+    }
+    function renderFieldMultiList(name) {
+        var list = document.getElementById('mlist_' + name);
+        var box  = document.getElementById('mbox_' + name);
+        var inp  = document.getElementById('minp_' + name);
+        var store = getFieldStore(name);
+        list.innerHTML = '';
+        var count = store.files.length;
+        box.style.borderColor = count > 0 ? '#2db4c3' : '';
+        box.style.background  = count > 0 ? '#e8f6f9' : '';
+        Array.from(store.files).forEach(function(f, i) {
+            var li = document.createElement('li');
+            li.style.cssText = 'display:inline-flex;align-items:center;gap:5px;background:#e4f3f6;border-radius:20px;padding:.25em .75em;font-size:.72rem;font-weight:600;color:#0A4D68;';
+            li.innerHTML = '<i class="bi bi-file-earmark-check" style="color:#2db4c3;"></i>' + f.name +
+                '<button type="button" onclick="removeFieldMultiDoc(\'' + name + '\',' + i + ')" style="background:none;border:none;padding:0;margin-left:2px;color:#94aab5;cursor:pointer;font-size:.8rem;">&times;</button>';
+            list.appendChild(li);
+        });
+        inp.files = store.files;
+    }
+    function addFieldMultiDocs(name, fileList) {
+        var store = getFieldStore(name);
+        Array.from(fileList).forEach(function(f) {
+            if (store.files.length < 10) store.items.add(f);
+        });
+        renderFieldMultiList(name);
+    }
+    function removeFieldMultiDoc(name, index) {
+        var store = getFieldStore(name);
+        var newDT = new DataTransfer();
+        Array.from(store.files).forEach(function(f, i) { if (i !== index) newDT.items.add(f); });
+        fieldStores[name] = newDT;
+        renderFieldMultiList(name);
+    }
+    function handleFieldMultiDrop(name, e) {
+        e.preventDefault();
+        addFieldMultiDocs(name, e.dataTransfer.files);
     }
 
     function markDocUploaded(fieldName, input) {

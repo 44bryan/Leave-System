@@ -70,6 +70,19 @@
                             {% else %}
                             <p class="fw-semibold mb-0 text-muted">—</p>
                             {% endif %}
+                        {% elif field.field_type == 'file_multi' %}
+                            {% if val %}
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for fpath in val %}
+                                <a href="{{ MEDIA_URL }}{{ fpath }}" target="_blank"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-file-earmark-arrow-down me-1"></i>{% trans "File" %} {{ forloop.counter }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="fw-semibold mb-0 text-muted">—</p>
+                            {% endif %}
                         {% else %}
                         <p class="fw-semibold mb-0">{{ val|default:"—" }}</p>
                         {% endif %}

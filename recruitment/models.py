@@ -12,17 +12,19 @@ FIELD_TYPE_NUMBER   = 'number'
 FIELD_TYPE_EMAIL    = 'email'
 FIELD_TYPE_SELECT   = 'select'
 FIELD_TYPE_YESNO    = 'yesno'
-FIELD_TYPE_FILE     = 'file'
-FIELD_TYPE_DATE     = 'date'
+FIELD_TYPE_FILE       = 'file'
+FIELD_TYPE_FILE_MULTI = 'file_multi'
+FIELD_TYPE_DATE       = 'date'
 
 FIELD_TYPE_CHOICES = [
-    (FIELD_TYPE_TEXT,     'Short Text'),
-    (FIELD_TYPE_TEXTAREA, 'Long Text / Paragraph'),
-    (FIELD_TYPE_NUMBER,   'Number'),
-    (FIELD_TYPE_SELECT,   'Dropdown / Select'),
-    (FIELD_TYPE_YESNO,    'Yes / No'),
-    (FIELD_TYPE_FILE,     'File Upload'),
-    (FIELD_TYPE_DATE,     'Date'),
+    (FIELD_TYPE_TEXT,       'Short Text'),
+    (FIELD_TYPE_TEXTAREA,   'Long Text / Paragraph'),
+    (FIELD_TYPE_NUMBER,     'Number'),
+    (FIELD_TYPE_SELECT,     'Dropdown / Select'),
+    (FIELD_TYPE_YESNO,      'Yes / No'),
+    (FIELD_TYPE_FILE,       'File Upload (single)'),
+    (FIELD_TYPE_FILE_MULTI, 'File Upload (multiple files)'),
+    (FIELD_TYPE_DATE,       'Date'),
 ]
 
 # Default field configuration for every new job posting
