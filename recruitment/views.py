@@ -886,22 +886,26 @@ def _extract_cv_text(cv_file):
     try:
         import fitz  # PyMuPDF
         with fitz.open(cv_file.path) as doc:
-            return '\n'.join(page.get_text() for page in doc)[:1500]
+            return '\n'.join(page.get_text() for page in doc)[:5000]
     except Exception:
         return ''
 
 
 def _call_gemini(posting, application):
     """
-    Send the applicant profile to Gemini 2.0 Flash and return a parsed dict with
+    Send the applicant profile to Gemini 2.5 Flash and return a parsed dict with
     keys: score (0-100), recommendation (invite|hold|reject), summary, strengths, gaps.
     Raises requests.HTTPError or ValueError on failure.
     """
     answers = {a.field_name: a.value for a in application.answers.all()}
     cv_text = _extract_cv_text(application.cv_file)
 
-    # Build applicant block from all answers that have a value
-    field_labels = {
+    # Use actual form field labels configured by HR for this posting
+    field_label_map = {
+        fc.field_name: fc.label
+        for fc in posting.form_fields.filter(is_enabled=True).order_by('field_order', 'pk')
+    }
+    builtin_labels = {
         'education_level':  'Education Level',
         'years_experience': 'Years of Experience',
         'current_employer': 'Current / Last Employer',
@@ -912,36 +916,61 @@ def _call_gemini(posting, application):
         'source':           'How they heard about us',
     }
     answer_lines = []
-    for key, label in field_labels.items():
-        val = answers.get(key, '').strip()
-        if val:
-            answer_lines.append(f'{label}: {val}')
     for key, val in answers.items():
-        if key not in field_labels and val and str(val).strip():
-            answer_lines.append(f'{key.replace("_", " ").title()}: {str(val).strip()}')
-    applicant_block = '\n'.join(answer_lines) or 'No answers provided.'
-    cv_block = f'\nCV / Resume:\n{cv_text}' if cv_text else ''
+        if val and str(val).strip():
+            label = field_label_map.get(key) or builtin_labels.get(key) or key.replace('_', ' ').title()
+            answer_lines.append(f'- {label}: {str(val).strip()}')
+    applicant_block = '\n'.join(answer_lines) or '(No form answers provided.)'
+    cv_block = f'\n\nCV / Resume Content:\n{cv_text}' if cv_text else '\n\n(No CV text could be extracted — penalise if CV was expected.)'
 
-    prompt = f"""You are a senior HR analyst. Evaluate this application strictly against the stated job requirements.
+    requirements_block = posting.requirements.strip() if posting.requirements.strip() else None
+    description_block  = posting.description.strip()  if posting.description.strip()  else None
 
-POSITION: {posting.title}
+    if requirements_block:
+        requirements_section = (
+            'JOB REQUIREMENTS — evaluate the applicant STRICTLY against each one:\n'
+            + requirements_block
+        )
+    else:
+        requirements_section = (
+            'JOB REQUIREMENTS: Not explicitly listed.\n'
+            'Use the job description below as the benchmark. Be conservative — '
+            'if a qualification is not clearly evidenced, treat it as missing.'
+        )
 
-JOB REQUIREMENTS (use these as your scoring criteria):
-{posting.requirements or 'Not specified — score based on general suitability for the role title.'}
+    description_section = (
+        f'JOB DESCRIPTION (additional context on expectations):\n{description_block}'
+    ) if description_block else ''
+
+    prompt = f"""You are a strict HR screening analyst. Your role is to protect the organisation from weak hires by evaluating candidates objectively and without leniency.
+
+POSITION: {posting.title} ({posting.get_employment_type_display()})
+DEPARTMENT: {posting.department or 'Not specified'}
+
+{requirements_section}
+
+{description_section}
 
 APPLICANT: {application.applicant_name}
---- Application ---
-{applicant_block}{cv_block}
---- End ---
+=== Application Form Answers ===
+{applicant_block}
+=== End of Form ==={cv_block}
 
-Scoring guide:
-- 80-100: strongly meets requirements → invite
-- 50-79:  partially meets requirements → hold
-- 0-49:   does not meet requirements → reject
+MANDATORY EVALUATION RULES:
+1. Score ONLY based on clear evidence in the form answers and CV — do NOT assume or infer qualifications that are not explicitly stated.
+2. If a requirement is not clearly evidenced, mark it as a GAP. Giving benefit of the doubt is not permitted.
+3. A vague cover letter or missing answers for required fields must reduce the score.
+4. If no CV is provided or CV text is missing, penalise heavily (deduct at least 20 points).
+5. Consider professionalism, clarity, and completeness of the applicant's responses.
+6. Each stated requirement that is NOT met must appear in the gaps field.
 
-Base your score ONLY on how well the applicant matches the requirements above.
-Respond with ONLY valid JSON, no markdown:
-{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<one sentence overall fit>", "strengths": "<key matching qualifications>", "gaps": "<key missing requirements>"}}"""
+Scoring thresholds:
+- 80–100 → meets all or nearly all requirements → recommend: invite
+- 50–79  → meets some requirements but has notable gaps → recommend: hold
+- 0–49   → does not meet the requirements → recommend: reject
+
+Respond with ONLY valid JSON (no markdown, no extra text):
+{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-sentence overall fit verdict>", "strengths": "<bullet list of requirements clearly met by this applicant>", "gaps": "<bullet list of requirements that are missing or not evidenced>"}}"""
 
     resp = http_requests.post(
         f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
@@ -950,7 +979,7 @@ Respond with ONLY valid JSON, no markdown:
             'contents': [{'parts': [{'text': prompt}]}],
             'generationConfig': {
                 'temperature': 0.1,
-                'maxOutputTokens': 512,
+                'maxOutputTokens': 600,
                 'responseMimeType': 'application/json',
                 'thinkingConfig': {'thinkingBudget': 0},
             },
