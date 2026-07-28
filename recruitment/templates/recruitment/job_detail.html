@@ -146,8 +146,9 @@
                            style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.42rem .5rem;border-radius:8px;font-size:.72rem;font-weight:700;text-decoration:none;background:#0077b5;color:#fff;">
                             <i class="bi bi-linkedin"></i><span>LinkedIn</span>
                         </a>
-                        <a href="https://wa.me/?text={{ posting.title|urlencode }}%20—%20MICEI%20Careers%3A%20{{ request.build_absolute_uri|urlencode }}"
-                           target="_blank" rel="noopener" title="Share on WhatsApp"
+                        <a href="#"
+                           onclick="window.open('https://wa.me/?text=' + encodeURIComponent('{{ posting.title }} — MICEI Careers: {{ request.build_absolute_uri }}'), '_blank'); return false;"
+                           title="Share on WhatsApp"
                            style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.42rem .5rem;border-radius:8px;font-size:.72rem;font-weight:700;text-decoration:none;background:#25d366;color:#fff;">
                             <i class="bi bi-whatsapp"></i><span>WhatsApp</span>
                         </a>
