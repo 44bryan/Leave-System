@@ -151,8 +151,9 @@
                            style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.42rem .5rem;border-radius:8px;font-size:.72rem;font-weight:700;text-decoration:none;background:#25d366;color:#fff;">
                             <i class="bi bi-whatsapp"></i><span>WhatsApp</span>
                         </a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}"
-                           target="_blank" rel="noopener" title="Share on Facebook"
+                        <a href="#"
+                           onclick="window.open('https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}','fb-share','width=626,height=436,toolbar=0,status=0,menubar=0');return false;"
+                           title="Share on Facebook"
                            style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:.42rem .5rem;border-radius:8px;font-size:.72rem;font-weight:700;text-decoration:none;background:#1877f2;color:#fff;">
                             <i class="bi bi-facebook"></i><span>Facebook</span>
                         </a>

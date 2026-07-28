@@ -114,8 +114,20 @@
                                    {% if field.is_required %}required{% endif %}>
 
                             {% elif field.field_type == 'file' %}
-                            <input type="file" name="{{ field.field_name }}" class="form-control"
-                                   {% if field.is_required %}required{% endif %}>
+                            <div class="doc-upload-box" id="box_{{ field.field_name }}" onclick="document.getElementById('inp_{{ field.field_name }}').click()"
+                                 style="border:2px dashed #c8dde5;border-radius:10px;padding:.9rem 1rem;cursor:pointer;background:#f8fdfe;display:flex;align-items:center;gap:.65rem;transition:border-color .2s,background .2s;">
+                                <i class="bi bi-file-earmark-arrow-up" style="font-size:1.4rem;color:#2db4c3;flex-shrink:0;"></i>
+                                <div style="flex:1;min-width:0;">
+                                    <p style="margin:0;font-size:.8rem;font-weight:700;color:#0A4D68;">{% trans "Click to upload" %}</p>
+                                    <p style="margin:0;font-size:.7rem;color:#94aab5;">{% trans "PDF, DOC, DOCX, JPG, PNG — max 10 MB" %}</p>
+                                </div>
+                                <span id="lbl_{{ field.field_name }}" style="font-size:.72rem;color:#2db4c3;font-weight:700;display:none;"></span>
+                            </div>
+                            <input type="file" name="{{ field.field_name }}" id="inp_{{ field.field_name }}"
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                   {% if field.is_required %}required{% endif %}
+                                   style="display:none;"
+                                   onchange="markDocUploaded('{{ field.field_name }}', this)">
 
                             {% elif field.field_type == 'email' %}
                             <input type="email" name="{{ field.field_name }}" class="form-control"
@@ -167,6 +179,16 @@
         e.preventDefault(); dropZone.classList.remove('dragover');
         if (e.dataTransfer.files.length) { cvInput.files = e.dataTransfer.files; handleFile(cvInput); }
     });
+    function markDocUploaded(fieldName, input) {
+        var box = document.getElementById('box_' + fieldName);
+        var lbl = document.getElementById('lbl_' + fieldName);
+        if (input.files && input.files[0]) {
+            box.style.borderColor = '#2db4c3';
+            box.style.background  = '#e8f6f9';
+            lbl.textContent = '✓ ' + input.files[0].name;
+            lbl.style.display = 'inline';
+        }
+    }
     document.getElementById('applyForm').addEventListener('submit', function() {
         var btn = document.getElementById('submitBtn');
         btn.disabled = true;
