@@ -171,6 +171,7 @@ APPLICATION_STATUS_CHOICES = [
     ('under_review','Under Review'),
     ('shortlisted', 'Shortlisted'),
     ('interview',   'Interview Scheduled'),
+    ('offered',     'Offer Extended'),
     ('hired',       'Hired'),
     ('rejected',    'Rejected'),
 ]
@@ -180,6 +181,7 @@ APPLICATION_STATUS_COLORS = {
     'under_review': 'info',
     'shortlisted':  'primary',
     'interview':    'warning',
+    'offered':      'success',
     'hired':        'success',
     'rejected':     'danger',
 }

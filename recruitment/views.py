@@ -437,11 +437,17 @@ def apply(request, pk):
             })
 
         with transaction.atomic():
+            # Save CV with UUID filename (same as other uploads)
+            import os as _os
+            _cv_ext = _os.path.splitext(cv.name)[1].lower()
+            _cv_safe = uuid.uuid4().hex + _cv_ext
+            _cv_path = os.path.join('recruitment', 'cvs', _tz.now().strftime('%Y'), _tz.now().strftime('%m'), _cv_safe)
+            _saved_cv = default_storage.save(_cv_path, cv)
             app = Application.objects.create(
                 posting=posting,
                 applicant_name=name,
                 applicant_email=email,
-                cv_file=cv,
+                cv_file=_saved_cv,
             )
             # Save answers for all enabled fields
             answers_to_create = []
@@ -504,7 +510,7 @@ def apply(request, pk):
             app.compute_score()
 
         # AI analysis in background — runs after the transaction commits
-        if settings.GEMINI_API_KEY:
+        if getattr(settings, 'GEMINI_API_KEY', None):
             threading.Thread(
                 target=_ai_analyse_background,
                 args=(posting, app),
@@ -598,11 +604,12 @@ def serve_recruitment_file(request, filepath):
     """Serve recruitment uploads only to logged-in HR/admin users."""
     if not _is_hr_or_admin(request.user):
         raise Http404
-    # filepath must live inside recruitment/
-    if not filepath.startswith('recruitment/'):
+    # Normalize path and ensure it stays inside MEDIA_ROOT/recruitment/
+    full_path = os.path.realpath(os.path.join(settings.MEDIA_ROOT, filepath))
+    allowed_root = os.path.realpath(os.path.join(settings.MEDIA_ROOT, 'recruitment'))
+    if not full_path.startswith(allowed_root + os.sep):
         raise Http404
-    full_path = os.path.join(settings.MEDIA_ROOT, filepath)
-    if not os.path.exists(full_path):
+    if not os.path.isfile(full_path):
         raise Http404
     return FileResponse(open(full_path, 'rb'))
 
@@ -1281,7 +1288,7 @@ def ai_analyse(request, pk):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    if not settings.GEMINI_API_KEY:
+    if not getattr(settings, 'GEMINI_API_KEY', None):
         return JsonResponse({'error': 'GEMINI_API_KEY is not configured. Add it to your .env file.'}, status=503)
 
     posting = get_object_or_404(JobPosting, pk=pk)
