@@ -71,6 +71,13 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label fw-semibold">{% trans "About the Role" %}</label>
+                        <small class="text-muted d-block mb-1">A short intro (2–4 sentences) shown prominently at the top of the job page — the "hook" for candidates.</small>
+                        <textarea name="about" class="form-control" rows="3"
+                                  placeholder="e.g. We are looking for a passionate ophthalmologist to join our growing team…">{% if posting %}{{ posting.about }}{% else %}{{ post.about|default:'' }}{% endif %}</textarea>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label fw-semibold">{% trans "Job Description" %} <span class="text-danger">*</span></label>
                         <textarea name="description" class="form-control" rows="7" required
                                   placeholder="Describe the role, responsibilities, team…">{% if posting %}{{ posting.description }}{% else %}{{ post.description|default:'' }}{% endif %}</textarea>

@@ -74,6 +74,7 @@ class JobPosting(models.Model):
     department      = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     location        = models.CharField(max_length=100, blank=True, default='')
     employment_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_FULL_TIME)
+    about           = models.TextField(blank=True, default='', help_text='Short intro shown at the top of the job detail page.')
     description     = models.TextField()
     requirements    = models.TextField(blank=True)
     status          = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_DRAFT)

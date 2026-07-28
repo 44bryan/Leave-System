@@ -504,6 +504,7 @@ def posting_create(request):
             department=dept,
             location=request.POST.get('location', '').strip(),
             employment_type=request.POST.get('employment_type', JobPosting.TYPE_FULL_TIME),
+            about=request.POST.get('about', '').strip(),
             description=desc,
             requirements=request.POST.get('requirements', '').strip(),
             status=request.POST.get('status', JobPosting.STATUS_DRAFT),
@@ -550,6 +551,7 @@ def posting_edit(request, pk):
             posting.department      = dept
             posting.location        = request.POST.get('location', '').strip()
             posting.employment_type = request.POST.get('employment_type', JobPosting.TYPE_FULL_TIME)
+            posting.about           = request.POST.get('about', '').strip()
             posting.description     = desc
             posting.requirements    = request.POST.get('requirements', '').strip()
             posting.status          = request.POST.get('status', posting.status)
