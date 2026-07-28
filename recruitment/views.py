@@ -955,11 +955,39 @@ def _ai_analyse_background(posting, app):
 
 
 def _extract_cv_text(cv_file):
-    """Extract plain text from the applicant's CV (PDF only). Returns empty string on failure."""
+    """
+    Extract plain text from the applicant's CV (PDF only).
+    - First tries direct text extraction (works for digital/typed PDFs).
+    - If result is too short (< 80 chars), assumes a scanned PDF and falls back
+      to OCR using Tesseract (supports English + French).
+    Returns empty string on failure.
+    """
     try:
         import fitz  # PyMuPDF
         with fitz.open(cv_file.path) as doc:
-            return '\n'.join(page.get_text() for page in doc)[:5000]
+            text = '\n'.join(page.get_text() for page in doc).strip()
+
+        if len(text) >= 80:
+            return text[:5000]
+
+        # Scanned PDF — fall back to OCR
+        try:
+            import pytesseract
+            from PIL import Image
+            import io
+            ocr_pages = []
+            with fitz.open(cv_file.path) as doc:
+                for page in doc:
+                    # Render page at 200 DPI for good OCR accuracy
+                    pix = page.get_pixmap(dpi=200)
+                    img = Image.open(io.BytesIO(pix.tobytes('png')))
+                    ocr_pages.append(
+                        pytesseract.image_to_string(img, lang='eng+fra')
+                    )
+            return '\n'.join(ocr_pages)[:5000]
+        except Exception:
+            return text  # Return whatever we had even if short
+
     except Exception:
         return ''
 
