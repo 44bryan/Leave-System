@@ -4,6 +4,22 @@
 {% block title %}{{ posting.title }} — {% trans "MICEI Careers" %}{% endblock %}
 {% block meta_description %}{{ posting.title }} at MICEI. {{ posting.description|truncatechars:140 }}{% endblock %}
 
+{% block extra_head %}
+{% load static %}
+<!-- Open Graph / Social sharing -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ posting.title }} — MICEI Careers">
+<meta property="og:description" content="{{ posting.description|truncatechars:200 }}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'LOGO.png' %}">
+<meta property="og:site_name" content="Magrabi ICO Cameroon Eye Institute">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ posting.title }} — MICEI Careers">
+<meta name="twitter:description" content="{{ posting.description|truncatechars:200 }}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'LOGO.png' %}">
+{% endblock %}
+
 {% block extra_style %}
 .req-list { list-style: none; padding: 0; margin: 0; }
 .req-list li {
