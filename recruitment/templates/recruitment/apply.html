@@ -44,6 +44,10 @@
             <div class="card-body p-4 p-lg-5">
                 <form method="post" enctype="multipart/form-data" novalidate id="applyForm">
                     {% csrf_token %}
+                    {# Honeypot — hidden from humans, bots fill it automatically #}
+                    <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+                        <input type="text" name="_url_confirm" value="" tabindex="-1" autocomplete="off">
+                    </div>
 
                     <p class="section-label mb-3">{% trans "Personal Information" %}</p>
                     <div class="row g-3 mb-4">

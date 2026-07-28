@@ -42,7 +42,7 @@
                         <label class="text-muted" style="font-size:.8rem;">{% trans "CV / Résumé" %}</label>
                         <p class="mb-0">
                             {% if app.cv_file %}
-                            <a href="{{ app.cv_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <a href="{% url 'recruitment:serve_file' app.cv_file.name %}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-file-earmark-person me-1"></i>{% trans "Download CV" %}
                             </a>
                             {% else %}
@@ -62,7 +62,7 @@
                         {% if field.field_type == 'file' %}
                             {% if val %}
                             <p class="mb-0">
-                                <a href="{{ MEDIA_URL }}{{ val }}" target="_blank"
+                                <a href="{% url 'recruitment:serve_file' val %}" target="_blank"
                                    class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-download me-1"></i>{% trans "Download" %}
                                 </a>
@@ -74,7 +74,7 @@
                             {% if val %}
                             <div class="d-flex flex-wrap gap-1">
                                 {% for fpath in val %}
-                                <a href="{{ MEDIA_URL }}{{ fpath }}" target="_blank"
+                                <a href="{% url 'recruitment:serve_file' fpath %}" target="_blank"
                                    class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-file-earmark-arrow-down me-1"></i>{% trans "File" %} {{ forloop.counter }}
                                 </a>
@@ -98,7 +98,7 @@
                 </h6>
                 <div class="d-flex flex-wrap gap-2">
                     {% for fname, fpath in extra_docs %}
-                    <a href="{{ MEDIA_URL }}{{ fpath }}" target="_blank"
+                    <a href="{% url 'recruitment:serve_file' fpath %}" target="_blank"
                        class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
                         <i class="bi bi-file-earmark-arrow-down"></i>
                         {% trans "Document" %} {{ forloop.counter }}

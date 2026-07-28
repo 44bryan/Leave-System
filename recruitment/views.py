@@ -15,7 +15,8 @@ from django.db import models, transaction
 from django.db.models import Max
 from django.urls import reverse
 from django.utils import timezone
-from django.http import Http404, HttpResponse, JsonResponse
+from django.core.cache import cache
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 
 from accounts.models import Department, Employee
 from notifications.utils import notify
@@ -24,6 +25,21 @@ from .models import (
     Application, ApplicationAnswer,
     FIELD_TYPE_TEXT, FIELD_TYPE_CHOICES, APPLICATION_STATUS_CHOICES,
 )
+
+
+# ─── Security helpers ──────────────────────────────────────────────────────────
+
+def _get_client_ip(request):
+    x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    return x_forwarded.split(',')[0].strip() if x_forwarded else request.META.get('REMOTE_ADDR', '127.0.0.1')
+
+def _check_rate_limit(key, max_calls, period_seconds):
+    """Return True if allowed, False if rate-limited."""
+    count = cache.get(key, 0)
+    if count >= max_calls:
+        return False
+    cache.set(key, count + 1, period_seconds)
+    return True
 
 
 # ─── Applicant email helper ────────────────────────────────────────────────────
@@ -272,6 +288,19 @@ def apply(request, pk):
     fields = posting.form_fields.filter(is_enabled=True).order_by('field_order', 'pk')
 
     if request.method == 'POST':
+        # Honeypot: bots fill this hidden field, humans leave it empty
+        if request.POST.get('_url_confirm', ''):
+            return redirect('recruitment:apply_success', pk=posting.pk)
+
+        # Rate limit: max 5 submissions per IP per hour
+        ip = _get_client_ip(request)
+        if not _check_rate_limit(f'apply_{ip}', 5, 3600):
+            messages.error(request, 'Too many submissions from your connection. Please try again later.')
+            return render(request, 'recruitment/apply.html', {
+                'posting': posting, 'fields': fields,
+                'applicant_name': '', 'applicant_email': '',
+            })
+
         name  = request.POST.get('applicant_name', '').strip()
         email = request.POST.get('applicant_email', '').strip()
         cv    = request.FILES.get('cv_file')
@@ -327,6 +356,16 @@ def apply(request, pk):
                 'applicant_email': email,
             })
 
+        # Duplicate check: same email cannot apply to the same posting twice
+        if Application.objects.filter(posting=posting, applicant_email__iexact=email).exists():
+            messages.error(request, 'You have already submitted an application for this position. Check your status using the "My Application" button.')
+            return render(request, 'recruitment/apply.html', {
+                'posting':         posting,
+                'fields':          fields,
+                'applicant_name':  name,
+                'applicant_email': email,
+            })
+
         with transaction.atomic():
             app = Application.objects.create(
                 posting=posting,
@@ -342,7 +381,9 @@ def apply(request, pk):
                 if field.field_type == 'file':
                     uploaded_file = request.FILES.get(field.field_name)
                     if uploaded_file:
-                        save_path = os.path.join('recruitment', 'field_uploads', uploaded_file.name)
+                        ext = os.path.splitext(uploaded_file.name)[1].lower()
+                        safe_name = uuid.uuid4().hex + ext
+                        save_path = os.path.join('recruitment', 'field_uploads', safe_name)
                         saved = default_storage.save(save_path, uploaded_file)
                         val = saved
                     else:
@@ -356,7 +397,8 @@ def apply(request, pk):
                     for i, mf in enumerate(multi_files[:10]):
                         ext = _os.path.splitext(mf.name)[1].lower()
                         if ext in _ALLOWED_DOC_EXTS and mf.size <= _MAX_CV_BYTES:
-                            save_path = os.path.join('recruitment', 'field_uploads', mf.name)
+                            safe_name = uuid.uuid4().hex + ext
+                            save_path = os.path.join('recruitment', 'field_uploads', safe_name)
                             saved = default_storage.save(save_path, mf)
                             answers_to_create.append(ApplicationAnswer(
                                 application=app,
@@ -377,7 +419,8 @@ def apply(request, pk):
             for i, doc in enumerate(extra_files[:10]):  # cap at 10 extra docs
                 ext = _os.path.splitext(doc.name)[1].lower()
                 if ext in _ALLOWED_DOC_EXTS and doc.size <= _MAX_CV_BYTES:
-                    save_path = os.path.join('recruitment', 'extra_docs', doc.name)
+                    safe_name = uuid.uuid4().hex + ext
+                    save_path = os.path.join('recruitment', 'extra_docs', safe_name)
                     saved = default_storage.save(save_path, doc)
                     extra_answers.append(ApplicationAnswer(
                         application=app,
@@ -433,6 +476,18 @@ def check_status(request):
     searched = False
     email = ''
     if request.method == 'POST':
+        # Honeypot
+        if request.POST.get('_url_confirm', ''):
+            return render(request, 'recruitment/check_status.html', {
+                'applications': [], 'searched': True, 'email': '',
+            })
+        # Rate limit: 15 lookups per IP per 10 minutes
+        ip = _get_client_ip(request)
+        if not _check_rate_limit(f'status_{ip}', 15, 600):
+            messages.error(request, 'Too many requests. Please wait a few minutes.')
+            return render(request, 'recruitment/check_status.html', {
+                'applications': [], 'searched': False, 'email': '',
+            })
         email = request.POST.get('email', '').strip().lower()
         searched = True
         if email:
@@ -447,6 +502,22 @@ def check_status(request):
         'searched': searched,
         'email': email,
     })
+
+
+# ─── Protected file serving (HR only) ─────────────────────────────────────────
+
+@login_required
+def serve_recruitment_file(request, filepath):
+    """Serve recruitment uploads only to logged-in HR/admin users."""
+    if not _is_hr_or_admin(request.user):
+        raise Http404
+    # filepath must live inside recruitment/
+    if not filepath.startswith('recruitment/'):
+        raise Http404
+    full_path = os.path.join(settings.MEDIA_ROOT, filepath)
+    if not os.path.exists(full_path):
+        raise Http404
+    return FileResponse(open(full_path, 'rb'))
 
 
 # ─── HR views (login required) ────────────────────────────────────────────────

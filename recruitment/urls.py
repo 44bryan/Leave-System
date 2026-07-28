@@ -17,6 +17,9 @@ urlpatterns = [
     path('<int:pk>/shortlist-report/',                    views.shortlist_report,      name='shortlist_report'),
     path('<int:pk>/applicants/export/',                   views.applicant_export_excel, name='applicant_export'),
 
+    # Protected file serving (HR only)
+    path('files/<path:filepath>/',         views.serve_recruitment_file, name='serve_file'),
+
     # Public job board (no login)
     path('jobs/',                          views.job_board,     name='job_board'),
     path('jobs/<int:pk>/',                 views.job_detail,    name='job_detail'),
