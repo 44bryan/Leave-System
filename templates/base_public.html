@@ -328,6 +328,23 @@
         .search-wrap .form-control:focus { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.45); box-shadow: none; }
 
         /* ── Responsive ── */
+        @media (max-width: 991px) {
+            .stats-card {
+                display: flex; flex-direction: row;
+                gap: 0; padding: .6rem .5rem;
+                border-radius: 10px; overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .stat-item {
+                flex: 1; min-width: 0;
+                padding: .3rem .4rem;
+                border-right: 1px solid rgba(255,255,255,.15);
+            }
+            .stat-item:last-child { border-right: none; }
+            .stat-icon { font-size: .75rem; margin-bottom: .1rem; }
+            .stat-num { font-size: .95rem; }
+            .stat-lbl { font-size: .55rem; }
+        }
         @media (max-width: 576px) {
             .pub-hero { padding: 2rem 0 1.8rem; }
             .pub-hero h1 { font-size: 1.45rem; }
