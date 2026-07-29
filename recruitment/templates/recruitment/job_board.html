@@ -34,6 +34,14 @@
                     {{ postings|length }} {% trans "open position" %}{{ postings|length|pluralize }}
                 </span>
                 {% endif %}
+
+                <!-- Stats strip — mobile only -->
+                <div class="d-lg-none" style="display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-top:1.4rem;max-width:440px;">
+                    <div class="stat-item"><i class="bi bi-trophy stat-icon"></i><span class="stat-num" style="font-size:1.1rem;">30</span><span class="stat-lbl">{% trans "Awards" %}</span></div>
+                    <div class="stat-item"><i class="bi bi-person-check stat-icon"></i><span class="stat-num" style="font-size:1.1rem;">500+</span><span class="stat-lbl">{% trans "Daily Visits" %}</span></div>
+                    <div class="stat-item"><i class="bi bi-eye stat-icon"></i><span class="stat-num" style="font-size:1.1rem;">85K+</span><span class="stat-lbl">{% trans "Patients" %}</span></div>
+                    <div class="stat-item"><i class="bi bi-people stat-icon"></i><span class="stat-num" style="font-size:1.1rem;">450K+</span><span class="stat-lbl">{% trans "Consults" %}</span></div>
+                </div>
             </div>
             <div class="col-lg-5 d-none d-lg-block">
                 <div class="stats-card">
