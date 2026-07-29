@@ -9,7 +9,7 @@
 <!-- Row 1: Navigation + Actions -->
 <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
     <a href="{% url 'recruitment:list' %}" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Postings" %}
+        <i class="bi bi-arrow-left me-1"></i>{% trans "Back" %}
     </a>
     <div class="dropdown">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -33,33 +33,32 @@
         <button id="analyseAllBtn" class="btn btn-sm"
                 style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;"
                 data-url="{% url 'recruitment:ai_analyse' posting.pk %}">
-            <i class="bi bi-robot me-1"></i>{% trans "Analyse All with AI" %}
+            <i class="bi bi-robot me-1"></i><span class="d-none d-sm-inline">{% trans "Analyse All with AI" %}</span><span class="d-sm-none">AI</span>
         </button>
         <a href="{% url 'recruitment:shortlist_report' posting.pk %}?filter=invite"
            class="btn btn-sm" style="background:#0A4D68;color:#fff;border:none;">
-            <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Shortlist PDF" %}
+            <i class="bi bi-file-earmark-pdf me-1"></i><span class="d-none d-sm-inline">{% trans "Shortlist PDF" %}</span><span class="d-sm-none">PDF</span>
         </a>
         <a id="exportExcelBtn"
            href="{% url 'recruitment:applicant_export' posting.pk %}{% if ai_rec_filter %}?ai_rec={{ ai_rec_filter }}{% endif %}"
            class="btn btn-sm" style="background:#1d6f42;color:#fff;border:none;">
-            <i class="bi bi-file-earmark-excel me-1"></i>
-            {% if ai_rec_filter %}{% trans "Download Filtered" %}{% else %}{% trans "Export Excel" %}{% endif %}
+            <i class="bi bi-file-earmark-excel me-1"></i><span class="d-none d-sm-inline">{% if ai_rec_filter %}{% trans "Download Filtered" %}{% else %}{% trans "Export Excel" %}{% endif %}</span><span class="d-sm-none">XLS</span>
         </a>
     </div>
     {% endif %}
 </div>
 
 {% if applications %}
-<span id="aiStatus" class="text-muted d-block mb-2" style="font-size:.82rem;display:none!important;"></span>
+<span id="aiStatus" class="text-muted d-block mb-2" style="font-size:.82rem;"></span>
 {% endif %}
 
 <!-- Row 2: Filter bar -->
 <div class="card mb-3" style="border:1px solid #e5e7eb;">
-    <div class="card-body py-2 px-3 d-flex flex-wrap align-items-center gap-3">
+    <div class="card-body py-2 px-3">
 
         <!-- AI Verdict filter -->
-        <div class="d-flex align-items-center gap-1 flex-wrap">
-            <span style="font-size:.75rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;margin-right:4px;">AI Verdict</span>
+        <div class="d-flex align-items-center flex-wrap gap-1 mb-2">
+            <span style="font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.04em;min-width:72px;">AI Verdict</span>
             <a href="?{% if status_filter %}status={{ status_filter }}{% endif %}"
                class="btn btn-sm" style="{% if not ai_rec_filter %}background:#2db4c3;color:#fff;border:none;{% else %}background:#f9fafb;border:1px solid #dee2e6;color:#6c757d;{% endif %}">All</a>
             <a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}ai_rec=invite"
@@ -73,11 +72,11 @@
                 <i class="bi bi-x-circle me-1"></i>Reject</a>
         </div>
 
-        <div style="width:1px;height:28px;background:#e5e7eb;"></div>
+        <hr class="my-1">
 
         <!-- Status filter -->
-        <div class="d-flex align-items-center gap-1 flex-wrap">
-            <span style="font-size:.75rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;margin-right:4px;">Status</span>
+        <div class="d-flex align-items-center flex-wrap gap-1 mt-2">
+            <span style="font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.04em;min-width:72px;">Status</span>
             <a href="?{% if ai_rec_filter %}ai_rec={{ ai_rec_filter }}{% endif %}"
                class="btn btn-sm" style="{% if not status_filter %}background:#2db4c3;color:#fff;border:none;{% else %}background:#f9fafb;border:1px solid #dee2e6;color:#6c757d;{% endif %}">{% trans "All" %}</a>
             {% for val, label in STATUS_CHOICES %}
