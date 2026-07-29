@@ -53,11 +53,10 @@ _STATUS_CONFIG = {
         'body': (
             'Thank you for applying for the <strong>{title}</strong> position at '
             'Magrabi ICO Cameroon Eye Institute (MICEI).<br><br>'
-            'We have successfully received your application and our HR team will '
-            'begin reviewing it shortly. You will receive an email update as your '
-            'application progresses.'
+            'We have received your application and our HR team will begin reviewing it shortly. '
+            'You will be notified by email as your application progresses through our selection process.'
         ),
-        'next': 'Our HR team will review your application and get back to you with the next steps.',
+        'next': 'Our HR team will carefully review your application and reach out to you regarding the next steps.',
     },
     'under_review': {
         'subject': 'Your Application is Under Review — {title}',
@@ -156,7 +155,7 @@ _EMAIL_HTML = """<!DOCTYPE html>
     <p style="margin:0 0 20px;color:#374151;font-size:.93rem;line-height:1.75;">{body}</p>
     <p style="margin:0 0 6px;color:#374151;font-size:.88rem;font-weight:600;">What happens next?</p>
     <p style="margin:0 0 20px;color:#4b5563;font-size:.88rem;line-height:1.65;">{next}</p>
-    <p style="margin:0 0 28px;color:#6b7280;font-size:.83rem;line-height:1.6;font-style:italic;">Please note that due to the large number of applicants, only candidates who advance to the next stage will be contacted.</p>
+    <p style="margin:0 0 28px;color:#6b7280;font-size:.83rem;line-height:1.6;font-style:italic;">Kindly note that due to the high volume of applications received, only shortlisted candidates who progress to the next stage will be contacted.</p>
     <table cellpadding="0" cellspacing="0"><tr><td style="background:#0A4D68;border-radius:4px;">
       <a href="{status_url}" style="display:inline-block;padding:11px 28px;color:#ffffff;font-size:.88rem;font-weight:700;text-decoration:none;">Check My Application Status</a>
     </td></tr></table>
