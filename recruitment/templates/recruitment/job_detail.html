@@ -2,21 +2,23 @@
 {% load i18n %}
 
 {% block title %}{{ posting.title }} — {% trans "MICEI Careers" %}{% endblock %}
-{% block meta_description %}{{ posting.title }} at MICEI. {% if posting.about %}{{ posting.about|truncatechars:140 }}{% else %}{{ posting.description|truncatechars:140 }}{% endif %}{% endblock %}
+{% block meta_description %}{{ posting.title }} at MICEI. {% if posting.about %}{{ posting.about|striptags|truncatechars:140 }}{% else %}{{ posting.description|striptags|truncatechars:140 }}{% endif %}{% endblock %}
 
 {% block extra_head %}
 {% load static %}
 <!-- Open Graph / Social sharing -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{ posting.title }} — MICEI Careers">
-<meta property="og:description" content="{% if posting.about %}{{ posting.about|truncatechars:200 }}{% else %}{{ posting.description|truncatechars:200 }}{% endif %}">
+<meta property="og:description" content="{% if posting.about %}{{ posting.about|striptags|truncatechars:200 }}{% else %}{{ posting.description|striptags|truncatechars:200 }}{% endif %}">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'LOGO.png' %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:site_name" content="Magrabi ICO Cameroon Eye Institute">
 <!-- Twitter Card -->
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ posting.title }} — MICEI Careers">
-<meta name="twitter:description" content="{% if posting.about %}{{ posting.about|truncatechars:200 }}{% else %}{{ posting.description|truncatechars:200 }}{% endif %}">
+<meta name="twitter:description" content="{% if posting.about %}{{ posting.about|striptags|truncatechars:200 }}{% else %}{{ posting.description|striptags|truncatechars:200 }}{% endif %}">
 <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'LOGO.png' %}">
 {% endblock %}
 
