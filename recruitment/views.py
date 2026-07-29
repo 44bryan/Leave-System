@@ -155,7 +155,8 @@ _EMAIL_HTML = """<!DOCTYPE html>
     <p style="margin:0 0 20px;color:#1a2b3c;font-size:1rem;">Dear <strong>{name}</strong>,</p>
     <p style="margin:0 0 20px;color:#374151;font-size:.93rem;line-height:1.75;">{body}</p>
     <p style="margin:0 0 6px;color:#374151;font-size:.88rem;font-weight:600;">What happens next?</p>
-    <p style="margin:0 0 28px;color:#4b5563;font-size:.88rem;line-height:1.65;">{next}</p>
+    <p style="margin:0 0 20px;color:#4b5563;font-size:.88rem;line-height:1.65;">{next}</p>
+    <p style="margin:0 0 28px;color:#6b7280;font-size:.83rem;line-height:1.6;font-style:italic;">Please note that due to the large number of applicants, only candidates who advance to the next stage will be contacted.</p>
     <table cellpadding="0" cellspacing="0"><tr><td style="background:#0A4D68;border-radius:4px;">
       <a href="{status_url}" style="display:inline-block;padding:11px 28px;color:#ffffff;font-size:.88rem;font-weight:700;text-decoration:none;">Check My Application Status</a>
     </td></tr></table>
@@ -163,7 +164,6 @@ _EMAIL_HTML = """<!DOCTYPE html>
   <!-- Footer -->
   <tr><td style="padding:20px 40px;border-top:1px solid #e8edf2;">
     <p style="margin:0 0 6px;font-size:.78rem;color:#6b7280;font-weight:600;">Magrabi ICO Cameroon Eye Institute (MICEI)</p>
-    <p style="margin:0 0 4px;font-size:.72rem;color:#b0b8c4;">Due to the large number of applicants, only candidates who advance to the next stage will be contacted.</p>
     <p style="margin:0;font-size:.72rem;color:#b0b8c4;">This is an automated message — please do not reply directly to this email.</p>
   </td></tr>
 </table>
