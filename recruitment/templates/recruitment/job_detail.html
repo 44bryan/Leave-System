@@ -37,19 +37,6 @@
 .req-check i { font-size: .55rem; color: #0A4D68; }
 .desc-content { white-space: pre-wrap; line-height: 1.85; color: #2d4a5a; font-size: .9rem; }
 @media (min-width: 992px) { .sticky-sidebar { position: sticky; top: 90px; } }
-.about-micei-card {
-    background: #fff;
-    border: 1.5px solid #cde8ef;
-    border-radius: 14px; padding: 1.4rem; color: #2d4a5a;
-}
-.about-micei-card h6 { color: #0A4D68; font-weight: 700; font-size: .88rem; margin-bottom: .6rem; }
-.about-micei-card p { font-size: .8rem; line-height: 1.65; margin: 0; }
-.micei-tag {
-    display: inline-block; background: #f0f9fb;
-    color: #0A4D68; font-size: .68rem; font-weight: 600;
-    padding: .2em .65em; border-radius: 12px; margin: .2rem .1rem 0;
-    border: 1px solid #cde8ef;
-}
 {% endblock %}
 
 {% block hero %}
@@ -250,23 +237,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- About MICEI -->
-            <div class="about-micei-card">
-                <h6><i class="bi bi-eye me-2" style="color:#2db4c3;"></i>{% trans "About MICEI" %}</h6>
-                <p style="font-style:italic;color:#6b8a99;font-size:.75rem;margin-bottom:.5rem;">"Promoting sight, Improving life"</p>
-                <p>{% trans "A not-for-profit multispecialty academic medical centre integrating clinical care, research and education — delivering 12+ subspecialty eye services to Cameroon and neighbouring countries." %}</p>
-                <div style="margin-top:.85rem;">
-                    <span class="micei-tag">{% trans "30 Awards" %}</span>
-                    <span class="micei-tag">{% trans "450K+ Consultations" %}</span>
-                    <span class="micei-tag">{% trans "85K+ Patients Aware" %}</span>
-                    <span class="micei-tag">{% trans "Not-for-Profit" %}</span>
-                </div>
-                <a href="https://www.micei.org" target="_blank" rel="noopener"
-                   style="display:inline-flex;align-items:center;gap:5px;margin-top:1rem;color:#2db4c3;font-size:.77rem;font-weight:600;text-decoration:none;">
-                    {% trans "Learn more at micei.org" %} <i class="bi bi-arrow-right"></i>
-                </a>
             </div>
 
         </div>
