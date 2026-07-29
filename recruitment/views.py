@@ -57,7 +57,7 @@ _STATUS_CONFIG = {
             'begin reviewing it shortly. You will receive an email update as your '
             'application progresses.'
         ),
-        'next': 'Our HR team will review your application and notify you of the next steps. This typically takes 5–10 business days.',
+        'next': 'Our HR team will review your application and get back to you with the next steps.',
     },
     'under_review': {
         'subject': 'Your Application is Under Review — {title}',
@@ -152,7 +152,6 @@ _EMAIL_HTML = """<!DOCTYPE html>
   </td></tr>
   <!-- Body -->
   <tr><td style="padding:32px 40px;">
-    <p style="margin:0 0 6px;color:#0A4D68;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{headline}</p>
     <p style="margin:0 0 20px;color:#1a2b3c;font-size:1rem;">Dear <strong>{name}</strong>,</p>
     <p style="margin:0 0 20px;color:#374151;font-size:.93rem;line-height:1.75;">{body}</p>
     <p style="margin:0 0 6px;color:#374151;font-size:.88rem;font-weight:600;">What happens next?</p>
@@ -264,7 +263,6 @@ def _notify_hr_email(applicant_name, applicant_email, posting_title, detail_url)
     <img src="{logo_url}" alt="MICEI" style="height:44px;width:auto;display:block;">
   </td></tr>
   <tr><td style="padding:32px 40px;">
-    <p style="margin:0 0 6px;color:#0A4D68;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">New Application Received</p>
     <p style="margin:0 0 20px;color:#1a2b3c;font-size:1rem;">Hello HR Team,</p>
     <p style="margin:0 0 20px;color:#374151;font-size:.93rem;line-height:1.75;">
       A new application has been submitted for the <strong>{posting_title}</strong> position. Please review it at your earliest convenience.
