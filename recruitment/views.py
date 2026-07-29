@@ -892,16 +892,21 @@ def applicant_list(request, pk):
         return redirect('recruitment:list')
 
     posting = get_object_or_404(JobPosting, pk=pk)
-    apps    = posting.applications.all()
+    apps    = posting.applications.all().order_by('-ai_score', '-score')
 
     status_filter = request.GET.get('status', '')
+    ai_rec_filter = request.GET.get('ai_rec', '')
+
     if status_filter:
         apps = apps.filter(status=status_filter)
+    if ai_rec_filter:
+        apps = apps.filter(ai_recommendation=ai_rec_filter)
 
     return render(request, 'recruitment/applicant_list.html', {
         'posting':        posting,
         'applications':   apps,
         'status_filter':  status_filter,
+        'ai_rec_filter':  ai_rec_filter,
         'STATUS_CHOICES': APPLICATION_STATUS_CHOICES,
     })
 
@@ -918,6 +923,10 @@ def applicant_export_excel(request, pk):
 
     posting = get_object_or_404(JobPosting, pk=pk)
     apps = posting.applications.all().order_by('-ai_score', '-score')
+
+    ai_rec_filter = request.GET.get('ai_rec', '')
+    if ai_rec_filter in ('invite', 'hold', 'reject'):
+        apps = apps.filter(ai_recommendation=ai_rec_filter)
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -937,10 +946,12 @@ def applicant_export_excel(request, pk):
         'reject': PatternFill('solid', fgColor='FEE2E2'),
     }
 
+    filter_label = {'invite': ' — Invite Only', 'hold': ' — Hold Only', 'reject': ' — Rejected Only'}.get(ai_rec_filter, '')
+
     # ── Title row ──
     ws.merge_cells('A1:K1')
     title_cell = ws['A1']
-    title_cell.value     = f'Applicants — {posting.title}'
+    title_cell.value     = f'Applicants — {posting.title}{filter_label}'
     title_cell.font      = Font(bold=True, size=13, color='0A4D68')
     title_cell.alignment = center
     ws.row_dimensions[1].height = 28

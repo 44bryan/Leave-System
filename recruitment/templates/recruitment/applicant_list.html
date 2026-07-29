@@ -31,9 +31,11 @@
        class="btn btn-sm" style="background:#0A4D68;color:#fff;border:none;">
         <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download Shortlist PDF" %}
     </a>
-    <a href="{% url 'recruitment:applicant_export' posting.pk %}"
+    <a id="exportExcelBtn"
+       href="{% url 'recruitment:applicant_export' posting.pk %}{% if ai_rec_filter %}?ai_rec={{ ai_rec_filter }}{% endif %}"
        class="btn btn-sm" style="background:#1d6f42;color:#fff;border:none;">
-        <i class="bi bi-file-earmark-excel me-1"></i>{% trans "Export to Excel" %}
+        <i class="bi bi-file-earmark-excel me-1"></i>
+        {% if ai_rec_filter %}{% trans "Download Filtered Excel" %}{% else %}{% trans "Export to Excel" %}{% endif %}
     </a>
     <button id="analyseAllBtn" class="btn btn-sm"
             style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;"
@@ -43,12 +45,34 @@
     <span id="aiStatus" class="text-muted" style="font-size:.82rem;display:none;"></span>
     {% endif %}
 
-    <!-- Status tabs -->
-    <div class="ms-auto d-flex gap-1 flex-wrap">
-        <a href="?" class="btn btn-sm" style="{% if not status_filter %}background:#2db4c3;border-color:#2db4c3;color:#fff;{% else %}background:transparent;border:1px solid #dee2e6;color:#6c757d;{% endif %}">{% trans "All" %}</a>
-        {% for val, label in STATUS_CHOICES %}
-        <a href="?status={{ val }}" class="btn btn-sm" style="{% if status_filter == val %}background:#2db4c3;border-color:#2db4c3;color:#fff;{% else %}background:transparent;border:1px solid #dee2e6;color:#6c757d;{% endif %}">{{ label }}</a>
-        {% endfor %}
+    <!-- Filters row -->
+    <div class="w-100 d-flex flex-wrap gap-2 align-items-center mt-1">
+        <!-- AI Verdict filter -->
+        <div class="d-flex align-items-center gap-1">
+            <span style="font-size:.78rem;color:#6b7280;font-weight:600;white-space:nowrap;">AI Verdict:</span>
+            <a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}"
+               class="btn btn-sm" style="{% if not ai_rec_filter %}background:#2db4c3;color:#fff;border:none;{% else %}background:#fff;border:1px solid #dee2e6;color:#6c757d;{% endif %}">All</a>
+            <a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}ai_rec=invite"
+               class="btn btn-sm" style="{% if ai_rec_filter == 'invite' %}background:#065f46;color:#fff;border:none;{% else %}background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;{% endif %}">
+                <i class="bi bi-check-circle me-1"></i>Invite</a>
+            <a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}ai_rec=hold"
+               class="btn btn-sm" style="{% if ai_rec_filter == 'hold' %}background:#92400e;color:#fff;border:none;{% else %}background:#fef3c7;color:#92400e;border:1px solid #fde68a;{% endif %}">
+                <i class="bi bi-pause-circle me-1"></i>Hold</a>
+            <a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}ai_rec=reject"
+               class="btn btn-sm" style="{% if ai_rec_filter == 'reject' %}background:#991b1b;color:#fff;border:none;{% else %}background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;{% endif %}">
+                <i class="bi bi-x-circle me-1"></i>Reject</a>
+        </div>
+
+        <!-- Status filter -->
+        <div class="d-flex align-items-center gap-1 ms-auto flex-wrap">
+            <span style="font-size:.78rem;color:#6b7280;font-weight:600;white-space:nowrap;">Status:</span>
+            <a href="?{% if ai_rec_filter %}ai_rec={{ ai_rec_filter }}&{% endif %}"
+               class="btn btn-sm" style="{% if not status_filter %}background:#2db4c3;color:#fff;border:none;{% else %}background:#fff;border:1px solid #dee2e6;color:#6c757d;{% endif %}">{% trans "All" %}</a>
+            {% for val, label in STATUS_CHOICES %}
+            <a href="?{% if ai_rec_filter %}ai_rec={{ ai_rec_filter }}&{% endif %}status={{ val }}"
+               class="btn btn-sm" style="{% if status_filter == val %}background:#2db4c3;color:#fff;border:none;{% else %}background:#fff;border:1px solid #dee2e6;color:#6c757d;{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
