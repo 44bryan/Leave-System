@@ -1239,8 +1239,8 @@ Scoring thresholds:
 - 50–79  → meets some requirements but has notable gaps → recommend: hold
 - 0–49   → does not meet the requirements → recommend: reject
 
-Respond with ONLY valid JSON (no markdown, no extra text):
-{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-sentence overall fit verdict>", "strengths": "<bullet list of requirements clearly met by this applicant>", "gaps": "<bullet list of requirements that are missing or not evidenced>"}}"""
+Respond with ONLY valid JSON (no markdown, no extra text). For strengths and gaps, write each point as a short, clear sentence on its own line starting with "• ". Use plain language an HR officer can read at a glance — no jargon.
+{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-sentence overall fit verdict in plain language>", "strengths": "<each strength on its own line starting with • >", "gaps": "<each gap on its own line starting with • >"}}"""
 
     resp = http_requests.post(
         f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'

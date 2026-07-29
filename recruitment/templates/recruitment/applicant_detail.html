@@ -189,19 +189,27 @@
                 </div>
                 {% endif %}
                 {% if app.ai_strengths %}
-                <div class="mb-2">
-                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#065f46;">
-                        <i class="bi bi-check2 me-1"></i>{% trans "Strengths" %}
+                <div class="mb-3">
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#065f46;margin-bottom:.4rem;">
+                        <i class="bi bi-check2-circle me-1"></i>{% trans "Strengths" %}
                     </div>
-                    <p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">{{ app.ai_strengths }}</p>
+                    <ul style="margin:0;padding-left:1.2rem;font-size:.85rem;color:#374151;line-height:1.75;">
+                        {% for line in app.ai_strengths.splitlines %}{% if line.strip %}
+                        <li>{{ line|cut:"• "|cut:"- "|cut:"* " }}</li>
+                        {% endif %}{% endfor %}
+                    </ul>
                 </div>
                 {% endif %}
                 {% if app.ai_gaps %}
                 <div>
-                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;">
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;margin-bottom:.4rem;">
                         <i class="bi bi-exclamation-triangle me-1"></i>{% trans "Gaps / Concerns" %}
                     </div>
-                    <p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">{{ app.ai_gaps }}</p>
+                    <ul style="margin:0;padding-left:1.2rem;font-size:.85rem;color:#374151;line-height:1.75;">
+                        {% for line in app.ai_gaps.splitlines %}{% if line.strip %}
+                        <li>{{ line|cut:"• "|cut:"- "|cut:"* " }}</li>
+                        {% endif %}{% endfor %}
+                    </ul>
                 </div>
                 {% endif %}
                 {% else %}
@@ -324,9 +332,15 @@ toggleStatusFields();
                 + '<div>' + recBadge(r.ai_recommendation)
                 + '<div style="font-size:.75rem;color:#9ab4c0;">Just analysed</div></div></div>';
 
+            function toList(text) {
+                if (!text) return '';
+                return '<ul style="margin:0;padding-left:1.2rem;font-size:.85rem;color:#374151;line-height:1.75;">'
+                    + text.split('\n').filter(l => l.trim()).map(l => '<li>' + l.replace(/^[•\-\*]\s*/, '') + '</li>').join('')
+                    + '</ul>';
+            }
             if (r.ai_summary)    bodyHtml += '<div class="mb-2"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7a8d;">Summary</div><p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">' + r.ai_summary + '</p></div>';
-            if (r.ai_strengths)  bodyHtml += '<div class="mb-2"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#065f46;"><i class="bi bi-check2 me-1"></i>Strengths</div><p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">' + r.ai_strengths + '</p></div>';
-            if (r.ai_gaps)       bodyHtml += '<div><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;"><i class="bi bi-exclamation-triangle me-1"></i>Gaps / Concerns</div><p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">' + r.ai_gaps + '</p></div>';
+            if (r.ai_strengths)  bodyHtml += '<div class="mb-3"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#065f46;margin-bottom:.4rem;"><i class="bi bi-check2-circle me-1"></i>Strengths</div>' + toList(r.ai_strengths) + '</div>';
+            if (r.ai_gaps)       bodyHtml += '<div><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;margin-bottom:.4rem;"><i class="bi bi-exclamation-triangle me-1"></i>Gaps / Concerns</div>' + toList(r.ai_gaps) + '</div>';
 
             document.getElementById('aiCardBody').innerHTML = bodyHtml;
             btn.disabled = false;
