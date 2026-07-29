@@ -162,8 +162,7 @@ _EMAIL_HTML = """<!DOCTYPE html>
   </td></tr>
   <!-- Footer -->
   <tr><td style="padding:20px 40px;border-top:1px solid #e8edf2;">
-    <p style="margin:0 0 4px;font-size:.78rem;color:#6b7280;font-weight:600;">Magrabi ICO Cameroon Eye Institute (MICEI)</p>
-    <p style="margin:0 0 10px;font-size:.75rem;color:#9ca3af;line-height:1.5;">A not-for-profit eye care centre dedicated to promoting sight and improving lives across Central Africa.</p>
+    <p style="margin:0 0 6px;font-size:.78rem;color:#6b7280;font-weight:600;">Magrabi ICO Cameroon Eye Institute (MICEI)</p>
     <p style="margin:0;font-size:.72rem;color:#b0b8c4;">This is an automated message — please do not reply directly to this email.</p>
   </td></tr>
 </table>
@@ -223,7 +222,6 @@ def _email_applicant(applicant_name, applicant_email, status, posting_title,
 
     plain = (
         f"Dear {applicant_name},\n\n"
-        f"{cfg['headline']}\n\n"
         f"Position: {posting_title}\n\n"
         + (f"Interview: {interview_date.strftime('%A, %d %B %Y at %H:%M')}\n\n" if interview_date else '')
         + (f"Feedback: {rejection_reason}\n\n" if rejection_reason else '')
