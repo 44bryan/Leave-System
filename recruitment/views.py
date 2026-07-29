@@ -163,6 +163,7 @@ _EMAIL_HTML = """<!DOCTYPE html>
   <!-- Footer -->
   <tr><td style="padding:20px 40px;border-top:1px solid #e8edf2;">
     <p style="margin:0 0 6px;font-size:.78rem;color:#6b7280;font-weight:600;">Magrabi ICO Cameroon Eye Institute (MICEI)</p>
+    <p style="margin:0 0 4px;font-size:.72rem;color:#b0b8c4;">Due to the large number of applicants, only candidates who advance to the next stage will be contacted.</p>
     <p style="margin:0;font-size:.72rem;color:#b0b8c4;">This is an automated message — please do not reply directly to this email.</p>
   </td></tr>
 </table>
