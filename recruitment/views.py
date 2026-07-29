@@ -142,36 +142,30 @@ _STATUS_CONFIG = {
 _EMAIL_HTML = """<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:32px 16px;">
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:32px 16px;">
 <tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(10,77,104,.10);">
-  <!-- Logo bar -->
-  <tr><td style="background:#fff;padding:20px 40px;text-align:center;border-bottom:1px solid #e9eef2;">
-    <img src="{logo_url}" alt="MICEI" style="height:52px;width:auto;display:inline-block;">
-  </td></tr>
-  <!-- Header -->
-  <tr><td style="background:linear-gradient(135deg,{color} 0%,#2db4c3 100%);padding:28px 40px;text-align:center;">
-    <div style="font-size:2.2rem;margin-bottom:8px;">{icon}</div>
-    <h1 style="margin:0;color:#fff;font-size:1.35rem;font-weight:700;line-height:1.35;">{headline}</h1>
+<table width="580" cellpadding="0" cellspacing="0" style="background:#ffffff;border-top:4px solid #0A4D68;">
+  <!-- Logo -->
+  <tr><td style="padding:28px 40px 20px;border-bottom:1px solid #e8edf2;">
+    <img src="{logo_url}" alt="MICEI" style="height:44px;width:auto;display:block;">
   </td></tr>
   <!-- Body -->
-  <tr><td style="padding:36px 40px;">
-    <p style="margin:0 0 16px;color:#1a2b3c;font-size:1rem;">Dear <strong>{name}</strong>,</p>
-    <p style="margin:0 0 24px;color:#374151;font-size:.95rem;line-height:1.7;">{body}</p>
-    <!-- Next step box -->
-    <div style="background:#f0f9ff;border-left:4px solid {color};border-radius:8px;padding:16px 20px;margin-bottom:28px;">
-      <p style="margin:0;font-size:.85rem;color:#0A4D68;font-weight:600;">What happens next?</p>
-      <p style="margin:4px 0 0;font-size:.85rem;color:#374151;">{next}</p>
-    </div>
-    <p style="margin:0;color:#374151;font-size:.9rem;">You can check your application status anytime at:<br>
-      <a href="{status_url}" style="color:#2db4c3;font-weight:600;">{status_url}</a>
-    </p>
+  <tr><td style="padding:32px 40px;">
+    <p style="margin:0 0 6px;color:#0A4D68;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{headline}</p>
+    <p style="margin:0 0 20px;color:#1a2b3c;font-size:1rem;">Dear <strong>{name}</strong>,</p>
+    <p style="margin:0 0 20px;color:#374151;font-size:.93rem;line-height:1.75;">{body}</p>
+    <p style="margin:0 0 6px;color:#374151;font-size:.88rem;font-weight:600;">What happens next?</p>
+    <p style="margin:0 0 28px;color:#4b5563;font-size:.88rem;line-height:1.65;">{next}</p>
+    <table cellpadding="0" cellspacing="0"><tr><td style="background:#0A4D68;border-radius:4px;">
+      <a href="{status_url}" style="display:inline-block;padding:11px 28px;color:#ffffff;font-size:.88rem;font-weight:700;text-decoration:none;">Check My Application Status</a>
+    </td></tr></table>
   </td></tr>
   <!-- Footer -->
-  <tr><td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:24px 40px;text-align:center;">
-    <p style="margin:0 0 4px;font-size:.8rem;color:#64748b;">Magrabi ICO Cameroon Eye Institute</p>
-    <p style="margin:0;font-size:.75rem;color:#94a3b8;">This is an automated message — please do not reply directly to this email.</p>
+  <tr><td style="padding:20px 40px;border-top:1px solid #e8edf2;">
+    <p style="margin:0 0 4px;font-size:.78rem;color:#6b7280;font-weight:600;">Magrabi ICO Cameroon Eye Institute (MICEI)</p>
+    <p style="margin:0 0 10px;font-size:.75rem;color:#9ca3af;line-height:1.5;">A not-for-profit eye care centre dedicated to promoting sight and improving lives across Central Africa.</p>
+    <p style="margin:0;font-size:.72rem;color:#b0b8c4;">This is an automated message — please do not reply directly to this email.</p>
   </td></tr>
 </table>
 </td></tr>
@@ -220,8 +214,6 @@ def _email_applicant(applicant_name, applicant_email, status, posting_title,
     site_url = getattr(settings, 'SITE_URL', 'https://hr.micei.org')
     logo_url = f'{site_url}/static/LOGO.png'
     html = _EMAIL_HTML.format(
-        color=cfg['color'],
-        icon=cfg['icon'],
         headline=cfg['headline'],
         name=applicant_name,
         body=body_html,
@@ -264,31 +256,31 @@ def _notify_hr_email(applicant_name, applicant_email, posting_title, detail_url)
     html = f"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f0f4f8;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:32px 16px;">
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:32px 16px;">
 <tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(10,77,104,.10);">
-  <tr><td style="background:#fff;padding:20px 40px;text-align:center;border-bottom:1px solid #e9eef2;">
-    <img src="{logo_url}" alt="MICEI" style="height:52px;width:auto;display:inline-block;">
-  </td></tr>
-  <tr><td style="background:linear-gradient(135deg,#0A4D68 0%,#2db4c3 100%);padding:28px 40px;text-align:center;">
-    <div style="font-size:2.2rem;margin-bottom:8px;">📥</div>
-    <h1 style="margin:0;color:#fff;font-size:1.35rem;font-weight:700;">New Application Received</h1>
+<table width="580" cellpadding="0" cellspacing="0" style="background:#ffffff;border-top:4px solid #0A4D68;">
+  <tr><td style="padding:28px 40px 20px;border-bottom:1px solid #e8edf2;">
+    <img src="{logo_url}" alt="MICEI" style="height:44px;width:auto;display:block;">
   </td></tr>
   <tr><td style="padding:32px 40px;">
-    <p style="margin:0 0 16px;color:#1a2b3c;font-size:1rem;">Hello HR Team,</p>
-    <p style="margin:0 0 20px;color:#374151;font-size:.95rem;line-height:1.7;">
-      A new application has been submitted for the <strong>{posting_title}</strong> position.
+    <p style="margin:0 0 6px;color:#0A4D68;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">New Application Received</p>
+    <p style="margin:0 0 20px;color:#1a2b3c;font-size:1rem;">Hello HR Team,</p>
+    <p style="margin:0 0 20px;color:#374151;font-size:.93rem;line-height:1.75;">
+      A new application has been submitted for the <strong>{posting_title}</strong> position. Please review it at your earliest convenience.
     </p>
-    <table cellpadding="0" cellspacing="0" width="100%" style="background:#f0f9ff;border-radius:10px;padding:18px 22px;margin-bottom:24px;">
-      <tr><td style="font-size:.85rem;color:#0A4D68;padding:4px 0;"><strong>Applicant:</strong></td><td style="font-size:.85rem;color:#374151;padding:4px 0;">{applicant_name}</td></tr>
-      <tr><td style="font-size:.85rem;color:#0A4D68;padding:4px 0;"><strong>Email:</strong></td><td style="font-size:.85rem;color:#374151;padding:4px 0;">{applicant_email}</td></tr>
-      <tr><td style="font-size:.85rem;color:#0A4D68;padding:4px 0;"><strong>Position:</strong></td><td style="font-size:.85rem;color:#374151;padding:4px 0;">{posting_title}</td></tr>
+    <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e8edf2;margin-bottom:24px;">
+      <tr style="background:#f8fafc;"><td style="padding:10px 16px;font-size:.82rem;color:#6b7280;font-weight:700;width:110px;">Applicant</td><td style="padding:10px 16px;font-size:.88rem;color:#1a2b3c;">{applicant_name}</td></tr>
+      <tr><td style="padding:10px 16px;font-size:.82rem;color:#6b7280;font-weight:700;border-top:1px solid #f1f5f9;">Email</td><td style="padding:10px 16px;font-size:.88rem;color:#1a2b3c;border-top:1px solid #f1f5f9;">{applicant_email}</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:10px 16px;font-size:.82rem;color:#6b7280;font-weight:700;border-top:1px solid #f1f5f9;">Position</td><td style="padding:10px 16px;font-size:.88rem;color:#1a2b3c;border-top:1px solid #f1f5f9;">{posting_title}</td></tr>
     </table>
-    <a href="{detail_url}" style="display:inline-block;background:#0A4D68;color:#fff;text-decoration:none;font-weight:700;font-size:.9rem;padding:12px 28px;border-radius:8px;">Review Application →</a>
+    <table cellpadding="0" cellspacing="0"><tr><td style="background:#0A4D68;border-radius:4px;">
+      <a href="{detail_url}" style="display:inline-block;padding:11px 28px;color:#ffffff;font-size:.88rem;font-weight:700;text-decoration:none;">Review Application</a>
+    </td></tr></table>
   </td></tr>
-  <tr><td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 40px;text-align:center;">
-    <p style="margin:0;font-size:.75rem;color:#94a3b8;">MICEI HRM — This is an automated notification.</p>
+  <tr><td style="padding:20px 40px;border-top:1px solid #e8edf2;">
+    <p style="margin:0 0 4px;font-size:.78rem;color:#6b7280;font-weight:600;">Magrabi ICO Cameroon Eye Institute (MICEI) — HRM System</p>
+    <p style="margin:0;font-size:.72rem;color:#b0b8c4;">This is an automated notification — please do not reply directly to this email.</p>
   </td></tr>
 </table>
 </td></tr>
