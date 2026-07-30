@@ -1253,20 +1253,27 @@ Scoring thresholds:
 Respond with ONLY valid JSON (no markdown, no extra text). For strengths and gaps, write each point as a short, clear sentence on its own line starting with "• ". Use plain language an HR officer can read at a glance — no jargon.
 {{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-sentence overall fit verdict in plain language>", "strengths": "<each strength on its own line starting with • >", "gaps": "<each gap on its own line starting with • >"}}"""
 
-    resp = http_requests.post(
-        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
-        f'?key={settings.GEMINI_API_KEY}',
-        json={
-            'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {
-                'temperature': 0.1,
-                'maxOutputTokens': 600,
-                'responseMimeType': 'application/json',
-                'thinkingConfig': {'thinkingBudget': 0},
-            },
+    import time as _time
+    payload = {
+        'contents': [{'parts': [{'text': prompt}]}],
+        'generationConfig': {
+            'temperature': 0.1,
+            'maxOutputTokens': 600,
+            'responseMimeType': 'application/json',
+            'thinkingConfig': {'thinkingBudget': 0},
         },
-        timeout=30,
+    }
+    url = (
+        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+        f'?key={settings.GEMINI_API_KEY}'
     )
+    for attempt in range(3):
+        resp = http_requests.post(url, json=payload, timeout=40)
+        if resp.status_code == 429:
+            wait = 15 * (attempt + 1)   # 15s, 30s, 45s
+            _time.sleep(wait)
+            continue
+        break
     resp.raise_for_status()
     candidate = resp.json()['candidates'][0]
     if candidate.get('finishReason') == 'MAX_TOKENS':
@@ -1298,9 +1305,13 @@ def ai_analyse(request, pk):
     else:
         apps = list(posting.applications.all())
 
+    import time
+
     results = []
     errors  = []
-    for app in apps:
+    for idx, app in enumerate(apps):
+        if idx > 0:
+            time.sleep(5)   # 5-second gap → ~12 req/min, safely under free-tier limit
         try:
             data = _call_gemini(posting, app)
             app.ai_score          = float(data.get('score', 0))
