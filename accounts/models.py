@@ -18,6 +18,7 @@ class Employee(models.Model):
         ('employee', 'Employee'),
         ('unit_head', 'Unit Head'),
         ('manager', 'Line Manager'),
+        ('nurse_superintendent', 'Nurse Superintendent'),
         ('hr', 'HR Admin'),
         ('generalist', 'Generalist'),
         ('admin_director', 'Administration Director'),
@@ -51,6 +52,15 @@ class Employee(models.Model):
         'self', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='unit_head_of',
         help_text='Optional Unit Head who approves before the Line Manager.'
+    )
+    nurse_superintendent = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='nurse_supt_of',
+        help_text='Nurse Superintendent who approves leave after Line Manager (nursing staff only).'
+    )
+    requires_nurse_supt = models.BooleanField(
+        default=False,
+        help_text='If checked, leave requests require Nurse Superintendent approval after Line Manager.'
     )
     position = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20, blank=True)
@@ -123,6 +133,9 @@ class Employee(models.Model):
 
     def is_manager(self):
         return self.role == 'manager' or self.acting_role == 'manager'
+
+    def is_nurse_superintendent(self):
+        return self.role == 'nurse_superintendent' or self.acting_role == 'nurse_superintendent'
 
     def is_director(self):
         """Admin Director and Finance Director share the same operational role."""

@@ -25,10 +25,12 @@ class LeaveRequest(models.Model):
     STATUS_PENDING = 'pending'
     STATUS_UNIT_HEAD_APPROVED = 'unit_head_approved'
     STATUS_MANAGER_APPROVED = 'manager_approved'
+    STATUS_NURSE_SUPT_APPROVED = 'nurse_supt_approved'
     STATUS_HR_APPROVED = 'hr_approved'
     STATUS_APPROVED = 'approved'
     STATUS_REJECTED_UNIT_HEAD = 'rejected_unit_head'
     STATUS_REJECTED_MANAGER = 'rejected_manager'
+    STATUS_REJECTED_NURSE_SUPT = 'rejected_nurse_supt'
     STATUS_REJECTED_HR = 'rejected_hr'
     STATUS_REJECTED_DIRECTOR = 'rejected_director'
     STATUS_CANCELLED = 'cancelled'
@@ -36,11 +38,13 @@ class LeaveRequest(models.Model):
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Pending Approval'),
         (STATUS_UNIT_HEAD_APPROVED, 'Pending Manager Approval'),
-        (STATUS_MANAGER_APPROVED, 'Pending HR Approval'),
+        (STATUS_MANAGER_APPROVED, 'Pending Nurse Superintendent / HR Approval'),
+        (STATUS_NURSE_SUPT_APPROVED, 'Pending HR Approval'),
         (STATUS_HR_APPROVED, 'Pending Director Approval'),
         (STATUS_APPROVED, 'Approved'),
         (STATUS_REJECTED_UNIT_HEAD, 'Rejected by Unit Head'),
         (STATUS_REJECTED_MANAGER, 'Rejected by Manager'),
+        (STATUS_REJECTED_NURSE_SUPT, 'Rejected by Nurse Superintendent'),
         (STATUS_REJECTED_HR, 'Rejected by HR'),
         (STATUS_REJECTED_DIRECTOR, 'Rejected by Director'),
         (STATUS_CANCELLED, 'Cancelled'),
@@ -76,6 +80,14 @@ class LeaveRequest(models.Model):
     manager_action_date = models.DateTimeField(null=True, blank=True)
     manager_remarks = models.TextField(blank=True)
 
+    # Nurse Superintendent action (optional — only for nursing staff)
+    nurse_supt_action_by = models.ForeignKey(
+        Employee, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='nurse_supt_actions'
+    )
+    nurse_supt_action_date = models.DateTimeField(null=True, blank=True)
+    nurse_supt_remarks = models.TextField(blank=True)
+
     # HR action
     hr_action_by = models.ForeignKey(
         Employee, on_delete=models.SET_NULL, null=True, blank=True,
@@ -96,6 +108,7 @@ class LeaveRequest(models.Model):
     employee_sig_b64    = models.TextField(blank=True, default='')
     unit_head_sig_b64   = models.TextField(blank=True, default='')
     manager_sig_b64     = models.TextField(blank=True, default='')
+    nurse_supt_sig_b64  = models.TextField(blank=True, default='')
     hr_sig_b64          = models.TextField(blank=True, default='')
     director_sig_b64    = models.TextField(blank=True, default='')
 
@@ -130,25 +143,29 @@ class LeaveRequest(models.Model):
             'pending': 'warning',
             'unit_head_approved': 'info',
             'manager_approved': 'info',
+            'nurse_supt_approved': 'info',
             'hr_approved': 'primary',
             'approved': 'success',
             'rejected_unit_head': 'danger',
             'rejected_manager': 'danger',
+            'rejected_nurse_supt': 'danger',
             'rejected_hr': 'danger',
             'rejected_director': 'danger',
             'cancelled': 'secondary',
         }
         return badges.get(self.status, 'secondary')
 
-    def get_status_icon(self):
+    def get_status_icon(self):  # noqa
         icons = {
             'pending': 'clock',
             'unit_head_approved': 'hourglass-split',
             'manager_approved': 'hourglass-split',
+            'nurse_supt_approved': 'hourglass-split',
             'hr_approved': 'hourglass-split',
             'approved': 'check-circle',
             'rejected_unit_head': 'x-circle',
             'rejected_manager': 'x-circle',
+            'rejected_nurse_supt': 'x-circle',
             'rejected_hr': 'x-circle',
             'rejected_director': 'x-circle',
             'cancelled': 'slash-circle',
@@ -158,7 +175,8 @@ class LeaveRequest(models.Model):
     def can_cancel(self):
         return self.status in (
             self.STATUS_PENDING, self.STATUS_UNIT_HEAD_APPROVED,
-            self.STATUS_MANAGER_APPROVED, self.STATUS_HR_APPROVED
+            self.STATUS_MANAGER_APPROVED, self.STATUS_NURSE_SUPT_APPROVED,
+            self.STATUS_HR_APPROVED
         )
 
     def is_active(self):

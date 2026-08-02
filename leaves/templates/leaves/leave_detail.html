@@ -101,6 +101,24 @@
                     </div>
                     {% endif %}
 
+                    {% if leave.nurse_supt_action_by %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background:{% if leave.status == 'rejected_nurse_supt' %}#e53e3e{% else %}#1a8fa0{% endif %};"></div>
+                        <div class="fw-semibold" style="font-size:.85rem;">
+                            Nurse Superintendent {% if leave.status == 'rejected_nurse_supt' %}Rejected{% else %}Approved{% endif %}
+                        </div>
+                        <div class="text-muted" style="font-size:.75rem;">{{ leave.nurse_supt_action_date|date:"M d, Y H:i" }} · by {{ leave.nurse_supt_action_by.get_full_name }}</div>
+                        {% if leave.nurse_supt_sig_b64 %}
+                        <div class="mt-1" style="background:#f8fafc;border-radius:8px;padding:5px 10px;display:inline-block;">
+                            <img src="data:image/png;base64,{{ leave.nurse_supt_sig_b64 }}" alt="Signature" style="max-height:34px;max-width:130px;vertical-align:middle;">
+                        </div>
+                        {% endif %}
+                        {% if leave.nurse_supt_remarks %}
+                        <div style="font-size:.78rem;background:#f8fafc;border-radius:8px;padding:8px 10px;margin-top:4px;color:#6b7a8d;">{{ leave.nurse_supt_remarks }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
                     {% if leave.hr_action_by %}
                     <div class="timeline-item">
                         <div class="timeline-dot" style="background:{% if leave.status == 'rejected_hr' %}#e53e3e{% else %}#1a8fa0{% endif %};"></div>

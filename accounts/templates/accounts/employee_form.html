@@ -134,6 +134,27 @@
                             {{ form.unit_head }}
                             <div class="form-text text-muted">{% trans "Optional — leave blank if this employee has no unit head above their manager." %}</div>
                         </div>
+                        <div class="col-md-6 optional-field">
+                            <label class="form-label">{% trans "Nurse Superintendent" %}</label>
+                            <div class="searchable-select-wrap" data-target="id_nurse_superintendent">
+                                <input type="text" class="form-control searchable-select-input"
+                                       placeholder="Type to search…" autocomplete="off">
+                                <div class="searchable-select-dropdown"></div>
+                            </div>
+                            {{ form.nurse_superintendent }}
+                            <div class="form-text text-muted">{% trans "For nursing staff only — approves leave after the Line Manager." %}</div>
+                        </div>
+                        <div class="col-md-12 optional-field">
+                            <div class="form-check p-3 rounded border" style="background:#fff0f8;">
+                                {{ form.requires_nurse_supt }}
+                                <label class="form-check-label ms-2" for="{{ form.requires_nurse_supt.id_for_label }}">
+                                    <strong>{% trans "Requires Nurse Superintendent Approval" %}</strong>
+                                    <div class="form-text text-muted mt-1">
+                                        {% trans "If checked, leave goes to the Nurse Superintendent for approval after the Line Manager (before HR)." %}
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                         <div class="col-md-12 optional-field">
                             <div class="form-check p-3 rounded border mb-2" style="background:#fff8f0;">
                                 {{ form.reports_to_director }}
@@ -445,7 +466,7 @@
 
 {% block extra_css %}
 .searchable-select-wrap { position: relative; }
-#id_supervisor, #id_unit_head { display: none !important; }
+#id_supervisor, #id_unit_head, #id_nurse_superintendent { display: none !important; }
 .searchable-select-dropdown {
     display: none;
     position: absolute;

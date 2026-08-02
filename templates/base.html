@@ -1320,6 +1320,20 @@
     </div>
     {% endif %}
 
+    {% if user.employee.is_nurse_superintendent %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">{% trans "Approvals" %}</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:nurse_supt_approvals' %}" class="nav-link-sidebar {% block nav_nurse_supt %}{% endblock %}">
+                    <i class="bi bi-person-check"></i> {% trans "Nurse Supt Queue" %}
+                    {% if pending_leave_count > 0 %}<span class="nav-badge">{{ pending_leave_count }}</span>{% endif %}
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
     {% if user.employee.is_hr %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "HR Admin" %}</div>

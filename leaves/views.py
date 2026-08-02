@@ -479,27 +479,49 @@ def manager_action(request, pk):
                 _save_drawn_signature(employee, sig_b64)
                 leave.manager_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
-                messages.success(request, "Leave request approved. Forwarded to HR for review.")
-                notify(
-                    leave.employee.user,
-                    'Leave Request — Manager Approved',
-                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
-                    f'has been approved by your manager and is now awaiting HR review.',
-                    notification_type='leave_manager_approved',
-                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
-                )
-                # Notify all HR admins that a leave is awaiting their review
                 from accounts.models import Employee as _Emp
-                for hr_emp in _Emp.objects.filter(role='hr', is_active=True).select_related('user'):
+                nurse_supt = leave.employee.nurse_superintendent if leave.employee.requires_nurse_supt else None
+                if nurse_supt:
+                    # Route to Nurse Superintendent next
+                    messages.success(request, "Leave request approved. Forwarded to Nurse Superintendent for review.")
                     notify(
-                        hr_emp.user,
-                        f'Leave Awaiting HR Review — {leave.employee.get_full_name()}',
-                        f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
-                        f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
-                        f'{leave.total_days} day(s)) pending your review.',
-                        notification_type='leave_submitted',
-                        url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
+                        leave.employee.user,
+                        'Leave Request — Manager Approved',
+                        f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                        f'has been approved by your manager and is now awaiting Nurse Superintendent review.',
+                        notification_type='leave_manager_approved',
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                     )
+                    notify(
+                        nurse_supt.user,
+                        f'Leave Awaiting Your Review — {leave.employee.get_full_name()}',
+                        f'{leave.employee.get_full_name()} has a {leave.leave_type} request '
+                        f'({leave.start_date} → {leave.end_date}, {leave.total_days} day(s)) '
+                        f'pending your review as Nurse Superintendent.',
+                        notification_type='leave_submitted',
+                        url=reverse('leaves:nurse_supt_action', kwargs={'pk': leave.pk}),
+                    )
+                else:
+                    # Standard flow: go to HR
+                    messages.success(request, "Leave request approved. Forwarded to HR for review.")
+                    notify(
+                        leave.employee.user,
+                        'Leave Request — Manager Approved',
+                        f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                        f'has been approved by your manager and is now awaiting HR review.',
+                        notification_type='leave_manager_approved',
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                    )
+                    for hr_emp in _Emp.objects.filter(role='hr', is_active=True).select_related('user'):
+                        notify(
+                            hr_emp.user,
+                            f'Leave Awaiting HR Review — {leave.employee.get_full_name()}',
+                            f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
+                            f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
+                            f'{leave.total_days} day(s)) pending your review.',
+                            notification_type='leave_submitted',
+                            url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
+                        )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_MANAGER
                 messages.warning(request, f"Leave request #{pk} has been rejected.")
@@ -538,15 +560,114 @@ def manager_action(request, pk):
 
 
 @login_required
+def nurse_supt_approvals(request):
+    """Nurse Superintendent: list of leaves awaiting their approval."""
+    employee = get_employee(request)
+    if not employee or not employee.is_nurse_superintendent():
+        messages.error(request, "Access denied. Nurse Superintendent role required.")
+        return redirect('dashboard:home')
+
+    pending = LeaveRequest.objects.filter(
+        status=LeaveRequest.STATUS_MANAGER_APPROVED,
+        employee__requires_nurse_supt=True,
+        employee__nurse_superintendent=employee,
+    ).select_related('employee__user', 'employee__department', 'leave_type', 'manager_action_by__user')
+
+    return render(request, 'leaves/nurse_supt_approvals.html', {
+        'pending_requests': pending,
+    })
+
+
+@login_required
+def nurse_supt_action(request, pk):
+    """Nurse Superintendent approves or rejects a leave request."""
+    employee = get_employee(request)
+    if not employee or not employee.is_nurse_superintendent():
+        messages.error(request, "Access denied. Nurse Superintendent role required.")
+        return redirect('dashboard:home')
+
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+
+    if leave.status != LeaveRequest.STATUS_MANAGER_APPROVED or not leave.employee.requires_nurse_supt:
+        messages.warning(request, "This leave request is not awaiting Nurse Superintendent approval.")
+        return redirect('leaves:nurse_supt_approvals')
+
+    if not request.user.is_superuser and leave.employee.nurse_superintendent != employee:
+        messages.error(request, "You are not the Nurse Superintendent for this employee.")
+        return redirect('leaves:nurse_supt_approvals')
+
+    if request.method == 'POST':
+        form = ApprovalForm(request.POST)
+        if form.is_valid():
+            action = form.cleaned_data['action']
+            remarks = form.cleaned_data['remarks']
+            leave.nurse_supt_action_by = employee
+            leave.nurse_supt_action_date = timezone.now()
+            leave.nurse_supt_remarks = remarks
+            if action == 'approve':
+                sig_b64 = request.POST.get('signature_data', '')
+                _save_drawn_signature(employee, sig_b64)
+                leave.nurse_supt_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
+                leave.status = LeaveRequest.STATUS_NURSE_SUPT_APPROVED
+                messages.success(request, "Leave request approved. Forwarded to HR for review.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Nurse Superintendent Approved',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'has been approved by the Nurse Superintendent and is now awaiting HR review.',
+                    notification_type='leave_manager_approved',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                )
+                from accounts.models import Employee as _Emp
+                for hr_emp in _Emp.objects.filter(role='hr', is_active=True).select_related('user'):
+                    notify(
+                        hr_emp.user,
+                        f'Leave Awaiting HR Review — {leave.employee.get_full_name()}',
+                        f'{leave.employee.get_full_name()} has a {leave.leave_type} request '
+                        f'({leave.start_date} → {leave.end_date}, {leave.total_days} day(s)) '
+                        f'pending your review. Approved by Nurse Superintendent.',
+                        notification_type='leave_submitted',
+                        url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
+                    )
+            else:
+                leave.status = LeaveRequest.STATUS_REJECTED_NURSE_SUPT
+                messages.warning(request, f"Leave request #{pk} has been rejected.")
+                notify(
+                    leave.employee.user,
+                    'Leave Request — Rejected by Nurse Superintendent',
+                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                    f'was rejected by the Nurse Superintendent.'
+                    + (f' Remarks: {remarks}' if remarks else ''),
+                    notification_type='leave_rejected',
+                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                )
+            leave.save()
+            return redirect('leaves:nurse_supt_approvals')
+    else:
+        form = ApprovalForm()
+
+    return render(request, 'leaves/action_form.html', {
+        'leave': leave,
+        'form': form,
+        'action_title': 'Nurse Superintendent Review',
+        'action_type': 'nurse_supt',
+        'current_sig_b64': employee.signature_b64 or '',
+    })
+
+
+@login_required
 def hr_approvals(request):
     employee = get_employee(request)
     if not employee or not employee.is_hr():
         messages.error(request, "Access denied. HR Admin only.")
         return redirect('dashboard:home')
 
+    from django.db.models import Q
     pending = LeaveRequest.objects.filter(
-        status=LeaveRequest.STATUS_MANAGER_APPROVED
-    ).select_related('employee__user', 'employee__department', 'leave_type', 'manager_action_by__user')
+        Q(status=LeaveRequest.STATUS_MANAGER_APPROVED, employee__requires_nurse_supt=False) |
+        Q(status=LeaveRequest.STATUS_MANAGER_APPROVED, employee__nurse_superintendent__isnull=True) |
+        Q(status=LeaveRequest.STATUS_NURSE_SUPT_APPROVED)
+    ).distinct().select_related('employee__user', 'employee__department', 'leave_type', 'manager_action_by__user')
 
     return render(request, 'leaves/hr_approvals.html', {
         'pending_requests': pending,
@@ -562,7 +683,8 @@ def hr_action(request, pk):
 
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
-    if leave.status != LeaveRequest.STATUS_MANAGER_APPROVED:
+    valid_for_hr = [LeaveRequest.STATUS_MANAGER_APPROVED, LeaveRequest.STATUS_NURSE_SUPT_APPROVED]
+    if leave.status not in valid_for_hr:
         messages.warning(
             request,
             f"Leave request #{pk} is not awaiting HR approval "

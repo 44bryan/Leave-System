@@ -60,9 +60,12 @@ def notifications_ctx(request):
             from django.urls import reverse
             pending_leave_url = reverse('dashboard:home')
             if request.user.is_superuser or emp.is_hr():
+                from django.db.models import Q
                 pending_leave_count = LeaveRequest.objects.filter(
-                    status=LeaveRequest.STATUS_MANAGER_APPROVED
-                ).count()
+                    Q(status=LeaveRequest.STATUS_MANAGER_APPROVED, employee__requires_nurse_supt=False) |
+                    Q(status=LeaveRequest.STATUS_MANAGER_APPROVED, employee__nurse_superintendent__isnull=True) |
+                    Q(status=LeaveRequest.STATUS_NURSE_SUPT_APPROVED)
+                ).distinct().count()
                 pending_leave_url = reverse('leaves:hr_approvals')
                 pending_discipline_proposals = DisciplineRecord.objects.filter(
                     is_proposal=True
@@ -98,6 +101,13 @@ def notifications_ctx(request):
                     employee__unit_head=emp,
                 ).count()
                 pending_leave_url = reverse('leaves:unit_head_approvals')
+            elif emp.role == 'nurse_superintendent':
+                pending_leave_count = LeaveRequest.objects.filter(
+                    status=LeaveRequest.STATUS_MANAGER_APPROVED,
+                    employee__requires_nurse_supt=True,
+                    employee__nurse_superintendent=emp,
+                ).count()
+                pending_leave_url = reverse('leaves:nurse_supt_approvals')
 
             # Pending consultations sent to this user
             from leaves.models import LeaveConsultation

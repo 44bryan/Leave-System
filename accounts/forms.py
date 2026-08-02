@@ -76,7 +76,7 @@ class EmployeeCreateForm(forms.ModelForm):
     )
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'reports_to_director', 'reports_to_ceo', 'reports_to_hr', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'marital_status', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'nurse_superintendent', 'requires_nurse_supt', 'reports_to_director', 'reports_to_ceo', 'reports_to_hr', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'marital_status', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -84,6 +84,7 @@ class EmployeeCreateForm(forms.ModelForm):
             'staff_category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 5, 12, 12A, 12AB', 'style': 'text-transform:uppercase;'}),
             'supervisor': forms.Select(attrs={'class': 'form-select'}),
             'unit_head': forms.Select(attrs={'class': 'form-select'}),
+            'nurse_superintendent': forms.Select(attrs={'class': 'form-select'}),
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -143,7 +144,7 @@ class EmployeeEditForm(forms.ModelForm):
 
     class Meta:
         model = Employee
-        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'reports_to_director', 'reports_to_ceo', 'reports_to_hr', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'marital_status', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality', 'is_active']
+        fields = ['employee_id', 'department', 'role', 'staff_category', 'supervisor', 'unit_head', 'nurse_superintendent', 'requires_nurse_supt', 'reports_to_director', 'reports_to_ceo', 'reports_to_hr', 'position', 'phone', 'date_joined_company', 'date_of_birth', 'sex', 'marital_status', 'nationality', 'contract_number', 'qualifications', 'school_name', 'speciality', 'is_active']
         widgets = {
             'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.Select(attrs={'class': 'form-select'}),
@@ -151,6 +152,7 @@ class EmployeeEditForm(forms.ModelForm):
             'staff_category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 5, 12, 12A, 12AB', 'style': 'text-transform:uppercase;'}),
             'supervisor': forms.Select(attrs={'class': 'form-select'}),
             'unit_head': forms.Select(attrs={'class': 'form-select'}),
+            'nurse_superintendent': forms.Select(attrs={'class': 'form-select'}),
             'position': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'date_joined_company': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
