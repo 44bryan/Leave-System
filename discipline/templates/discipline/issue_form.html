@@ -111,7 +111,7 @@
 
                         <!-- Suspension dates (formal notices only) -->
                         {% if not is_proposal_only %}
-                        <div class="mb-4 p-3 rounded" id="suspensionFields" style="display:none;background:#f8fafc;border:1.5px solid #cde8ef;">
+                        <div class="mb-4 p-3 rounded" id="suspensionFields" hidden style="background:#f8fafc;border:1.5px solid #cde8ef;">
                             <label class="form-label fw-600 mb-3">
                                 <i class="bi bi-calendar-range me-1 text-dark"></i>
                                 {% trans "Suspension Period" %} <span class="text-danger">*</span>
@@ -212,13 +212,11 @@ function toggleSuspensionFields(val) {
     }
     if (suspFields) {
         if (val === 'suspension') {
-            suspFields.style.display = 'block';
-            suspFields.style.removeProperty('display');
-            suspFields.style.display = 'block';
+            suspFields.hidden = false;
             if (suspStart) suspStart.required = true;
             if (suspEnd) suspEnd.required = true;
         } else {
-            suspFields.style.display = 'none';
+            suspFields.hidden = true;
             if (suspStart) suspStart.required = false;
             if (suspEnd) suspEnd.required = false;
         }
