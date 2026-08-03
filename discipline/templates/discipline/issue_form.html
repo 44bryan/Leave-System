@@ -111,19 +111,20 @@
 
                         <!-- Suspension dates (formal notices only) -->
                         {% if not is_proposal_only %}
-                        <div class="mb-4 p-3 rounded" id="suspensionFields" hidden style="background:#f8fafc;border:1.5px solid #cde8ef;">
+                        <div class="mb-4 p-3 rounded" id="suspensionFields" style="background:#f8fafc;border:1.5px solid #cde8ef;opacity:0.45;pointer-events:none;">
                             <label class="form-label fw-600 mb-3">
                                 <i class="bi bi-calendar-range me-1 text-dark"></i>
-                                {% trans "Suspension Period" %} <span class="text-danger">*</span>
+                                {% trans "Suspension Period" %}
+                                <small class="text-muted fw-normal ms-1" id="suspNote">({% trans "select Suspension above to enable" %})</small>
                             </label>
                             <div class="row g-3">
                                 <div class="col-sm-6">
-                                    <label class="form-label" style="font-size:.85rem;">{% trans "Start Date" %} <span class="text-danger">*</span></label>
-                                    <input type="date" name="suspension_start" class="form-control" id="suspensionStart" value="{{ posted_suspension_start }}">
+                                    <label class="form-label" style="font-size:.85rem;">{% trans "Start Date" %}</label>
+                                    <input type="date" name="suspension_start" class="form-control" id="suspensionStart" value="{{ posted_suspension_start }}" disabled>
                                 </div>
                                 <div class="col-sm-6">
-                                    <label class="form-label" style="font-size:.85rem;">{% trans "End Date" %} <span class="text-danger">*</span></label>
-                                    <input type="date" name="suspension_end" class="form-control" id="suspensionEnd" value="{{ posted_suspension_end }}">
+                                    <label class="form-label" style="font-size:.85rem;">{% trans "End Date" %}</label>
+                                    <input type="date" name="suspension_end" class="form-control" id="suspensionEnd" value="{{ posted_suspension_end }}" disabled>
                                 </div>
                             </div>
                         </div>
@@ -214,14 +215,19 @@ function toggleSuspensionFields(val) {
         }
     }
     if (suspFields) {
+        var suspNote = document.getElementById('suspNote');
         if (val === 'suspension') {
-            suspFields.hidden = false;
-            if (suspStart) suspStart.required = true;
-            if (suspEnd) suspEnd.required = true;
+            suspFields.style.opacity = '1';
+            suspFields.style.pointerEvents = 'auto';
+            if (suspStart) { suspStart.disabled = false; suspStart.required = true; }
+            if (suspEnd) { suspEnd.disabled = false; suspEnd.required = true; }
+            if (suspNote) suspNote.style.display = 'none';
         } else {
-            suspFields.hidden = true;
-            if (suspStart) suspStart.required = false;
-            if (suspEnd) suspEnd.required = false;
+            suspFields.style.opacity = '0.45';
+            suspFields.style.pointerEvents = 'none';
+            if (suspStart) { suspStart.disabled = true; suspStart.required = false; }
+            if (suspEnd) { suspEnd.disabled = true; suspEnd.required = false; }
+            if (suspNote) suspNote.style.display = '';
         }
     }
 }
