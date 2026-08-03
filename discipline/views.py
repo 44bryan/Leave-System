@@ -139,6 +139,11 @@ def issue_discipline(request):
     # Pre-fill support (from Step 4 "Issue Final Discipline" on detail page)
     prefill_employee = request.GET.get('prefill_employee', '')
     prefill_type = request.GET.get('prefill_type', '')
+    # These are populated on POST error so the form restores its previous state
+    posted_action_type = ''
+    posted_suspension_start = ''
+    posted_suspension_end = ''
+    posted_reason = ''
 
     # Available action types
     all_types = DisciplineRecord.ACTION_CHOICES
@@ -185,6 +190,11 @@ def issue_discipline(request):
         if errors:
             for e in errors:
                 messages.error(request, e)
+            # Restore posted values so the form doesn't reset on error
+            posted_action_type = action_type or ''
+            posted_suspension_start = suspension_start or ''
+            posted_suspension_end = suspension_end or ''
+            posted_reason = reason
         else:
             try:
                 target_employee = employees.get(pk=employee_id)
@@ -289,7 +299,10 @@ def issue_discipline(request):
         'is_formal_only': _formal and not _can_choose,
         'departments': departments,
         'prefill_employee': prefill_employee,
-        'prefill_type': prefill_type,
+        'prefill_type': prefill_type or posted_action_type,
+        'posted_suspension_start': posted_suspension_start,
+        'posted_suspension_end': posted_suspension_end,
+        'posted_reason': posted_reason,
     })
 
 

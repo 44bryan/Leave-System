@@ -119,11 +119,11 @@
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <label class="form-label" style="font-size:.85rem;">{% trans "Start Date" %} <span class="text-danger">*</span></label>
-                                    <input type="date" name="suspension_start" class="form-control" id="suspensionStart">
+                                    <input type="date" name="suspension_start" class="form-control" id="suspensionStart" value="{{ posted_suspension_start }}">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label" style="font-size:.85rem;">{% trans "End Date" %} <span class="text-danger">*</span></label>
-                                    <input type="date" name="suspension_end" class="form-control" id="suspensionEnd">
+                                    <input type="date" name="suspension_end" class="form-control" id="suspensionEnd" value="{{ posted_suspension_end }}">
                                 </div>
                             </div>
                         </div>
@@ -136,7 +136,7 @@
                                 {% trans "Reason / Description" %} <span class="text-danger">*</span>
                             </label>
                             <textarea name="reason" class="form-control" rows="5"
-                                placeholder="{% trans "Describe the reason for this disciplinary action in clear and objective terms..." %}" required></textarea>
+                                placeholder="{% trans "Describe the reason for this disciplinary action in clear and objective terms..." %}" required>{{ posted_reason }}</textarea>
                         </div>
 
                         <!-- Supporting Document -->
@@ -222,6 +222,11 @@ actionTypeSelect.addEventListener('change', function () {
         }
     }
 });
+
+// Trigger on page load so suspension fields show if type is already selected
+if (actionTypeSelect && actionTypeSelect.value) {
+    actionTypeSelect.dispatchEvent(new Event('change'));
+}
 
 {% if can_choose %}
 // ── Formal vs Proposal toggle ──
