@@ -170,7 +170,7 @@ def employee_list(request):
     from accounts.models import Department
     departments = Department.objects.all().order_by('name')
     managers = Employee.objects.filter(
-        role__in=('manager', 'unit_head', 'hr', 'admin_director', 'finance_director', 'ceo')
+        role__in=('manager', 'unit_head', 'nurse_superintendent', 'hr', 'admin_director', 'finance_director', 'ceo')
     ).select_related('user').order_by('user__last_name', 'user__first_name')
 
     return render(request, 'accounts/employee_list.html', {
@@ -668,6 +668,9 @@ def bulk_assign_manager(request):
     elif assignment_type == 'unit_head':
         qs.update(unit_head=manager)
         messages.success(request, f"Unit Head set to {manager.get_full_name()} for {count} employee(s).")
+    elif assignment_type == 'nurse_superintendent':
+        qs.update(nurse_superintendent=manager, requires_nurse_supt=True)
+        messages.success(request, f"Nurse Superintendent set to {manager.get_full_name()} for {count} employee(s).")
     else:
         qs.update(supervisor=manager)
         messages.success(request, f"Line Manager set to {manager.get_full_name()} for {count} employee(s).")

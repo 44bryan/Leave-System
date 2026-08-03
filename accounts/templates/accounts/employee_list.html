@@ -86,9 +86,10 @@
             <!-- Bulk assign controls (shown when employees are selected) -->
             <div id="bulkControls" style="display:none;" class="d-flex gap-2 align-items-center flex-wrap">
                 <span class="text-muted small" id="selectedCount">0 selected</span>
-                <select name="assignment_type" class="form-select form-select-sm" id="bulkType" style="min-width:160px;">
+                <select name="assignment_type" class="form-select form-select-sm" id="bulkType" style="min-width:180px;">
                     <option value="supervisor">{% trans "Set Line Manager" %}</option>
                     <option value="unit_head">{% trans "Set Unit Head" %}</option>
+                    <option value="nurse_superintendent">{% trans "Set Nurse Superintendent" %}</option>
                     <option value="department">{% trans "Set Department" %}</option>
                 </select>
                 <!-- Person picker (line manager / unit head) -->
