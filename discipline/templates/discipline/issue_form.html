@@ -100,7 +100,7 @@
                                 <span class="badge bg-primary me-2" style="font-size:0.72rem;">3</span>
                                 {% if is_proposal_only %}{% trans "Warning Type" %}{% else %}{% trans "Notice Type" %}{% endif %} <span class="text-danger">*</span>
                             </label>
-                            <select name="action_type" class="form-select" required id="actionTypeSelect">
+                            <select name="action_type" class="form-select" required id="actionTypeSelect" onchange="toggleSuspensionFields(this.value)">
                                 <option value="">— {% trans "Select type" %} —</option>
                                 {% for key, label in available_types %}
                                 <option value="{{ key }}" {% if prefill_type == key %}selected{% endif %}>{{ label }}</option>
@@ -193,25 +193,27 @@ const typeDescriptions = {
     'dismissal':       { text: '{% trans "Termination of employment. HR and Admin will be alerted to deactivate the account." %}', color: '#ffffff', bg: '#dc2626' },
 };
 
-const actionTypeSelect = document.getElementById('actionTypeSelect');
-const typeDesc = document.getElementById('typeDescription');
-const suspFields = document.getElementById('suspensionFields');
-const suspStart = document.getElementById('suspensionStart');
-const suspEnd = document.getElementById('suspensionEnd');
+function toggleSuspensionFields(val) {
+    var typeDesc = document.getElementById('typeDescription');
+    var suspFields = document.getElementById('suspensionFields');
+    var suspStart = document.getElementById('suspensionStart');
+    var suspEnd = document.getElementById('suspensionEnd');
 
-actionTypeSelect.addEventListener('change', function () {
-    const val = this.value;
-    const info = typeDescriptions[val];
-    if (info) {
-        typeDesc.textContent = info.text;
-        typeDesc.style.display = 'block';
-        typeDesc.style.background = info.bg;
-        typeDesc.style.color = info.color;
-    } else {
-        typeDesc.style.display = 'none';
+    var info = typeDescriptions[val];
+    if (typeDesc) {
+        if (info) {
+            typeDesc.textContent = info.text;
+            typeDesc.style.display = 'block';
+            typeDesc.style.background = info.bg;
+            typeDesc.style.color = info.color;
+        } else {
+            typeDesc.style.display = 'none';
+        }
     }
     if (suspFields) {
         if (val === 'suspension') {
+            suspFields.style.display = 'block';
+            suspFields.style.removeProperty('display');
             suspFields.style.display = 'block';
             if (suspStart) suspStart.required = true;
             if (suspEnd) suspEnd.required = true;
@@ -221,38 +223,40 @@ actionTypeSelect.addEventListener('change', function () {
             if (suspEnd) suspEnd.required = false;
         }
     }
-});
-
-// Trigger on page load so suspension fields show if type is already selected
-if (actionTypeSelect && actionTypeSelect.value) {
-    actionTypeSelect.dispatchEvent(new Event('change'));
 }
+
+// Run on page load to restore state after POST error
+window.addEventListener('DOMContentLoaded', function() {
+    var sel = document.getElementById('actionTypeSelect');
+    if (sel && sel.value) {
+        toggleSuspensionFields(sel.value);
+    }
+});
 
 {% if can_choose %}
 // ── Formal vs Proposal toggle ──
-const radios = document.querySelectorAll('input[name="submit_as_proposal"]');
-const proposalNoteSection = document.getElementById('proposalNoteSection');
-const submitBtn = document.getElementById('submitBtn');
-
 function updateMode() {
-    const isProposal = document.getElementById('modePropose').checked;
-    proposalNoteSection.style.display = isProposal ? 'block' : 'none';
-    submitBtn.innerHTML = isProposal
+    var isProposal = document.getElementById('modePropose').checked;
+    var proposalNoteSection = document.getElementById('proposalNoteSection');
+    var submitBtn = document.getElementById('submitBtn');
+    if (proposalNoteSection) proposalNoteSection.style.display = isProposal ? 'block' : 'none';
+    if (submitBtn) submitBtn.innerHTML = isProposal
         ? '<i class="bi bi-person-plus me-2"></i>{% trans "Submit Proposal to HR" %}'
         : '<i class="bi bi-send me-2"></i>{% trans "Issue Notice" %}';
 }
-radios.forEach(r => r.addEventListener('change', updateMode));
+document.querySelectorAll('input[name="submit_as_proposal"]').forEach(function(r) {
+    r.addEventListener('change', updateMode);
+});
 updateMode();
 {% endif %}
 
 // Pre-select if prefill_type was passed
 {% if prefill_type %}
 (function(){
-    const sel = document.getElementById('actionTypeSelect');
+    var sel = document.getElementById('actionTypeSelect');
     if (sel) {
-        for (let opt of sel.options) {
-            if (opt.value === '{{ prefill_type }}') { sel.value = '{{ prefill_type }}'; sel.dispatchEvent(new Event('change')); break; }
-        }
+        sel.value = '{{ prefill_type }}';
+        toggleSuspensionFields(sel.value);
     }
 })();
 {% endif %}
