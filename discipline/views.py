@@ -153,6 +153,7 @@ def issue_discipline(request):
         reason = request.POST.get('reason', '').strip()
         notes = request.POST.get('notes', '').strip()
         suspension_start = request.POST.get('suspension_start') or None
+        suspension_end = request.POST.get('suspension_end') or None
         document = request.FILES.get('document')
         proposal_note = request.POST.get('proposal_note', '').strip()
         submit_as_proposal = request.POST.get('submit_as_proposal') == '1'
@@ -175,8 +176,11 @@ def issue_discipline(request):
             errors.append("Reason is required.")
         if _proposal_only and action_type != 'verbal_warning':
             errors.append("You may only propose a Verbal Warning. Other discipline types must go through HR.")
-        if action_type == 'suspension' and not suspension_start and not is_prop:
-            errors.append("Please provide the suspension start date.")
+        if action_type == 'suspension' and not is_prop:
+            if not suspension_start:
+                errors.append("Please provide the suspension start date.")
+            if not suspension_end:
+                errors.append("Please provide the suspension end date.")
 
         if errors:
             for e in errors:
@@ -199,6 +203,8 @@ def issue_discipline(request):
             )
             if action_type == 'suspension' and suspension_start:
                 record.suspension_start = suspension_start
+            if action_type == 'suspension' and suspension_end:
+                record.suspension_end = suspension_end
             if document:
                 record.document = document
 
@@ -301,6 +307,7 @@ def execute_proposal(request, pk):
 
     if request.method == 'POST':
         suspension_start = request.POST.get('suspension_start') or None
+        suspension_end = request.POST.get('suspension_end') or None
 
         if record.action_type == 'suspension' and not record.suspension_start and not suspension_start:
             messages.error(request, "Please provide the suspension start date to execute this notice.")
@@ -308,6 +315,8 @@ def execute_proposal(request, pk):
 
         if suspension_start and not record.suspension_start:
             record.suspension_start = suspension_start
+        if suspension_end and not record.suspension_end:
+            record.suspension_end = suspension_end
 
         record.is_proposal = False
         record.issued_by = request.user  # HR becomes the formal issuer
@@ -514,20 +523,7 @@ def propose_sanction(request, pk):
         record.hr_proposed_sanction = sanction
         record.hr_proposed_note = note
         record.save()
-        messages.success(request, "HR proposed sanction saved.")
-        directors = _Emp.objects.filter(role='admin_director', is_active=True).select_related('user')
-        for director in directors:
-            notify(
-                director.user,
-                title=f'HR Sanction Proposal: {record.employee.get_full_name()}',
-                message=(
-                    f"HR has submitted a sanction proposal for {record.employee.get_full_name()}. "
-                    f"Proposed action: {dict(record.RECOMMENDED_ACTION_CHOICES).get(record.hr_proposed_sanction, record.hr_proposed_sanction)}. "
-                    f"Please review and submit your final decision."
-                ),
-                notification_type='discipline',
-                url=reverse('discipline:detail', kwargs={'pk': record.pk}),
-            )
+        messages.success(request, "HR sanction review saved. You may now issue the formal discipline notice.")
     elif role == 'director' and (is_super or (emp and emp.role == 'admin_director')):
         record.director_proposed_sanction = sanction
         record.director_proposed_note = note

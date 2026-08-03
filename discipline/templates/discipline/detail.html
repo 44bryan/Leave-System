@@ -93,10 +93,13 @@
                                     <br><small class="text-muted">{% trans "The employee will be notified and the record will become permanent." %}</small>
                                 </p>
                                 {% if record.action_type == 'suspension' and not record.suspension_start %}
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Suspension Start Date" %} <span class="text-danger">*</span></label>
                                     <input type="date" name="suspension_start" class="form-control form-control-sm" required>
-                                    <div class="form-text">{% trans "End date is auto-calculated (8 days)." %}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Suspension End Date" %} <span class="text-danger">*</span></label>
+                                    <input type="date" name="suspension_end" class="form-control form-control-sm" required>
                                 </div>
                                 {% endif %}
                             </div>
@@ -184,7 +187,7 @@
                             <div class="mt-1">{{ record.suspension_start|date:"d F Y"|default:"—" }}</div>
                         </div>
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Suspension End (8 days)" %}</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Suspension End" %}</div>
                             <div class="mt-1">{{ record.suspension_end|date:"d F Y"|default:"—" }}</div>
                         </div>
                         {% if record.is_currently_suspended %}
@@ -326,20 +329,19 @@
                 </div>
             </div>
 
-            <!-- Step 3 — Director Proposed Sanction -->
-            {% if record.hr_proposed_sanction or request.user.is_superuser %}
+            <!-- Step 3 — Director Proposed Sanction (optional, for reference only) -->
+            {% if record.director_proposed_sanction %}
             <div class="card mb-3" style="border:1.5px solid #fca5a5;background:#fff5f5;">
                 <div class="card-header" style="background:#fff5f5;border-color:#fca5a5;">
                     <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#b91c1c;font-weight:700;">
-                        <i class="bi bi-shield-check me-1"></i> {% trans "Step 3 — Admin Director Final Proposal" %}
+                        <i class="bi bi-shield-check me-1"></i> {% trans "Admin Director Note" %}
                     </span>
                     <small class="text-muted fw-normal ms-1">({% trans "not visible to employee" %})</small>
                 </div>
                 <div class="card-body">
-                    {% if record.director_proposed_sanction %}
-                    <div class="row g-3 mb-3">
+                    <div class="row g-3">
                         <div class="col-sm-6">
-                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">{% trans "Director Proposed Sanction" %}</div>
+                            <div style="font-size:0.75rem;color:#9ab4c0;text-transform:uppercase;letter-spacing:0.06em;">{% trans "Director's View" %}</div>
                             <div class="mt-1 fw-bold" style="color:#b91c1c;">{{ record.get_director_proposed_sanction_display }}</div>
                         </div>
                         {% if record.director_proposed_note %}
@@ -351,19 +353,27 @@
                         </div>
                         {% endif %}
                     </div>
-                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
 
-                    {% if request.user.is_superuser or request.user.employee.role == 'admin_director' %}
+            {% if request.user.is_superuser or request.user.employee.role == 'admin_director' %}
+            <div class="card mb-3" style="border:1.5px solid #fca5a5;background:#fff5f5;">
+                <div class="card-header" style="background:#fff5f5;border-color:#fca5a5;">
+                    <span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#b91c1c;font-weight:700;">
+                        <i class="bi bi-shield-check me-1"></i> {% trans "Admin Director — Add Remarks" %}
+                    </span>
+                    <small class="text-muted fw-normal ms-1">({% trans "not visible to employee" %})</small>
+                </div>
+                <div class="card-body">
                     <form method="post" action="{% url 'discipline:propose_sanction' record.pk %}">
                         {% csrf_token %}
                         <input type="hidden" name="role" value="director">
                         <div class="row g-2">
                             <div class="col-sm-6">
-                                <label class="form-label" style="font-size:0.82rem;">
-                                    {% if record.director_proposed_sanction %}{% trans "Update Director Proposal" %}{% else %}{% trans "Submit Director Proposal" %}{% endif %}
-                                </label>
+                                <label class="form-label" style="font-size:0.82rem;">{% trans "Director's View (optional)" %}</label>
                                 <select name="proposed_sanction" class="form-select form-select-sm">
-                                    <option value="">— {% trans "Select sanction" %} —</option>
+                                    <option value="">— {% trans "Select" %} —</option>
                                     <option value="written_caution" {% if record.director_proposed_sanction == 'written_caution' %}selected{% endif %}>{% trans "Written Caution" %}</option>
                                     <option value="final_warning" {% if record.director_proposed_sanction == 'final_warning' %}selected{% endif %}>{% trans "Final Written Warning" %}</option>
                                     <option value="suspension" {% if record.director_proposed_sanction == 'suspension' %}selected{% endif %}>{% trans "Suspension" %}</option>
@@ -377,38 +387,34 @@
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="bi bi-check2 me-1"></i>
-                                    {% if record.director_proposed_sanction %}{% trans "Update" %}{% else %}{% trans "Submit" %}{% endif %} {% trans "Director Proposal" %}
+                                    <i class="bi bi-check2 me-1"></i> {% trans "Save Remarks" %}
                                 </button>
                             </div>
                         </div>
                     </form>
-                    {% elif not record.director_proposed_sanction %}
-                    <div class="text-muted" style="font-size:0.875rem;"><i class="bi bi-hourglass me-1"></i>{% trans "Awaiting Director input." %}</div>
-                    {% endif %}
                 </div>
             </div>
             {% endif %}
 
-            <!-- Step 4 — HR Issue Final Discipline -->
-            {% if record.director_proposed_sanction and record.director_proposed_sanction != 'no_further_action' %}
+            <!-- Step 3 — HR Issue Final Discipline (unlocked as soon as HR submits Step 2) -->
+            {% if record.hr_proposed_sanction and record.hr_proposed_sanction != 'no_further_action' %}
             {% if request.user.is_superuser or request.user.employee.is_hr %}
             <div class="alert alert-success mb-4" style="border-left:4px solid #2db4c3;">
                 <i class="bi bi-check-circle-fill me-2"></i>
-                <strong>{% trans "Director has approved the proposed sanction." %}</strong>
+                <strong>{% trans "HR sanction review complete." %}</strong>
                 {% trans "You can now issue the formal discipline notice to the employee." %}
                 <div class="mt-2">
-                    <a href="{% url 'discipline:issue' %}?prefill_employee={{ record.employee.pk }}&prefill_type={{ record.director_proposed_sanction }}"
+                    <a href="{% url 'discipline:issue' %}?prefill_employee={{ record.employee.pk }}&prefill_type={{ record.hr_proposed_sanction }}"
                        class="btn btn-success btn-sm">
                         <i class="bi bi-send me-1"></i> {% trans "Issue Final Discipline Notice" %}
                     </a>
                 </div>
             </div>
             {% endif %}
-            {% elif record.director_proposed_sanction == 'no_further_action' %}
+            {% elif record.hr_proposed_sanction == 'no_further_action' %}
             <div class="alert alert-info mb-4">
                 <i class="bi bi-info-circle me-2"></i>
-                {% blocktrans %}Director has proposed <strong>No Further Action</strong>. No additional notice is required.{% endblocktrans %}
+                {% blocktrans %}HR has determined <strong>No Further Action</strong> is required.{% endblocktrans %}
             </div>
             {% endif %}
 

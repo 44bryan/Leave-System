@@ -112,14 +112,19 @@
                         <!-- Suspension dates (formal notices only) -->
                         {% if not is_proposal_only %}
                         <div class="mb-4 p-3 rounded" id="suspensionFields" style="display:none;background:#f8fafc;border:1.5px solid #cde8ef;">
-                            <label class="form-label fw-600">
+                            <label class="form-label fw-600 mb-3">
                                 <i class="bi bi-calendar-range me-1 text-dark"></i>
-                                {% trans "Suspension Start Date" %} <span class="text-danger">*</span>
+                                {% trans "Suspension Period" %} <span class="text-danger">*</span>
                             </label>
-                            <input type="date" name="suspension_start" class="form-control" id="suspensionStart">
-                            <div class="form-text mt-1">
-                                <i class="bi bi-info-circle me-1"></i>
-                                {% trans "Duration is fixed at <strong>8 days</strong>. The end date is calculated automatically." %}
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <label class="form-label" style="font-size:.85rem;">{% trans "Start Date" %} <span class="text-danger">*</span></label>
+                                    <input type="date" name="suspension_start" class="form-control" id="suspensionStart">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label" style="font-size:.85rem;">{% trans "End Date" %} <span class="text-danger">*</span></label>
+                                    <input type="date" name="suspension_end" class="form-control" id="suspensionEnd">
+                                </div>
                             </div>
                         </div>
                         {% endif %}
@@ -184,7 +189,7 @@ const typeDescriptions = {
     'verbal_warning':  { text: '{% trans "An informal recorded warning — first step before formal written action." %}', color: '#92400e', bg: '#fef3c7' },
     'written_caution': { text: '{% trans "A formal written caution placed on the employee\'s personnel record." %}', color: '#92400e', bg: '#fed7aa' },
     'final_warning':   { text: '{% trans "A final written warning — next step is suspension or dismissal." %}', color: '#ffffff', bg: '#dc2626' },
-    'suspension':      { text: '{% trans "Employee is suspended from duty for exactly 8 days. End date is calculated automatically." %}', color: '#ffffff', bg: '#374151' },
+    'suspension':      { text: '{% trans "Employee is suspended from duty for a specified period. Choose the start and end dates." %}', color: '#ffffff', bg: '#374151' },
     'dismissal':       { text: '{% trans "Termination of employment. HR and Admin will be alerted to deactivate the account." %}', color: '#ffffff', bg: '#dc2626' },
 };
 
@@ -192,6 +197,7 @@ const actionTypeSelect = document.getElementById('actionTypeSelect');
 const typeDesc = document.getElementById('typeDescription');
 const suspFields = document.getElementById('suspensionFields');
 const suspStart = document.getElementById('suspensionStart');
+const suspEnd = document.getElementById('suspensionEnd');
 
 actionTypeSelect.addEventListener('change', function () {
     const val = this.value;
@@ -208,9 +214,11 @@ actionTypeSelect.addEventListener('change', function () {
         if (val === 'suspension') {
             suspFields.style.display = 'block';
             if (suspStart) suspStart.required = true;
+            if (suspEnd) suspEnd.required = true;
         } else {
             suspFields.style.display = 'none';
             if (suspStart) suspStart.required = false;
+            if (suspEnd) suspEnd.required = false;
         }
     }
 });
