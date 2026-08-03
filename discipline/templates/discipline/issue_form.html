@@ -100,7 +100,7 @@
                                 <span class="badge bg-primary me-2" style="font-size:0.72rem;">3</span>
                                 {% if is_proposal_only %}{% trans "Warning Type" %}{% else %}{% trans "Notice Type" %}{% endif %} <span class="text-danger">*</span>
                             </label>
-                            <select name="action_type" class="form-select" required id="actionTypeSelect" onchange="toggleSuspensionFields(this.value)">
+                            <select name="action_type" class="form-select" required id="actionTypeSelect">
                                 <option value="">— {% trans "Select type" %} —</option>
                                 {% for key, label in available_types %}
                                 <option value="{{ key }}" {% if prefill_type == key %}selected{% endif %}>{{ label }}</option>
@@ -183,9 +183,12 @@
         </div>
     </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
 // ── Notice Type Description + Suspension Fields ──
-const typeDescriptions = {
+var typeDescriptions = {
     'verbal_warning':  { text: '{% trans "An informal recorded warning — first step before formal written action." %}', color: '#92400e', bg: '#fef3c7' },
     'written_caution': { text: '{% trans "A formal written caution placed on the employee\'s personnel record." %}', color: '#92400e', bg: '#fed7aa' },
     'final_warning':   { text: '{% trans "A final written warning — next step is suspension or dismissal." %}', color: '#ffffff', bg: '#dc2626' },
@@ -223,13 +226,16 @@ function toggleSuspensionFields(val) {
     }
 }
 
-// Run on page load to restore state after POST error
-window.addEventListener('DOMContentLoaded', function() {
-    var sel = document.getElementById('actionTypeSelect');
-    if (sel && sel.value) {
-        toggleSuspensionFields(sel.value);
+var actionTypeSelect = document.getElementById('actionTypeSelect');
+if (actionTypeSelect) {
+    actionTypeSelect.addEventListener('change', function() {
+        toggleSuspensionFields(this.value);
+    });
+    // Run immediately in case a value is pre-selected
+    if (actionTypeSelect.value) {
+        toggleSuspensionFields(actionTypeSelect.value);
     }
-});
+}
 
 {% if can_choose %}
 // ── Formal vs Proposal toggle ──
@@ -248,8 +254,8 @@ document.querySelectorAll('input[name="submit_as_proposal"]').forEach(function(r
 updateMode();
 {% endif %}
 
-// Pre-select if prefill_type was passed
 {% if prefill_type %}
+// Pre-select if prefill_type was passed
 (function(){
     var sel = document.getElementById('actionTypeSelect');
     if (sel) {
