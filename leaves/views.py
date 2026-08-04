@@ -1967,7 +1967,7 @@ def plan_my_plan(request):
                 drafts.update(status="submitted", submitted_at=timezone.now())
                 messages.success(request, f"{count} plan entries submitted to your Line Manager.")
                 # Notify line manager
-                manager = emp.manager
+                manager = emp.supervisor
                 if manager and hasattr(manager, 'user'):
                     from notifications.utils import notify
                     notify(
