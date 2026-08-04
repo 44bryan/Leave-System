@@ -1934,6 +1934,26 @@ def plan_my_plan(request):
                     notes=notes, status="draft",
                 )
                 messages.success(request, "Period added to your plan.")
+        elif action == "edit":
+            entry_id = request.POST.get("entry_id")
+            start = request.POST.get("planned_start")
+            end   = request.POST.get("planned_end")
+            lt_id = request.POST.get("leave_type")
+            notes = request.POST.get("notes", "").strip()
+            if not start or not end:
+                messages.error(request, "Please provide both start and end dates.")
+            elif start > end:
+                messages.error(request, "End date must be after start date.")
+            else:
+                TentativeLeavePlan.objects.filter(
+                    pk=entry_id, employee=emp, status__in=["draft","rejected"]
+                ).update(
+                    planned_start=start, planned_end=end,
+                    leave_type_id=lt_id if lt_id else None,
+                    notes=notes,
+                )
+                messages.success(request, "Entry updated.")
+            return redirect(request.path + "?year=" + str(year))
         elif action == "delete":
             entry_id = request.POST.get("entry_id")
             TentativeLeavePlan.objects.filter(pk=entry_id, employee=emp, status__in=["draft","rejected"]).delete()
@@ -1948,12 +1968,21 @@ def plan_my_plan(request):
                 messages.success(request, f"{count} plan entries submitted to your Line Manager.")
         return redirect(request.path + "?year=" + str(year))
 
+    edit_entry = None
+    edit_id = request.GET.get("edit")
+    if edit_id:
+        try:
+            edit_entry = entries.get(pk=edit_id, status__in=["draft","rejected"])
+        except TentativeLeavePlan.DoesNotExist:
+            pass
+
     return render(request, "leaves/plan_my_plan.html", {
         "entries": entries,
         "year": year,
         "years": years,
         "leave_types": leave_types,
         "has_draft": entries.filter(status__in=["draft","rejected"]).exists(),
+        "edit_entry": edit_entry,
     })
 
 

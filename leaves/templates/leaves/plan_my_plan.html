@@ -28,38 +28,54 @@
 </div>
 
 <div class="row g-4">
-    <!-- Add entry form -->
+    <!-- Add / Edit entry form -->
     <div class="col-lg-4">
         <div class="card h-100">
             <div class="card-header" style="background:#0A4D68;color:#fff;">
+                {% if edit_entry %}
+                <i class="bi bi-pencil-square me-2"></i>Edit Leave Period
+                {% else %}
                 <i class="bi bi-plus-circle me-2"></i>Add a Leave Period
+                {% endif %}
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+                    {% if edit_entry %}
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="entry_id" value="{{ edit_entry.pk }}">
+                    {% else %}
                     <input type="hidden" name="action" value="add">
+                    {% endif %}
                     <div class="mb-3">
                         <label class="form-label fw-600">Leave Type</label>
                         <select name="leave_type" class="form-select">
                             <option value="">— Any / Not specified —</option>
                             {% for lt in leave_types %}
-                            <option value="{{ lt.pk }}">{{ lt.name }}</option>
+                            <option value="{{ lt.pk }}" {% if edit_entry and edit_entry.leave_type_id == lt.pk %}selected{% endif %}>{{ lt.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-600">Start Date <span class="text-danger">*</span></label>
-                        <input type="date" name="planned_start" class="form-control" required>
+                        <input type="date" name="planned_start" class="form-control" required value="{% if edit_entry %}{{ edit_entry.planned_start|date:'Y-m-d' }}{% endif %}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-600">End Date <span class="text-danger">*</span></label>
-                        <input type="date" name="planned_end" class="form-control" required>
+                        <input type="date" name="planned_end" class="form-control" required value="{% if edit_entry %}{{ edit_entry.planned_end|date:'Y-m-d' }}{% endif %}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-600">Notes <span class="text-muted fw-normal">(optional)</span></label>
-                        <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Family trip, Annual leave..."></textarea>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Family trip, Annual leave...">{% if edit_entry %}{{ edit_entry.notes }}{% endif %}</textarea>
                     </div>
+                    {% if edit_entry %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning w-100"><i class="bi bi-save me-1"></i>Save Changes</button>
+                        <a href="?year={{ year }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                    {% else %}
                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus me-1"></i>Add Period</button>
+                    {% endif %}
                 </form>
             </div>
         </div>
@@ -109,13 +125,16 @@
                                         {% endif %}
                                     {% endif %}
                                 </td>
-                                <td>
+                                <td class="text-nowrap">
                                     {% if e.is_editable %}
+                                    <a href="?year={{ year }}&edit={{ e.pk }}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
                                     <form method="post" class="d-inline">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="entry_id" value="{{ e.pk }}">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this entry?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this entry?')" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
