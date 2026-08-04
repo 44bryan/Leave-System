@@ -24,8 +24,8 @@
 
 <!-- Pending -->
 <div class="card mb-4">
-    <div class="card-header d-flex align-items-center justify-content-between" style="background:#0A4D68;color:#fff;">
-        <span><i class="bi bi-hourglass-split me-2"></i>Awaiting Your Review</span>
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:#fff;">
+        <span style="color:#0A4D68;font-weight:600;"><i class="bi bi-hourglass-split me-2" style="color:#2db4c3;"></i>Awaiting Your Review</span>
         <span class="badge bg-warning text-dark">{{ pending|length }}</span>
     </div>
     <div class="card-body p-0">
@@ -56,7 +56,7 @@
                             <div class="modal fade" id="actionModal{{ e.pk }}" tabindex="-1">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
-                                        <div class="modal-header" style="background:#0A4D68;color:#fff;">
+                                        <div class="modal-header" style="background:#fff;">
                                             <h6 class="modal-title">Review Plan — {{ e.employee.get_full_name }}</h6>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>
@@ -94,8 +94,8 @@
 
 <!-- Confirmed -->
 <div class="card mb-4">
-    <div class="card-header d-flex align-items-center justify-content-between" style="background:#0A4D68;color:#fff;">
-        <span><i class="bi bi-check-circle me-2"></i>Confirmed Plans</span>
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:#fff;">
+        <span style="color:#0A4D68;font-weight:600;"><i class="bi bi-check-circle me-2" style="color:#16a34a;"></i>Confirmed Plans</span>
         <span class="badge" style="background:#dcfce7;color:#166534;">{{ confirmed|length }}</span>
     </div>
     <div class="card-body p-0">
@@ -126,8 +126,8 @@
 <!-- Rejected -->
 {% if rejected %}
 <div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between" style="background:#0A4D68;color:#fff;">
-        <span><i class="bi bi-x-circle me-2"></i>Rejected Plans</span>
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:#fff;">
+        <span style="color:#0A4D68;font-weight:600;"><i class="bi bi-x-circle me-2" style="color:#dc2626;"></i>Rejected Plans</span>
         <span class="badge" style="background:#fee2e2;color:#991b1b;">{{ rejected|length }}</span>
     </div>
     <div class="card-body p-0">
