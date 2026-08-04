@@ -1966,6 +1966,17 @@ def plan_my_plan(request):
                 count = drafts.count()
                 drafts.update(status="submitted", submitted_at=timezone.now())
                 messages.success(request, f"{count} plan entries submitted to your Line Manager.")
+                # Notify line manager
+                manager = emp.manager
+                if manager and hasattr(manager, 'user'):
+                    from notifications.utils import notify
+                    notify(
+                        manager.user,
+                        "Tentative Leave Plan Submitted",
+                        f"{emp.get_full_name()} submitted their {year} tentative leave plan ({count} entr{'y' if count == 1 else 'ies'}) for your review.",
+                        notification_type="info",
+                        url="/leaves/plan/manager/?year=" + str(year),
+                    )
         return redirect(request.path + "?year=" + str(year))
 
     edit_entry = None
@@ -2015,6 +2026,15 @@ def plan_manager_review(request):
             entry.manager_notes = note
             entry.save()
             messages.success(request, f"Plan confirmed for {entry.employee.get_full_name()}.")
+            from notifications.utils import notify
+            notify(
+                entry.employee.user,
+                "Tentative Leave Plan Confirmed",
+                f"Your tentative leave plan ({entry.planned_start.strftime('%d %b')}–{entry.planned_end.strftime('%d %b %Y')}, {entry.total_days} day{'s' if entry.total_days != 1 else ''}) has been confirmed by your manager."
+                + (f" Note: {note}" if note else ""),
+                notification_type="success",
+                url="/leaves/plan/my/",
+            )
         elif action == "reject":
             entry.status = "rejected"
             entry.manager_confirmed_by = request.user
@@ -2022,6 +2042,15 @@ def plan_manager_review(request):
             entry.manager_notes = note
             entry.save()
             messages.warning(request, f"Plan rejected for {entry.employee.get_full_name()}.")
+            from notifications.utils import notify
+            notify(
+                entry.employee.user,
+                "Tentative Leave Plan Rejected",
+                f"Your tentative leave plan ({entry.planned_start.strftime('%d %b')}–{entry.planned_end.strftime('%d %b %Y')}) was rejected by your manager."
+                + (f" Reason: {note}" if note else ""),
+                notification_type="warning",
+                url="/leaves/plan/my/",
+            )
         return redirect(request.path + "?year=" + str(year))
 
     years = range(timezone.now().year, timezone.now().year + 3)
