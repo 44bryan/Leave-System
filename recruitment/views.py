@@ -933,12 +933,13 @@ def applicant_export_excel(request, pk):
     ws.title = 'Applicants'
 
     # ── Styles ──
-    header_font   = Font(bold=True, color='FFFFFF', size=11)
-    header_fill   = PatternFill('solid', fgColor='0A4D68')
-    center        = Alignment(horizontal='center', vertical='center', wrap_text=True)
-    left          = Alignment(horizontal='left',   vertical='center', wrap_text=True)
-    thin          = Side(style='thin', color='CCCCCC')
-    border        = Border(left=thin, right=thin, top=thin, bottom=thin)
+    header_font    = Font(bold=True, color='FFFFFF', size=10)
+    header_fill    = PatternFill('solid', fgColor='0A4D68')
+    subheader_fill = PatternFill('solid', fgColor='2db4c3')
+    center         = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    left           = Alignment(horizontal='left',   vertical='center', wrap_text=True)
+    thin           = Side(style='thin', color='CCCCCC')
+    border         = Border(left=thin, right=thin, top=thin, bottom=thin)
 
     rec_fills = {
         'invite': PatternFill('solid', fgColor='D1FAE5'),
@@ -946,10 +947,43 @@ def applicant_export_excel(request, pk):
         'reject': PatternFill('solid', fgColor='FEE2E2'),
     }
 
+    # ── Get enabled form fields (exclude file uploads) ──
+    file_types = ('file', 'file_multi')
+    form_fields = list(
+        posting.form_fields.filter(is_enabled=True)
+        .exclude(field_type__in=file_types)
+        .order_by('field_order', 'pk')
+    )
+
+    # ── Pre-fetch all answers keyed by (app_id, field_name) ──
+    from recruitment.models import ApplicationAnswer
+    all_answers = ApplicationAnswer.objects.filter(
+        application__in=apps
+    ).values_list('application_id', 'field_name', 'value')
+    answers_map = {}
+    for app_id, fn, val in all_answers:
+        answers_map[(app_id, fn)] = val
+
     filter_label = {'invite': ' — Invite Only', 'hold': ' — Hold Only', 'reject': ' — Rejected Only'}.get(ai_rec_filter, '')
 
+    # ── Fixed columns ──
+    fixed_headers = [
+        'Rank', 'Name', 'Email', 'Applied Date', 'Applied Time', 'Status',
+        'Rule Score', 'AI Score (/100)', 'AI Recommendation',
+        'AI Summary', 'Strengths', 'Gaps',
+    ]
+    fixed_widths = [6, 24, 30, 14, 12, 14, 11, 14, 16, 40, 35, 35]
+
+    # ── Dynamic columns from form fields ──
+    dynamic_headers = [f.label for f in form_fields]
+    dynamic_widths  = [max(18, len(f.label) + 4) for f in form_fields]
+
+    all_headers = fixed_headers + dynamic_headers
+    all_widths  = fixed_widths  + dynamic_widths
+    total_cols  = len(all_headers)
+
     # ── Title row ──
-    ws.merge_cells('A1:K1')
+    ws.merge_cells(f'A1:{get_column_letter(total_cols)}1')
     title_cell = ws['A1']
     title_cell.value     = f'Applicants — {posting.title}{filter_label}'
     title_cell.font      = Font(bold=True, size=13, color='0A4D68')
@@ -957,17 +991,10 @@ def applicant_export_excel(request, pk):
     ws.row_dimensions[1].height = 28
 
     # ── Header row ──
-    headers = [
-        'Rank', 'Name', 'Email', 'Applied Date', 'Status',
-        'Rule Score', 'AI Score (/100)', 'Recommendation',
-        'AI Summary', 'Strengths', 'Gaps',
-    ]
-    col_widths = [6, 22, 28, 14, 14, 11, 14, 14, 40, 35, 35]
-
-    for col, (h, w) in enumerate(zip(headers, col_widths), 1):
+    for col, (h, w) in enumerate(zip(all_headers, all_widths), 1):
         cell = ws.cell(row=2, column=col, value=h)
         cell.font      = header_font
-        cell.fill      = header_fill
+        cell.fill      = header_fill if col <= len(fixed_headers) else subheader_fill
         cell.alignment = center
         cell.border    = border
         ws.column_dimensions[get_column_letter(col)].width = w
@@ -979,11 +1006,12 @@ def applicant_export_excel(request, pk):
         rec = (app.ai_recommendation or '').lower()
         row_fill = rec_fills.get(rec)
 
-        values = [
+        fixed_values = [
             rank,
             app.applicant_name,
             app.applicant_email,
             app.submitted_at.strftime('%d %b %Y') if app.submitted_at else '',
+            app.submitted_at.strftime('%H:%M') if app.submitted_at else '',
             app.get_status_display(),
             int(app.score) if app.score is not None else '',
             int(app.ai_score) if app.ai_score is not None else 'N/A',
@@ -992,10 +1020,16 @@ def applicant_export_excel(request, pk):
             app.ai_strengths or '',
             app.ai_gaps or '',
         ]
-        for col, val in enumerate(values, 1):
+        dynamic_values = [
+            answers_map.get((app.pk, f.field_name), '') for f in form_fields
+        ]
+        all_values = fixed_values + dynamic_values
+
+        centered_cols = {1, 5, 6, 7, 8, 9}
+        for col, val in enumerate(all_values, 1):
             cell = ws.cell(row=row, column=col, value=val)
             cell.border    = border
-            cell.alignment = center if col in (1, 5, 6, 7, 8) else left
+            cell.alignment = center if col in centered_cols else left
             if row_fill:
                 cell.fill = row_fill
         ws.row_dimensions[row].height = 18
