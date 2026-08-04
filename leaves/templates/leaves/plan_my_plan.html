@@ -8,7 +8,7 @@
 {% block topbar_actions %}
 <div class="d-flex gap-2 align-items-center flex-wrap">
     {% for y in years %}
-    <a href="?year={{ y }}" class="btn btn-sm {% if y == year %}btn-primary{% else %}btn-outline-secondary{% endif %}">{{ y }}</a>
+    <a href="?year={{ y }}" class="btn btn-sm {% if y == year %}btn-light fw-bold{% else %}btn-outline-light{% endif %}">{{ y }}</a>
     {% endfor %}
 </div>
 {% endblock %}
