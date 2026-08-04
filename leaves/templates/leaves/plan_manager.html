@@ -94,8 +94,9 @@
 
 <!-- Confirmed -->
 <div class="card mb-4">
-    <div class="card-header" style="background:#166534;color:#fff;">
-        <i class="bi bi-check-circle me-2"></i>Confirmed Plans <span class="badge bg-light text-dark ms-2">{{ confirmed|length }}</span>
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:#0A4D68;color:#fff;">
+        <span><i class="bi bi-check-circle me-2"></i>Confirmed Plans</span>
+        <span class="badge" style="background:#dcfce7;color:#166534;">{{ confirmed|length }}</span>
     </div>
     <div class="card-body p-0">
         {% if confirmed %}
@@ -125,13 +126,14 @@
 <!-- Rejected -->
 {% if rejected %}
 <div class="card">
-    <div class="card-header" style="background:#991b1b;color:#fff;">
-        <i class="bi bi-x-circle me-2"></i>Rejected <span class="badge bg-light text-dark ms-2">{{ rejected|length }}</span>
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:#0A4D68;color:#fff;">
+        <span><i class="bi bi-x-circle me-2"></i>Rejected Plans</span>
+        <span class="badge" style="background:#fee2e2;color:#991b1b;">{{ rejected|length }}</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-sm mb-0">
-                <thead style="background:#fff5f5;"><tr><th>Employee</th><th>Start</th><th>End</th><th>Your Notes</th></tr></thead>
+                <thead style="background:#f0f9ff;"><tr><th>Employee</th><th>Start</th><th>End</th><th>Your Notes</th></tr></thead>
                 <tbody>
                     {% for e in rejected %}
                     <tr>
