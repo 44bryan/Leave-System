@@ -1965,7 +1965,7 @@ def plan_my_plan(request):
             else:
                 count = drafts.count()
                 drafts.update(status="submitted", submitted_at=timezone.now())
-                messages.success(request, f"{count} plan entries submitted to your Line Manager.")
+                messages.success(request, f"{count} plan entr{'y' if count == 1 else 'ies'} submitted to your Line Manager.")
                 # Notify line manager
                 manager = emp.supervisor
                 if manager and hasattr(manager, 'user'):
