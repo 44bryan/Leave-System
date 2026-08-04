@@ -351,15 +351,26 @@ def generate_leave_pdf(leave):
         uh_date = "—"
 
     approvers = [
-        ("UNIT HEAD / CHEF D'UNITÉ",                uh_emp,                   uh_date,                      leave.unit_head_sig_b64),
-        ("LINE MANAGER / SUPERVISEUR",               leave.manager_action_by,  _d(leave.manager_action_date), leave.manager_sig_b64),
-        ("HR MANAGER / RESP. RESSOURCES HUMAINES",   leave.hr_action_by,       _d(leave.hr_action_date),      leave.hr_sig_b64),
-        ("ADMIN DIRECTOR / DIRECTEUR ADMINISTRATIF", leave.director_action_by, _d(leave.director_action_date), leave.director_sig_b64),
+        ("UNIT HEAD / CHEF D'UNITÉ",                uh_emp,                        uh_date,                           leave.unit_head_sig_b64),
+        ("LINE MANAGER / SUPERVISEUR",               leave.manager_action_by,       _d(leave.manager_action_date),     leave.manager_sig_b64),
+    ]
+
+    # Insert Nurse Superintendent slot if this leave went through that step
+    if leave.nurse_supt_action_by or getattr(leave.employee, 'requires_nurse_supt', False):
+        ns_emp  = leave.nurse_supt_action_by
+        ns_date = _d(leave.nurse_supt_action_date) if leave.nurse_supt_action_by else "—"
+        ns_b64  = getattr(leave, 'nurse_supt_sig_b64', '')
+        approvers.append(("NURSE SUPERINTENDENT", ns_emp, ns_date, ns_b64))
+
+    approvers += [
+        ("HR MANAGER / RESP. RESSOURCES HUMAINES",   leave.hr_action_by,            _d(leave.hr_action_date),          leave.hr_sig_b64),
+        ("ADMIN DIRECTOR / DIRECTEUR ADMINISTRATIF", leave.director_action_by,      _d(leave.director_action_date),    leave.director_sig_b64),
     ]
 
     CELL_W = CW / 2
     CELL_H = 35*mm
     CHDR_H = 7*mm
+    num_rows = (len(approvers) + 1) // 2
 
     for idx, (col_label, emp_obj, act_date, sig_b64) in enumerate(approvers):
         row = idx // 2
@@ -402,7 +413,14 @@ def generate_leave_pdf(leave):
                 cx + 3*mm, body_top - body_h / 2,
                 "Helvetica-Oblique", 8.5, _BORDER)
 
-    y -= 2 * CELL_H
+    # If odd number of approvers, fill last cell as empty
+    if len(approvers) % 2 == 1:
+        last_row = len(approvers) // 2
+        cx = LM + CELL_W
+        row_top = y - last_row * CELL_H
+        frect(cx, row_top, CELL_W, CELL_H, _WHITE, _BORDER, 0.5)
+
+    y -= num_rows * CELL_H
 
     # ══════════════════════════════════════════════════════════════════════════
     # FOOTER
