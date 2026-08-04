@@ -8,7 +8,7 @@
 {% block topbar_actions %}
 <div class="d-flex gap-2 align-items-center flex-wrap">
     {% for y in years %}
-    <a href="?year={{ y }}" class="btn btn-sm {% if y == year %}btn-light fw-bold{% else %}btn-outline-light{% endif %}">{{ y }}</a>
+    <a href="?year={{ y }}" class="btn btn-sm {% if y == year %}btn-primary{% else %}btn-outline-secondary{% endif %}">{{ y }}</a>
     {% endfor %}
 </div>
 {% endblock %}
@@ -31,7 +31,7 @@
     <!-- Add / Edit entry form -->
     <div class="col-lg-4">
         <div class="card h-100">
-            <div class="card-header" style="background:#0A4D68;color:#fff;">
+            <div class="card-header" style="background:#fff;color:#0A4D68;border-bottom:2px solid #e0f0f5;">
                 {% if edit_entry %}
                 <i class="bi bi-pencil-square me-2"></i>Edit Leave Period
                 {% else %}
@@ -84,9 +84,9 @@
     <!-- Entries list -->
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between" style="background:#0A4D68;color:#fff;">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#fff;color:#0A4D68;border-bottom:2px solid #e0f0f5;">
                 <span><i class="bi bi-calendar2-range me-2"></i>Your Plan for {{ year }}</span>
-                <span class="badge bg-light text-dark">{{ entries|length }} period(s)</span>
+                <span class="badge bg-primary">{{ entries|length }} period(s)</span>
             </div>
             <div class="card-body p-0">
                 {% if entries %}
