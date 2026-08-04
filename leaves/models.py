@@ -349,7 +349,7 @@ class TentativeLeavePlan(models.Model):
 
     @property
     def total_days(self):
-        return (self.planned_end - self.planned_start).days + 1
+        return LeaveRequest._count_working_days(self.planned_start, self.planned_end)
 
     def is_editable(self):
         return self.status in ('draft', 'rejected')
