@@ -372,22 +372,27 @@ def generate_leave_pdf(leave):
     CHDR_H = 7*mm
     num_rows = (len(approvers) + 1) // 2
 
+    is_odd = len(approvers) % 2 == 1
+
     for idx, (col_label, emp_obj, act_date, sig_b64) in enumerate(approvers):
         row = idx // 2
         col = idx % 2
-        cx      = LM + col * CELL_W
+        # Last item in odd list → full width
+        is_last_full = is_odd and idx == len(approvers) - 1
+        cell_w  = CW if is_last_full else CELL_W
+        cx      = LM if is_last_full else LM + col * CELL_W
         row_top = y - row * CELL_H
 
-        # Cell header — same exact logo cyan as section bars
-        frect(cx, row_top, CELL_W, CHDR_H, _LOGO, _BORDER, 0.5)
+        # Cell header
+        frect(cx, row_top, cell_w, CHDR_H, _LOGO, _BORDER, 0.5)
         cv.setFillColorRGB(*_DARK)
         cv.setFont("Helvetica-Bold", 7)
-        cv.drawCentredString(cx + CELL_W / 2, row_top - CHDR_H + 2*mm, col_label)
+        cv.drawCentredString(cx + cell_w / 2, row_top - CHDR_H + 2*mm, col_label)
 
         # Cell body
         body_top = row_top - CHDR_H
         body_h   = CELL_H - CHDR_H
-        frect(cx, body_top, CELL_W, body_h, _WHITE, _BORDER, 0.5)
+        frect(cx, body_top, cell_w, body_h, _WHITE, _BORDER, 0.5)
 
         if emp_obj:
             txt(emp_obj.user.get_full_name(),
@@ -400,7 +405,7 @@ def generate_leave_pdf(leave):
                 emp_obj,
                 cx + 3*mm,
                 body_top - 12*mm,
-                max_w=CELL_W - 6*mm,
+                max_w=cell_w - 6*mm,
                 max_h=body_h - 14*mm,
                 stored_b64=sig_b64,
             )
@@ -412,13 +417,6 @@ def generate_leave_pdf(leave):
             txt("Awaiting approval...",
                 cx + 3*mm, body_top - body_h / 2,
                 "Helvetica-Oblique", 8.5, _BORDER)
-
-    # If odd number of approvers, fill last cell as empty
-    if len(approvers) % 2 == 1:
-        last_row = len(approvers) // 2
-        cx = LM + CELL_W
-        row_top = y - last_row * CELL_H
-        frect(cx, row_top, CELL_W, CELL_H, _WHITE, _BORDER, 0.5)
 
     y -= num_rows * CELL_H
 
