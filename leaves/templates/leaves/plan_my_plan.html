@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}My Leave Plan {{ year }}{% endblock %}
+{% block page_title %}My Tentative Leave Plan — {{ year }}{% endblock %}
+{% block nav_leaves %}active{% endblock %}
+
+{% block topbar_actions %}
+<div class="d-flex gap-2 align-items-center flex-wrap">
+    {% for y in years %}
+    <a href="?year={{ y }}" class="btn btn-sm {% if y == year %}btn-primary{% else %}btn-outline-secondary{% endif %}">{{ y }}</a>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %} alert-dismissible fade show mb-3" role="alert">
+        {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="alert alert-info mb-4 no-hint">
+    <i class="bi bi-info-circle me-2"></i>
+    Declare your planned leave dates for <strong>{{ year }}</strong>. Once you submit, your Line Manager will review and confirm. This is a plan only — you still need to submit a formal leave request when the time comes.
+</div>
+
+<div class="row g-4">
+    <!-- Add entry form -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header" style="background:#0A4D68;color:#fff;">
+                <i class="bi bi-plus-circle me-2"></i>Add a Leave Period
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Leave Type</label>
+                        <select name="leave_type" class="form-select">
+                            <option value="">— Any / Not specified —</option>
+                            {% for lt in leave_types %}
+                            <option value="{{ lt.pk }}">{{ lt.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Start Date <span class="text-danger">*</span></label>
+                        <input type="date" name="planned_start" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-600">End Date <span class="text-danger">*</span></label>
+                        <input type="date" name="planned_end" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Notes <span class="text-muted fw-normal">(optional)</span></label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Family trip, Annual leave..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus me-1"></i>Add Period</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entries list -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between" style="background:#0A4D68;color:#fff;">
+                <span><i class="bi bi-calendar2-range me-2"></i>Your Plan for {{ year }}</span>
+                <span class="badge bg-light text-dark">{{ entries|length }} period(s)</span>
+            </div>
+            <div class="card-body p-0">
+                {% if entries %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead style="background:#f0f9ff;">
+                            <tr>
+                                <th>Leave Type</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th class="text-center">Days</th>
+                                <th>Notes</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in entries %}
+                            <tr>
+                                <td>{{ e.leave_type|default:"—" }}</td>
+                                <td>{{ e.planned_start|date:"d M Y" }}</td>
+                                <td>{{ e.planned_end|date:"d M Y" }}</td>
+                                <td class="text-center fw-600">{{ e.total_days }}</td>
+                                <td style="font-size:.82rem;">{{ e.notes|default:"—" }}</td>
+                                <td>
+                                    {% if e.status == 'draft' %}
+                                        <span class="badge bg-secondary">Draft</span>
+                                    {% elif e.status == 'submitted' %}
+                                        <span class="badge bg-info text-dark">Submitted</span>
+                                    {% elif e.status == 'confirmed' %}
+                                        <span class="badge bg-success">Confirmed</span>
+                                    {% elif e.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                        {% if e.manager_notes %}
+                                        <div style="font-size:.75rem;color:#dc2626;">{{ e.manager_notes }}</div>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if e.is_editable %}
+                                    <form method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="entry_id" value="{{ e.pk }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this entry?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot style="background:#f8fafc;">
+                            <tr>
+                                <td colspan="3" class="fw-600 text-end">Total Planned Days:</td>
+                                <td class="text-center fw-600 text-primary">
+                                    {% with total=0 %}
+                                    {% for e in entries %}{{ e.total_days|add:0 }}{% endfor %}
+                                    {% endwith %}
+                                    {% for e in entries %}{% if forloop.last %}
+                                    {% endif %}{% endfor %}
+                                    {{ entries|length|add:0 }}
+                                </td>
+                                <td colspan="3"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-calendar-x" style="font-size:2rem;"></i>
+                    <div class="mt-2">No leave periods added yet for {{ year }}.</div>
+                    <div class="mt-1" style="font-size:.85rem;">Use the form on the left to add your planned leave dates.</div>
+                </div>
+                {% endif %}
+            </div>
+            {% if has_draft %}
+            <div class="card-footer bg-white">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="submit">
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Submit your plan to your Line Manager?')">
+                        <i class="bi bi-send me-2"></i>Submit Plan to Line Manager
+                    </button>
+                    <small class="text-muted ms-3">Only draft/rejected entries will be submitted.</small>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -41,4 +41,8 @@ urlpatterns = [
     # Leave Reversal / Modification (HR + Superadmin)
     path('<int:pk>/reversal/', views.leave_reversal, name='leave_reversal'),
     path('reversals/report/', views.leave_reversals_report, name='reversals_report'),
+    # Tentative Leave Plan
+    path('plan/my/', views.plan_my_plan, name='plan_my'),
+    path('plan/manager/', views.plan_manager_review, name='plan_manager'),
+    path('plan/hr/', views.plan_hr_overview, name='plan_hr'),
 ]

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Team Leave Plan {{ year }}{% endblock %}
+{% block page_title %}Team Tentative Leave Plan — {{ year }}{% endblock %}
+{% block nav_leaves %}active{% endblock %}
+
+{% block topbar_actions %}
+<div class="d-flex gap-2 align-items-center flex-wrap">
+    {% for y in years %}
+    <a href="?year={{ y }}" class="btn btn-sm {% if y == year %}btn-primary{% else %}btn-outline-secondary{% endif %}">{{ y }}</a>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %} alert-dismissible fade show mb-3" role="alert">
+        {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Pending -->
+<div class="card mb-4">
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:#0A4D68;color:#fff;">
+        <span><i class="bi bi-hourglass-split me-2"></i>Awaiting Your Review</span>
+        <span class="badge bg-warning text-dark">{{ pending|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        {% if pending %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background:#f0f9ff;">
+                    <tr><th>Employee</th><th>Dept</th><th>Leave Type</th><th>Start</th><th>End</th><th class="text-center">Days</th><th>Notes</th><th style="width:220px;">Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for e in pending %}
+                    <tr>
+                        <td class="fw-600">{{ e.employee.get_full_name }}</td>
+                        <td style="font-size:.82rem;">{{ e.employee.department|default:"—" }}</td>
+                        <td>{{ e.leave_type|default:"—" }}</td>
+                        <td>{{ e.planned_start|date:"d M Y" }}</td>
+                        <td>{{ e.planned_end|date:"d M Y" }}</td>
+                        <td class="text-center fw-600">{{ e.total_days }}</td>
+                        <td style="font-size:.82rem;">{{ e.notes|default:"—" }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-success me-1" data-bs-toggle="modal" data-bs-target="#actionModal{{ e.pk }}" data-action="confirm">
+                                <i class="bi bi-check-lg"></i> Confirm
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#actionModal{{ e.pk }}" data-action="reject">
+                                <i class="bi bi-x-lg"></i> Reject
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="actionModal{{ e.pk }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="background:#0A4D68;color:#fff;">
+                                            <h6 class="modal-title">Review Plan — {{ e.employee.get_full_name }}</h6>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Period:</strong> {{ e.planned_start|date:"d M Y" }} → {{ e.planned_end|date:"d M Y" }} ({{ e.total_days }} days)</p>
+                                            <form method="post" id="form{{ e.pk }}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="entry_id" value="{{ e.pk }}">
+                                                <input type="hidden" name="action" id="actionInput{{ e.pk }}" value="">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Notes to employee <span class="text-muted">(optional)</span></label>
+                                                    <textarea name="manager_notes" class="form-control" rows="2" placeholder="Reason for rejection or any remarks..."></textarea>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-success" onclick="submitAction('{{ e.pk }}','confirm')"><i class="bi bi-check me-1"></i>Confirm</button>
+                                            <button type="button" class="btn btn-danger"  onclick="submitAction('{{ e.pk }}','reject')"><i class="bi bi-x me-1"></i>Reject</button>
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4"><i class="bi bi-check-circle me-2"></i>No pending entries — you're all caught up.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Confirmed -->
+<div class="card mb-4">
+    <div class="card-header" style="background:#166534;color:#fff;">
+        <i class="bi bi-check-circle me-2"></i>Confirmed Plans <span class="badge bg-light text-dark ms-2">{{ confirmed|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        {% if confirmed %}
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead style="background:#f0f9ff;"><tr><th>Employee</th><th>Leave Type</th><th>Start</th><th>End</th><th class="text-center">Days</th><th>Confirmed</th></tr></thead>
+                <tbody>
+                    {% for e in confirmed %}
+                    <tr>
+                        <td class="fw-600">{{ e.employee.get_full_name }}</td>
+                        <td>{{ e.leave_type|default:"—" }}</td>
+                        <td>{{ e.planned_start|date:"d M Y" }}</td>
+                        <td>{{ e.planned_end|date:"d M Y" }}</td>
+                        <td class="text-center">{{ e.total_days }}</td>
+                        <td style="font-size:.8rem;">{{ e.manager_confirmed_at|date:"d M Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-3">No confirmed plans yet.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Rejected -->
+{% if rejected %}
+<div class="card">
+    <div class="card-header" style="background:#991b1b;color:#fff;">
+        <i class="bi bi-x-circle me-2"></i>Rejected <span class="badge bg-light text-dark ms-2">{{ rejected|length }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead style="background:#fff5f5;"><tr><th>Employee</th><th>Start</th><th>End</th><th>Your Notes</th></tr></thead>
+                <tbody>
+                    {% for e in rejected %}
+                    <tr>
+                        <td class="fw-600">{{ e.employee.get_full_name }}</td>
+                        <td>{{ e.planned_start|date:"d M Y" }}</td>
+                        <td>{{ e.planned_end|date:"d M Y" }}</td>
+                        <td style="font-size:.82rem;">{{ e.manager_notes|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function submitAction(pk, action) {
+    document.getElementById('actionInput' + pk).value = action;
+    document.getElementById('form' + pk).submit();
+}
+</script>
+{% endblock %}

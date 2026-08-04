@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 from accounts.models import Employee
 
 
@@ -313,3 +314,42 @@ class LeaveReversal(models.Model):
         return (f'{self.get_action_type_display()} — '
                 f'{self.leave_request.employee.get_full_name()} '
                 f'(#{self.leave_request.pk}) by {self.reversed_by}')
+
+
+class TentativeLeavePlan(models.Model):
+    STATUS_DRAFT     = 'draft'
+    STATUS_SUBMITTED = 'submitted'
+    STATUS_CONFIRMED = 'confirmed'
+    STATUS_REJECTED  = 'rejected'
+    STATUS_CHOICES = [
+        ('draft',     'Draft'),
+        ('submitted', 'Submitted to Manager'),
+        ('confirmed', 'Manager Confirmed'),
+        ('rejected',  'Rejected by Manager'),
+    ]
+
+    employee     = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='tentative_plans')
+    year         = models.PositiveIntegerField()
+    leave_type   = models.ForeignKey(LeaveType, on_delete=models.SET_NULL, null=True, blank=True)
+    planned_start = models.DateField()
+    planned_end   = models.DateField()
+    notes         = models.TextField(blank=True)
+    status        = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    submitted_at  = models.DateTimeField(null=True, blank=True)
+    manager_confirmed_by  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='confirmed_tentative_plans')
+    manager_confirmed_at  = models.DateTimeField(null=True, blank=True)
+    manager_notes = models.TextField(blank=True)
+    created_at    = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['planned_start']
+
+    def __str__(self):
+        return f'{self.employee.get_full_name()} — {self.planned_start} to {self.planned_end} ({self.year})'
+
+    @property
+    def total_days(self):
+        return (self.planned_end - self.planned_start).days + 1
+
+    def is_editable(self):
+        return self.status in ('draft', 'rejected')

@@ -1201,6 +1201,11 @@
                     <i class="bi bi-hospital"></i> {% trans "My Sick Leaves" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:plan_my' %}" class="nav-link-sidebar {% block nav_plan_my %}{% endblock %}">
+                    <i class="bi bi-calendar2-range"></i> {% trans "My Leave Plan" %}
+                </a>
+            </li>
             {% if system_settings.payroll_enabled or user.is_superuser %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'payroll:my_payslips' %}" class="nav-link-sidebar {% block nav_my_payslips %}{% endblock %}">
@@ -1316,6 +1321,11 @@
                     <i class="bi bi-shield-plus"></i> {% trans "Propose Discipline" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:plan_manager' %}" class="nav-link-sidebar {% block nav_plan_manager %}{% endblock %}">
+                    <i class="bi bi-calendar2-week"></i> {% trans "Team Leave Plan" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}
@@ -1398,6 +1408,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'recruitment:list' %}" class="nav-link-sidebar {% block nav_recruitment %}{% endblock %}">
                     <i class="bi bi-person-plus"></i> {% trans "Recruitment" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:plan_hr' %}" class="nav-link-sidebar {% block nav_plan_hr %}{% endblock %}">
+                    <i class="bi bi-calendar2-check"></i> {% trans "Leave Plan Overview" %}
                 </a>
             </li>
         </ul>
