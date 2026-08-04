@@ -58,7 +58,7 @@
                                     <div class="modal-content">
                                         <div class="modal-header" style="background:#fff;">
                                             <h6 class="modal-title">Review Plan — {{ e.employee.get_full_name }}</h6>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body">
                                             <p><strong>Period:</strong> {{ e.planned_start|date:"d M Y" }} → {{ e.planned_end|date:"d M Y" }} ({{ e.total_days }} days)</p>
