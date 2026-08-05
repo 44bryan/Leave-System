@@ -37,9 +37,9 @@ def _d(d):
 
 
 def _resume(end_date):
-    """First working day (skip Sunday) after end_date."""
+    """First working day (Mon–Fri) after end_date."""
     d = end_date + timedelta(days=1)
-    while d.weekday() == 6:
+    while d.weekday() >= 5:  # 5=Saturday, 6=Sunday
         d += timedelta(days=1)
     return d
 
