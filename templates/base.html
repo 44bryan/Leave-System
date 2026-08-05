@@ -1192,7 +1192,7 @@
             {% if not user.employee.is_intern %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:my_notices' %}" class="nav-link-sidebar {% block nav_my_discipline %}{% endblock %}">
-                    <i class="bi bi-shield-exclamation"></i> {% trans "My Discipline Record" %}
+                    <i class="bi bi-exclamation-triangle"></i> {% trans "My Discipline Record" %}
                 </a>
             </li>
             {% endif %}
@@ -1265,7 +1265,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_unit_head' %}" class="nav-link-sidebar {% block nav_appraisals_unit_head %}{% endblock %}">
-                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                    <i class="bi bi-clipboard2-check"></i> {% trans "Appraisal Reviews" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
@@ -1301,19 +1301,19 @@
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:manager_approvals' %}" class="nav-link-sidebar {% block nav_manager %}{% endblock %}">
-                    <i class="bi bi-person-check"></i> {% trans "Manager Queue" %}
+                    <i class="bi bi-people-fill"></i> {% trans "Manager Queue" %}
                     {% if pending_leave_count > 0 %}<span class="nav-badge">{{ pending_leave_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_manager' %}" class="nav-link-sidebar {% block nav_appraisals_manager %}{% endblock %}">
-                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                    <i class="bi bi-clipboard2-check"></i> {% trans "Appraisal Reviews" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'medical_leave:lm_queue' %}" class="nav-link-sidebar {% block nav_medical_lm %}{% endblock %}">
-                    <i class="bi bi-file-earmark-medical"></i> {% trans "Medical Sick Leave" %}
+                    <i class="bi bi-heart-pulse"></i> {% trans "Medical Sick Leave" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1356,7 +1356,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'medical_leave:hr_queue' %}" class="nav-link-sidebar {% block nav_medical_hr %}{% endblock %}">
-                    <i class="bi bi-file-earmark-medical"></i> {% trans "Medical Sick Leave" %}
+                    <i class="bi bi-heart-pulse"></i> {% trans "Medical Sick Leave" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1366,7 +1366,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar {% block nav_all_leaves %}{% endblock %}">
-                    <i class="bi bi-list-ul"></i> {% trans "All Requests" %}
+                    <i class="bi bi-list-check"></i> {% trans "All Requests" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1386,7 +1386,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:hr_dashboard' %}" class="nav-link-sidebar {% block nav_hr_appraisals %}{% endblock %}">
-                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisals" %}
+                    <i class="bi bi-clipboard2-data"></i> {% trans "Appraisals" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
@@ -1431,7 +1431,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar {% block nav_all_leaves_dir %}{% endblock %}">
-                    <i class="bi bi-list-ul"></i> {% trans "All Requests" %}
+                    <i class="bi bi-list-check"></i> {% trans "All Requests" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1441,7 +1441,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_director' %}" class="nav-link-sidebar {% block nav_appraisals_director %}{% endblock %}">
-                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                    <i class="bi bi-clipboard2-check"></i> {% trans "Appraisal Reviews" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
@@ -1460,7 +1460,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:all_leaves' %}" class="nav-link-sidebar">
-                    <i class="bi bi-list-ul"></i> {% trans "All Leave Requests" %}
+                    <i class="bi bi-list-check"></i> {% trans "All Leave Requests" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1475,7 +1475,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar {% block nav_discipline_ceo %}{% endblock %}">
-                    <i class="bi bi-shield-exclamation"></i> {% trans "Discipline Records" %}
+                    <i class="bi bi-archive"></i> {% trans "Discipline Records" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1500,7 +1500,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:pending_ceo' %}" class="nav-link-sidebar {% block nav_appraisals_ceo %}{% endblock %}">
-                    <i class="bi bi-clipboard2-pulse"></i> {% trans "Appraisal Reviews" %}
+                    <i class="bi bi-clipboard2-check"></i> {% trans "Appraisal Reviews" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
                 </a>
             </li>
@@ -1529,7 +1529,7 @@
             </li>
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar {% block nav_discipline %}{% endblock %}">
-                    <i class="bi bi-shield-exclamation"></i> {% trans "Disciplinary Records" %}
+                    <i class="bi bi-archive"></i> {% trans "Disciplinary Records" %}
                     {% if pending_discipline_proposals > 0 %}<span class="nav-badge">{{ pending_discipline_proposals }}</span>{% endif %}
                 </a>
             </li>
@@ -1596,7 +1596,7 @@
             {% if user.employee.is_hr %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:employee_create' %}" class="nav-link-sidebar">
-                    <i class="bi bi-person-plus"></i> {% trans "Add Employee" %}
+                    <i class="bi bi-person-plus-fill"></i> {% trans "Add Employee" %}
                 </a>
             </li>
             {% endif %}
