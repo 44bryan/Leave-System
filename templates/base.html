@@ -1469,8 +1469,8 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
-                <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
-                    <i class="bi bi-shield-plus"></i> {% trans "Issue Disciplinary Notice" %}
+                <a href="{% url 'discipline:direct_issue' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-fill-x text-danger"></i> {% trans "Issue Discipline Directly" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1518,8 +1518,8 @@
         <div class="sidebar-section-label">{% trans "Discipline" %}</div>
         <ul class="list-unstyled mb-0">
             <li class="nav-item-sidebar">
-                <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
-                    <i class="bi bi-file-earmark-plus"></i> {% trans "New Disciplinary Notice" %}
+                <a href="{% url 'discipline:direct_issue' %}" class="nav-link-sidebar {% block nav_discipline_direct %}{% endblock %}">
+                    <i class="bi bi-shield-fill-x text-danger"></i> {% trans "Issue Discipline Directly" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">

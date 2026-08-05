@@ -607,3 +607,162 @@ def discipline_stats(request):
         'type_filter': type_filter,
         'action_types': DisciplineRecord.ACTION_CHOICES,
     })
+
+
+@login_required
+def direct_issue_discipline(request):
+    """HR, Admin Director, CEO, Superuser: issue a discipline notice directly — no proposal step."""
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+
+    allowed = is_super or (emp and (
+        emp.is_hr() or emp.role == 'admin_director' or emp.is_ceo()
+    ))
+    if not allowed:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    employees = Employee.objects.filter(is_active=True).exclude(
+        user=request.user
+    ).select_related('user', 'department', 'supervisor', 'unit_head').order_by('user__last_name')
+
+    posted = {}
+    if request.method == 'POST':
+        employee_id    = request.POST.get('employee')
+        action_type    = request.POST.get('action_type', '').strip()
+        reason         = request.POST.get('reason', '').strip()
+        notes          = request.POST.get('notes', '').strip()
+        suspension_start = request.POST.get('suspension_start') or None
+        suspension_end   = request.POST.get('suspension_end') or None
+        document       = request.FILES.get('document')
+
+        posted = {
+            'action_type': action_type,
+            'reason': reason,
+            'notes': notes,
+            'suspension_start': suspension_start or '',
+            'suspension_end': suspension_end or '',
+        }
+
+        errors = []
+        if not employee_id:
+            errors.append("Please select an employee.")
+        if not action_type:
+            errors.append("Please select a discipline type.")
+        if not reason:
+            errors.append("Reason is required.")
+        if action_type == 'suspension':
+            if not suspension_start:
+                errors.append("Suspension start date is required.")
+            if not suspension_end:
+                errors.append("Suspension end date is required.")
+
+        if errors:
+            for e in errors:
+                messages.error(request, e)
+        else:
+            try:
+                target = employees.get(pk=employee_id)
+            except Employee.DoesNotExist:
+                messages.error(request, "Invalid employee selected.")
+                return redirect('discipline:direct_issue')
+
+            record = DisciplineRecord(
+                employee=target,
+                action_type=action_type,
+                issued_by=request.user,
+                reason=reason,
+                notes=notes,
+                is_proposal=False,
+            )
+            if action_type == 'suspension' and suspension_start:
+                record.suspension_start = suspension_start
+            if action_type == 'suspension' and suspension_end:
+                record.suspension_end = suspension_end
+            if document:
+                record.document = document
+            record.save()
+
+            if action_type == 'dismissal':
+                target.dismissal_date = date.today()
+                target.save(update_fields=['dismissal_date'])
+
+            from notifications.utils import notify
+            issuer_name  = request.user.get_full_name() or request.user.username
+            action_label = record.get_action_type_display()
+            detail_url   = reverse('discipline:detail', kwargs={'pk': record.pk})
+            short_reason = reason[:120]
+
+            # 1. Notify the employee
+            notify(
+                target.user,
+                title=f'Discipline Notice: {action_label}',
+                message=(
+                    f'A {action_label} has been formally issued to you by {issuer_name}. '
+                    f'Reason: {short_reason}. Please contact HR if you have questions.'
+                ),
+                notification_type='discipline',
+                url=detail_url,
+            )
+
+            # 2. Notify supervisor (line manager) if different from issuer
+            if target.supervisor and target.supervisor.user != request.user:
+                notify(
+                    target.supervisor.user,
+                    title=f'Discipline Issued — {target.get_full_name()}',
+                    message=(
+                        f'{issuer_name} has issued a {action_label} to your subordinate '
+                        f'{target.get_full_name()}. Reason: {short_reason}.'
+                    ),
+                    notification_type='discipline',
+                    url=detail_url,
+                )
+
+            # 3. Notify unit head if different from issuer and supervisor
+            if target.unit_head and target.unit_head.user != request.user:
+                if not target.supervisor or target.unit_head.user != target.supervisor.user:
+                    notify(
+                        target.unit_head.user,
+                        title=f'Discipline Issued — {target.get_full_name()}',
+                        message=(
+                            f'{issuer_name} has issued a {action_label} to {target.get_full_name()} '
+                            f'in your unit. Reason: {short_reason}.'
+                        ),
+                        notification_type='discipline',
+                        url=detail_url,
+                    )
+
+            # 4. Notify all HR staff (if issuer is not HR)
+            if not (emp and emp.is_hr()):
+                hr_staff = Employee.objects.filter(role='hr', is_active=True).select_related('user')
+                for hr in hr_staff:
+                    if hr.user != request.user:
+                        notify(
+                            hr.user,
+                            title=f'Discipline Issued — {target.get_full_name()}',
+                            message=(
+                                f'{issuer_name} has directly issued a {action_label} to '
+                                f'{target.get_full_name()}. Reason: {short_reason}.'
+                            ),
+                            notification_type='discipline',
+                            url=detail_url,
+                        )
+
+            from dashboard.models import AuditLog
+            AuditLog.log(
+                request, AuditLog.ACTION_DISCIPLINE,
+                f'{action_label} directly issued to {target.get_full_name()}. Reason: {reason[:100]}.',
+                target_user=target.user,
+            )
+
+            messages.success(
+                request,
+                f'{action_label} successfully issued to {target.get_full_name()}.'
+            )
+            return redirect('discipline:detail', pk=record.pk)
+
+    return render(request, 'discipline/direct_issue.html', {
+        'employees': employees,
+        'action_choices': DisciplineRecord.ACTION_CHOICES,
+        'posted': posted,
+    })

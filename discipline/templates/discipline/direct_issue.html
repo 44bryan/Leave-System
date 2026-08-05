@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Issue Discipline Directly — AEF HRM{% endblock %}
+{% block page_title %}Issue Disciplinary Notice{% endblock %}
+{% block page_subtitle %}Formal discipline issued immediately — employee and full hierarchy are notified{% endblock %}
+{% block nav_discipline %}active{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'discipline:list' %}" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> Disciplinary Records
+</a>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %} alert-dismissible fade show mb-4">
+        <i class="bi bi-{% if msg.tags == 'error' %}exclamation-circle{% elif msg.tags == 'warning' %}exclamation-triangle{% else %}check-circle{% endif %} me-2"></i>
+        {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="alert alert-danger d-flex align-items-center gap-2 mb-4" style="border-left:4px solid #dc2626;">
+    <i class="bi bi-shield-fill-exclamation fs-5"></i>
+    <span>This notice is <strong>immediate and formal</strong>. It will be visible to the employee and their full hierarchy as soon as you submit.</span>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2" style="background:#fff;">
+                <i class="bi bi-shield-fill-x text-danger"></i>
+                <span style="color:#0A4D68;font-weight:600;">Direct Disciplinary Notice Form</span>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" id="directIssueForm">
+                    {% csrf_token %}
+
+                    <!-- Employee -->
+                    <div class="mb-4">
+                        <label class="form-label fw-600">
+                            <span class="badge bg-danger me-2" style="font-size:.72rem;">1</span>
+                            Employee <span class="text-danger">*</span>
+                        </label>
+                        <div class="emp-ajax-wrap">
+                            <input type="text" class="form-control emp-ajax-input"
+                                   placeholder="Type name to search…" autocomplete="off">
+                            <div class="emp-ajax-dropdown"></div>
+                            <input type="hidden" name="employee" class="emp-ajax-value" required>
+                            <div class="emp-ajax-selected mt-1" style="display:none;font-size:.85rem;color:#0A4D68;">
+                                <i class="bi bi-person-check me-1"></i>
+                                <span class="emp-ajax-name"></span>
+                                <a href="#" class="emp-ajax-clear ms-2 text-danger" style="font-size:.78rem;">Change</a>
+                            </div>
+                        </div>
+                        <div class="form-text">Start typing the employee's name to search.</div>
+                    </div>
+
+                    <!-- Notice Type -->
+                    <div class="mb-4">
+                        <label class="form-label fw-600">
+                            <span class="badge bg-danger me-2" style="font-size:.72rem;">2</span>
+                            Notice Type <span class="text-danger">*</span>
+                        </label>
+                        <select name="action_type" class="form-select" required id="actionTypeSelect">
+                            <option value="">— Select type —</option>
+                            {% for key, label in action_choices %}
+                            <option value="{{ key }}" {% if posted.action_type == key %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="mt-2 px-3 py-2 rounded" id="typeDescription" style="font-size:.82rem;display:none;"></div>
+                    </div>
+
+                    <!-- Suspension dates -->
+                    <div class="mb-4 p-3 rounded susp-box" id="suspBox"
+                         style="background:#f8fafc;border:1.5px solid #cde8ef;display:none;">
+                        <label class="form-label fw-600 mb-3">
+                            <i class="bi bi-calendar-range me-1"></i> Suspension Period
+                        </label>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="form-label" style="font-size:.85rem;">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" name="suspension_start" class="form-control" value="{{ posted.suspension_start }}">
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label" style="font-size:.85rem;">End Date <span class="text-danger">*</span></label>
+                                <input type="date" name="suspension_end" class="form-control" value="{{ posted.suspension_end }}">
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">If end date is left blank, the system defaults to 8 days from start.</div>
+                    </div>
+
+                    <!-- Reason -->
+                    <div class="mb-4">
+                        <label class="form-label fw-600">
+                            <span class="badge bg-danger me-2" style="font-size:.72rem;">3</span>
+                            Reason / Description <span class="text-danger">*</span>
+                        </label>
+                        <textarea name="reason" class="form-control" rows="5" required
+                            placeholder="Describe the reason for this disciplinary action in clear and objective terms…">{{ posted.reason }}</textarea>
+                    </div>
+
+                    <!-- Supporting Document -->
+                    <div class="mb-4">
+                        <label class="form-label fw-600">
+                            <span class="badge bg-danger me-2" style="font-size:.72rem;">4</span>
+                            Supporting Document <span class="text-muted fw-normal">(optional)</span>
+                        </label>
+                        <input type="file" name="document" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png">
+                        <div class="form-text">Attach the signed notice letter or any supporting document (PDF, Word, or image).</div>
+                    </div>
+
+                    <!-- Internal Notes -->
+                    <div class="mb-4">
+                        <label class="form-label fw-600">
+                            <i class="bi bi-lock me-1"></i>
+                            Internal Notes <span class="text-muted fw-normal">(not visible to employee)</span>
+                        </label>
+                        <textarea name="notes" class="form-control" rows="3"
+                            placeholder="Any internal remarks for HR records only…">{{ posted.notes }}</textarea>
+                    </div>
+
+                    <!-- Who gets notified -->
+                    <div class="p-3 rounded mb-4" style="background:#f0f9ff;border:1.5px solid #bae6fd;">
+                        <div class="fw-600 mb-2" style="font-size:.85rem;color:#0A4D68;">
+                            <i class="bi bi-bell me-1"></i> Who gets notified on submit:
+                        </div>
+                        <ul class="mb-0" style="font-size:.82rem;color:#374151;padding-left:1.2rem;">
+                            <li>The <strong>employee</strong> — in-app notification immediately</li>
+                            <li>Their <strong>Line Manager / Supervisor</strong></li>
+                            <li>Their <strong>Unit Head</strong></li>
+                            <li>All <strong>HR staff</strong> (if issued by Admin Director or CEO)</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex gap-3 pt-2">
+                        <button type="submit" class="btn btn-danger px-5">
+                            <i class="bi bi-send-fill me-2"></i>Issue Notice Formally
+                        </button>
+                        <a href="{% url 'discipline:list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var typeDescriptions = {
+    'verbal_warning':  { text: 'An informal recorded warning — first step before formal written action.', color: '#92400e', bg: '#fef3c7' },
+    'written_caution': { text: 'A formal written caution placed on the employee\'s personnel record.', color: '#92400e', bg: '#fed7aa' },
+    'final_warning':   { text: 'A final written warning — next step is suspension or dismissal.', color: '#fff', bg: '#dc2626' },
+    'suspension':      { text: 'Employee is suspended from duty for a specified period. Fill in the dates below.', color: '#fff', bg: '#374151' },
+    'dismissal':       { text: 'Termination of employment. HR will be alerted to deactivate the account.', color: '#fff', bg: '#7f1d1d' },
+};
+
+var actionTypeSelect = document.getElementById('actionTypeSelect');
+var suspBox = document.getElementById('suspBox');
+var typeDesc = document.getElementById('typeDescription');
+
+function updateType() {
+    var val = actionTypeSelect.value;
+    var info = typeDescriptions[val];
+    if (info) {
+        typeDesc.textContent = info.text;
+        typeDesc.style.background = info.bg;
+        typeDesc.style.color = info.color;
+        typeDesc.style.display = 'block';
+    } else {
+        typeDesc.style.display = 'none';
+    }
+    suspBox.style.display = (val === 'suspension') ? 'block' : 'none';
+}
+
+if (actionTypeSelect) {
+    actionTypeSelect.addEventListener('change', updateType);
+    updateType();
+}
+</script>
+{% endblock %}
