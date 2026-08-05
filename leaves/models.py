@@ -122,6 +122,15 @@ class LeaveRequest(models.Model):
     def __str__(self):
         return f"{self.employee} - {self.leave_type} ({self.start_date} to {self.end_date})"
 
+    @property
+    def resume_date(self):
+        """First working day (Mon–Fri) after the leave ends."""
+        from datetime import timedelta
+        d = self.end_date + timedelta(days=1)
+        while d.weekday() >= 5:  # 5=Sat, 6=Sun
+            d += timedelta(days=1)
+        return d
+
     def save(self, *args, **kwargs):
         if self.start_date and self.end_date:
             self.total_days = self._count_working_days(self.start_date, self.end_date)

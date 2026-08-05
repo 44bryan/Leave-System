@@ -35,7 +35,7 @@ Requires context: employee, balance, pending_count, on_leave,
 {% if on_leave %}
 <div class="alert alert-info d-flex align-items-center gap-2 mb-4">
     <i class="bi bi-airplane-fill fs-5"></i>
-    <span>{% blocktrans with leave_type=on_leave.leave_type end_date=on_leave.end_date %}You are currently on <strong>{{ leave_type }}</strong> leave. You return on <strong>{{ end_date }}</strong>.{% endblocktrans %}</span>
+    <span>You are currently on <strong>{{ on_leave.leave_type }}</strong> leave. You resume work on <strong>{{ on_leave.resume_date|date:"d M Y" }}</strong>.</span>
 </div>
 {% endif %}
 
