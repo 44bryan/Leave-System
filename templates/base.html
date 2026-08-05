@@ -1523,6 +1523,11 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
+                <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-plus"></i> {% trans "Propose Discipline" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:list' %}" class="nav-link-sidebar {% block nav_discipline %}{% endblock %}">
                     <i class="bi bi-shield-exclamation"></i> {% trans "Disciplinary Records" %}
                     {% if pending_discipline_proposals > 0 %}<span class="nav-badge">{{ pending_discipline_proposals }}</span>{% endif %}

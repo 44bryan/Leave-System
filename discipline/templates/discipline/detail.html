@@ -399,7 +399,7 @@
             <!-- Step 3 — HR Issue Final Discipline (unlocked as soon as HR submits Step 2) -->
             {% if record.hr_proposed_sanction and record.hr_proposed_sanction != 'no_further_action' %}
             {% if request.user.is_superuser or request.user.employee.is_hr %}
-            <div class="alert alert-success mb-4" style="border-left:4px solid #2db4c3;">
+            <div class="alert alert-success mb-4" >
                 <i class="bi bi-check-circle-fill me-2"></i>
                 <strong>{% trans "HR sanction review complete." %}</strong>
                 {% trans "You can now issue the formal discipline notice to the employee." %}

@@ -24,12 +24,12 @@
     {% endif %}
 
     {% if is_proposal_only %}
-    <div class="alert alert-info mb-4" style="border-left:3px solid #2db4c3;">
+    <div class="alert alert-info mb-4" >
         <i class="bi bi-info-circle me-2"></i>
         {% blocktrans with role=request.user.employee.get_role_display %}As a <strong>{{ role }}</strong>, you may only <strong>propose a Verbal Warning</strong> to HR. HR will review your proposal and formally issue the notice if appropriate. Your submission will <em>not</em> be visible to the employee until HR executes it.{% endblocktrans %}
     </div>
     {% elif can_choose %}
-    <div class="alert alert-warning mb-4" style="border-left:3px solid #d97706;">
+    <div class="alert alert-warning mb-4" >
         <i class="bi bi-shield-check me-2"></i>
         {% trans "You may <strong>issue discipline directly</strong> or <strong>propose to HR</strong> for formal execution. Use the toggle below to choose." %}
     </div>

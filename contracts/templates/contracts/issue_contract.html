@@ -27,7 +27,7 @@
     </div>
     <div class="card-body p-4">
         {% if preselect_employee %}
-        <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.82rem;border-left:3px solid #2db4c3;background:#f0f9ff;border-radius:8px;">
+        <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.82rem;background:#f0f9ff;border-radius:8px;">
             <i class="bi bi-person-fill me-1"></i>
             {% blocktrans with name=preselect_employee.get_full_name eid=preselect_employee.employee_id %}Issuing contract for <strong>{{ name }}</strong> ({{ eid }}){% endblocktrans %}{% if preselect_employee.department %} — {{ preselect_employee.department }}{% endif %}.
             {% trans "Any existing active contract will be automatically marked as" %} <em>{% trans "renewed" %}</em>.

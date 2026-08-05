@@ -16,7 +16,7 @@
         <div class="stat-label">{% trans "Total Notices" %}</div>
     </div>
     {% for notice in notices %}{% if notice.action_type == 'suspension' and notice.is_currently_suspended %}
-    <div class="alert alert-dark d-flex align-items-start gap-3 mb-0 flex-grow-1" style="border-left:4px solid #374151;">
+    <div class="alert alert-dark d-flex align-items-start gap-3 mb-0 flex-grow-1" >
         <i class="bi bi-person-slash fs-4 flex-shrink-0 mt-1"></i>
         <div>
             <strong>{% trans "You are currently under suspension." %}</strong>
