@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>You're Offline — AEF HRM</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f4f7f9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 48px 36px;
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(10,77,104,.10);
+    }
+    .icon { font-size: 64px; margin-bottom: 20px; }
+    h1 { font-size: 1.5rem; color: #0A4D68; margin-bottom: 12px; }
+    p  { color: #6b7a8d; line-height: 1.6; margin-bottom: 28px; font-size: .95rem; }
+    .btn {
+      display: inline-block;
+      background: #0A4D68;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: .95rem;
+    }
+    .btn:hover { background: #0d6080; }
+    .logo { margin-bottom: 24px; }
+    .logo img { height: 52px; object-fit: contain; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <img src="/static/icons/icon-192.png" alt="AEF HRM">
+    </div>
+    <div class="icon">📡</div>
+    <h1>You're offline</h1>
+    <p>
+      It looks like you've lost your internet connection.<br>
+      Please check your network and try again.
+    </p>
+    <a href="javascript:window.location.reload()" class="btn">Try Again</a>
+  </div>
+</body>
+</html>
