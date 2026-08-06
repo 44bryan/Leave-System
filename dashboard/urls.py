@@ -30,4 +30,5 @@ urlpatterns = [
     path('admin-settings/bulk-set-entitlement/', views.bulk_set_entitlement, name='bulk_set_entitlement'),
     path('leave-calendar/', views.leave_calendar, name='leave_calendar'),
     path('org-chart/', views.org_chart, name='org_chart'),
+    path('analytics/', views.analytics_dashboard, name='analytics'),
 ]

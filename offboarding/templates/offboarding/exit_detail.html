@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Exit — {{ er.employee.get_full_name }} — AEF HRM{% endblock %}
+{% block page_title %}Exit: {{ er.employee.get_full_name }}{% endblock %}
+{% block page_subtitle %}{{ er.get_exit_type_display }} · Last day: {{ er.exit_date|date:"d M Y" }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }} alert-dismissible fade show mb-3">{{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-4">
+    <!-- Left: checklist -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span class="fw-semibold"><i class="bi bi-list-check me-2" style="color:#2db4c3;"></i>Offboarding Checklist</span>
+          <span class="badge bg-{% if er.completion_pct == 100 %}success{% else %}primary{% endif %}">
+            {{ er.tasks_done }}/{{ er.tasks_total }} done ({{ er.completion_pct }}%)
+          </span>
+        </div>
+        <div class="card-body p-0">
+          <!-- Progress bar -->
+          <div class="progress rounded-0" style="height:6px;">
+            <div class="progress-bar bg-success" style="width:{{ er.completion_pct }}%;transition:width .4s;"></div>
+          </div>
+          <ul class="list-group list-group-flush">
+            {% for task in tasks %}
+            <li class="list-group-item py-3">
+              <div class="d-flex align-items-start gap-3">
+                <div class="mt-1">
+                  {% if task.completed %}
+                  <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                  {% else %}
+                  <i class="bi bi-circle text-muted fs-5"></i>
+                  {% endif %}
+                </div>
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold {% if task.completed %}text-decoration-line-through text-muted{% endif %}">
+                      {{ task.title }}
+                    </span>
+                    <span class="badge bg-secondary ms-2">{{ task.get_owner_display }}</span>
+                  </div>
+                  {% if task.completed %}
+                  <div class="text-muted small mt-1">
+                    Done by {{ task.completed_by.get_full_name|default:task.completed_by.username }}
+                    on {{ task.completed_at|date:"d M Y H:i" }}
+                    {% if task.notes %} · {{ task.notes }}{% endif %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% if is_hr %}
+                <div class="d-flex gap-1">
+                  {% if not task.completed %}
+                  <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
+                          data-bs-target="#completeModal{{ task.pk }}">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  {% else %}
+                  <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="undo_task">
+                    <input type="hidden" name="task_pk" value="{{ task.pk }}">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Undo">
+                      <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        {% if is_hr %}
+        <div class="card-footer">
+          <form method="post" class="row g-2 align-items-end">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_task">
+            <div class="col">
+              <input type="text" name="new_task_title" class="form-control form-control-sm" placeholder="Add custom task…" required>
+            </div>
+            <div class="col-auto">
+              <select name="new_task_owner" class="form-select form-select-sm">
+                {% for val, label in task_owners %}
+                <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-auto">
+              <button type="submit" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Add
+              </button>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right: info & interview -->
+    <div class="col-lg-4">
+
+      <!-- Status card -->
+      <div class="card shadow-sm mb-3">
+        <div class="card-header fw-semibold">Status</div>
+        <div class="card-body">
+          <div class="mb-2">
+            {% if er.status == 'completed' %}<span class="badge bg-success fs-6">Completed</span>
+            {% elif er.status == 'in_progress' %}<span class="badge bg-primary fs-6">In Progress</span>
+            {% elif er.status == 'cancelled' %}<span class="badge bg-secondary fs-6">Cancelled</span>
+            {% else %}<span class="badge bg-warning text-dark fs-6">Pending</span>{% endif %}
+          </div>
+          <div class="small text-muted">Opened by {{ er.initiated_by.get_full_name|default:er.initiated_by.username }}</div>
+          <div class="small text-muted">on {{ er.created_at|date:"d M Y" }}</div>
+          {% if er.reason %}
+          <hr class="my-2">
+          <div class="small"><strong>Reason:</strong> {{ er.reason }}</div>
+          {% endif %}
+          {% if is_hr %}
+          <hr class="my-2">
+          <form method="post" class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="change_status">
+            <select name="new_status" class="form-select form-select-sm">
+              {% for val, label in status_choices %}
+              <option value="{{ val }}" {% if val == er.status %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Exit interview -->
+      {% if is_hr %}
+      <div class="card shadow-sm">
+        <div class="card-header fw-semibold">
+          <i class="bi bi-chat-left-text me-2" style="color:#2db4c3;"></i>Exit Interview
+          {% if er.interview_done %}<span class="badge bg-success ms-2">Done</span>{% endif %}
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_interview">
+            <div class="mb-2">
+              <label class="form-label small mb-1">Interview Date</label>
+              <input type="date" name="interview_date" class="form-control form-control-sm"
+                     value="{{ er.interview_date|date:'Y-m-d'|default:'' }}">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Feedback / Notes</label>
+              <textarea name="interview_feedback" class="form-control form-control-sm" rows="4">{{ er.interview_feedback }}</textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">HR Internal Notes</label>
+              <textarea name="notes" class="form-control form-control-sm" rows="2">{{ er.notes }}</textarea>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" name="interview_done" id="intDone"
+                     {% if er.interview_done %}checked{% endif %}>
+              <label class="form-check-label small" for="intDone">Interview completed</label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm w-100">
+              <i class="bi bi-save me-1"></i>Save Interview
+            </button>
+          </form>
+        </div>
+      </div>
+      {% elif er.interview_done %}
+      <div class="card shadow-sm">
+        <div class="card-header fw-semibold"><i class="bi bi-chat-left-text me-2"></i>Exit Interview</div>
+        <div class="card-body">
+          <span class="badge bg-success mb-2">Completed</span>
+          {% if er.interview_date %}<div class="small text-muted">Date: {{ er.interview_date|date:"d M Y" }}</div>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<!-- Complete task modals -->
+{% if is_hr %}
+{% for task in tasks %}
+{% if not task.completed %}
+<div class="modal fade" id="completeModal{{ task.pk }}" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title small">Mark as Complete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="complete_task">
+        <input type="hidden" name="task_pk" value="{{ task.pk }}">
+        <div class="modal-body">
+          <p class="small mb-2"><strong>{{ task.title }}</strong></p>
+          <label class="form-label small mb-1">Notes (optional)</label>
+          <input type="text" name="task_notes" class="form-control form-control-sm" placeholder="e.g. Badge returned to security">
+        </div>
+        <div class="modal-footer py-2">
+          <button type="submit" class="btn btn-success btn-sm">
+            <i class="bi bi-check-lg me-1"></i>Mark Done
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% endblock %}

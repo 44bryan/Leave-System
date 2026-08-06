@@ -2506,3 +2506,150 @@ def leave_calendar(request):
         'departments': departments,
         'dept_filter': dept_filter,
     })
+
+
+# ── Analytics / Reporting Dashboard ─────────────────────────────────────────
+@login_required
+def analytics_dashboard(request):
+    """Leave usage trends and absenteeism rates — HR, CEO, superuser."""
+    import json
+    from datetime import date
+    from django.db.models import Sum, Count, Q
+    from accounts.models import Employee, Department
+    from leaves.models import LeaveRequest, LeaveType
+
+    emp = request.user.employee
+    if not (emp.is_hr() or emp.is_ceo() or request.user.is_superuser):
+        from django.contrib import messages as _msg
+        _msg.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    year = int(request.GET.get('year', date.today().year))
+    dept_pk = request.GET.get('dept', '')
+
+    # Base queryset: approved leaves in the selected year
+    base_qs = LeaveRequest.objects.filter(
+        status=LeaveRequest.STATUS_APPROVED,
+        start_date__year=year,
+    )
+    if dept_pk:
+        base_qs = base_qs.filter(employee__department__pk=dept_pk)
+
+    # ── 1. Leave days by type ─────────────────────────────────────────────
+    by_type = (
+        base_qs
+        .values('leave_type__name')
+        .annotate(total_days=Sum('total_days'))
+        .order_by('-total_days')
+    )
+    type_labels = [r['leave_type__name'] or 'Unknown' for r in by_type]
+    type_data   = [float(r['total_days'] or 0) for r in by_type]
+
+    # ── 2. Leave requests by department ──────────────────────────────────
+    by_dept = (
+        base_qs
+        .values('employee__department__name')
+        .annotate(count=Count('id'), days=Sum('total_days'))
+        .order_by('-days')
+    )
+    dept_labels = [r['employee__department__name'] or 'No Dept' for r in by_dept]
+    dept_days   = [float(r['days'] or 0) for r in by_dept]
+    dept_counts = [r['count'] for r in by_dept]
+
+    # ── 3. Monthly trend (all statuses → submitted requests per month) ─
+    monthly_qs = LeaveRequest.objects.filter(start_date__year=year)
+    if dept_pk:
+        monthly_qs = monthly_qs.filter(employee__department__pk=dept_pk)
+    monthly_raw = (
+        monthly_qs
+        .values('start_date__month')
+        .annotate(count=Count('id'))
+        .order_by('start_date__month')
+    )
+    month_map = {r['start_date__month']: r['count'] for r in monthly_raw}
+    month_labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    month_data   = [month_map.get(i, 0) for i in range(1, 13)]
+
+    # ── 4. Absenteeism rate by department (sick leave days) ───────────
+    sick_types = LeaveType.objects.filter(
+        Q(name__icontains='sick') | Q(name__icontains='medical') | Q(name__icontains='ill')
+    ).values_list('id', flat=True)
+
+    sick_qs = base_qs.filter(leave_type__in=sick_types)
+    sick_by_dept = (
+        sick_qs
+        .values('employee__department__name')
+        .annotate(sick_days=Sum('total_days'))
+        .order_by('-sick_days')
+    )
+
+    # Total active employees per dept for absenteeism rate
+    emp_counts = {
+        d['department__name']: d['cnt']
+        for d in Employee.objects.filter(is_active=True).values('department__name').annotate(cnt=Count('id'))
+    }
+    sick_dept_labels = [r['employee__department__name'] or 'No Dept' for r in sick_by_dept]
+    sick_dept_data   = [float(r['sick_days'] or 0) for r in sick_by_dept]
+
+    # working days in the year (Mon–Fri)
+    import calendar
+    total_working_days = 0
+    for m in range(1, 13):
+        for day in range(1, calendar.monthrange(year, m)[1] + 1):
+            if date(year, m, day).weekday() < 5:
+                total_working_days += 1
+
+    absenteeism_rate = []
+    for label, sick_days in zip(sick_dept_labels, sick_dept_data):
+        n_emp = emp_counts.get(label, 1)
+        possible = n_emp * total_working_days
+        rate = round((sick_days / possible) * 100, 2) if possible else 0
+        absenteeism_rate.append(rate)
+
+    # ── 5. Summary cards ─────────────────────────────────────────────
+    all_year = LeaveRequest.objects.filter(start_date__year=year)
+    if dept_pk:
+        all_year = all_year.filter(employee__department__pk=dept_pk)
+
+    total_approved = all_year.filter(status=LeaveRequest.STATUS_APPROVED).count()
+    total_pending  = all_year.filter(status__in=[
+        LeaveRequest.STATUS_PENDING,
+        LeaveRequest.STATUS_MANAGER_APPROVED,
+        LeaveRequest.STATUS_HR_APPROVED,
+        LeaveRequest.STATUS_UNIT_HEAD_APPROVED,
+        LeaveRequest.STATUS_NURSE_SUPT_APPROVED,
+    ]).count()
+    total_rejected = all_year.filter(status__in=[
+        LeaveRequest.STATUS_REJECTED_MANAGER,
+        LeaveRequest.STATUS_REJECTED_HR,
+        LeaveRequest.STATUS_REJECTED_DIRECTOR,
+        LeaveRequest.STATUS_REJECTED_UNIT_HEAD,
+        LeaveRequest.STATUS_REJECTED_NURSE_SUPT,
+    ]).count()
+    total_cancelled = all_year.filter(status=LeaveRequest.STATUS_CANCELLED).count()
+
+    departments = Department.objects.all().order_by('name')
+    available_years = list(range(date.today().year, date.today().year - 5, -1))
+
+    return render(request, 'dashboard/analytics.html', {
+        'year': year,
+        'dept_pk': dept_pk,
+        'departments': departments,
+        'available_years': available_years,
+        # Summary
+        'total_approved': total_approved,
+        'total_pending': total_pending,
+        'total_rejected': total_rejected,
+        'total_cancelled': total_cancelled,
+        # Charts (JSON)
+        'type_labels_json':       json.dumps(type_labels),
+        'type_data_json':         json.dumps(type_data),
+        'dept_labels_json':       json.dumps(dept_labels),
+        'dept_days_json':         json.dumps(dept_days),
+        'dept_counts_json':       json.dumps(dept_counts),
+        'month_labels_json':      json.dumps(month_labels),
+        'month_data_json':        json.dumps(month_data),
+        'sick_dept_labels_json':  json.dumps(sick_dept_labels),
+        'sick_dept_data_json':    json.dumps(sick_dept_data),
+        'absenteeism_rate_json':  json.dumps(absenteeism_rate),
+    })

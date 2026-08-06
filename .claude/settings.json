@@ -26,7 +26,14 @@
       "Bash(git add leaves/models.py leaves/migrations/0011_tentative_leave_plan.py leaves/views.py leaves/urls.py leaves/templates/leaves/plan_my_plan.html leaves/templates/leaves/plan_manager.html leaves/templates/leaves/plan_hr.html templates/base.html)",
       "Bash(git add leaves/templates/leaves/plan_my_plan.html)",
       "Bash(git add leaves/templates/leaves/plan_hr.html)",
-      "Bash(git add leaves/templates/leaves/nurse_supt_approvals.html)"
+      "Bash(git add leaves/templates/leaves/nurse_supt_approvals.html)",
+      "Bash(ls \"c:\\\\Users\\\\GROD\\\\Desktop\\\\leave_system\\\\contracts\\\\management\\\\commands\"\" 2>/dev/null && ls \"c:UsersGRODDesktopleave_systemnotificationsmanagementcommands\"\")",
+      "Bash(git add leaves/templates/leaves/team_calendar.html)",
+      "Bash(c:/Users/GROD/Desktop/leave_system/accounts/models.py:*)",
+      "Bash(c:/Users/GROD/Desktop/leave_system/accounts/views.py:*)",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py startapp offboarding)",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py makemigrations offboarding)",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py check)"
     ]
   }
 }

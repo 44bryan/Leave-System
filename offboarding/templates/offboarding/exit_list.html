@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Offboarding — AEF HRM{% endblock %}
+{% block page_title %}Exit & Offboarding{% endblock %}
+{% block page_subtitle %}Manage staff exit processes and clearance{% endblock %}
+
+{% block topbar_actions %}
+{% if is_hr %}
+<a href="{% url 'offboarding:exit_create' %}" class="btn btn-primary btn-sm">
+  <i class="bi bi-person-dash me-1"></i>Open Exit Request
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+
+  <!-- Filter -->
+  <div class="d-flex gap-2 mb-3 flex-wrap">
+    <a href="?" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+    {% for val, label in status_choices %}
+    <a href="?status={{ val }}" class="btn btn-sm {% if status_filter == val %}btn-primary{% else %}btn-outline-secondary{% endif %}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header fw-semibold">
+      <i class="bi bi-door-open me-2" style="color:#2db4c3;"></i>Exit Requests
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Exit Type</th>
+              <th>Last Day</th>
+              <th>Clearance</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ex in exits %}
+            <tr>
+              <td class="fw-semibold">{{ ex.employee.get_full_name }}</td>
+              <td class="small text-muted">{{ ex.employee.department|default:"—" }}</td>
+              <td>{{ ex.get_exit_type_display }}</td>
+              <td>{{ ex.exit_date|date:"d M Y" }}</td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="progress flex-grow-1" style="height:8px;max-width:80px;">
+                    <div class="progress-bar bg-success" style="width:{{ ex.completion_pct }}%"></div>
+                  </div>
+                  <span class="small text-muted">{{ ex.tasks_done }}/{{ ex.tasks_total }}</span>
+                </div>
+              </td>
+              <td>
+                {% if ex.status == 'completed' %}
+                  <span class="badge bg-success">Completed</span>
+                {% elif ex.status == 'in_progress' %}
+                  <span class="badge bg-primary">In Progress</span>
+                {% elif ex.status == 'cancelled' %}
+                  <span class="badge bg-secondary">Cancelled</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'offboarding:exit_detail' ex.pk %}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-eye me-1"></i>View
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-2 d-block mb-2"></i>No exit requests found.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

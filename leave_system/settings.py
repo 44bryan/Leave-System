@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'recognition',
     'recruitment',
     'medical_leave',
+    'offboarding',
 ]
 
 MIDDLEWARE = [

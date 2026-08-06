@@ -55,6 +55,9 @@ urlpatterns = [
     path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
     path('documents/expiring/', views.expiring_documents, name='expiring_documents'),
 
+    # Audit log
+    path('audit-log/', views.audit_log_view, name='audit_log'),
+
     # Employee AJAX search
     path('employee-search/', views.employee_search_api, name='employee_search'),
 

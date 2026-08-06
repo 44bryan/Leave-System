@@ -1863,3 +1863,62 @@ def employee_search_api(request):
             for e in qs
         ]
     return JsonResponse({'results': results})
+
+
+# ── Audit Log View ────────────────────────────────────────────────────────────
+@login_required
+def audit_log_view(request):
+    from dashboard.models import AuditLog
+    emp = request.user.employee
+    if not (emp.is_hr() or emp.is_ceo() or request.user.is_superuser):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied
+
+    qs = AuditLog.objects.select_related('user', 'target_user').all()
+
+    # Filters
+    action_filter = request.GET.get('action', '')
+    user_filter   = request.GET.get('user', '')
+    date_from     = request.GET.get('date_from', '')
+    date_to       = request.GET.get('date_to', '')
+    search        = request.GET.get('q', '')
+
+    if action_filter:
+        qs = qs.filter(action=action_filter)
+    if user_filter:
+        qs = qs.filter(
+            Q(user__first_name__icontains=user_filter) |
+            Q(user__last_name__icontains=user_filter) |
+            Q(user__username__icontains=user_filter)
+        )
+    if search:
+        qs = qs.filter(description__icontains=search)
+    if date_from:
+        try:
+            from datetime import datetime
+            qs = qs.filter(timestamp__date__gte=datetime.strptime(date_from, '%Y-%m-%d').date())
+        except ValueError:
+            pass
+    if date_to:
+        try:
+            from datetime import datetime
+            qs = qs.filter(timestamp__date__lte=datetime.strptime(date_to, '%Y-%m-%d').date())
+        except ValueError:
+            pass
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, 50)
+    page = request.GET.get('page', 1)
+    logs = paginator.get_page(page)
+
+    return render(request, 'accounts/audit_log.html', {
+        'logs': logs,
+        'action_choices': AuditLog.ACTION_CHOICES,
+        'filters': {
+            'action': action_filter,
+            'user': user_filter,
+            'date_from': date_from,
+            'date_to': date_to,
+            'q': search,
+        },
+    })

@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Audit Log — AEF HRM{% endblock %}
+{% block page_title %}Audit Log{% endblock %}
+{% block page_subtitle %}Full history of all system actions{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+
+  <!-- Filter bar -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header fw-semibold">
+      <i class="bi bi-funnel me-2" style="color:#2db4c3;"></i>Filters
+    </div>
+    <div class="card-body pb-2">
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-2 col-sm-6">
+          <label class="form-label small mb-1">Action type</label>
+          <select name="action" class="form-select form-select-sm">
+            <option value="">All actions</option>
+            {% for val, label in action_choices %}
+            <option value="{{ val }}" {% if filters.action == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2 col-sm-6">
+          <label class="form-label small mb-1">User</label>
+          <input type="text" name="user" class="form-control form-control-sm"
+                 placeholder="Name or username" value="{{ filters.user }}">
+        </div>
+        <div class="col-md-2 col-sm-6">
+          <label class="form-label small mb-1">Search description</label>
+          <input type="text" name="q" class="form-control form-control-sm"
+                 placeholder="Keyword…" value="{{ filters.q }}">
+        </div>
+        <div class="col-md-2 col-sm-6">
+          <label class="form-label small mb-1">From date</label>
+          <input type="date" name="date_from" class="form-control form-control-sm"
+                 value="{{ filters.date_from }}">
+        </div>
+        <div class="col-md-2 col-sm-6">
+          <label class="form-label small mb-1">To date</label>
+          <input type="date" name="date_to" class="form-control form-control-sm"
+                 value="{{ filters.date_to }}">
+        </div>
+        <div class="col-md-2 col-sm-6 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+            <i class="bi bi-search me-1"></i>Filter
+          </button>
+          <a href="{% url 'accounts:audit_log' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-x-lg"></i>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Log table -->
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="fw-semibold">
+        <i class="bi bi-clock-history me-2" style="color:#2db4c3;"></i>Activity Log
+      </span>
+      <span class="badge bg-secondary">{{ logs.paginator.count }} record{{ logs.paginator.count|pluralize }}</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-sm mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width:155px">Timestamp</th>
+              <th>User</th>
+              <th style="width:140px">Action</th>
+              <th>Description</th>
+              <th>Affected user</th>
+              <th style="width:115px">IP Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in logs %}
+            <tr>
+              <td class="text-muted small">{{ log.timestamp|date:"d M Y H:i" }}</td>
+              <td>
+                {% if log.user %}
+                  <span class="fw-semibold small">{{ log.user.get_full_name|default:log.user.username }}</span>
+                {% else %}
+                  <span class="text-muted small fst-italic">Anonymous</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if log.action == 'login' or log.action == 'logout' %}
+                  <span class="badge bg-secondary">{{ log.get_action_display }}</span>
+                {% elif log.action == 'leave_approve' or log.action == 'employee' %}
+                  <span class="badge bg-success">{{ log.get_action_display }}</span>
+                {% elif log.action == 'leave_reject' %}
+                  <span class="badge bg-danger">{{ log.get_action_display }}</span>
+                {% elif log.action == 'leave_submit' %}
+                  <span class="badge bg-primary">{{ log.get_action_display }}</span>
+                {% else %}
+                  <span class="badge bg-info text-dark">{{ log.get_action_display }}</span>
+                {% endif %}
+              </td>
+              <td class="small">{{ log.description|truncatechars:120 }}</td>
+              <td class="small">
+                {% if log.target_user %}
+                  {{ log.target_user.get_full_name|default:log.target_user.username }}
+                {% else %}—{% endif %}
+              </td>
+              <td class="small text-muted">{{ log.ip_address|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-2 d-block mb-2"></i>No log entries found.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if logs.has_other_pages %}
+    <div class="card-footer">
+      <nav>
+        <ul class="pagination pagination-sm mb-0 justify-content-center">
+          {% if logs.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ logs.previous_page_number }}&action={{ filters.action }}&user={{ filters.user }}&q={{ filters.q }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">«</a>
+          </li>
+          {% endif %}
+          <li class="page-item disabled">
+            <span class="page-link">Page {{ logs.number }} of {{ logs.paginator.num_pages }}</span>
+          </li>
+          {% if logs.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ logs.next_page_number }}&action={{ filters.action }}&user={{ filters.user }}&q={{ filters.q }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">»</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

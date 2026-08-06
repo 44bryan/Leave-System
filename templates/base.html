@@ -1488,6 +1488,21 @@
                     <i class="bi bi-calendar3"></i> {% trans "Team Leave Calendar" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:analytics' %}" class="nav-link-sidebar {% block nav_analytics %}{% endblock %}">
+                    <i class="bi bi-bar-chart-line"></i> {% trans "Leave Analytics" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'offboarding:exit_list' %}" class="nav-link-sidebar {% block nav_offboarding %}{% endblock %}">
+                    <i class="bi bi-door-open"></i> {% trans "Exit / Offboarding" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:audit_log' %}" class="nav-link-sidebar {% block nav_audit_log %}{% endblock %}">
+                    <i class="bi bi-clock-history"></i> {% trans "Audit Log" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}
