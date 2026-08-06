@@ -168,9 +168,15 @@
                             </a>
                             {% endif %}
                             {% if req.status == 'approved' %}
-                            <a href="{% url 'leaves:pdf_leave' req.pk %}" class="btn btn-sm btn-outline-success" title="Download Official Form">
-                                <i class="bi bi-file-earmark-pdf"></i>
-                            </a>
+                                {% if req.leave_type.name == 'Medical Sick Leave' %}
+                                <a href="{% url 'medical_leave:my_sick_leaves' %}" class="btn btn-sm btn-outline-info" title="See MSL Certificate in My Sick Leaves">
+                                    <i class="bi bi-hospital"></i>
+                                </a>
+                                {% else %}
+                                <a href="{% url 'leaves:pdf_leave' req.pk %}" class="btn btn-sm btn-outline-success" title="Download Official Form">
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                </a>
+                                {% endif %}
                             {% endif %}
                             {% if req.can_cancel %}
                             <form method="post" action="{% url 'leaves:cancel' req.pk %}" style="display:inline;">

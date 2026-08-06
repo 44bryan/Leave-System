@@ -738,21 +738,18 @@
         .alert { border-radius: 12px; font-size: 0.875rem; }
 
         /* ─── FORMS ─── */
-        .form-control {
+        .form-control, .form-select {
             border: 1.5px solid var(--border);
             border-radius: 10px;
             font-size: 0.9rem;
             padding: 10px 14px;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        /* Keep right padding large enough for the browser's dropdown arrow */
-        .form-select {
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.9rem;
-            padding: 10px 2.5rem 10px 14px;
-            transition: border-color 0.2s, box-shadow 0.2s;
+        /* Fix arrow overlap on full-size selects without touching compact selects */
+        .form-select:not(.form-select-sm):not(.form-select-lg) {
+            padding-right: 2.5rem;
         }
+        .form-select-sm { padding-right: 1.75rem; }
 
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-light);
