@@ -6,7 +6,7 @@
  *   - Offline fallback: shows /offline/ if network is unavailable
  */
 
-const CACHE_NAME   = 'aef-hrm-v1';
+const CACHE_NAME   = 'aef-hrm-v2';
 const OFFLINE_URL  = '/offline/';
 
 const PRECACHE_ASSETS = [
