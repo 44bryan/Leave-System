@@ -31,4 +31,6 @@ urlpatterns = [
     path('leave-calendar/', views.leave_calendar, name='leave_calendar'),
     path('org-chart/', views.org_chart, name='org_chart'),
     path('analytics/', views.analytics_dashboard, name='analytics'),
+    path('analytics/discipline/', views.discipline_analytics, name='discipline_analytics'),
+    path('analytics/payroll/', views.payroll_analytics, name='payroll_analytics'),
 ]

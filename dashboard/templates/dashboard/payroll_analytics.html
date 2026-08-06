@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Payroll Analytics — AEF HRM{% endblock %}
+{% block page_title %}Payroll Analytics{% endblock %}
+{% block page_subtitle %}Payslip coverage and missing payslips{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+
+  <!-- Filters -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body py-2">
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-auto">
+          <label class="form-label small mb-1">Year</label>
+          <select name="year" class="form-select form-select-sm" style="width:100px;">
+            {% for y in available_years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-auto">
+          <label class="form-label small mb-1">Focus Month</label>
+          <select name="month" class="form-select form-select-sm" style="width:130px;">
+            {% for num, name in month_choices %}<option value="{{ num }}" {% if num == sel_month %}selected{% endif %}>{{ name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-auto">
+          <label class="form-label small mb-1">Department</label>
+          <select name="dept" class="form-select form-select-sm" style="width:190px;">
+            <option value="">All departments</option>
+            {% for d in departments %}<option value="{{ d.pk }}" {% if dept_pk == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-bar-chart-line me-1"></i>Apply</button>
+        </div>
+        <div class="col-auto ms-auto">
+          <a href="{% url 'dashboard:analytics' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Leave Analytics</a>
+          <a href="{% url 'dashboard:discipline_analytics' %}" class="btn btn-outline-secondary btn-sm ms-1"><i class="bi bi-shield-exclamation me-1"></i>Discipline</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-2 fw-bold text-primary">{{ total_active }}</div>
+          <div class="small text-muted mt-1">Active Employees</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-2 fw-bold text-success">{{ month_slips }}</div>
+          <div class="small text-muted mt-1">Payslips — {{ sel_month_name }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-2 fw-bold {% if month_coverage_pct >= 90 %}text-success{% elif month_coverage_pct >= 60 %}text-warning{% else %}text-danger{% endif %}">
+            {{ month_coverage_pct }}%
+          </div>
+          <div class="small text-muted mt-1">Coverage — {{ sel_month_name }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-2 fw-bold {% if missing_count == 0 %}text-success{% else %}text-danger{% endif %}">{{ missing_count }}</div>
+          <div class="small text-muted mt-1">Missing — {{ sel_month_name }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header fw-semibold"><i class="bi bi-graph-up me-2" style="color:#2db4c3;"></i>Payslips Uploaded per Month — {{ year }}</div>
+        <div class="card-body"><canvas id="monthChart" height="90"></canvas></div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header fw-semibold"><i class="bi bi-percent me-2" style="color:#2db4c3;"></i>Coverage % per Month — {{ year }}</div>
+        <div class="card-body"><canvas id="covChart" height="90"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header fw-semibold"><i class="bi bi-bar-chart me-2" style="color:#2db4c3;"></i>Dept Coverage — {{ sel_month_name }} {{ year }}</div>
+        <div class="card-body"><canvas id="deptChart" height="90"></canvas></div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span class="fw-semibold"><i class="bi bi-exclamation-triangle me-2 text-danger"></i>Missing Payslips — {{ sel_month_name }} {{ year }}</span>
+          <span class="badge bg-danger">{{ missing_count }}</span>
+        </div>
+        <div class="card-body p-0" style="max-height:320px;overflow-y:auto;">
+          {% if missing_employees %}
+          <table class="table table-sm table-hover mb-0 align-middle">
+            <thead class="table-light sticky-top"><tr><th>Employee</th><th>Department</th></tr></thead>
+            <tbody>
+              {% for e in missing_employees %}
+              <tr>
+                <td class="small fw-semibold">{{ e.get_full_name }}</td>
+                <td class="small text-muted">{{ e.department|default:"—" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="text-center text-success py-5">
+            <i class="bi bi-check-circle-fill fs-2 d-block mb-2"></i>
+            All active employees have payslips for {{ sel_month_name }}!
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department breakdown table -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header fw-semibold"><i class="bi bi-table me-2" style="color:#2db4c3;"></i>Department Breakdown — {{ sel_month_name }} {{ year }}</div>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0 align-middle">
+        <thead class="table-light"><tr><th>Department</th><th>Employees</th><th>With Payslip</th><th>Missing</th><th style="width:200px;">Coverage</th></tr></thead>
+        <tbody>
+          {% for row in dept_coverage %}
+          <tr>
+            <td class="small fw-semibold">{{ row.dept }}</td>
+            <td class="small">{{ row.emp }}</td>
+            <td class="small text-success">{{ row.slips }}</td>
+            <td class="small text-danger">{{ row.emp|add:"-"|add:row.slips }}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1" style="height:8px;">
+                  <div class="progress-bar {% if row.pct >= 90 %}bg-success{% elif row.pct >= 60 %}bg-warning{% else %}bg-danger{% endif %}" style="width:{{ row.pct }}%"></div>
+                </div>
+                <span class="small text-muted" style="min-width:38px;">{{ row.pct }}%</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('monthChart'), {
+  type: 'bar',
+  data: { labels: {{ month_labels_json }}, datasets: [{ label: 'Payslips', data: {{ month_data_json }}, backgroundColor: '#2db4c3bb', borderRadius: 4 }] },
+  options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+
+new Chart(document.getElementById('covChart'), {
+  type: 'line',
+  data: {
+    labels: {{ month_labels_json }},
+    datasets: [{
+      label: 'Coverage %',
+      data: {{ coverage_pct_json }},
+      borderColor: '#0A4D68', backgroundColor: '#0A4D6820',
+      tension: 0.3, fill: true, pointRadius: 4
+    }]
+  },
+  options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } }
+});
+
+new Chart(document.getElementById('deptChart'), {
+  type: 'bar',
+  data: { labels: {{ dept_cov_labels_json }}, datasets: [{ label: 'Coverage %', data: {{ dept_cov_data_json }}, backgroundColor: '#28a74599', borderRadius: 4 }] },
+  options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } }
+});
+</script>
+{% endblock %}

@@ -1501,6 +1501,16 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:discipline_analytics' %}" class="nav-link-sidebar {% block nav_disc_analytics %}{% endblock %}">
+                    <i class="bi bi-shield-exclamation"></i> {% trans "Discipline Analytics" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:payroll_analytics' %}" class="nav-link-sidebar {% block nav_pay_analytics %}{% endblock %}">
+                    <i class="bi bi-cash-stack"></i> {% trans "Payroll Analytics" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
                 <a href="{% url 'offboarding:exit_list' %}" class="nav-link-sidebar {% block nav_offboarding %}{% endblock %}">
                     <i class="bi bi-door-open"></i> {% trans "Exit / Offboarding" %}
                 </a>
@@ -1548,6 +1558,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:analytics' %}" class="nav-link-sidebar {% block nav_analytics_dir %}{% endblock %}">
                     <i class="bi bi-bar-chart-line"></i> {% trans "Leave Analytics" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'dashboard:discipline_analytics' %}" class="nav-link-sidebar {% block nav_disc_analytics_dir %}{% endblock %}">
+                    <i class="bi bi-shield-exclamation"></i> {% trans "Discipline Analytics" %}
                 </a>
             </li>
             <li class="nav-item-sidebar">

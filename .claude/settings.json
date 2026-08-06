@@ -33,7 +33,8 @@
       "Bash(c:/Users/GROD/Desktop/leave_system/accounts/views.py:*)",
       "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py startapp offboarding)",
       "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py makemigrations offboarding)",
-      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py check)"
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py check)",
+      "Bash(c:/Users/GROD/Desktop/leave_system/dashboard/views.py:*)"
     ]
   }
 }

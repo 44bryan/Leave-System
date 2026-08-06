@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Discipline Analytics — AEF HRM{% endblock %}
+{% block page_title %}Discipline Analytics{% endblock %}
+{% block page_subtitle %}Records, trends and department breakdown for {{ year }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+
+  <!-- Filters -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body py-2">
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-auto">
+          <label class="form-label small mb-1">Year</label>
+          <select name="year" class="form-select form-select-sm" style="width:100px;">
+            {% for y in available_years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-auto">
+          <label class="form-label small mb-1">Department</label>
+          <select name="dept" class="form-select form-select-sm" style="width:200px;">
+            <option value="">All departments</option>
+            {% for d in departments %}<option value="{{ d.pk }}" {% if dept_pk == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-bar-chart-line me-1"></i>Apply</button>
+        </div>
+        <div class="col-auto ms-auto">
+          <a href="{% url 'dashboard:analytics' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Leave Analytics</a>
+          <a href="{% url 'dashboard:payroll_analytics' %}" class="btn btn-outline-secondary btn-sm ms-1"><i class="bi bi-cash me-1"></i>Payroll Analytics</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-2">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-3 fw-bold text-dark">{{ total }}</div>
+          <div class="small text-muted mt-1">Total Records</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-3 fw-bold text-warning">{{ verbal }}</div>
+          <div class="small text-muted mt-1">Verbal Warnings</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-3 fw-bold text-orange" style="color:#fd7e14;">{{ caution }}</div>
+          <div class="small text-muted mt-1">Written Cautions</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-3 fw-bold text-danger">{{ final }}</div>
+          <div class="small text-muted mt-1">Final Warnings</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-3 fw-bold text-dark">{{ suspension }}</div>
+          <div class="small text-muted mt-1">Suspensions</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-2">
+      <div class="card text-center shadow-sm h-100">
+        <div class="card-body py-3">
+          <div class="fs-3 fw-bold text-danger">{{ dismissal }}</div>
+          <div class="small text-muted mt-1">Dismissals</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts row 1 -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm h-100">
+        <div class="card-header fw-semibold"><i class="bi bi-graph-up me-2" style="color:#2db4c3;"></i>Monthly Trend — {{ year }}</div>
+        <div class="card-body"><canvas id="monthChart" height="80"></canvas></div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header fw-semibold"><i class="bi bi-pie-chart me-2" style="color:#2db4c3;"></i>By Action Type</div>
+        <div class="card-body d-flex align-items-center justify-content-center">
+          <canvas id="typeChart" style="max-height:260px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts row 2 -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header fw-semibold"><i class="bi bi-bar-chart me-2" style="color:#2db4c3;"></i>Records by Department</div>
+        <div class="card-body"><canvas id="deptChart" height="90"></canvas></div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header fw-semibold"><i class="bi bi-person-exclamation me-2 text-danger"></i>Top 5 Employees with Most Records</div>
+        <div class="card-body"><canvas id="topChart" height="90"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System vs Human -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-header fw-semibold"><i class="bi bi-robot me-2"></i>System vs Human Issued</div>
+        <div class="card-body text-center">
+          <div class="row">
+            <div class="col">
+              <div class="fs-2 fw-bold text-primary">{{ human_count }}</div>
+              <div class="small text-muted">Issued by Staff</div>
+            </div>
+            <div class="col">
+              <div class="fs-2 fw-bold text-secondary">{{ system_count }}</div>
+              <div class="small text-muted">Auto-generated</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const PALETTE = ['#fd7e14','#dc3545','#6f42c1','#0A4D68','#343a40','#2db4c3','#28a745'];
+
+new Chart(document.getElementById('monthChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ month_labels_json }},
+    datasets: [{ label: 'Records', data: {{ month_data_json }}, backgroundColor: '#dc354599', borderColor: '#dc3545', borderRadius: 4 }]
+  },
+  options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+
+const tl = {{ type_labels_json }};
+new Chart(document.getElementById('typeChart'), {
+  type: 'doughnut',
+  data: { labels: tl, datasets: [{ data: {{ type_data_json }}, backgroundColor: PALETTE.slice(0, tl.length) }] },
+  options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+new Chart(document.getElementById('deptChart'), {
+  type: 'bar',
+  data: { labels: {{ dept_labels_json }}, datasets: [{ label: 'Records', data: {{ dept_data_json }}, backgroundColor: '#0A4D68cc', borderRadius: 4 }] },
+  options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+
+new Chart(document.getElementById('topChart'), {
+  type: 'bar',
+  data: { labels: {{ top_emp_labels_json }}, datasets: [{ label: 'Records', data: {{ top_emp_data_json }}, backgroundColor: '#fd7e14cc', borderRadius: 4 }] },
+  options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+</script>
+{% endblock %}
