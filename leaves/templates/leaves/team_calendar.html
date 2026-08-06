@@ -7,62 +7,81 @@
 
 {% block extra_css %}
 <style>
-    .cal-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .cal-table { border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    /* The calendar is a horizontally-scrollable grid — industry standard for team leave views.
+       The .cal-wrap clips overflow so it never pushes past the page edge. */
+    .cal-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        /* Ensure it never bleeds outside the card */
+        max-width: 100%;
+    }
+    .cal-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+        /* Do NOT set width:100% — let the table be exactly as wide as its cells */
+    }
 
     /* Sticky name column */
     .cal-name-th, .cal-name-td {
         position: sticky; left: 0; z-index: 3;
         background: #fff;
-        width: 180px; min-width: 180px;
-        padding: 8px 14px;
+        width: 160px; min-width: 160px;
+        padding: 7px 12px;
         border-right: 2px solid #cde8ef;
+        white-space: nowrap;
     }
     .cal-name-th { z-index: 4; background: #f0f9ff; vertical-align: bottom; }
 
+    /* Day header — kept compact so more days fit on screen */
     .cal-day-th {
-        width: 38px; min-width: 38px;
+        width: 30px; min-width: 30px;
         text-align: center;
-        padding: 6px 2px 4px;
+        padding: 5px 1px 4px;
         background: #f0f9ff;
         border-bottom: 2px solid #cde8ef;
         border-right: 1px solid #e8f0f5;
     }
     .cal-day-th .dow {
-        display: block; font-size: .58rem; font-weight: 700;
-        color: #9ab4c0; text-transform: uppercase; letter-spacing: .04em;
+        display: block; font-size: .52rem; font-weight: 700;
+        color: #9ab4c0; text-transform: uppercase; letter-spacing: .03em;
     }
     .cal-day-th .dnum {
-        display: block; font-size: .72rem; font-weight: 700; color: #6b7a8d; margin-top: 1px;
+        display: block; font-size: .68rem; font-weight: 700; color: #6b7a8d; margin-top: 1px;
     }
     .cal-day-th.weekend .dow, .cal-day-th.weekend .dnum { color: #c9adb5; }
     .cal-day-th.is-today { background: #d0eff5; }
     .cal-day-th.is-today .dow, .cal-day-th.is-today .dnum { color: #0A4D68; }
 
     .emp-name {
-        font-size: .82rem; font-weight: 600; color: #0d1b2a;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 152px;
+        font-size: .8rem; font-weight: 600; color: #0d1b2a;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 136px;
     }
-    .emp-dept { font-size: .65rem; color: #9ab4c0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .emp-dept {
+        font-size: .62rem; color: #9ab4c0;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
+    }
 
+    /* Day cells — compact height */
     .cal-cell {
-        width: 38px; min-width: 38px; height: 42px;
+        width: 30px; min-width: 30px; height: 36px;
         text-align: center; vertical-align: middle;
         border-right: 1px solid #f0f4f8;
         border-bottom: 1px solid #f0f4f8;
-        padding: 5px 3px;
+        padding: 4px 2px;
     }
     .cal-cell.weekend { background: #fafbfc; }
     .cal-cell.is-today-col { background: #f0faff; }
 
     .leave-block {
         display: block;
-        width: 28px; height: 28px;
-        border-radius: 7px;
+        width: 22px; height: 22px;
+        border-radius: 5px;
         margin: 0 auto;
         position: relative;
         cursor: default;
     }
+    /* Tooltip */
     .leave-block::after {
         content: attr(data-tip);
         position: absolute;
@@ -88,7 +107,7 @@
     .cal-row:hover .cal-cell.is-today-col { background: #ebf7ff; }
 
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: .76rem; color: #4a6b7c; }
-    .legend-dot  { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+    .legend-dot  { width: 13px; height: 13px; border-radius: 4px; flex-shrink: 0; }
 
     .cal-nav-btn {
         height: 34px; padding: 0 14px;
@@ -103,11 +122,11 @@
     .cal-month-label { font-size: 1rem; font-weight: 800; color: #0A4D68; white-space: nowrap; }
 
     @media (max-width: 768px) {
-        .cal-name-th, .cal-name-td { width: 120px; min-width: 120px; padding: 6px 8px; }
-        .emp-name { font-size: .75rem; max-width: 100px; }
+        .cal-name-th, .cal-name-td { width: 110px; min-width: 110px; padding: 5px 8px; }
+        .emp-name { font-size: .72rem; max-width: 90px; }
         .emp-dept { display: none; }
-        .cal-day-th, .cal-cell { width: 32px; min-width: 32px; }
-        .leave-block { width: 24px; height: 24px; border-radius: 5px; }
+        .cal-day-th, .cal-cell { width: 26px; min-width: 26px; }
+        .leave-block { width: 18px; height: 18px; border-radius: 4px; }
     }
 </style>
 {% endblock %}
@@ -178,7 +197,7 @@
         </span>
         <span class="badge" style="background:#e0f5f8;color:#0A4D68;font-size:.72rem;">Approved leaves only</span>
     </div>
-    <div class="card-body p-0">
+    <div class="card-body p-0" style="overflow:hidden;border-radius:0 0 14px 14px;">
         {% if rows %}
         <div class="cal-wrap">
             <table class="cal-table">
