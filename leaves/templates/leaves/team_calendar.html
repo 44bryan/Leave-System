@@ -7,33 +7,56 @@
 
 {% block extra_css %}
 <style>
-    /* The calendar is a horizontally-scrollable grid — industry standard for team leave views.
-       The .cal-wrap clips overflow so it never pushes past the page edge. */
+    /* ── scroll wrapper ───────────────────────────────────────────── */
     .cal-wrap {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        /* Ensure it never bleeds outside the card */
         max-width: 100%;
+        /* Fade hint on the right edge when content overflows */
+        position: relative;
     }
+    /* subtle right-edge shadow to signal scroll availability */
+    .cal-wrap::after {
+        content: '';
+        position: absolute; top: 0; right: 0;
+        width: 28px; height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,.85));
+        pointer-events: none;
+        transition: opacity .2s;
+    }
+    .cal-wrap.at-end::after { opacity: 0; }
+
+    /* ── table ────────────────────────────────────────────────────── */
     .cal-table {
         border-collapse: separate;
         border-spacing: 0;
         table-layout: fixed;
-        /* Do NOT set width:100% — let the table be exactly as wide as its cells */
     }
 
-    /* Sticky name column */
+    /* Sticky column: employee name */
     .cal-name-th, .cal-name-td {
         position: sticky; left: 0; z-index: 3;
         background: #fff;
-        width: 160px; min-width: 160px;
+        width: 155px; min-width: 155px;
         padding: 7px 12px;
         border-right: 2px solid #cde8ef;
         white-space: nowrap;
     }
-    .cal-name-th { z-index: 4; background: #f0f9ff; vertical-align: bottom; }
+    /* Sticky header row + sticky first column → needs highest z-index */
+    .cal-name-th {
+        z-index: 6;
+        background: #f0f9ff;
+        vertical-align: bottom;
+        /* also sticky vertically (header row) */
+        top: 0;
+    }
 
-    /* Day header — kept compact so more days fit on screen */
+    /* Sticky header row for all day-header cells */
+    thead tr th {
+        position: sticky; top: 0; z-index: 5;
+    }
+
+    /* Day header — compact */
     .cal-day-th {
         width: 30px; min-width: 30px;
         text-align: center;
@@ -53,26 +76,28 @@
     .cal-day-th.is-today { background: #d0eff5; }
     .cal-day-th.is-today .dow, .cal-day-th.is-today .dnum { color: #0A4D68; }
 
+    /* Employee name + dept */
     .emp-name {
         font-size: .8rem; font-weight: 600; color: #0d1b2a;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 136px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 131px;
     }
     .emp-dept {
         font-size: .62rem; color: #9ab4c0;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
     }
 
-    /* Day cells — compact height */
+    /* Day cells */
     .cal-cell {
-        width: 30px; min-width: 30px; height: 36px;
+        width: 30px; min-width: 30px; height: 34px;
         text-align: center; vertical-align: middle;
         border-right: 1px solid #f0f4f8;
         border-bottom: 1px solid #f0f4f8;
-        padding: 4px 2px;
+        padding: 3px 2px;
     }
     .cal-cell.weekend { background: #fafbfc; }
     .cal-cell.is-today-col { background: #f0faff; }
 
+    /* Leave dot */
     .leave-block {
         display: block;
         width: 22px; height: 22px;
@@ -89,7 +114,7 @@
         background: #0d1b2a; color: #fff;
         font-size: .68rem; font-weight: 600;
         border-radius: 5px; padding: 4px 8px;
-        white-space: nowrap; z-index: 200; pointer-events: none;
+        white-space: nowrap; z-index: 300; pointer-events: none;
         opacity: 0; transition: opacity .15s;
     }
     .leave-block::before {
@@ -97,18 +122,54 @@
         position: absolute;
         bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
         border: 4px solid transparent; border-top-color: #0d1b2a;
-        z-index: 200; pointer-events: none; opacity: 0; transition: opacity .15s;
+        z-index: 300; pointer-events: none; opacity: 0; transition: opacity .15s;
     }
     .leave-block:hover::after, .leave-block:hover::before { opacity: 1; }
 
+    /* Row hover */
     .cal-row:hover .cal-name-td { background: #f5fbfd; }
-    .cal-row:hover .cal-cell { background: #f8fbfd; }
-    .cal-row:hover .cal-cell.weekend { background: #f5f5f6; }
+    .cal-row:hover .cal-cell     { background: #f8fbfd; }
+    .cal-row:hover .cal-cell.weekend      { background: #f5f5f6; }
     .cal-row:hover .cal-cell.is-today-col { background: #ebf7ff; }
 
+    /* ── List view (mobile-friendly alternative) ──────────────────── */
+    .cal-list { display: none; }
+    .cal-list-row {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 10px 16px; border-bottom: 1px solid #f0f4f8;
+    }
+    .cal-list-row:last-child { border-bottom: none; }
+    .cal-list-name { flex: 0 0 130px; }
+    .cal-list-name .emp-name { max-width: 120px; }
+    .cal-list-leaves { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; align-items: center; }
+    .cal-list-pill {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 3px 9px; border-radius: 20px;
+        font-size: .72rem; font-weight: 600; color: #0d1b2a;
+        border: 1.5px solid;
+    }
+    .cal-list-none {
+        font-size: .75rem; color: #c4d0da; font-style: italic;
+    }
+
+    /* ── View toggle button ───────────────────────────────────────── */
+    .view-toggle-btn {
+        height: 32px; padding: 0 12px;
+        border: 1.5px solid #cde8ef; border-radius: 8px;
+        background: white; color: #6b7a8d;
+        font-size: .78rem; font-weight: 600;
+        cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+        transition: all .15s;
+    }
+    .view-toggle-btn.active, .view-toggle-btn:hover {
+        background: #e0f5f8; border-color: #2db4c3; color: #0A4D68;
+    }
+
+    /* ── Legend ───────────────────────────────────────────────────── */
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: .76rem; color: #4a6b7c; }
     .legend-dot  { width: 13px; height: 13px; border-radius: 4px; flex-shrink: 0; }
 
+    /* ── Month nav buttons ────────────────────────────────────────── */
     .cal-nav-btn {
         height: 34px; padding: 0 14px;
         border: 1.5px solid #cde8ef; border-radius: 9px;
@@ -121,12 +182,21 @@
     .cal-nav-btn:hover { background: #e0f5f8; border-color: #2db4c3; color: #0A4D68; }
     .cal-month-label { font-size: 1rem; font-weight: 800; color: #0A4D68; white-space: nowrap; }
 
+    /* ── Responsive breakpoints ──────────────────────────────────── */
     @media (max-width: 768px) {
-        .cal-name-th, .cal-name-td { width: 110px; min-width: 110px; padding: 5px 8px; }
-        .emp-name { font-size: .72rem; max-width: 90px; }
+        .cal-name-th, .cal-name-td { width: 105px; min-width: 105px; padding: 5px 8px; }
+        .emp-name { font-size: .72rem; max-width: 85px; }
         .emp-dept { display: none; }
-        .cal-day-th, .cal-cell { width: 26px; min-width: 26px; }
-        .leave-block { width: 18px; height: 18px; border-radius: 4px; }
+        .cal-day-th, .cal-cell { width: 24px; min-width: 24px; }
+        .leave-block { width: 16px; height: 16px; border-radius: 3px; }
+    }
+
+    /* On very small phones, default to list view */
+    @media (max-width: 480px) {
+        .cal-grid-section { display: none; }
+        .cal-list { display: block; }
+        #btn-grid { display: none; }
+        #btn-list { display: none; }
     }
 </style>
 {% endblock %}
@@ -195,46 +265,90 @@
         <span style="color:#0A4D68;font-weight:600;">
             <i class="bi bi-calendar3 me-2" style="color:#2db4c3;"></i>{{ month_name }} {{ year }} — Leave Overview
         </span>
-        <span class="badge" style="background:#e0f5f8;color:#0A4D68;font-size:.72rem;">Approved leaves only</span>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge" style="background:#e0f5f8;color:#0A4D68;font-size:.72rem;">Approved leaves only</span>
+            {% if rows %}
+            <button id="btn-grid" class="view-toggle-btn active" onclick="setView('grid')" title="Grid view">
+                <i class="bi bi-grid-3x3-gap"></i> <span class="d-none d-sm-inline">Grid</span>
+            </button>
+            <button id="btn-list" class="view-toggle-btn" onclick="setView('list')" title="List view">
+                <i class="bi bi-list-ul"></i> <span class="d-none d-sm-inline">List</span>
+            </button>
+            {% endif %}
+        </div>
     </div>
     <div class="card-body p-0" style="overflow:hidden;border-radius:0 0 14px 14px;">
         {% if rows %}
-        <div class="cal-wrap">
-            <table class="cal-table">
-                <thead>
-                    <tr>
-                        <th class="cal-name-th">
-                            <span style="font-size:.62rem;font-weight:700;color:#9ab4c0;text-transform:uppercase;letter-spacing:.08em;">Employee</span>
-                        </th>
-                        {% for d in days %}
-                        <th class="cal-day-th {% if d.weekday >= 5 %}weekend{% endif %} {% if d == today %}is-today{% endif %}">
-                            <span class="dow">{{ d|date:"D"|slice:":2" }}</span>
-                            <span class="dnum">{{ d.day }}</span>
-                        </th>
+
+        <!-- Grid view -->
+        <div id="cal-grid-section" class="cal-grid-section">
+            <div class="cal-wrap" id="cal-wrap">
+                <table class="cal-table">
+                    <thead>
+                        <tr>
+                            <th class="cal-name-th">
+                                <span style="font-size:.62rem;font-weight:700;color:#9ab4c0;text-transform:uppercase;letter-spacing:.08em;">Employee</span>
+                            </th>
+                            {% for d in days %}
+                            <th class="cal-day-th {% if d.weekday >= 5 %}weekend{% endif %} {% if d == today %}is-today{% endif %}">
+                                <span class="dow">{{ d|date:"D"|slice:":2" }}</span>
+                                <span class="dnum">{{ d.day }}</span>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        <tr class="cal-row">
+                            <td class="cal-name-td">
+                                <div class="emp-name">{{ row.emp.get_full_name }}</div>
+                                <div class="emp-dept">{{ row.emp.department|default:"—" }}</div>
+                            </td>
+                            {% for cell in row.cells %}
+                            <td class="cal-cell{% if cell.is_weekend %} weekend{% endif %}{% if cell.is_today %} is-today-col{% endif %}">
+                                {% if cell.info %}
+                                <span class="leave-block"
+                                      style="background:{{ cell.info.color }}22;border:2px solid {{ cell.info.color }};"
+                                      data-tip="{{ cell.info.label }}"></span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
                         {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in rows %}
-                    <tr class="cal-row">
-                        <td class="cal-name-td">
-                            <div class="emp-name">{{ row.emp.get_full_name }}</div>
-                            <div class="emp-dept">{{ row.emp.department|default:"—" }}</div>
-                        </td>
-                        {% for cell in row.cells %}
-                        <td class="cal-cell{% if cell.is_weekend %} weekend{% endif %}{% if cell.is_today %} is-today-col{% endif %}">
-                            {% if cell.info %}
-                            <span class="leave-block"
-                                  style="background:{{ cell.info.color }}22;border:2px solid {{ cell.info.color }};"
-                                  data-tip="{{ cell.info.label }}"></span>
-                            {% endif %}
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <!-- List view (mobile-friendly) -->
+        <div id="cal-list-section" class="cal-list">
+            {% for row in rows %}
+            {% with row.emp.get_full_name as name %}
+            <div class="cal-list-row">
+                <div class="cal-list-name">
+                    <div class="emp-name">{{ name }}</div>
+                    <div class="emp-dept" style="display:block;">{{ row.emp.department|default:"—" }}</div>
+                </div>
+                <div class="cal-list-leaves">
+                    {% if row.has_leave %}
+                        {% for cell in row.cells %}
+                        {% if cell.info %}
+                        <span class="cal-list-pill"
+                              style="background:{{ cell.info.color }}18;border-color:{{ cell.info.color }};">
+                            <span style="width:8px;height:8px;border-radius:50%;background:{{ cell.info.color }};display:inline-block;flex-shrink:0;"></span>
+                            {{ cell.day|date:"d M" }} — {{ cell.info.label }}
+                        </span>
+                        {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <span class="cal-list-none">No approved leave this month</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+
         {% else %}
         <div class="text-center text-muted py-5">
             <i class="bi bi-calendar3" style="font-size:2rem;"></i>
@@ -243,4 +357,45 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+// View toggle: grid ↔ list
+function setView(mode) {
+    const grid = document.getElementById('cal-grid-section');
+    const list = document.getElementById('cal-list-section');
+    const btnGrid = document.getElementById('btn-grid');
+    const btnList = document.getElementById('btn-list');
+    if (!grid) return;
+
+    if (mode === 'list') {
+        grid.style.display = 'none';
+        list.style.display = 'block';
+        btnGrid.classList.remove('active');
+        btnList.classList.add('active');
+        localStorage.setItem('cal_view', 'list');
+    } else {
+        grid.style.display = 'block';
+        list.style.display = 'none';
+        btnGrid.classList.add('active');
+        btnList.classList.remove('active');
+        localStorage.setItem('cal_view', 'grid');
+    }
+}
+
+// Restore last chosen view
+document.addEventListener('DOMContentLoaded', function () {
+    const saved = localStorage.getItem('cal_view');
+    // Respect CSS: on very small screens list is forced via CSS (grid hidden)
+    if (saved === 'list') setView('list');
+
+    // Right-edge fade: hide when scrolled to end
+    const wrap = document.getElementById('cal-wrap');
+    if (wrap) {
+        wrap.addEventListener('scroll', function () {
+            const atEnd = wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 4;
+            wrap.classList.toggle('at-end', atEnd);
+        });
+    }
+});
+</script>
 {% endblock %}

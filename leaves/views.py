@@ -2249,14 +2249,14 @@ def team_calendar(request):
     for e in employees:
         cells = [
             {
-                'day':       d,
+                'day':        d,
                 'is_weekend': d.weekday() >= 5,
                 'is_today':   d == today,
                 'info':       raw[e.pk].get(d.day),
             }
             for d in days
         ]
-        rows.append({'emp': e, 'cells': cells})
+        rows.append({'emp': e, 'cells': cells, 'has_leave': bool(raw[e.pk])})
 
     # Navigation
     if month == 1:
