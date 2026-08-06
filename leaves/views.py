@@ -2013,11 +2013,14 @@ def plan_my_plan(request):
 def plan_manager_review(request):
     from .models import TentativeLeavePlan
     emp = request.user.employee
-    if not (emp.is_manager() or request.user.is_superuser):
+    if not (emp.is_manager() or emp.is_nurse_superintendent() or request.user.is_superuser):
         messages.error(request, "Access denied.")
         return redirect("dashboard:home")
     year = int(request.GET.get("year", timezone.now().year))
-    team = emp.subordinates.filter(is_active=True)
+    if emp.is_nurse_superintendent() and not emp.is_manager():
+        team = Employee.objects.filter(nurse_superintendent=emp, is_active=True)
+    else:
+        team = emp.subordinates.filter(is_active=True)
     base_qs = TentativeLeavePlan.objects.filter(
         employee__in=team, year=year
     ).select_related("employee__user", "employee__department", "leave_type").order_by("employee__user__last_name", "planned_start")
@@ -2175,8 +2178,9 @@ def team_calendar(request):
     is_super = request.user.is_superuser
     can_see_all = is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo()))
     is_mgr = emp and emp.is_manager()
+    is_ns = emp and emp.is_nurse_superintendent()
 
-    if not (can_see_all or is_mgr):
+    if not (can_see_all or is_mgr or is_ns):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
 
@@ -2197,8 +2201,15 @@ def team_calendar(request):
         if dept_filter:
             employees = employees.filter(department_id=dept_filter)
         employees = list(employees.order_by('user__last_name', 'user__first_name'))
+    elif is_ns and not is_mgr:
+        # Nurse Superintendent sees the nurses assigned to them
+        employees = list(
+            Employee.objects.filter(nurse_superintendent=emp, is_active=True)
+            .select_related('user', 'department')
+            .order_by('user__last_name', 'user__first_name')
+        )
     else:
-        # Manager sees direct subordinates + themselves
+        # Manager sees direct subordinates
         employees = list(
             emp.subordinates.filter(is_active=True)
             .select_related('user', 'department')

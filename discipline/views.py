@@ -47,10 +47,10 @@ def can_issue_formally(emp, is_super):
 
 
 def is_proposal_only_role(emp):
-    """Manager, Unit Head, and Finance Director can only submit verbal-warning proposals to HR."""
+    """Manager, Unit Head, Finance Director, and Nurse Superintendent can only submit verbal-warning proposals to HR."""
     if emp is None:
         return False
-    return emp.role in ('manager', 'unit_head', 'finance_director')
+    return emp.role in ('manager', 'unit_head', 'finance_director', 'nurse_superintendent')
 
 
 def can_access_issue_form(emp, is_super):
