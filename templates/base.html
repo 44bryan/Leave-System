@@ -1384,6 +1384,11 @@
                     <i class="bi bi-calendar2-week"></i> {% trans "Team Leave Plan" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:team_calendar' %}" class="nav-link-sidebar {% block nav_calendar_mgr %}{% endblock %}">
+                    <i class="bi bi-calendar3"></i> {% trans "Team Leave Calendar" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}
@@ -1473,6 +1478,11 @@
                     <i class="bi bi-calendar2-check"></i> {% trans "Leave Plan Overview" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:team_calendar' %}" class="nav-link-sidebar {% block nav_calendar_hr %}{% endblock %}">
+                    <i class="bi bi-calendar3"></i> {% trans "Team Leave Calendar" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}
@@ -1501,6 +1511,11 @@
                 <a href="{% url 'appraisals:pending_director' %}" class="nav-link-sidebar {% block nav_appraisals_director %}{% endblock %}">
                     <i class="bi bi-clipboard2-check"></i> {% trans "Appraisal Reviews" %}
                     {% if pending_appraisals_count > 0 %}<span class="nav-badge">{{ pending_appraisals_count }}</span>{% endif %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:team_calendar' %}" class="nav-link-sidebar {% block nav_calendar_dir %}{% endblock %}">
+                    <i class="bi bi-calendar3"></i> {% trans "Team Leave Calendar" %}
                 </a>
             </li>
         </ul>
@@ -1565,6 +1580,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:hr_dashboard' %}" class="nav-link-sidebar">
                     <i class="bi bi-clipboard2-data"></i> {% trans "Appraisals Overview" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:team_calendar' %}" class="nav-link-sidebar {% block nav_calendar_ceo %}{% endblock %}">
+                    <i class="bi bi-calendar3"></i> {% trans "Team Leave Calendar" %}
                 </a>
             </li>
         </ul>

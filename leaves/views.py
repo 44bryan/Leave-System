@@ -2144,3 +2144,135 @@ def plan_hr_overview(request):
         "total":         len(entries_list),
         "total_days":    sum(e.total_days for e in entries_list),
     })
+
+
+# ── Team Leave Calendar ───────────────────────────────────────────────────────
+
+@login_required
+def team_calendar(request):
+    """
+    Visual month-grid calendar: who is on leave on which days.
+    - Manager/Supervisor: sees direct reports only
+    - HR / Director / CEO / Superuser: sees everyone (filterable by dept)
+    """
+    import calendar as cal_mod
+    from datetime import timedelta
+    from accounts.models import Department
+
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+    can_see_all = is_super or (emp and (emp.is_hr() or emp.is_director() or emp.is_ceo()))
+    is_mgr = emp and emp.is_manager()
+
+    if not (can_see_all or is_mgr):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    today = date.today()
+    try:
+        year  = int(request.GET.get('year', today.year))
+        month = int(request.GET.get('month', today.month))
+        if not (1 <= month <= 12):
+            month = today.month
+    except (ValueError, TypeError):
+        year, month = today.year, today.month
+
+    dept_filter = request.GET.get('dept', '')
+
+    # Determine employee scope
+    if can_see_all:
+        employees = Employee.objects.filter(is_active=True).select_related('user', 'department')
+        if dept_filter:
+            employees = employees.filter(department_id=dept_filter)
+        employees = list(employees.order_by('user__last_name', 'user__first_name'))
+    else:
+        # Manager sees direct subordinates + themselves
+        employees = list(
+            emp.subordinates.filter(is_active=True)
+            .select_related('user', 'department')
+            .order_by('user__last_name', 'user__first_name')
+        )
+
+    # All days in the selected month
+    num_days = cal_mod.monthrange(year, month)[1]
+    days = [date(year, month, d) for d in range(1, num_days + 1)]
+
+    # Fetch all approved leaves overlapping this month
+    month_start = date(year, month, 1)
+    month_end   = date(year, month, num_days)
+    emp_pks = [e.pk for e in employees]
+
+    leaves = LeaveRequest.objects.filter(
+        employee_id__in=emp_pks,
+        status='approved',
+        start_date__lte=month_end,
+        end_date__gte=month_start,
+    ).select_related('leave_type')
+
+    # Build colour palette per leave type
+    PALETTE = ['#2db4c3', '#0A4D68', '#059669', '#d97706', '#7c3aed', '#e11d48', '#0891b2', '#65a30d']
+    leave_type_colors = {}
+    legend = {}
+
+    # Raw lookup: emp_pk -> day_number -> {color, label}
+    raw = {e.pk: {} for e in employees}
+
+    for lr in leaves:
+        lt_name = lr.leave_type.name
+        if lt_name not in leave_type_colors:
+            idx = len(leave_type_colors) % len(PALETTE)
+            leave_type_colors[lt_name] = PALETTE[idx]
+            legend[lt_name] = PALETTE[idx]
+        color = leave_type_colors[lt_name]
+        cur = max(lr.start_date, month_start)
+        end = min(lr.end_date, month_end)
+        while cur <= end:
+            if cur.weekday() < 5:
+                raw[lr.employee_id][cur.day] = {'color': color, 'label': lt_name}
+            cur += timedelta(days=1)
+
+    # Build template-friendly rows: list of {emp, cells}
+    # Each cell: {'day': date, 'is_weekend': bool, 'is_today': bool, 'info': dict_or_None}
+    rows = []
+    for e in employees:
+        cells = [
+            {
+                'day':       d,
+                'is_weekend': d.weekday() >= 5,
+                'is_today':   d == today,
+                'info':       raw[e.pk].get(d.day),
+            }
+            for d in days
+        ]
+        rows.append({'emp': e, 'cells': cells})
+
+    # Navigation
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+    if month == 12:
+        next_year, next_month = year + 1, 1
+    else:
+        next_year, next_month = year, month + 1
+
+    departments = Department.objects.all() if can_see_all else []
+
+    return render(request, 'leaves/team_calendar.html', {
+        'rows':        rows,
+        'days':        days,
+        'legend':      legend,
+        'year':        year,
+        'month':       month,
+        'month_name':  cal_mod.month_name[month],
+        'today':       today,
+        'prev_year':   prev_year,
+        'prev_month':  prev_month,
+        'next_year':   next_year,
+        'next_month':  next_month,
+        'can_see_all': can_see_all,
+        'departments': departments,
+        'dept_filter': dept_filter,
+        'years':       range(today.year - 2, today.year + 3),
+        'emp_count':   len(employees),
+    })

@@ -45,4 +45,6 @@ urlpatterns = [
     path('plan/my/', views.plan_my_plan, name='plan_my'),
     path('plan/manager/', views.plan_manager_review, name='plan_manager'),
     path('plan/hr/', views.plan_hr_overview, name='plan_hr'),
+    # Team Leave Calendar
+    path('calendar/', views.team_calendar, name='team_calendar'),
 ]

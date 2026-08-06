@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Team Leave Calendar — {{ month_name }} {{ year }}{% endblock %}
+{% block page_title %}Team Leave Calendar{% endblock %}
+{% block nav_leaves %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cal-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .cal-table { border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+
+    /* Sticky name column */
+    .cal-name-th, .cal-name-td {
+        position: sticky; left: 0; z-index: 3;
+        background: #fff;
+        width: 180px; min-width: 180px;
+        padding: 8px 14px;
+        border-right: 2px solid #cde8ef;
+    }
+    .cal-name-th { z-index: 4; background: #f0f9ff; vertical-align: bottom; }
+
+    .cal-day-th {
+        width: 38px; min-width: 38px;
+        text-align: center;
+        padding: 6px 2px 4px;
+        background: #f0f9ff;
+        border-bottom: 2px solid #cde8ef;
+        border-right: 1px solid #e8f0f5;
+    }
+    .cal-day-th .dow {
+        display: block; font-size: .58rem; font-weight: 700;
+        color: #9ab4c0; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .cal-day-th .dnum {
+        display: block; font-size: .72rem; font-weight: 700; color: #6b7a8d; margin-top: 1px;
+    }
+    .cal-day-th.weekend .dow, .cal-day-th.weekend .dnum { color: #c9adb5; }
+    .cal-day-th.is-today { background: #d0eff5; }
+    .cal-day-th.is-today .dow, .cal-day-th.is-today .dnum { color: #0A4D68; }
+
+    .emp-name {
+        font-size: .82rem; font-weight: 600; color: #0d1b2a;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 152px;
+    }
+    .emp-dept { font-size: .65rem; color: #9ab4c0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+
+    .cal-cell {
+        width: 38px; min-width: 38px; height: 42px;
+        text-align: center; vertical-align: middle;
+        border-right: 1px solid #f0f4f8;
+        border-bottom: 1px solid #f0f4f8;
+        padding: 5px 3px;
+    }
+    .cal-cell.weekend { background: #fafbfc; }
+    .cal-cell.is-today-col { background: #f0faff; }
+
+    .leave-block {
+        display: block;
+        width: 28px; height: 28px;
+        border-radius: 7px;
+        margin: 0 auto;
+        position: relative;
+        cursor: default;
+    }
+    .leave-block::after {
+        content: attr(data-tip);
+        position: absolute;
+        bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%);
+        background: #0d1b2a; color: #fff;
+        font-size: .68rem; font-weight: 600;
+        border-radius: 5px; padding: 4px 8px;
+        white-space: nowrap; z-index: 200; pointer-events: none;
+        opacity: 0; transition: opacity .15s;
+    }
+    .leave-block::before {
+        content: '';
+        position: absolute;
+        bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
+        border: 4px solid transparent; border-top-color: #0d1b2a;
+        z-index: 200; pointer-events: none; opacity: 0; transition: opacity .15s;
+    }
+    .leave-block:hover::after, .leave-block:hover::before { opacity: 1; }
+
+    .cal-row:hover .cal-name-td { background: #f5fbfd; }
+    .cal-row:hover .cal-cell { background: #f8fbfd; }
+    .cal-row:hover .cal-cell.weekend { background: #f5f5f6; }
+    .cal-row:hover .cal-cell.is-today-col { background: #ebf7ff; }
+
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: .76rem; color: #4a6b7c; }
+    .legend-dot  { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+
+    .cal-nav-btn {
+        height: 34px; padding: 0 14px;
+        border: 1.5px solid #cde8ef; border-radius: 9px;
+        background: white; color: #0A4D68;
+        font-weight: 600; font-size: .82rem;
+        cursor: pointer; transition: all .15s;
+        text-decoration: none;
+        display: inline-flex; align-items: center; gap: 5px;
+    }
+    .cal-nav-btn:hover { background: #e0f5f8; border-color: #2db4c3; color: #0A4D68; }
+    .cal-month-label { font-size: 1rem; font-weight: 800; color: #0A4D68; white-space: nowrap; }
+
+    @media (max-width: 768px) {
+        .cal-name-th, .cal-name-td { width: 120px; min-width: 120px; padding: 6px 8px; }
+        .emp-name { font-size: .75rem; max-width: 100px; }
+        .emp-dept { display: none; }
+        .cal-day-th, .cal-cell { width: 32px; min-width: 32px; }
+        .leave-block { width: 24px; height: 24px; border-radius: 5px; }
+    }
+</style>
+{% endblock %}
+
+{% block topbar_actions %}
+{% if can_see_all %}
+<form method="get" class="d-flex align-items-center gap-2 flex-wrap">
+    <select name="year" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+        {% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+    </select>
+    <select name="dept" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+        <option value="">All Departments</option>
+        {% for d in departments %}<option value="{{ d.pk }}" {% if d.pk|stringformat:"s" == dept_filter %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+    </select>
+    <input type="hidden" name="month" value="{{ month }}">
+</form>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %} alert-dismissible fade show mb-3">
+        {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Navigation + legend -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a href="?year={{ prev_year }}&month={{ prev_month }}&dept={{ dept_filter }}" class="cal-nav-btn">
+                    <i class="bi bi-chevron-left"></i> Prev
+                </a>
+                <span class="cal-month-label">{{ month_name }} {{ year }}</span>
+                <a href="?year={{ next_year }}&month={{ next_month }}&dept={{ dept_filter }}" class="cal-nav-btn">
+                    Next <i class="bi bi-chevron-right"></i>
+                </a>
+                <a href="?year={{ today.year }}&month={{ today.month }}&dept={{ dept_filter }}" class="cal-nav-btn" style="border-color:#2db4c3;color:#2db4c3;">
+                    Today
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span style="font-size:.78rem;color:#6b7a8d;">
+                    <i class="bi bi-people me-1" style="color:#2db4c3;"></i>
+                    <strong>{{ emp_count }}</strong> member{{ emp_count|pluralize }}
+                </span>
+                {% for name, color in legend.items %}
+                <span class="legend-item">
+                    <span class="legend-dot" style="background:{{ color }};"></span>{{ name }}
+                </span>
+                {% endfor %}
+                {% if not legend %}
+                <span style="font-size:.76rem;color:#9ab4c0;font-style:italic;">No approved leaves this month</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Grid -->
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:#fff;">
+        <span style="color:#0A4D68;font-weight:600;">
+            <i class="bi bi-calendar3 me-2" style="color:#2db4c3;"></i>{{ month_name }} {{ year }} — Leave Overview
+        </span>
+        <span class="badge" style="background:#e0f5f8;color:#0A4D68;font-size:.72rem;">Approved leaves only</span>
+    </div>
+    <div class="card-body p-0">
+        {% if rows %}
+        <div class="cal-wrap">
+            <table class="cal-table">
+                <thead>
+                    <tr>
+                        <th class="cal-name-th">
+                            <span style="font-size:.62rem;font-weight:700;color:#9ab4c0;text-transform:uppercase;letter-spacing:.08em;">Employee</span>
+                        </th>
+                        {% for d in days %}
+                        <th class="cal-day-th {% if d.weekday >= 5 %}weekend{% endif %} {% if d == today %}is-today{% endif %}">
+                            <span class="dow">{{ d|date:"D"|slice:":2" }}</span>
+                            <span class="dnum">{{ d.day }}</span>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr class="cal-row">
+                        <td class="cal-name-td">
+                            <div class="emp-name">{{ row.emp.get_full_name }}</div>
+                            <div class="emp-dept">{{ row.emp.department|default:"—" }}</div>
+                        </td>
+                        {% for cell in row.cells %}
+                        <td class="cal-cell{% if cell.is_weekend %} weekend{% endif %}{% if cell.is_today %} is-today-col{% endif %}">
+                            {% if cell.info %}
+                            <span class="leave-block"
+                                  style="background:{{ cell.info.color }}22;border:2px solid {{ cell.info.color }};"
+                                  data-tip="{{ cell.info.label }}"></span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-calendar3" style="font-size:2rem;"></i>
+            <div class="mt-2">No team members found{% if dept_filter %} for the selected department{% endif %}.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
