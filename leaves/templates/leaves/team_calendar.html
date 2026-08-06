@@ -31,6 +31,8 @@
         border-collapse: separate;
         border-spacing: 0;
         table-layout: fixed;
+        width: 100%;
+        min-width: 500px;
     }
 
     /* Sticky column: employee name */
@@ -58,7 +60,7 @@
 
     /* Day header — compact */
     .cal-day-th {
-        width: 30px; min-width: 30px;
+        min-width: 24px;
         text-align: center;
         padding: 5px 1px 4px;
         background: #f0f9ff;
@@ -88,7 +90,7 @@
 
     /* Day cells */
     .cal-cell {
-        width: 30px; min-width: 30px; height: 34px;
+        min-width: 24px; height: 34px;
         text-align: center; vertical-align: middle;
         border-right: 1px solid #f0f4f8;
         border-bottom: 1px solid #f0f4f8;
@@ -187,7 +189,7 @@
         .cal-name-th, .cal-name-td { width: 105px; min-width: 105px; padding: 5px 8px; }
         .emp-name { font-size: .72rem; max-width: 85px; }
         .emp-dept { display: none; }
-        .cal-day-th, .cal-cell { width: 24px; min-width: 24px; }
+        .cal-day-th, .cal-cell { min-width: 20px; }
         .leave-block { width: 16px; height: 16px; border-radius: 3px; }
     }
 
