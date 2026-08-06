@@ -46,40 +46,12 @@
                         <td class="text-center fw-600">{{ e.total_days }}</td>
                         <td style="font-size:.82rem;">{{ e.notes|default:"—" }}</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-success me-1" data-bs-toggle="modal" data-bs-target="#actionModal{{ e.pk }}" data-action="confirm">
+                            <button class="btn btn-sm btn-outline-success me-1" data-bs-toggle="modal" data-bs-target="#actionModal{{ e.pk }}">
                                 <i class="bi bi-check-lg"></i> Confirm
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#actionModal{{ e.pk }}" data-action="reject">
+                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#actionModal{{ e.pk }}">
                                 <i class="bi bi-x-lg"></i> Reject
                             </button>
-                            <!-- Modal -->
-                            <div class="modal fade" id="actionModal{{ e.pk }}" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header" style="background:#fff;">
-                                            <h6 class="modal-title">Review Plan — {{ e.employee.get_full_name }}</h6>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p><strong>Period:</strong> {{ e.planned_start|date:"d M Y" }} → {{ e.planned_end|date:"d M Y" }} ({{ e.total_days }} days)</p>
-                                            <form method="post" id="form{{ e.pk }}">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="entry_id" value="{{ e.pk }}">
-                                                <input type="hidden" name="action" id="actionInput{{ e.pk }}" value="">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Notes to employee <span class="text-muted">(optional)</span></label>
-                                                    <textarea name="manager_notes" class="form-control" rows="2" placeholder="Reason for rejection or any remarks..."></textarea>
-                                                </div>
-                                            </form>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-success" onclick="submitAction('{{ e.pk }}','confirm')"><i class="bi bi-check me-1"></i>Confirm</button>
-                                            <button type="button" class="btn btn-danger"  onclick="submitAction('{{ e.pk }}','reject')"><i class="bi bi-x me-1"></i>Reject</button>
-                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -149,6 +121,36 @@
     </div>
 </div>
 {% endif %}
+
+{% for e in pending %}
+<div class="modal fade" id="actionModal{{ e.pk }}" tabindex="-1" aria-labelledby="actionModalLabel{{ e.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#fff;">
+                <h6 class="modal-title" id="actionModalLabel{{ e.pk }}">Review Plan — {{ e.employee.get_full_name }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Period:</strong> {{ e.planned_start|date:"d M Y" }} → {{ e.planned_end|date:"d M Y" }} ({{ e.total_days }} days)</p>
+                <form method="post" id="form{{ e.pk }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="entry_id" value="{{ e.pk }}">
+                    <input type="hidden" name="action" id="actionInput{{ e.pk }}" value="">
+                    <div class="mb-3">
+                        <label class="form-label">Notes to employee <span class="text-muted">(optional)</span></label>
+                        <textarea name="manager_notes" class="form-control" rows="2" placeholder="Reason for rejection or any remarks..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="submitAction('{{ e.pk }}','confirm')"><i class="bi bi-check me-1"></i>Confirm</button>
+                <button type="button" class="btn btn-danger"  onclick="submitAction('{{ e.pk }}','reject')"><i class="bi bi-x me-1"></i>Reject</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 <script>
 function submitAction(pk, action) {

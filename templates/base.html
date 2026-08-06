@@ -416,18 +416,20 @@
         /* ─── NOTIFICATION BELL ─── */
         .notif-btn {
             position: relative;
-            background: rgba(255,255,255,0.15);
-            border: 1.5px solid rgba(255,255,255,0.4);
+            background: white;
+            border: 1.5px solid #cde8ef;
             border-radius: 10px;
-            width: 38px; height: 38px;
+            width: 40px; height: 40px;
             display: flex; align-items: center; justify-content: center;
-            color: white;
-            font-size: 1.1rem;
+            color: #4a6b7c;
+            font-size: 1.05rem;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: all 0.18s;
             flex-shrink: 0;
+            padding: 0;
         }
-        .notif-btn:hover { background: rgba(255,255,255,0.28); }
+        .notif-btn:hover { border-color: #2db4c3; color: #2db4c3; background: #f0fafc; }
+        .notif-btn::after { display: none; }
         .notif-badge {
             position: absolute;
             top: -5px; right: -5px;
@@ -439,7 +441,7 @@
             min-width: 17px; height: 17px;
             display: flex; align-items: center; justify-content: center;
             padding: 0 3px;
-            border: 2px solid #2db4c3;
+            border: 2px solid white;
         }
         .notif-panel {
             width: 360px;
@@ -1026,7 +1028,7 @@
 
     <div class="logo-bar-right">
 
-        <!-- Mobile: language + search (notifications are in the page topbar below) -->
+        <!-- Mobile: language + search + notifications -->
         <div class="d-flex align-items-center gap-2 d-lg-none">
             <!-- Mobile language toggle -->
             <div class="dropdown">
@@ -1049,6 +1051,11 @@
                     </li>
                 </ul>
             </div>
+            <!-- Mobile notification bell -->
+            <a href="{% url 'notifications:list' %}" class="mobile-search-btn" title="Notifications" style="position:relative;" data-no-suspend>
+                <i class="bi bi-bell"></i>
+                {% if notif_unread > 0 %}<span class="notif-badge">{{ notif_unread }}</span>{% endif %}
+            </a>
             <button class="mobile-search-btn" id="mobileSearchBtn" type="button" title="Search">
                 <i class="bi bi-search"></i>
             </button>
@@ -1085,6 +1092,57 @@
                         </form>
                     </li>
                 </ul>
+            </div>
+
+            <!-- Notification Bell -->
+            <div class="dropdown">
+                <button class="notif-btn dropdown-toggle" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications" data-no-suspend>
+                    <i class="bi bi-bell"></i>
+                    {% if notif_unread > 0 %}
+                    <span class="notif-badge">{{ notif_unread }}</span>
+                    {% endif %}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end notif-panel" aria-labelledby="notifDropdown">
+                    <div class="notif-header">
+                        <span class="notif-header-title">
+                            <i class="bi bi-bell me-1"></i>Notifications
+                            {% if notif_unread > 0 %}<span class="badge bg-danger ms-1">{{ notif_unread }}</span>{% endif %}
+                        </span>
+                        {% if notif_unread > 0 %}
+                        <form method="post" action="{% url 'notifications:mark_all_read' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:0.72rem;color:#9ab4c0;" data-no-suspend>{% trans "Mark all read" %}</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="notif-body">
+                        {% if notif_recent %}
+                        {% for n in notif_recent %}
+                        <a href="{% url 'notifications:mark_read' n.pk %}" class="notif-item{% if not n.is_read %} notif-unread{% endif %}" data-no-suspend>
+                            <div class="notif-icon" style="background:{{ n.badge_color }}20;color:{{ n.badge_color }};">
+                                <i class="bi {{ n.icon }}"></i>
+                            </div>
+                            <div class="notif-text">
+                                <div class="notif-title">{{ n.title }}</div>
+                                <div class="notif-msg">{{ n.message|truncatechars:65 }}</div>
+                                <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+                            </div>
+                            {% if not n.is_read %}<span class="notif-dot"></span>{% endif %}
+                        </a>
+                        {% endfor %}
+                        {% else %}
+                        <div class="notif-empty">
+                            <i class="bi bi-bell-slash fs-2 d-block mb-2"></i>
+                            <small>{% trans "No notifications yet" %}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="notif-footer">
+                        <a href="{% url 'notifications:list' %}" class="btn btn-sm btn-outline-primary w-100" style="font-size:0.8rem;" data-no-suspend>
+                            {% trans "View All Notifications" %}
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <!-- Logged-in user chip -->
@@ -1693,61 +1751,9 @@
             </button>
             <div class="topbar-title">{% block page_title %}{% trans "Dashboard" %}{% endblock %}</div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <!-- Notification Bell -->
-            <div class="dropdown">
-                <button class="notif-btn" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications" data-no-suspend>
-                    <i class="bi bi-bell"></i>
-                    {% if notif_unread > 0 %}
-                    <span class="notif-badge">{{ notif_unread }}</span>
-                    {% endif %}
-                </button>
-                <div class="dropdown-menu dropdown-menu-end notif-panel" aria-labelledby="notifDropdown">
-                    <div class="notif-header">
-                        <span class="notif-header-title">
-                            <i class="bi bi-bell me-1"></i>Notifications
-                            {% if notif_unread > 0 %}<span class="badge bg-danger ms-1">{{ notif_unread }}</span>{% endif %}
-                        </span>
-                        {% if notif_unread > 0 %}
-                        <form method="post" action="{% url 'notifications:mark_all_read' %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:0.72rem;color:#9ab4c0;" data-no-suspend>{% trans "Mark all read" %}</button>
-                        </form>
-                        {% endif %}
-                    </div>
-                    <div class="notif-body">
-                        {% if notif_recent %}
-                        {% for n in notif_recent %}
-                        <a href="{% url 'notifications:mark_read' n.pk %}" class="notif-item{% if not n.is_read %} notif-unread{% endif %}" data-no-suspend>
-                            <div class="notif-icon" style="background:{{ n.badge_color }}20;color:{{ n.badge_color }};">
-                                <i class="bi {{ n.icon }}"></i>
-                            </div>
-                            <div class="notif-text">
-                                <div class="notif-title">{{ n.title }}</div>
-                                <div class="notif-msg">{{ n.message|truncatechars:65 }}</div>
-                                <div class="notif-time">{{ n.created_at|timesince }} ago</div>
-                            </div>
-                            {% if not n.is_read %}<span class="notif-dot"></span>{% endif %}
-                        </a>
-                        {% endfor %}
-                        {% else %}
-                        <div class="notif-empty">
-                            <i class="bi bi-bell-slash fs-2 d-block mb-2"></i>
-                            <small>{% trans "No notifications yet" %}</small>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="notif-footer">
-                        <a href="{% url 'notifications:list' %}" class="btn btn-sm btn-outline-primary w-100" style="font-size:0.8rem;" data-no-suspend>
-                            {% trans "View All Notifications" %}
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!-- Page Actions -->
-            <div class="topbar-actions">
-                {% block topbar_actions %}{% endblock %}
-            </div>
+        <!-- Page Actions -->
+        <div class="topbar-actions">
+            {% block topbar_actions %}{% endblock %}
         </div>
     </div>
 
