@@ -113,6 +113,18 @@ def submit_leave(request):
                 'employee': employee, 'current_sig_b64': employee.signature_b64 or '',
             })
 
+        # Validate supporting document if provided
+        supporting_doc = request.FILES.get('supporting_document')
+        if supporting_doc:
+            from leave_system.file_utils import validate_upload
+            ok, err = validate_upload(supporting_doc)
+            if not ok:
+                messages.error(request, err)
+                return render(request, 'leaves/request_form.html', {
+                    'form': form, 'balance': balance, 'backup_choices_json': json.dumps(backup_choices),
+                    'employee': employee, 'current_sig_b64': employee.signature_b64 or '',
+                })
+
         # Validate balance (only for deductible leave types)
         if leave.leave_type.is_deductible and leave.total_days > balance.remaining_days:
             messages.error(request, f"Insufficient leave balance. You have {balance.remaining_days} days remaining.")

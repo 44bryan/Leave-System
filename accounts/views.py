@@ -11,23 +11,43 @@ from .forms import LoginForm, EmployeeCreateForm, EmployeeEditForm, DepartmentFo
 from .signature_utils import process_signature
 
 
+def _login_rate_key(request):
+    """Cache key for tracking failed login attempts per IP."""
+    x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    ip = x_forwarded.split(',')[0].strip() if x_forwarded else request.META.get('REMOTE_ADDR', '0.0.0.0')
+    return f'login_fails_{ip}'
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard:home')
 
+    # Rate limiting: block IP after 10 failed attempts in 10 minutes
+    from django.core.cache import cache
+    rate_key = _login_rate_key(request)
+    fail_count = cache.get(rate_key, 0)
+    if fail_count >= 10:
+        messages.error(request, "Too many failed login attempts. Please wait 10 minutes before trying again.")
+        return render(request, 'accounts/login.html', {'form': LoginForm(), 'rate_limited': True})
+
     form = LoginForm(request, data=request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        user = form.get_user()
-        # Check if 2FA is enabled for this user
-        try:
-            if user.employee.totp_enabled and user.employee.totp_secret:
-                request.session['2fa_pending_user_id'] = user.pk
-                request.session['2fa_next'] = request.GET.get('next', 'dashboard:home')
-                return redirect('accounts:verify_2fa')
-        except Exception:
-            pass
-        login(request, user)
-        return redirect(request.GET.get('next', 'dashboard:home'))
+    if request.method == 'POST':
+        if form.is_valid():
+            user = form.get_user()
+            cache.delete(rate_key)  # reset on success
+            # Check if 2FA is enabled for this user
+            try:
+                if user.employee.totp_enabled and user.employee.totp_secret:
+                    request.session['2fa_pending_user_id'] = user.pk
+                    request.session['2fa_next'] = request.GET.get('next', 'dashboard:home')
+                    return redirect('accounts:verify_2fa')
+            except Exception:
+                pass
+            login(request, user)
+            return redirect(request.GET.get('next', 'dashboard:home'))
+        else:
+            # Increment failure counter (expires after 10 minutes)
+            cache.set(rate_key, fail_count + 1, timeout=600)
 
     return render(request, 'accounts/login.html', {'form': form})
 
@@ -1270,22 +1290,27 @@ def document_upload(request, employee_pk):
     if not is_privileged:
         return redirect('dashboard:home')
     if request.method == 'POST':
+        from leave_system.file_utils import validate_upload
         title = request.POST.get('title', '').strip()
         category = request.POST.get('category', 'other')
         file = request.FILES.get('file')
         expiry_date = request.POST.get('expiry_date') or None
         expiry_note = request.POST.get('expiry_note', '').strip()
         if title and file:
-            EmployeeDocument.objects.create(
-                employee=employee,
-                title=title,
-                category=category,
-                file=file,
-                expiry_date=expiry_date,
-                expiry_note=expiry_note,
-                uploaded_by=request.user,
-            )
-            messages.success(request, f'Document "{title}" uploaded successfully.')
+            ok, err = validate_upload(file)
+            if not ok:
+                messages.error(request, err)
+            else:
+                EmployeeDocument.objects.create(
+                    employee=employee,
+                    title=title,
+                    category=category,
+                    file=file,
+                    expiry_date=expiry_date,
+                    expiry_note=expiry_note,
+                    uploaded_by=request.user,
+                )
+                messages.success(request, f'Document "{title}" uploaded successfully.')
         else:
             messages.error(request, 'Title and file are required.')
     return redirect(reverse('accounts:employee_history', args=[employee_pk]) + '#documents')
@@ -1302,22 +1327,27 @@ def my_documents(request):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
+        from leave_system.file_utils import validate_upload
         title = request.POST.get('title', '').strip()
         category = request.POST.get('category', 'other')
         file = request.FILES.get('file')
         expiry_date = request.POST.get('expiry_date') or None
         expiry_note = request.POST.get('expiry_note', '').strip()
         if title and file:
-            EmployeeDocument.objects.create(
-                employee=employee,
-                title=title,
-                category=category,
-                file=file,
-                expiry_date=expiry_date,
-                expiry_note=expiry_note,
-                uploaded_by=request.user,
-            )
-            messages.success(request, f'Document "{title}" uploaded successfully.')
+            ok, err = validate_upload(file)
+            if not ok:
+                messages.error(request, err)
+            else:
+                EmployeeDocument.objects.create(
+                    employee=employee,
+                    title=title,
+                    category=category,
+                    file=file,
+                    expiry_date=expiry_date,
+                    expiry_note=expiry_note,
+                    uploaded_by=request.user,
+                )
+                messages.success(request, f'Document "{title}" uploaded successfully.')
         else:
             messages.error(request, 'Title and file are required.')
         return redirect('accounts:my_documents')

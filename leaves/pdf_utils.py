@@ -334,7 +334,7 @@ def generate_leave_pdf(leave):
     y -= DECL_H + 2*mm
 
     # ══════════════════════════════════════════════════════════════════════════
-    # APPROVALS  — 2 × 2 grid
+    # APPROVALS  — 2-column grid, dynamically sized to always fit on the page
     # ══════════════════════════════════════════════════════════════════════════
     y = section_bar(y, "  APPROVALS  ·  VISAS D'AUTORISATION")
 
@@ -367,11 +367,15 @@ def generate_leave_pdf(leave):
         ("ADMIN DIRECTOR / DIRECTEUR ADMINISTRATIF", leave.director_action_by,      _d(leave.director_action_date),    leave.director_sig_b64),
     ]
 
-    CELL_W = CW / 2
-    CELL_H = 35*mm
-    CHDR_H = 7*mm
     num_rows = (len(approvers) + 1) // 2
+    CHDR_H = 6 * mm
+    FOOTER_RESERVE = 20 * mm  # space needed for footer
 
+    # Dynamically size each cell so the full approval grid fits in remaining space
+    available_h = y - FOOTER_RESERVE
+    CELL_H = max(24 * mm, min(32 * mm, available_h / num_rows))
+
+    CELL_W = CW / 2
     is_odd = len(approvers) % 2 == 1
 
     for idx, (col_label, emp_obj, act_date, sig_b64) in enumerate(approvers):
@@ -383,11 +387,11 @@ def generate_leave_pdf(leave):
         cx      = LM if is_last_full else LM + col * CELL_W
         row_top = y - row * CELL_H
 
-        # Cell header
+        # Cell header bar
         frect(cx, row_top, cell_w, CHDR_H, _LOGO, _BORDER, 0.5)
         cv.setFillColorRGB(*_DARK)
-        cv.setFont("Helvetica-Bold", 7)
-        cv.drawCentredString(cx + cell_w / 2, row_top - CHDR_H + 2*mm, col_label)
+        cv.setFont("Helvetica-Bold", 6.5)
+        cv.drawCentredString(cx + cell_w / 2, row_top - CHDR_H + 1.8*mm, col_label)
 
         # Cell body
         body_top = row_top - CHDR_H
@@ -396,17 +400,20 @@ def generate_leave_pdf(leave):
 
         if emp_obj:
             txt(emp_obj.user.get_full_name(),
-                cx + 3*mm, body_top - 5*mm,
-                "Helvetica-Bold", 9, _DARK)
+                cx + 3*mm, body_top - 4.5*mm,
+                "Helvetica-Bold", 8.5, _DARK)
             txt(act_date,
-                cx + 3*mm, body_top - 10.5*mm,
-                "Helvetica", 7.5, _LABEL)
+                cx + 3*mm, body_top - 9*mm,
+                "Helvetica", 7, _LABEL)
+            # Signature occupies the lower portion of the cell
+            sig_top_offset = 10.5 * mm
+            sig_max_h = body_h - sig_top_offset - 1.5*mm
             drawn = draw_sig(
                 emp_obj,
                 cx + 3*mm,
-                body_top - 12*mm,
+                body_top - sig_top_offset,
                 max_w=cell_w - 6*mm,
-                max_h=body_h - 14*mm,
+                max_h=sig_max_h,
                 stored_b64=sig_b64,
             )
             if not drawn:

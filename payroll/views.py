@@ -95,6 +95,13 @@ def payslip_create(request):
             messages.error(request, "Employee not found.")
             return redirect('payroll:create')
 
+        if payslip_file:
+            from leave_system.file_utils import validate_upload
+            ok, err = validate_upload(payslip_file)
+            if not ok:
+                messages.error(request, err)
+                return redirect('payroll:create')
+
         try:
             slip, created = Payslip.objects.update_or_create(
                 employee=employee,
