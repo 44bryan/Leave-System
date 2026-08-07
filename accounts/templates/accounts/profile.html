@@ -6,35 +6,24 @@
 {% block content %}
 <style>
 /* ── Profile cover ── */
-.profile-cover {
-    height: 160px;
-    border-radius: 16px 16px 0 0;
-    background: linear-gradient(135deg, #0A4D68 0%, #2db4c3 60%, #0e7490 100%);
-    position: relative;
-}
 .profile-cover-card {
     border-radius: 16px;
     overflow: hidden;
     border: none;
     box-shadow: 0 4px 24px rgba(10,77,104,0.10);
 }
-.profile-avatar-wrap {
-    position: absolute;
-    bottom: -44px;
-    left: 36px;
-}
 .profile-avatar {
-    width: 88px; height: 88px;
+    width: 72px; height: 72px;
     border-radius: 50%;
-    border: 4px solid #fff;
+    border: 3px solid #e0f2fe;
     object-fit: cover;
     background: linear-gradient(135deg,#2db4c3,#0A4D68);
     display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 800; font-size: 2rem;
-    box-shadow: 0 4px 16px rgba(10,77,104,0.18);
+    color: white; font-weight: 800; font-size: 1.7rem;
+    flex-shrink: 0;
 }
 .profile-identity {
-    padding: 56px 36px 24px 36px;
+    padding: 24px 28px;
     background: white;
 }
 .profile-name { font-size: 1.45rem; font-weight: 800; color: #0d1b2a; margin-bottom: 2px; }
@@ -68,8 +57,7 @@
 .edit-drawer { background: #f8fbfc; border-top: 2px solid #e0f2fe; padding: 28px 36px; }
 
 @media (max-width: 576px) {
-    .profile-avatar-wrap { left: 20px; }
-    .profile-identity { padding: 56px 20px 20px; }
+    .profile-identity { padding: 16px; }
     .info-row { grid-template-columns: 1fr; }
     .edit-drawer { padding: 20px; }
 }
@@ -80,38 +68,37 @@
     <!-- LEFT: Main profile card -->
     <div class="col-lg-8">
 
-        <!-- Cover + avatar + identity -->
+        <!-- Profile header card -->
         <div class="profile-cover-card mb-4">
-            <div class="profile-cover">
-                <div class="profile-avatar-wrap">
+            <div class="profile-identity">
+                <div class="d-flex align-items-center gap-3">
                     {% if employee.profile_photo %}
                     <img src="{{ employee.profile_photo.url }}" alt="Photo" class="profile-avatar">
                     {% else %}
                     <div class="profile-avatar">{{ employee.user.first_name|first|upper }}</div>
                     {% endif %}
-                </div>
-                <!-- Edit button top-right -->
-                <div style="position:absolute;top:14px;right:16px;">
-                    <button class="btn btn-sm" style="background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.45);color:white;font-size:0.8rem;border-radius:9px;backdrop-filter:blur(4px);"
-                            type="button" data-bs-toggle="collapse" data-bs-target="#editProfileForm">
-                        <i class="bi bi-pencil me-1"></i>{% trans "Edit Profile" %}
-                    </button>
-                </div>
-            </div>
-            <div class="profile-identity">
-                <div class="profile-name">{{ employee.get_full_name }}</div>
-                <div class="profile-title">
-                    {{ employee.position|default:"Staff" }}
-                    {% if employee.department %} &nbsp;·&nbsp; {{ employee.department }}{% endif %}
-                </div>
-                <div class="profile-badges">
-                    <span class="badge bg-{{ employee.get_role_display_badge }}">{{ employee.get_role_display }}</span>
-                    {% if employee.staff_category %}
-                    <span class="badge" style="background:#e0f2fe;color:#0e7490;">{% trans "Category" %} {{ employee.staff_category }}</span>
-                    {% endif %}
-                    {% if employee.nationality %}
-                    <span class="badge" style="background:#f0f9ff;color:#4a6b7c;border:1px solid #cde8ef;">{{ employee.nationality }}</span>
-                    {% endif %}
+                    <div class="flex-grow-1">
+                        <div class="profile-name">{{ employee.get_full_name }}</div>
+                        <div class="profile-title">
+                            {{ employee.position|default:"Staff" }}
+                            {% if employee.department %} &nbsp;·&nbsp; {{ employee.department }}{% endif %}
+                        </div>
+                        <div class="profile-badges">
+                            <span class="badge bg-{{ employee.get_role_display_badge }}">{{ employee.get_role_display }}</span>
+                            {% if employee.staff_category %}
+                            <span class="badge" style="background:#e0f2fe;color:#0e7490;">{% trans "Category" %} {{ employee.staff_category }}</span>
+                            {% endif %}
+                            {% if employee.nationality %}
+                            <span class="badge" style="background:#f0f9ff;color:#4a6b7c;border:1px solid #cde8ef;">{{ employee.nationality }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary" style="font-size:0.8rem;"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#editProfileForm">
+                            <i class="bi bi-pencil me-1"></i>{% trans "Edit" %}
+                        </button>
+                    </div>
                 </div>
             </div>
 
