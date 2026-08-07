@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}Analytics — AEF HRM{% endblock %}
 {% block page_title %}Leave Analytics{% endblock %}
 {% block page_subtitle %}Leave usage trends and absenteeism by department{% endblock %}
@@ -130,7 +130,7 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{% static 'vendor/chart.umd.min.js' %}"></script>
 <script>
 const BLUE   = '#0A4D68';
 const TEAL   = '#2db4c3';

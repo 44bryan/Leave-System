@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}Discipline Analytics — AEF HRM{% endblock %}
 {% block page_title %}Discipline Analytics{% endblock %}
 {% block page_subtitle %}Records, trends and department breakdown for {{ year }}{% endblock %}
@@ -144,7 +144,7 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{% static 'vendor/chart.umd.min.js' %}"></script>
 <script>
 const PALETTE = ['#fd7e14','#dc3545','#6f42c1','#0A4D68','#343a40','#2db4c3','#28a745'];
 

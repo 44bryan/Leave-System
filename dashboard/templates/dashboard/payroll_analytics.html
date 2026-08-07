@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}Payroll Analytics — AEF HRM{% endblock %}
 {% block page_title %}Payroll Analytics{% endblock %}
 {% block page_subtitle %}Payslip coverage and missing payslips{% endblock %}
@@ -162,7 +162,7 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{% static 'vendor/chart.umd.min.js' %}"></script>
 <script>
 new Chart(document.getElementById('monthChart'), {
   type: 'bar',
