@@ -11,6 +11,61 @@ from accounts.models import Employee
 from .models import DisciplineRecord
 
 
+def _notify_discipline_hierarchy(record, issuer_user, issuer_name, short_reason):
+    """Notify the full management hierarchy when a discipline notice is formally issued."""
+    from notifications.utils import notify
+    action_label = record.get_action_type_display()
+    detail_url   = reverse('discipline:detail', kwargs={'pk': record.pk})
+    target       = record.employee
+    notified     = {issuer_user.pk}  # never re-notify the issuer
+
+    def _send(user, title, message):
+        if user and user.pk not in notified:
+            notified.add(user.pk)
+            notify(user, title=title, message=message, notification_type='discipline', url=detail_url)
+
+    # 1. Employee
+    _send(target.user,
+          f'Discipline Notice: {action_label}',
+          f'A {action_label} has been issued to you by {issuer_name}. Reason: {short_reason}. Contact HR if you have questions.')
+
+    # 2. Supervisor / Line Manager
+    if target.supervisor:
+        _send(target.supervisor.user,
+              f'Discipline Issued — {target.get_full_name()}',
+              f'{issuer_name} has issued a {action_label} to your subordinate {target.get_full_name()}. Reason: {short_reason}.')
+
+    # 3. Unit Head
+    if target.unit_head:
+        _send(target.unit_head.user,
+              f'Discipline Issued — {target.get_full_name()}',
+              f'{issuer_name} has issued a {action_label} to {target.get_full_name()} in your unit. Reason: {short_reason}.')
+
+    # 4. Nurse Superintendent
+    if target.nurse_superintendent:
+        _send(target.nurse_superintendent.user,
+              f'Discipline Issued — {target.get_full_name()}',
+              f'{issuer_name} has issued a {action_label} to {target.get_full_name()}. Reason: {short_reason}.')
+
+    # 5. HR staff
+    for hr in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
+        _send(hr.user,
+              f'Discipline Issued — {target.get_full_name()}',
+              f'{issuer_name} issued a {action_label} to {target.get_full_name()}. Reason: {short_reason}.')
+
+    # 6. Admin Director(s)
+    for ad in Employee.objects.filter(role='admin_director', is_active=True).select_related('user'):
+        _send(ad.user,
+              f'Discipline Issued — {target.get_full_name()}',
+              f'{issuer_name} issued a {action_label} to {target.get_full_name()}. Reason: {short_reason}.')
+
+    # 7. CEO
+    for ceo in Employee.objects.filter(role='ceo', is_active=True).select_related('user'):
+        _send(ceo.user,
+              f'Discipline Issued — {target.get_full_name()}',
+              f'{issuer_name} issued a {action_label} to {target.get_full_name()}. Reason: {short_reason}.')
+
+
 def _process_pending_dismissals():
     """Deactivate Django User accounts of dismissed employees past their 14-day window."""
     try:
@@ -255,18 +310,8 @@ def issue_discipline(request):
                     f"{record.get_action_type_display()} for {target_employee.get_full_name()}."
                 )
             else:
-                # Formal notice — notify employee
-                notify(
-                    target_employee.user,
-                    title=f'Discipline Notice: {record.get_action_type_display()}',
-                    message=(
-                        f"A {record.get_action_type_display()} has been issued to you by {issuer_name}. "
-                        f"Reason: {reason}. "
-                        f"Please contact HR if you have any questions."
-                    ),
-                    notification_type='discipline',
-                    url=reverse('discipline:detail', kwargs={'pk': record.pk}),
-                )
+                # Formal notice — notify full hierarchy
+                _notify_discipline_hierarchy(record, request.user, issuer_name, reason[:120])
 
                 if action_type == 'dismissal':
                     from datetime import timedelta
@@ -348,19 +393,8 @@ def execute_proposal(request, pk):
             record.employee.dismissal_date = date.today()
             record.employee.save(update_fields=['dismissal_date'])
 
-        from notifications.utils import notify
         issuer_name = request.user.get_full_name() or request.user.username
-        notify(
-            record.employee.user,
-            title=f'Discipline Notice: {record.get_action_type_display()}',
-            message=(
-                f"A {record.get_action_type_display()} has been formally issued to you by {issuer_name}. "
-                f"Reason: {record.reason}. "
-                f"Please contact HR if you have any questions."
-            ),
-            notification_type='discipline',
-            url=reverse('discipline:detail', kwargs={'pk': record.pk}),
-        )
+        _notify_discipline_hierarchy(record, request.user, issuer_name, record.reason[:120])
 
         from dashboard.models import AuditLog
         AuditLog.log(
@@ -702,66 +736,8 @@ def direct_issue_discipline(request):
                 target.dismissal_date = date.today()
                 target.save(update_fields=['dismissal_date'])
 
-            from notifications.utils import notify
-            issuer_name  = request.user.get_full_name() or request.user.username
-            action_label = record.get_action_type_display()
-            detail_url   = reverse('discipline:detail', kwargs={'pk': record.pk})
-            short_reason = reason[:120]
-
-            # 1. Notify the employee
-            notify(
-                target.user,
-                title=f'Discipline Notice: {action_label}',
-                message=(
-                    f'A {action_label} has been formally issued to you by {issuer_name}. '
-                    f'Reason: {short_reason}. Please contact HR if you have questions.'
-                ),
-                notification_type='discipline',
-                url=detail_url,
-            )
-
-            # 2. Notify supervisor (line manager) if different from issuer
-            if target.supervisor and target.supervisor.user != request.user:
-                notify(
-                    target.supervisor.user,
-                    title=f'Discipline Issued — {target.get_full_name()}',
-                    message=(
-                        f'{issuer_name} has issued a {action_label} to your subordinate '
-                        f'{target.get_full_name()}. Reason: {short_reason}.'
-                    ),
-                    notification_type='discipline',
-                    url=detail_url,
-                )
-
-            # 3. Notify unit head if different from issuer and supervisor
-            if target.unit_head and target.unit_head.user != request.user:
-                if not target.supervisor or target.unit_head.user != target.supervisor.user:
-                    notify(
-                        target.unit_head.user,
-                        title=f'Discipline Issued — {target.get_full_name()}',
-                        message=(
-                            f'{issuer_name} has issued a {action_label} to {target.get_full_name()} '
-                            f'in your unit. Reason: {short_reason}.'
-                        ),
-                        notification_type='discipline',
-                        url=detail_url,
-                    )
-
-            # 4. Notify all HR staff (if issuer is not HR)
-            if not (emp and emp.is_hr()):
-                hr_staff = Employee.objects.filter(role='hr', is_active=True).select_related('user')
-                for hr in hr_staff:
-                    if hr.user != request.user:
-                        notify(
-                            hr.user,
-                            title=f'Discipline Issued — {target.get_full_name()}',
-                            message=(
-                                f'{issuer_name} has directly issued a {action_label} to '
-                                f'{target.get_full_name()}. Reason: {short_reason}.'
-                            ),
-                            notification_type='discipline',
-                            url=detail_url,
-                        )
+            issuer_name = request.user.get_full_name() or request.user.username
+            _notify_discipline_hierarchy(record, request.user, issuer_name, reason[:120])
 
             from dashboard.models import AuditLog
             AuditLog.log(
