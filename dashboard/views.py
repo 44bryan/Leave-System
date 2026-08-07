@@ -2524,7 +2524,9 @@ def analytics_dashboard(request):
         _msg.error(request, "Access denied.")
         return redirect('dashboard:home')
 
-    year = int(request.GET.get('year', date.today().year))
+    _latest_leave_year = LeaveRequest.objects.order_by('-start_date').values_list('start_date__year', flat=True).first()
+    _default_year = _latest_leave_year or date.today().year
+    year = int(request.GET.get('year', _default_year))
     dept_pk = request.GET.get('dept', '')
 
     # Base queryset: approved leaves in the selected year
@@ -2629,7 +2631,9 @@ def analytics_dashboard(request):
     total_cancelled = all_year.filter(status=LeaveRequest.STATUS_CANCELLED).count()
 
     departments = Department.objects.all().order_by('name')
-    available_years = list(range(date.today().year, date.today().year - 5, -1))
+    _earliest_leave = LeaveRequest.objects.order_by('start_date').values_list('start_date__year', flat=True).first()
+    _start_year = min(_earliest_leave or date.today().year, date.today().year)
+    available_years = list(range(date.today().year, _start_year - 1, -1))
 
     return render(request, 'dashboard/analytics.html', {
         'year': year,
@@ -2669,7 +2673,9 @@ def discipline_analytics(request):
         _msg.error(request, "Access denied.")
         return redirect('dashboard:home')
 
-    year    = int(request.GET.get('year', date.today().year))
+    _latest_disc_year = DisciplineRecord.objects.filter(is_proposal=False).order_by('-date_issued').values_list('date_issued__year', flat=True).first()
+    _default_year = _latest_disc_year or date.today().year
+    year    = int(request.GET.get('year', _default_year))
     dept_pk = request.GET.get('dept', '')
 
     base_qs = DisciplineRecord.objects.filter(is_proposal=False, date_issued__year=year)
@@ -2705,7 +2711,9 @@ def discipline_analytics(request):
     sev = {r['action_type']: r['count'] for r in base_qs.values('action_type').annotate(count=Count('id'))}
 
     departments     = Department.objects.all().order_by('name')
-    available_years = list(range(date.today().year, date.today().year - 5, -1))
+    _earliest_disc = DisciplineRecord.objects.filter(is_proposal=False).order_by('date_issued').values_list('date_issued__year', flat=True).first()
+    _start_year = min(_earliest_disc or date.today().year, date.today().year)
+    available_years = list(range(date.today().year, _start_year - 1, -1))
 
     return render(request, 'dashboard/discipline_analytics.html', {
         'year': year, 'dept_pk': dept_pk,
@@ -2744,8 +2752,11 @@ def payroll_analytics(request):
         _msg.error(request, "Access denied.")
         return redirect('dashboard:home')
 
-    year      = int(request.GET.get('year', date.today().year))
-    sel_month = int(request.GET.get('month', date.today().month))
+    _latest = Payslip.objects.order_by('-period_year', '-period_month').values('period_year', 'period_month').first()
+    _default_year  = _latest['period_year']  if _latest else date.today().year
+    _default_month = _latest['period_month'] if _latest else date.today().month
+    year      = int(request.GET.get('year',  _default_year))
+    sel_month = int(request.GET.get('month', _default_month))
     dept_pk   = request.GET.get('dept', '')
 
     active_qs = Employee.objects.filter(is_active=True)
@@ -2779,7 +2790,9 @@ def payroll_analytics(request):
     sel_cov_pct   = round(month_slips / total_active * 100, 1) if total_active else 0
     month_name_map = {i: n for i, n in enumerate(mlabels, 1)}
 
-    available_years = list(range(date.today().year, date.today().year - 5, -1))
+    _earliest_payslip = Payslip.objects.order_by('period_year').values_list('period_year', flat=True).first()
+    _start_year = min(_earliest_payslip or date.today().year, date.today().year)
+    available_years = list(range(date.today().year, _start_year - 1, -1))
 
     return render(request, 'dashboard/payroll_analytics.html', {
         'year': year, 'sel_month': sel_month,
