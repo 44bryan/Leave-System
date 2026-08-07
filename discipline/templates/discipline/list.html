@@ -318,7 +318,7 @@
                                 </span>
                             {% elif record.hr_proposed_sanction and record.director_proposed_sanction %}
                                 <span class="badge" style="background:#059669;color:#fff;font-size:.68rem;">
-                                    <i class="bi bi-check2-circle me-1"></i>{% trans "Complete" %}
+                                    <i class="bi bi-check2-circle me-1"></i>{% trans "Issued" %}
                                 </span>
                             {% elif record.hr_proposed_sanction %}
                                 <span class="badge" style="background:#2db4c3;color:#fff;font-size:.68rem;">
@@ -326,7 +326,7 @@
                                 </span>
                             {% else %}
                                 <span class="badge" style="background:#f59e0b;color:#fff;font-size:.68rem;">
-                                    <i class="bi bi-hourglass me-1"></i>{% trans "Awaiting HR" %}
+                                    <i class="bi bi-hourglass me-1"></i>{% trans "Pending Review" %}
                                 </span>
                             {% endif %}
                         </td>

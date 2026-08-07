@@ -217,6 +217,10 @@ def issue_discipline(request):
                 record.suspension_end = suspension_end
             if document:
                 record.document = document
+            # Directly issued by HR/CEO/Director — mark review chain complete immediately
+            if not is_prop:
+                record.hr_proposed_sanction = 'no_further_action'
+                record.director_proposed_sanction = 'no_further_action'
 
             record.save()
 
@@ -334,6 +338,9 @@ def execute_proposal(request, pk):
         record.is_proposal = False
         record.issued_by = request.user  # HR becomes the formal issuer
         record.date_issued = date.today()
+        # If HR is executing without a prior HR review step, mark HR review complete
+        if not record.hr_proposed_sanction:
+            record.hr_proposed_sanction = 'no_further_action'
         record.save()
 
         if record.action_type == 'dismissal':
@@ -674,6 +681,8 @@ def direct_issue_discipline(request):
                 reason=reason,
                 notes=notes,
                 is_proposal=False,
+                hr_proposed_sanction='no_further_action',
+                director_proposed_sanction='no_further_action',
             )
             if action_type == 'suspension' and suspension_start:
                 record.suspension_start = suspension_start
