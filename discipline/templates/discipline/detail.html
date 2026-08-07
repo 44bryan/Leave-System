@@ -237,7 +237,7 @@
             {% endif %}
 
             <!-- ══ SANCTION REVIEW WORKFLOW ══ -->
-            {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.role == 'admin_director' %}
+            {% if not is_direct_issue and request.user.is_superuser or not is_direct_issue and request.user.employee.is_hr or not is_direct_issue and request.user.employee.role == 'admin_director' %}
 
             <!-- Step 1 — Manager's Recommendation -->
             {% if record.recommended_sanction %}

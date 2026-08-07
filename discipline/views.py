@@ -518,7 +518,13 @@ def discipline_detail(request, pk):
     else:
         return redirect('dashboard:home')
 
-    return render(request, 'discipline/detail.html', {'record': record})
+    # Directly-issued records (by HR/CEO/Director) have both sanction fields set to sentinel
+    is_direct_issue = (
+        record.hr_proposed_sanction == 'no_further_action'
+        and record.director_proposed_sanction == 'no_further_action'
+        and not record.recommended_sanction
+    )
+    return render(request, 'discipline/detail.html', {'record': record, 'is_direct_issue': is_direct_issue})
 
 
 @login_required
