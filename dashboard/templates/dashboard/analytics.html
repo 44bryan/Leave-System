@@ -148,10 +148,10 @@ const PALETTE = [
 new Chart(document.getElementById('monthChart'), {
   type: 'bar',
   data: {
-    labels: {{ month_labels_json }},
+    labels: {{ month_labels_json|safe }},
     datasets: [{
       label: 'Requests submitted',
-      data: {{ month_data_json }},
+      data: {{ month_data_json|safe }},
       backgroundColor: TEAL + 'bb',
       borderColor: TEAL,
       borderWidth: 1,
@@ -166,13 +166,13 @@ new Chart(document.getElementById('monthChart'), {
 });
 
 // Leave type pie
-const typeLabels = {{ type_labels_json }};
+const typeLabels = {{ type_labels_json|safe }};
 new Chart(document.getElementById('typeChart'), {
   type: 'doughnut',
   data: {
     labels: typeLabels,
     datasets: [{
-      data: {{ type_data_json }},
+      data: {{ type_data_json|safe }},
       backgroundColor: PALETTE.slice(0, typeLabels.length),
     }]
   },
@@ -193,10 +193,10 @@ new Chart(document.getElementById('typeChart'), {
 new Chart(document.getElementById('deptChart'), {
   type: 'bar',
   data: {
-    labels: {{ dept_labels_json }},
+    labels: {{ dept_labels_json|safe }},
     datasets: [{
       label: 'Days',
-      data: {{ dept_days_json }},
+      data: {{ dept_days_json|safe }},
       backgroundColor: BLUE + 'cc',
       borderRadius: 4,
     }]
@@ -213,10 +213,10 @@ new Chart(document.getElementById('deptChart'), {
 new Chart(document.getElementById('absChart'), {
   type: 'bar',
   data: {
-    labels: {{ sick_dept_labels_json }},
+    labels: {{ sick_dept_labels_json|safe }},
     datasets: [{
       label: 'Absenteeism %',
-      data: {{ absenteeism_rate_json }},
+      data: {{ absenteeism_rate_json|safe }},
       backgroundColor: RED + 'bb',
       borderColor: RED,
       borderRadius: 4,

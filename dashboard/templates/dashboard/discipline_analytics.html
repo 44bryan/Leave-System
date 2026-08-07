@@ -151,28 +151,28 @@ const PALETTE = ['#fd7e14','#dc3545','#6f42c1','#0A4D68','#343a40','#2db4c3','#2
 new Chart(document.getElementById('monthChart'), {
   type: 'bar',
   data: {
-    labels: {{ month_labels_json }},
-    datasets: [{ label: 'Records', data: {{ month_data_json }}, backgroundColor: '#dc354599', borderColor: '#dc3545', borderRadius: 4 }]
+    labels: {{ month_labels_json|safe }},
+    datasets: [{ label: 'Records', data: {{ month_data_json|safe }}, backgroundColor: '#dc354599', borderColor: '#dc3545', borderRadius: 4 }]
   },
   options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
 });
 
-const tl = {{ type_labels_json }};
+const tl = {{ type_labels_json|safe }};
 new Chart(document.getElementById('typeChart'), {
   type: 'doughnut',
-  data: { labels: tl, datasets: [{ data: {{ type_data_json }}, backgroundColor: PALETTE.slice(0, tl.length) }] },
+  data: { labels: tl, datasets: [{ data: {{ type_data_json|safe }}, backgroundColor: PALETTE.slice(0, tl.length) }] },
   options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
 });
 
 new Chart(document.getElementById('deptChart'), {
   type: 'bar',
-  data: { labels: {{ dept_labels_json }}, datasets: [{ label: 'Records', data: {{ dept_data_json }}, backgroundColor: '#0A4D68cc', borderRadius: 4 }] },
+  data: { labels: {{ dept_labels_json|safe }}, datasets: [{ label: 'Records', data: {{ dept_data_json|safe }}, backgroundColor: '#0A4D68cc', borderRadius: 4 }] },
   options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
 });
 
 new Chart(document.getElementById('topChart'), {
   type: 'bar',
-  data: { labels: {{ top_emp_labels_json }}, datasets: [{ label: 'Records', data: {{ top_emp_data_json }}, backgroundColor: '#fd7e14cc', borderRadius: 4 }] },
+  data: { labels: {{ top_emp_labels_json|safe }}, datasets: [{ label: 'Records', data: {{ top_emp_data_json|safe }}, backgroundColor: '#fd7e14cc', borderRadius: 4 }] },
   options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
 });
 </script>

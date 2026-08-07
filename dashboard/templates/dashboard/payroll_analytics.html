@@ -166,17 +166,17 @@
 <script>
 new Chart(document.getElementById('monthChart'), {
   type: 'bar',
-  data: { labels: {{ month_labels_json }}, datasets: [{ label: 'Payslips', data: {{ month_data_json }}, backgroundColor: '#2db4c3bb', borderRadius: 4 }] },
+  data: { labels: {{ month_labels_json|safe }}, datasets: [{ label: 'Payslips', data: {{ month_data_json|safe }}, backgroundColor: '#2db4c3bb', borderRadius: 4 }] },
   options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
 });
 
 new Chart(document.getElementById('covChart'), {
   type: 'line',
   data: {
-    labels: {{ month_labels_json }},
+    labels: {{ month_labels_json|safe }},
     datasets: [{
       label: 'Coverage %',
-      data: {{ coverage_pct_json }},
+      data: {{ coverage_pct_json|safe }},
       borderColor: '#0A4D68', backgroundColor: '#0A4D6820',
       tension: 0.3, fill: true, pointRadius: 4
     }]
@@ -186,7 +186,7 @@ new Chart(document.getElementById('covChart'), {
 
 new Chart(document.getElementById('deptChart'), {
   type: 'bar',
-  data: { labels: {{ dept_cov_labels_json }}, datasets: [{ label: 'Coverage %', data: {{ dept_cov_data_json }}, backgroundColor: '#28a74599', borderRadius: 4 }] },
+  data: { labels: {{ dept_cov_labels_json|safe }}, datasets: [{ label: 'Coverage %', data: {{ dept_cov_data_json|safe }}, backgroundColor: '#28a74599', borderRadius: 4 }] },
   options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } }
 });
 </script>
