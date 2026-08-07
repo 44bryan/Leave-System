@@ -5,7 +5,6 @@
 {% block page_subtitle %}{{ er.get_exit_type_display }} · Last day: {{ er.exit_date|date:"d M Y" }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
   {% if messages %}
     {% for msg in messages %}
     <div class="alert alert-{{ msg.tags }} alert-dismissible fade show mb-3">{{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
@@ -186,7 +185,6 @@
 
     </div>
   </div>
-</div>
 
 <!-- Complete task modals -->
 {% if is_hr %}
