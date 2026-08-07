@@ -115,7 +115,7 @@
 {% block content %}
 
 <!-- ── Employee Header ── -->
-<div class="card mb-4 animate-in" style="border-top:3px solid #0A4D68;">
+<div class="card mb-4 animate-in">
     <div class="card-body p-4">
         <div class="d-flex align-items-center gap-4 flex-wrap">
             <div style="width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#2db4c3,#0A4D68);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.6rem;flex-shrink:0;">
@@ -256,25 +256,27 @@
             </div>
             {% if balance %}
             <div class="col-12">
-                <div class="card" style="background:linear-gradient(135deg,#0A4D68,#088395);color:white;border:none;">
-                    <div class="card-body p-4">
-                        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;opacity:.75;margin-bottom:8px;">{% trans "Leave Balance" %} {{ today.year }}</div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-calendar-check me-2" style="color:#2db4c3;"></i>{% trans "Leave Balance" %} {{ today.year }}
+                    </div>
+                    <div class="card-body p-3">
                         <div class="row text-center g-3">
                             <div class="col">
-                                <div style="font-size:2rem;font-weight:800;">{{ balance.total_available }}</div>
-                                <div style="font-size:.7rem;opacity:.75;">{% trans "Available" %}</div>
+                                <div style="font-size:1.8rem;font-weight:800;color:#0A4D68;">{{ balance.total_available }}</div>
+                                <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Available" %}</div>
                             </div>
-                            <div class="col" style="border-left:1px solid rgba(255,255,255,.2);">
-                                <div style="font-size:2rem;font-weight:800;">{{ balance.used_days }}</div>
-                                <div style="font-size:.7rem;opacity:.75;">{% trans "Used" %}</div>
+                            <div class="col" style="border-left:1px solid #e8f0f5;">
+                                <div style="font-size:1.8rem;font-weight:800;color:#fd7e14;">{{ balance.used_days }}</div>
+                                <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Used" %}</div>
                             </div>
-                            <div class="col" style="border-left:1px solid rgba(255,255,255,.2);">
-                                <div style="font-size:2rem;font-weight:800;">{{ balance.remaining_days }}</div>
-                                <div style="font-size:.7rem;opacity:.75;">{% trans "Remaining" %}</div>
+                            <div class="col" style="border-left:1px solid #e8f0f5;">
+                                <div style="font-size:1.8rem;font-weight:800;color:#28a745;">{{ balance.remaining_days }}</div>
+                                <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Remaining" %}</div>
                             </div>
-                            <div class="col" style="border-left:1px solid rgba(255,255,255,.2);">
-                                <div style="font-size:2rem;font-weight:800;">{{ balance.total_entitlement }}</div>
-                                <div style="font-size:.7rem;opacity:.75;">{% trans "Entitlement" %}</div>
+                            <div class="col" style="border-left:1px solid #e8f0f5;">
+                                <div style="font-size:1.8rem;font-weight:800;color:#6c757d;">{{ balance.total_entitlement }}</div>
+                                <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:#9ab4c0;">{% trans "Entitlement" %}</div>
                             </div>
                         </div>
                     </div>
