@@ -89,7 +89,10 @@
                             <i class="bi bi-person-check me-1"></i><span id="backupSelectedName"></span>
                             <a href="#" id="backupClear" style="margin-left:8px;color:#dc2626;font-size:.78rem;">{% trans "Change" %}</a>
                         </div>
-                        <div class="form-text">{% trans "Required. Start typing the employee's name to search." %}</div>
+                        <div id="backupError" class="text-danger small mt-1" style="display:none;">
+                            <i class="bi bi-exclamation-circle me-1"></i>{% trans "Please select a back-up employee — type a name and tap a result from the list." %}
+                        </div>
+                        <div class="form-text">{% trans "Required. Type a name then tap a result to select." %}</div>
                     </div>
 
                     <div class="mb-4">
@@ -383,6 +386,18 @@ updateDays();
                 return;
             }
         }
+
+        // Block if no backup employee selected
+        var backupVal = document.getElementById('backupValue');
+        var backupErr = document.getElementById('backupError');
+        if (!backupVal || !backupVal.value) {
+            e.preventDefault();
+            backupErr.style.display = 'block';
+            document.getElementById('backupSearch').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('backupSearch').focus();
+            return;
+        }
+        if (backupErr) backupErr.style.display = 'none';
 
         if (signaturePad && !signaturePad.isEmpty()) {
             dataInput.value = signaturePad.toDataURL('image/png');
