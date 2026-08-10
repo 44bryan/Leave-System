@@ -1299,7 +1299,7 @@
                     <i class="bi bi-folder2-open"></i> {% trans "My Documents" %}
                 </a>
             </li>
-            {% if not user.employee.is_intern %}
+            {% if not user.employee.is_intern and not user.employee.is_wacs_resident %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:my_appraisals' %}" class="nav-link-sidebar {% block nav_my_appraisals %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "My Appraisals" %}
