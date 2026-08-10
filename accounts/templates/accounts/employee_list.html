@@ -186,15 +186,15 @@
                             <a href="{% url 'accounts:reset_credentials' emp.pk %}" class="btn btn-sm btn-outline-warning" title="Reset Password / Username">
                                 <i class="bi bi-key"></i>
                             </a>
-                            <form method="post" action="{% url 'accounts:toggle_account_lock' emp.pk %}" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                <button type="submit" class="btn btn-sm {% if emp.user.is_active %}btn-outline-secondary{% else %}btn-success{% endif %}"
-                                        title="{% if emp.user.is_active %}Lock account{% else %}Unlock account{% endif %}"
-                                        onclick="return confirm('{% if emp.user.is_active %}Lock {{ emp.get_full_name }}? They will not be able to log in.{% else %}Unlock {{ emp.get_full_name }}? They will be able to log in again.{% endif %}')">
-                                    <i class="bi bi-{% if emp.user.is_active %}lock{% else %}unlock{% endif %}"></i>
-                                </button>
-                            </form>
+                            <button type="button"
+                                    class="btn btn-sm {% if emp.user.is_active %}btn-outline-secondary{% else %}btn-success{% endif %}"
+                                    title="{% if emp.user.is_active %}Lock account{% else %}Unlock account{% endif %}"
+                                    data-bs-toggle="modal" data-bs-target="#lockModal"
+                                    data-action="{% url 'accounts:toggle_account_lock' emp.pk %}"
+                                    data-name="{{ emp.get_full_name }}"
+                                    data-lock="{% if emp.user.is_active %}1{% else %}0{% endif %}">
+                                <i class="bi bi-{% if emp.user.is_active %}lock{% else %}unlock{% endif %}"></i>
+                            </button>
                             <a href="{% url 'accounts:employee_delete' emp.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
                                 <i class="bi bi-trash"></i>
                             </a>
@@ -268,5 +268,44 @@
     typeSelect.addEventListener('change', swapPicker);
     swapPicker(); // init
 })();
+</script>
+
+<!-- Lock/Unlock confirmation modal -->
+<div class="modal fade" id="lockModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-bold" id="lockModalTitle"></h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-2 pb-1">
+        <p class="small mb-0" id="lockModalBody"></p>
+      </div>
+      <div class="modal-footer border-0 pt-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" id="lockForm" style="display:inline;">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button type="submit" class="btn btn-sm" id="lockConfirmBtn">Confirm</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('lockModal').addEventListener('show.bs.modal', function(e) {
+    var btn = e.relatedTarget;
+    var action = btn.getAttribute('data-action');
+    var name = btn.getAttribute('data-name');
+    var isLocking = btn.getAttribute('data-lock') === '1';
+    document.getElementById('lockModalTitle').textContent = isLocking ? 'Lock Account' : 'Unlock Account';
+    document.getElementById('lockModalBody').textContent = isLocking
+        ? name + ' will not be able to log in.'
+        : name + ' will be able to log in again.';
+    document.getElementById('lockForm').action = action;
+    var confirmBtn = document.getElementById('lockConfirmBtn');
+    confirmBtn.textContent = isLocking ? 'Lock' : 'Unlock';
+    confirmBtn.className = 'btn btn-sm ' + (isLocking ? 'btn-danger' : 'btn-success');
+});
 </script>
 {% endblock %}
