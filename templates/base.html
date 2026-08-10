@@ -1271,28 +1271,35 @@
                     <i class="bi bi-hospital"></i> {% trans "My Sick Leaves" %}
                 </a>
             </li>
+            {% if not user.employee.is_intern %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:plan_my' %}" class="nav-link-sidebar {% block nav_plan_my %}{% endblock %}">
                     <i class="bi bi-calendar2-range"></i> {% trans "My Leave Plan" %}
                 </a>
             </li>
+            {% endif %}
             {% if system_settings.payroll_enabled or user.is_superuser %}
+            {% if not user.employee.is_intern %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'payroll:my_payslips' %}" class="nav-link-sidebar {% block nav_my_payslips %}{% endblock %}">
                     <i class="bi bi-receipt"></i> {% trans "My Payslips" %}
                 </a>
             </li>
             {% endif %}
+            {% endif %}
+            {% if not user.employee.is_intern %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'contracts:my_contract' %}" class="nav-link-sidebar {% block nav_my_contract %}{% endblock %}">
                     <i class="bi bi-file-earmark-person"></i> {% trans "My Contract" %}
                 </a>
             </li>
+            {% endif %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:my_documents' %}" class="nav-link-sidebar {% block nav_my_documents %}{% endblock %}">
                     <i class="bi bi-folder2-open"></i> {% trans "My Documents" %}
                 </a>
             </li>
+            {% if not user.employee.is_intern %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'appraisals:my_appraisals' %}" class="nav-link-sidebar {% block nav_my_appraisals %}{% endblock %}">
                     <i class="bi bi-clipboard2-pulse"></i> {% trans "My Appraisals" %}
@@ -1301,6 +1308,7 @@
                     {% endif %}
                 </a>
             </li>
+            {% endif %}
             {% endif %}
             {% if user.is_superuser or user.employee.is_hr or user.employee.is_manager or user.employee.is_director or user.employee.is_ceo %}
             <li class="nav-item-sidebar">
@@ -1313,7 +1321,7 @@
                     <i class="bi bi-trophy"></i> {% trans "My Awards" %}
                 </a>
             </li>
-            {% else %}
+            {% elif not user.employee.is_intern and not user.employee.is_wacs_resident %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'recognition:my_awards' %}" class="nav-link-sidebar {% block nav_my_awards %}{% endblock %}">
                     <i class="bi bi-trophy"></i> {% trans "My Awards" %}
