@@ -278,6 +278,18 @@ def submit_leave(request):
                         notification_type='leave_submitted',
                         url=reverse('leaves:unit_head_action', kwargs={'pk': leave.pk}),
                     )
+                elif employee.is_manager() and employee.requires_nurse_supt and employee.nurse_superintendent:
+                    # Ophthalmic line manager — Nurse Superintendent approves FIRST, then their supervisor
+                    messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Awaiting Nurse Superintendent approval.")
+                    notify(
+                        employee.nurse_superintendent.user,
+                        f'Leave Request (Line Manager) — {employee.get_full_name()}',
+                        f'{employee.get_full_name()} (Line Manager) has submitted a {leave.leave_type} request '
+                        f'for {leave.total_days} day(s) ({leave.start_date} to {leave.end_date}). '
+                        f'As a line manager under ophthalmic oversight, your approval is required first.',
+                        notification_type='leave_submitted',
+                        url=reverse('leaves:nurse_supt_action', kwargs={'pk': leave.pk}),
+                    )
                 else:
                     # No unit head — notify supervisor (line manager) directly
                     messages.success(request, f"Leave request submitted successfully for {leave.total_days} day(s). Awaiting manager approval.")
@@ -487,11 +499,13 @@ def manager_approvals(request):
     else:
         # Show 'pending' leaves from employees WITHOUT a unit_head (direct reports)
         # and 'unit_head_approved' from employees WITH a unit_head (both supervised by this manager)
+        # and 'nurse_supt_approved' from managers in the NS-first flow (NS already approved, now needs this manager)
         pending = LeaveRequest.objects.filter(
             employee__supervisor=employee
         ).filter(
             Q(status=LeaveRequest.STATUS_PENDING, employee__unit_head__isnull=True) |
-            Q(status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED)
+            Q(status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED) |
+            Q(status=LeaveRequest.STATUS_NURSE_SUPT_APPROVED, employee__role='manager', employee__requires_nurse_supt=True)
         ).select_related('employee__user', 'employee__department', 'leave_type')
 
     return render(request, 'leaves/manager_approvals.html', {
@@ -514,7 +528,10 @@ def manager_action(request, pk):
         return redirect('leaves:manager_approvals')
 
     # Accept both 'pending' (no unit_head employees) and 'unit_head_approved' (has unit_head)
+    # Also accept 'nurse_supt_approved' for the NS-first flow (ophthalmic line managers)
     valid_statuses = [LeaveRequest.STATUS_PENDING, LeaveRequest.STATUS_UNIT_HEAD_APPROVED]
+    if leave.employee.is_manager() and leave.employee.requires_nurse_supt:
+        valid_statuses.append(LeaveRequest.STATUS_NURSE_SUPT_APPROVED)
     if leave.status not in valid_statuses:
         messages.warning(
             request,
@@ -537,14 +554,15 @@ def manager_action(request, pk):
                 leave.manager_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
                 from accounts.models import Employee as _Emp
+                ns_already_approved = leave.nurse_supt_action_by is not None
                 nurse_supt = leave.employee.nurse_superintendent if leave.employee.requires_nurse_supt else None
-                if nurse_supt:
-                    # Route to Nurse Superintendent next
+                if nurse_supt and not ns_already_approved:
+                    # Route to Nurse Superintendent next (standard flow for regular employees)
                     messages.success(request, "Leave request approved. Forwarded to Nurse Superintendent for review.")
                     notify(
                         leave.employee.user,
                         'Leave Request — Manager Approved',
-                        f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                        f'Your {leave.leave_type} request ({leave.start_date} to {leave.end_date}) '
                         f'has been approved by your manager and is now awaiting Nurse Superintendent review.',
                         notification_type='leave_manager_approved',
                         url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
@@ -553,18 +571,18 @@ def manager_action(request, pk):
                         nurse_supt.user,
                         f'Leave Awaiting Your Review — {leave.employee.get_full_name()}',
                         f'{leave.employee.get_full_name()} has a {leave.leave_type} request '
-                        f'({leave.start_date} → {leave.end_date}, {leave.total_days} day(s)) '
+                        f'({leave.start_date} to {leave.end_date}, {leave.total_days} day(s)) '
                         f'pending your review as Nurse Superintendent.',
                         notification_type='leave_submitted',
                         url=reverse('leaves:nurse_supt_action', kwargs={'pk': leave.pk}),
                     )
                 else:
-                    # Standard flow: go to HR
+                    # NS already approved (NS-first flow) or no NS required: go straight to HR
                     messages.success(request, "Leave request approved. Forwarded to HR for review.")
                     notify(
                         leave.employee.user,
                         'Leave Request — Manager Approved',
-                        f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                        f'Your {leave.leave_type} request ({leave.start_date} to {leave.end_date}) '
                         f'has been approved by your manager and is now awaiting HR review.',
                         notification_type='leave_manager_approved',
                         url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
@@ -574,7 +592,7 @@ def manager_action(request, pk):
                             hr_emp.user,
                             f'Leave Awaiting HR Review — {leave.employee.get_full_name()}',
                             f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
-                            f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
+                            f'has a {leave.leave_type} request ({leave.start_date} to {leave.end_date}, '
                             f'{leave.total_days} day(s)) pending your review.',
                             notification_type='leave_submitted',
                             url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
@@ -626,9 +644,11 @@ def nurse_supt_approvals(request):
         return redirect('dashboard:home')
 
     pending = LeaveRequest.objects.filter(
-        status=LeaveRequest.STATUS_MANAGER_APPROVED,
         employee__requires_nurse_supt=True,
         employee__nurse_superintendent=employee,
+    ).filter(
+        Q(status=LeaveRequest.STATUS_MANAGER_APPROVED) |
+        Q(status=LeaveRequest.STATUS_PENDING, employee__role='manager')
     ).select_related('employee__user', 'employee__department', 'leave_type', 'manager_action_by__user')
 
     return render(request, 'leaves/nurse_supt_approvals.html', {
@@ -646,7 +666,12 @@ def nurse_supt_action(request, pk):
 
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
-    if leave.status != LeaveRequest.STATUS_MANAGER_APPROVED or not leave.employee.requires_nurse_supt:
+    is_manager_ns_first = leave.employee.is_manager() and leave.employee.requires_nurse_supt
+    valid_ns_status = (
+        (is_manager_ns_first and leave.status == LeaveRequest.STATUS_PENDING) or
+        (not is_manager_ns_first and leave.status == LeaveRequest.STATUS_MANAGER_APPROVED)
+    )
+    if not valid_ns_status or not leave.employee.requires_nurse_supt:
         messages.warning(request, "This leave request is not awaiting Nurse Superintendent approval.")
         return redirect('leaves:nurse_supt_approvals')
 
@@ -667,26 +692,48 @@ def nurse_supt_action(request, pk):
                 _save_drawn_signature(employee, sig_b64)
                 leave.nurse_supt_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.status = LeaveRequest.STATUS_NURSE_SUPT_APPROVED
-                messages.success(request, "Leave request approved. Forwarded to HR for review.")
-                notify(
-                    leave.employee.user,
-                    'Leave Request — Nurse Superintendent Approved',
-                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
-                    f'has been approved by the Nurse Superintendent and is now awaiting HR review.',
-                    notification_type='leave_manager_approved',
-                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
-                )
                 from accounts.models import Employee as _Emp
-                for hr_emp in _Emp.objects.filter(role='hr', is_active=True).select_related('user'):
+                if is_manager_ns_first and leave.employee.supervisor:
+                    # NS-first flow: notify the manager's line supervisor next
+                    messages.success(request, "Leave request approved. Forwarded to line manager for final approval.")
                     notify(
-                        hr_emp.user,
-                        f'Leave Awaiting HR Review — {leave.employee.get_full_name()}',
-                        f'{leave.employee.get_full_name()} has a {leave.leave_type} request '
-                        f'({leave.start_date} → {leave.end_date}, {leave.total_days} day(s)) '
-                        f'pending your review. Approved by Nurse Superintendent.',
-                        notification_type='leave_submitted',
-                        url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
+                        leave.employee.user,
+                        'Leave Request — Nurse Superintendent Approved',
+                        f'Your {leave.leave_type} request ({leave.start_date} to {leave.end_date}) '
+                        f'has been approved by the Nurse Superintendent and is now awaiting your line manager approval.',
+                        notification_type='leave_manager_approved',
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                     )
+                    notify(
+                        leave.employee.supervisor.user,
+                        f'Leave Request (Post NS Approval) — {leave.employee.get_full_name()}',
+                        f'The Nurse Superintendent has approved {leave.employee.get_full_name()}\'s {leave.leave_type} request '
+                        f'({leave.start_date} to {leave.end_date}, {leave.total_days} day(s)). '
+                        f'Your approval as line manager is now required.',
+                        notification_type='leave_submitted',
+                        url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
+                    )
+                else:
+                    # Standard flow: forward to HR
+                    messages.success(request, "Leave request approved. Forwarded to HR for review.")
+                    notify(
+                        leave.employee.user,
+                        'Leave Request — Nurse Superintendent Approved',
+                        f'Your {leave.leave_type} request ({leave.start_date} to {leave.end_date}) '
+                        f'has been approved by the Nurse Superintendent and is now awaiting HR review.',
+                        notification_type='leave_manager_approved',
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                    )
+                    for hr_emp in _Emp.objects.filter(role='hr', is_active=True).select_related('user'):
+                        notify(
+                            hr_emp.user,
+                            f'Leave Awaiting HR Review — {leave.employee.get_full_name()}',
+                            f'{leave.employee.get_full_name()} has a {leave.leave_type} request '
+                            f'({leave.start_date} to {leave.end_date}, {leave.total_days} day(s)) '
+                            f'pending your review. Approved by Nurse Superintendent.',
+                            notification_type='leave_submitted',
+                            url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
+                        )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_NURSE_SUPT
                 messages.warning(request, f"Leave request #{pk} has been rejected.")
