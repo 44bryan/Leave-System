@@ -88,6 +88,35 @@ def _save_drawn_signature(employee, b64_data):
     employee.save(update_fields=save_fields)
 
 
+def get_effective_approver(person):
+    """Return backup employee if person is on approved leave today with a backup set, else return person."""
+    from datetime import date as _date
+    today = _date.today()
+    active_leave = LeaveRequest.objects.filter(
+        employee=person,
+        status=LeaveRequest.STATUS_APPROVED,
+        start_date__lte=today,
+        end_date__gte=today,
+        backup_employee__isnull=False,
+    ).select_related('backup_employee__user').first()
+    if active_leave and active_leave.backup_employee:
+        return active_leave.backup_employee
+    return person
+
+
+def _is_backup_for(user_employee, supervisor):
+    """Return True if user_employee is the active backup for supervisor today."""
+    from datetime import date as _date
+    today = _date.today()
+    return LeaveRequest.objects.filter(
+        employee=supervisor,
+        status=LeaveRequest.STATUS_APPROVED,
+        start_date__lte=today,
+        end_date__gte=today,
+        backup_employee=user_employee,
+    ).exists()
+
+
 @login_required
 def submit_leave(request):
     employee = get_employee(request)
@@ -268,37 +297,45 @@ def submit_leave(request):
                             url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
                         )
                 elif employee.unit_head:
-                    # Has unit head — notify unit head first
+                    # Has unit head — notify unit head (or their backup if on leave)
+                    effective_uh = get_effective_approver(employee.unit_head)
+                    uh_label = f" (covering for {employee.unit_head.get_full_name()})" if effective_uh != employee.unit_head else ""
                     messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Awaiting Unit Head approval.")
                     notify(
-                        employee.unit_head.user,
+                        effective_uh.user,
                         f'New Leave Request — {employee.get_full_name()}',
                         f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
-                        f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your Unit Head approval.',
+                        f'for {leave.total_days} day(s) ({leave.start_date} to {leave.end_date}). '
+                        f'Awaiting your Unit Head approval{uh_label}.',
                         notification_type='leave_submitted',
                         url=reverse('leaves:unit_head_action', kwargs={'pk': leave.pk}),
                     )
                 elif employee.is_manager() and employee.requires_nurse_supt and employee.nurse_superintendent:
                     # Ophthalmic line manager — Nurse Superintendent approves FIRST, then their supervisor
+                    effective_ns = get_effective_approver(employee.nurse_superintendent)
+                    ns_label = f" (covering for {employee.nurse_superintendent.get_full_name()})" if effective_ns != employee.nurse_superintendent else ""
                     messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Awaiting Nurse Superintendent approval.")
                     notify(
-                        employee.nurse_superintendent.user,
+                        effective_ns.user,
                         f'Leave Request (Line Manager) — {employee.get_full_name()}',
                         f'{employee.get_full_name()} (Line Manager) has submitted a {leave.leave_type} request '
                         f'for {leave.total_days} day(s) ({leave.start_date} to {leave.end_date}). '
-                        f'As a line manager under ophthalmic oversight, your approval is required first.',
+                        f'Your approval as Nurse Superintendent is required first{ns_label}.',
                         notification_type='leave_submitted',
                         url=reverse('leaves:nurse_supt_action', kwargs={'pk': leave.pk}),
                     )
                 else:
-                    # No unit head — notify supervisor (line manager) directly
+                    # No unit head — notify supervisor (or their backup if on leave)
                     messages.success(request, f"Leave request submitted successfully for {leave.total_days} day(s). Awaiting manager approval.")
                     if employee.supervisor:
+                        effective_sup = get_effective_approver(employee.supervisor)
+                        sup_label = f" (covering for {employee.supervisor.get_full_name()})" if effective_sup != employee.supervisor else ""
                         notify(
-                            employee.supervisor.user,
+                            effective_sup.user,
                             f'New Leave Request — {employee.get_full_name()}',
                             f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
-                            f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
+                            f'for {leave.total_days} day(s) ({leave.start_date} to {leave.end_date}). '
+                            f'Awaiting your approval{sup_label}.',
                             notification_type='leave_submitted',
                             url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
                         )
@@ -398,9 +435,20 @@ def unit_head_approvals(request):
         messages.error(request, "Access denied. Unit Head role required.")
         return redirect('dashboard:home')
 
+    from datetime import date as _date
+    today = _date.today()
+    absent_uh_ids = LeaveRequest.objects.filter(
+        status=LeaveRequest.STATUS_APPROVED,
+        start_date__lte=today,
+        end_date__gte=today,
+        backup_employee=employee,
+    ).values_list('employee_id', flat=True)
+
     pending = LeaveRequest.objects.filter(
         status=LeaveRequest.STATUS_PENDING,
-        employee__unit_head=employee,
+    ).filter(
+        Q(employee__unit_head=employee) |
+        Q(employee__unit_head_id__in=absent_uh_ids)
     ).select_related('employee__user', 'employee__department', 'leave_type')
 
     return render(request, 'leaves/unit_head_approvals.html', {
@@ -417,7 +465,8 @@ def unit_head_action(request, pk):
 
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
-    if leave.employee.unit_head != employee and not request.user.is_superuser:
+    is_uh_backup = leave.employee.unit_head and _is_backup_for(employee, leave.employee.unit_head)
+    if leave.employee.unit_head != employee and not request.user.is_superuser and not is_uh_backup:
         messages.error(request, "You are not the Unit Head for this employee.")
         return redirect('leaves:unit_head_approvals')
 
@@ -449,12 +498,14 @@ def unit_head_action(request, pk):
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
                 if leave.employee.supervisor:
+                    effective_sup = get_effective_approver(leave.employee.supervisor)
+                    sup_label = f" (covering for {leave.employee.supervisor.get_full_name()})" if effective_sup != leave.employee.supervisor else ""
                     notify(
-                        leave.employee.supervisor.user,
+                        effective_sup.user,
                         f'Leave Awaiting Your Approval — {leave.employee.get_full_name()}',
                         f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
-                        f'has a {leave.leave_type} request ({leave.start_date} → {leave.end_date}, '
-                        f'{leave.total_days} day(s)) approved by Unit Head, pending your review.',
+                        f'has a {leave.leave_type} request ({leave.start_date} to {leave.end_date}, '
+                        f'{leave.total_days} day(s)) approved by Unit Head, pending your review{sup_label}.',
                         notification_type='leave_submitted',
                         url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
                     )
@@ -497,16 +548,24 @@ def manager_approvals(request):
             status__in=[LeaveRequest.STATUS_PENDING, LeaveRequest.STATUS_UNIT_HEAD_APPROVED]
         ).select_related('employee__user', 'employee__department', 'leave_type')
     else:
-        # Show 'pending' leaves from employees WITHOUT a unit_head (direct reports)
-        # and 'unit_head_approved' from employees WITH a unit_head (both supervised by this manager)
-        # and 'nurse_supt_approved' from managers in the NS-first flow (NS already approved, now needs this manager)
+        # Show direct reports' leaves + leaves where current user is backup for an absent supervisor
+        from datetime import date as _date
+        today = _date.today()
+        absent_sup_ids = LeaveRequest.objects.filter(
+            status=LeaveRequest.STATUS_APPROVED,
+            start_date__lte=today,
+            end_date__gte=today,
+            backup_employee=employee,
+        ).values_list('employee_id', flat=True)
+
         pending = LeaveRequest.objects.filter(
-            employee__supervisor=employee
+            Q(employee__supervisor=employee) |
+            Q(employee__supervisor_id__in=absent_sup_ids)
         ).filter(
             Q(status=LeaveRequest.STATUS_PENDING, employee__unit_head__isnull=True) |
             Q(status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED) |
             Q(status=LeaveRequest.STATUS_NURSE_SUPT_APPROVED, employee__role='manager', employee__requires_nurse_supt=True)
-        ).select_related('employee__user', 'employee__department', 'leave_type')
+        ).distinct().select_related('employee__user', 'employee__department', 'leave_type')
 
     return render(request, 'leaves/manager_approvals.html', {
         'pending_requests': pending,
@@ -522,8 +581,9 @@ def manager_action(request, pk):
 
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
-    # Check supervisor authority (superuser bypasses this)
-    if not request.user.is_superuser and leave.employee.supervisor != employee:
+    # Check supervisor authority — allow backup if supervisor is on approved leave
+    is_mgr_backup = leave.employee.supervisor and _is_backup_for(employee, leave.employee.supervisor)
+    if not request.user.is_superuser and leave.employee.supervisor != employee and not is_mgr_backup:
         messages.error(request, "You are not the supervisor for this employee.")
         return redirect('leaves:manager_approvals')
 
