@@ -39,7 +39,7 @@
             </td>
             <td>
               <span class="badge" style="background:#0A4D68;">
-                {{ emp.acting_role|title|replace:"_":" " }}
+                {{ emp.acting_role|title|cut:"_" }}
               </span>
             </td>
             <td>{{ emp.acting_for.get_full_name|default:"—" }}</td>

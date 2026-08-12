@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Trainee{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="mb-0 fw-bold">{{ action }} Trainee</h4>
+  <small class="text-muted"><a href="{% url 'training:trainee_list' %}">Trainee Registry</a> / {{ action }}</small>
+</div>
+
+{% if messages %}
+{% for m in messages %}
+<div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
+  {{ m }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-3">
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+          <input type="text" name="full_name" class="form-control" required
+                 value="{{ trainee.full_name|default:'' }}">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Email</label>
+          <input type="email" name="email" class="form-control"
+                 value="{{ trainee.email|default:'' }}">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Phone</label>
+          <input type="text" name="phone" class="form-control"
+                 value="{{ trainee.phone|default:'' }}">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Gender</label>
+          <select name="gender" class="form-select">
+            <option value="">— Select —</option>
+            {% for val, lbl in gender_choices %}
+            <option value="{{ val }}" {% if trainee.gender == val %}selected{% endif %}>{{ lbl }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-5">
+          <label class="form-label fw-semibold">Program <span class="text-danger">*</span></label>
+          <select name="program" class="form-select" required>
+            <option value="">— Select program —</option>
+            {% for val, lbl in program_choices %}
+            <option value="{{ val }}" {% if trainee.program == val %}selected{% endif %}>{{ lbl }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Home Institution <span class="text-danger">*</span></label>
+          <input type="text" name="home_institution" class="form-control" required
+                 value="{{ trainee.home_institution|default:'' }}">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Country <span class="text-danger">*</span></label>
+          <input type="text" name="country" class="form-control" required
+                 value="{{ trainee.country|default:'' }}">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
+          <input type="date" name="start_date" class="form-control" required
+                 value="{{ trainee.start_date|date:'Y-m-d'|default:'' }}">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">End Date <span class="text-danger">*</span></label>
+          <input type="date" name="end_date" class="form-control" required
+                 value="{{ trainee.end_date|date:'Y-m-d'|default:'' }}">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Supervisor (AEF Staff)</label>
+          <select name="supervisor_id" class="form-select">
+            <option value="">— None —</option>
+            {% for e in staff %}
+            <option value="{{ e.pk }}"
+              {% if trainee.supervisor_id == e.pk %}selected{% endif %}>
+              {{ e.get_full_name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-end">
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" name="certificate_issued"
+                   id="certIssued" {% if trainee.certificate_issued %}checked{% endif %}>
+            <label class="form-check-label fw-semibold" for="certIssued">Certificate Issued</label>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-semibold">Remarks / Notes</label>
+          <textarea name="remarks" class="form-control" rows="3">{{ trainee.remarks|default:'' }}</textarea>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-primary" style="background:#0A4D68;border-color:#0A4D68;">
+            <i class="bi bi-check2-circle me-1"></i> Save Trainee
+          </button>
+          <a href="{% url 'training:trainee_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

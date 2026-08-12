@@ -32,6 +32,7 @@ urlpatterns = [
     path('recruitment/', include('recruitment.urls')),
     path('medical-leave/', include('medical_leave.urls')),
     path('offboarding/', include('offboarding.urls')),
+    path('training/', include('training.urls', namespace='training')),
     # PWA
     path('sw.js', serve_sw, name='sw'),
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),

@@ -1541,6 +1541,19 @@
     </div>
     {% endif %}
 
+    {% if user.is_superuser or user.employee.is_hr or user.employee.is_manager or user.employee.is_director or user.employee.is_ceo or user.employee.pk == 32 or user.employee.pk == 50 %}
+    <div class="sidebar-section">
+        <div class="sidebar-section-label">{% trans "Training" %}</div>
+        <ul class="list-unstyled mb-0">
+            <li class="nav-item-sidebar">
+                <a href="{% url 'training:trainee_list' %}" class="nav-link-sidebar {% block nav_training %}{% endblock %}">
+                    <i class="bi bi-mortarboard"></i> {% trans "Trainee Registry" %}
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
     {% if user.employee.is_director %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% if user.employee.is_finance_director %}{% trans "Finance Director" %}{% else %}{% trans "Director" %}{% endif %}</div>

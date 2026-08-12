@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Trainee Registry{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="mb-0 fw-bold">Trainee Registry</h4>
+    <small class="text-muted">Track all trainees, students and fellows at AEF</small>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    {% if can_edit %}
+    <a href="{% url 'training:trainee_add' %}" class="btn btn-primary" style="background:#0A4D68;border-color:#0A4D68;">
+      <i class="bi bi-plus-circle me-1"></i> Add Trainee
+    </a>
+    {% endif %}
+    <a href="{% url 'training:export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success btn-sm">
+      <i class="bi bi-file-earmark-excel me-1"></i> Excel
+    </a>
+    <a href="{% url 'training:export_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+    </a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search name, email, institution…" value="{{ q }}">
+      </div>
+      <div class="col-md-2">
+        <select name="program" class="form-select form-select-sm">
+          <option value="">All Programs</option>
+          {% for p in programs %}
+          <option value="{{ p }}" {% if program == p %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="country" class="form-select form-select-sm">
+          <option value="">All Countries</option>
+          {% for c in countries %}
+          <option value="{{ c }}" {% if country == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All Statuses</option>
+          <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+          <option value="upcoming" {% if status == 'upcoming' %}selected{% endif %}>Upcoming</option>
+          <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-sm btn-primary" style="background:#0A4D68;border-color:#0A4D68;">
+          <i class="bi bi-search me-1"></i> Filter
+        </button>
+        <a href="{% url 'training:trainee_list' %}" class="btn btn-sm btn-outline-secondary ms-1">Clear</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-people me-2" style="color:#2db4c3;"></i>Trainees</span>
+    <span class="badge bg-primary">{{ total }} record{{ total|pluralize }}</span>
+  </div>
+  <div class="card-body p-0">
+    {% if trainees %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Full Name</th>
+            <th>Program</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Duration</th>
+            <th>Institution</th>
+            <th>Country</th>
+            <th>Supervisor</th>
+            <th>Cert.</th>
+            <th>Status</th>
+            {% if can_edit %}<th class="text-end">Actions</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in trainees %}
+          {% with s=t.status %}
+          <tr>
+            <td class="text-muted small">{{ forloop.counter }}</td>
+            <td>
+              <div class="fw-semibold">{{ t.full_name }}</div>
+              {% if t.email %}<small class="text-muted">{{ t.email }}</small>{% endif %}
+            </td>
+            <td><span class="badge rounded-pill" style="background:#e8f4f8;color:#0A4D68;font-size:0.78rem;">{{ t.program }}</span></td>
+            <td class="small">{{ t.start_date|date:"d M Y" }}</td>
+            <td class="small">{{ t.end_date|date:"d M Y" }}</td>
+            <td class="small text-muted">{{ t.duration_days }} d</td>
+            <td class="small">{{ t.home_institution }}</td>
+            <td class="small">{{ t.country }}</td>
+            <td class="small">{{ t.supervisor.get_full_name|default:"—" }}</td>
+            <td>
+              {% if t.certificate_issued %}
+                <span class="badge bg-success">Yes</span>
+              {% else %}
+                <span class="badge bg-secondary">No</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if s == 'active' %}
+                <span class="badge bg-success">Active</span>
+              {% elif s == 'upcoming' %}
+                <span class="badge bg-info text-dark">Upcoming</span>
+              {% else %}
+                <span class="badge bg-secondary">Completed</span>
+              {% endif %}
+            </td>
+            {% if can_edit %}
+            <td class="text-end">
+              <a href="{% url 'training:trainee_edit' t.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <form method="post" action="{% url 'training:trainee_delete' t.pk %}" style="display:inline;"
+                    onsubmit="return confirm('Remove {{ t.full_name }} from the registry?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </td>
+            {% endif %}
+          </tr>
+          {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-people" style="font-size:2.5rem;color:#2db4c3;"></i>
+      <p class="mt-2 mb-0">No trainees found. {% if can_edit %}<a href="{% url 'training:trainee_add' %}">Add the first one.</a>{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
