@@ -65,4 +65,7 @@ urlpatterns = [
     path('employees/<int:pk>/health-insurance/', views.health_insurance_edit, name='health_insurance_edit'),
     path('employees/<int:pk>/health-insurance/pdf/', views.health_insurance_pdf, name='health_insurance_pdf'),
     path('employees/health-insurance/pdf/bulk/', views.health_insurance_pdf_bulk, name='health_insurance_pdf_bulk'),
+    path('acting-roles/', views.acting_roles_list, name='acting_roles_list'),
+    path('acting-roles/assign/', views.acting_role_assign, name='acting_role_assign'),
+    path('acting-roles/<int:pk>/remove/', views.acting_role_remove, name='acting_role_remove'),
 ]

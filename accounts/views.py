@@ -1922,3 +1922,152 @@ def audit_log_view(request):
             'q': search,
         },
     })
+
+
+# ─────────────────────────────────────────────
+#  ACTING ROLE PANEL  (HR-only)
+# ─────────────────────────────────────────────
+
+ACTING_ROLE_CHOICES = [
+    ('admin_director',      'Acting Administration Director'),
+    ('finance_director',    'Acting Finance Director'),
+    ('medical_director',    'Acting Medical Director'),
+    ('manager',             'Acting Line Manager'),
+    ('unit_head',           'Acting Unit Head'),
+    ('nurse_superintendent','Acting Nurse Superintendent'),
+    ('hr',                  'Acting HR'),
+]
+
+ACTING_ROLE_LABELS = dict(ACTING_ROLE_CHOICES)
+
+
+@login_required
+def acting_roles_list(request):
+    """HR-only panel: view current acting assignments and assign new ones."""
+    emp = getattr(request.user, 'employee', None)
+    if not emp or not (emp.is_hr() or request.user.is_superuser):
+        messages.error(request, "Access denied. HR only.")
+        return redirect('dashboard:home')
+
+    from datetime import date
+    today = date.today()
+
+    # Current active acting assignments
+    active = Employee.objects.filter(
+        acting_role__gt='',
+        is_active=True,
+    ).select_related('user', 'acting_for__user').order_by('user__last_name')
+
+    # All employees for the select dropdown
+    all_employees = Employee.objects.filter(is_active=True).select_related('user').order_by('user__last_name', 'user__first_name')
+
+    return render(request, 'accounts/acting_roles.html', {
+        'active_acting': active,
+        'all_employees': all_employees,
+        'role_choices': ACTING_ROLE_CHOICES,
+        'today': today,
+    })
+
+
+@login_required
+def acting_role_assign(request):
+    """HR-only: assign an acting role to an employee."""
+    emp = getattr(request.user, 'employee', None)
+    if not emp or not (emp.is_hr() or request.user.is_superuser):
+        messages.error(request, "Access denied. HR only.")
+        return redirect('dashboard:home')
+
+    if request.method != 'POST':
+        return redirect('accounts:acting_roles_list')
+
+    from datetime import date
+    from notifications.utils import notify
+
+    employee_id  = request.POST.get('employee_id')
+    acting_role  = request.POST.get('acting_role')
+    acting_for_id = request.POST.get('acting_for_id') or None
+    start_date   = request.POST.get('start_date') or str(date.today())
+    end_date     = request.POST.get('end_date')
+
+    if not employee_id or not acting_role or not end_date:
+        messages.error(request, "Employee, acting role, and end date are required.")
+        return redirect('accounts:acting_roles_list')
+
+    if acting_role not in dict(ACTING_ROLE_CHOICES):
+        messages.error(request, "Invalid acting role selected.")
+        return redirect('accounts:acting_roles_list')
+
+    try:
+        target = Employee.objects.get(pk=employee_id)
+    except Employee.DoesNotExist:
+        messages.error(request, "Employee not found.")
+        return redirect('accounts:acting_roles_list')
+
+    covering = None
+    if acting_for_id:
+        try:
+            covering = Employee.objects.get(pk=acting_for_id)
+        except Employee.DoesNotExist:
+            pass
+
+    target.acting_role  = acting_role
+    target.acting_for   = covering
+    target.acting_since = start_date
+    target.acting_until = end_date
+    target.save(update_fields=['acting_role', 'acting_for', 'acting_since', 'acting_until'])
+
+    role_label = ACTING_ROLE_LABELS.get(acting_role, acting_role)
+    covering_line = f" covering for {covering.get_full_name()}" if covering else ""
+
+    notify(
+        target.user,
+        f'Acting Role Assigned — {role_label}',
+        f'You have been designated as {role_label}{covering_line} '
+        f'effective {start_date} until {end_date}. '
+        f'During this period you will receive and be able to act on all responsibilities '
+        f'associated with this role. Please log in to review any pending items.',
+        notification_type='leave_approved',
+    )
+
+    messages.success(request, f"{target.get_full_name()} assigned as {role_label} until {end_date}.")
+    return redirect('accounts:acting_roles_list')
+
+
+@login_required
+def acting_role_remove(request, pk):
+    """HR-only: remove an acting role assignment immediately."""
+    emp = getattr(request.user, 'employee', None)
+    if not emp or not (emp.is_hr() or request.user.is_superuser):
+        messages.error(request, "Access denied. HR only.")
+        return redirect('dashboard:home')
+
+    if request.method != 'POST':
+        return redirect('accounts:acting_roles_list')
+
+    from notifications.utils import notify
+
+    try:
+        target = Employee.objects.get(pk=pk)
+    except Employee.DoesNotExist:
+        messages.error(request, "Employee not found.")
+        return redirect('accounts:acting_roles_list')
+
+    role_label = ACTING_ROLE_LABELS.get(target.acting_role, target.acting_role)
+    old_role = role_label
+
+    target.acting_role  = ''
+    target.acting_for   = None
+    target.acting_since = None
+    target.acting_until = None
+    target.save(update_fields=['acting_role', 'acting_for', 'acting_since', 'acting_until'])
+
+    notify(
+        target.user,
+        f'Acting Role Ended — {old_role}',
+        f'Your acting assignment as {old_role} has been ended by HR. '
+        f'Your regular role and responsibilities have been restored.',
+        notification_type='leave_approved',
+    )
+
+    messages.success(request, f"Acting role removed for {target.get_full_name()}.")
+    return redirect('accounts:acting_roles_list')

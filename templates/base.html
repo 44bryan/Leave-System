@@ -1160,11 +1160,6 @@
             <!-- Logged-in user chip -->
             <div class="user-chip">
                 <div class="user-chip-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
-                {% if user.employee.acting_role %}
-                <span style="font-size:.65rem;font-weight:700;color:#f59e0b;letter-spacing:.04em;text-transform:uppercase;">
-                    <i class="bi bi-person-badge-fill"></i> Acting {{ user.employee.acting_role|title|cut:"_" }}
-                </span>
-                {% endif %}
             </div>
 
             <!-- Settings dropdown -->
@@ -1177,12 +1172,6 @@
                         <div class="topbar-dropdown-header">
                             <div class="td-name">{{ user.get_full_name|default:user.username }}</div>
                             <div class="td-email">{{ user.email|default:"no email" }}</div>
-                            {% if user.employee.acting_role %}
-                            <div style="margin-top:4px;font-size:.72rem;font-weight:700;color:#f59e0b;">
-                                <i class="bi bi-person-badge-fill me-1"></i>Acting {{ user.employee.acting_role|title|cut:"_" }}
-                                {% if user.employee.acting_for %}· for {{ user.employee.acting_for.get_full_name }}{% endif %}
-                            </div>
-                            {% endif %}
                         </div>
                     </li>
                     <li><hr class="dropdown-divider"></li>
@@ -1541,6 +1530,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'accounts:audit_log' %}" class="nav-link-sidebar {% block nav_audit_log %}{% endblock %}">
                     <i class="bi bi-clock-history"></i> {% trans "Audit Log" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:acting_roles_list' %}" class="nav-link-sidebar">
+                    <i class="bi bi-person-gear"></i> {% trans "Acting Roles" %}
                 </a>
             </li>
         </ul>
