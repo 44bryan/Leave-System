@@ -217,6 +217,7 @@ def contract_list(request):
     filter_dept = request.GET.get('dept', '')
     filter_emp  = request.GET.get('employee', '')
     filter_q    = request.GET.get('q', '').strip()
+    sort        = request.GET.get('sort', '')
 
     contracts = Contract.objects.select_related('employee', 'employee__user', 'employee__department').annotate(
         emp_full_name=Concat('employee__user__first_name', Value(' '), 'employee__user__last_name')
@@ -245,8 +246,14 @@ def contract_list(request):
     if filter_emp:
         contracts = contracts.filter(employee_id=filter_emp)
 
-    # Chronological order — most recent contracts first
-    contracts = contracts.order_by('-start_date', '-created_at')
+    # Ordering
+    if sort == 'name_asc':
+        contracts = contracts.order_by('employee__user__last_name', 'employee__user__first_name')
+    elif sort == 'name_desc':
+        contracts = contracts.order_by('-employee__user__last_name', '-employee__user__first_name')
+    else:
+        # Chronological order — most recent contracts first
+        contracts = contracts.order_by('-start_date', '-created_at')
 
     # Convert to list so we can apply computed-property filters
     contracts = list(contracts)
@@ -284,6 +291,7 @@ def contract_list(request):
         'filter_q': filter_q,
         'all_departments': all_departments,
         'all_employees': all_employees,
+        'sort': sort,
     })
 
 

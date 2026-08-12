@@ -148,7 +148,21 @@
             <thead>
                 <tr>
                     <th style="width:4px;padding:0;"></th>
-                    <th>{% trans "Employee" %}</th>
+                    <th>
+                      {% if sort == 'name_asc' %}
+                        <a href="?type={{ filter_type }}&status={{ filter_status }}&expiring={{ filter_expiring }}&dept={{ filter_dept }}&employee={{ filter_emp }}&q={{ filter_q }}&sort=name_desc" class="text-decoration-none text-dark">
+                          {% trans "Employee" %} <i class="bi bi-sort-alpha-up"></i>
+                        </a>
+                      {% elif sort == 'name_desc' %}
+                        <a href="?type={{ filter_type }}&status={{ filter_status }}&expiring={{ filter_expiring }}&dept={{ filter_dept }}&employee={{ filter_emp }}&q={{ filter_q }}&sort=" class="text-decoration-none text-dark">
+                          {% trans "Employee" %} <i class="bi bi-sort-alpha-down-alt"></i>
+                        </a>
+                      {% else %}
+                        <a href="?type={{ filter_type }}&status={{ filter_status }}&expiring={{ filter_expiring }}&dept={{ filter_dept }}&employee={{ filter_emp }}&q={{ filter_q }}&sort=name_asc" class="text-decoration-none text-dark">
+                          {% trans "Employee" %} <i class="bi bi-arrow-down-up text-muted" style="font-size:.75rem;"></i>
+                        </a>
+                      {% endif %}
+                    </th>
                     <th>{% trans "Department" %}</th>
                     <th>{% trans "Type" %}</th>
                     <th>{% trans "Period" %}</th>
