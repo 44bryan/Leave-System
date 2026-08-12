@@ -51,7 +51,10 @@ def _notify_leave_hierarchy(leave, actor_name, approved, extra_msg=''):
         _send(emp.nurse_superintendent.user, title, body, ntype)
     for hr in _Emp.objects.filter(role='hr', is_active=True).select_related('user'):
         _send(hr.user, title, body, ntype)
-    for ad in _Emp.objects.filter(role='admin_director', is_active=True).select_related('user'):
+    for ad in _Emp.objects.filter(
+        Q(role='admin_director') | Q(acting_role__in=('admin_director', 'finance_director')),
+        is_active=True
+    ).select_related('user'):
         _send(ad.user, title, body, ntype)
     for ceo in _Emp.objects.filter(role='ceo', is_active=True).select_related('user'):
         _send(ceo.user, title, body, ntype)
@@ -256,7 +259,10 @@ def submit_leave(request):
                     leave.status = LeaveRequest.STATUS_HR_APPROVED
                     leave.save(update_fields=['status'])
                     messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Sent directly to Administration Director for approval.")
-                    for dir_emp in Employee.objects.filter(role__in=('admin_director', 'finance_director'), is_active=True).select_related('user'):
+                    for dir_emp in Employee.objects.filter(
+                        Q(role__in=('admin_director', 'finance_director')) | Q(acting_role__in=('admin_director', 'finance_director')),
+                        is_active=True
+                    ).select_related('user'):
                         notify(
                             dir_emp.user,
                             f'HR Staff Leave — Awaiting Your Approval — {employee.get_full_name()}',
@@ -913,7 +919,10 @@ def hr_action(request, pk):
                     )
                     # Notify Admin Director and Finance Director
                     from accounts.models import Employee as _Emp
-                    for dir_emp in _Emp.objects.filter(role__in=('admin_director', 'finance_director'), is_active=True).select_related('user'):
+                    for dir_emp in _Emp.objects.filter(
+                        Q(role__in=('admin_director', 'finance_director')) | Q(acting_role__in=('admin_director', 'finance_director')),
+                        is_active=True
+                    ).select_related('user'):
                         notify(
                             dir_emp.user,
                             f'Leave Awaiting Your Approval — {leave.employee.get_full_name()}',
@@ -978,7 +987,10 @@ def director_approvals(request):
     # Check if admin director is on leave (finance director may be covering)
     from datetime import date as _date
     today = _date.today()
-    admin_directors = Employee.objects.filter(role='admin_director', is_active=True)
+    admin_directors = Employee.objects.filter(
+        Q(role='admin_director') | Q(acting_role__in=('admin_director', 'finance_director')),
+        is_active=True
+    )
     admin_dir_on_leave = any(
         req for ad in admin_directors
         for req in ad.leave_requests.filter(status='approved', start_date__lte=today, end_date__gte=today)
