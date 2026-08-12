@@ -91,6 +91,39 @@ def _save_drawn_signature(employee, b64_data):
     employee.save(update_fields=save_fields)
 
 
+def _notify_backup_selected(leave):
+    """Notify backup employee they have been selected — sent immediately at submission."""
+    if not leave.backup_employee:
+        return
+    notify(
+        leave.backup_employee.user,
+        f'You have been selected as backup — {leave.employee.get_full_name()}',
+        f'{leave.employee.get_full_name()} has submitted a {leave.leave_type} request '
+        f'for {leave.total_days} day(s) ({leave.start_date} to {leave.end_date}) '
+        f'and selected you as their backup. The request is pending approval — '
+        f'you will be notified again once it is confirmed.',
+        notification_type='leave_submitted',
+        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+    )
+
+
+def _notify_backup_confirmed(leave):
+    """Notify backup employee that the leave is fully approved and they are now covering."""
+    if not leave.backup_employee:
+        return
+    notify(
+        leave.backup_employee.user,
+        f'Confirmed: You are now covering for {leave.employee.get_full_name()}',
+        f'The {leave.leave_type} request for {leave.employee.get_full_name()} '
+        f'({leave.start_date} to {leave.end_date}, {leave.total_days} day(s)) '
+        f'has been fully approved. You are their designated backup for this period. '
+        f'Any responsibilities or leave requests that would normally go to them '
+        f'will be routed to you during this time.',
+        notification_type='leave_approved',
+        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+    )
+
+
 def get_effective_approver(person):
     """Return backup employee if person is on approved leave today with a backup set, else return person."""
     from datetime import date as _date
@@ -222,6 +255,7 @@ def submit_leave(request):
                 elif employee.signature_b64:
                     leave.employee_sig_b64 = employee.signature_b64
                 leave.save()
+                _notify_backup_selected(leave)
                 if employee.is_intern() or employee.is_wacs_resident():
                     # Interns and WACS residents skip manager — go directly to HR
                     role_label = 'Intern' if employee.is_intern() else 'WACS Resident'
@@ -896,6 +930,7 @@ def hr_action(request, pk):
                     leave.director_remarks = 'Final approval by HR (reports directly to HR)'
                     leave.director_sig_b64 = hr_sig
                     leave.status = LeaveRequest.STATUS_APPROVED
+                    _notify_backup_confirmed(leave)
                     messages.success(request, "Leave request FULLY APPROVED by HR (final approver).")
                     notify(
                         leave.employee.user,
@@ -1034,6 +1069,7 @@ def director_action(request, pk):
                 dir_sig = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.director_sig_b64 = dir_sig
                 leave.status = LeaveRequest.STATUS_APPROVED
+                _notify_backup_confirmed(leave)
                 # Auto-fill bypassed approval slots for direct reports and HR staff
                 applicant = leave.employee
                 now = timezone.now()
@@ -1166,6 +1202,7 @@ def ceo_action(request, pk):
                 leave.hr_remarks = 'Approved by CEO'
                 leave.hr_sig_b64 = ceo_sig
                 leave.status = LeaveRequest.STATUS_APPROVED
+                _notify_backup_confirmed(leave)
                 leave.save()
                 messages.success(request, "Leave request FULLY APPROVED by CEO.")
                 cover_note = ''
