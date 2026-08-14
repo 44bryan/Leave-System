@@ -736,6 +736,7 @@ def direct_issue_discipline(request):
                 target.dismissal_date = date.today()
                 target.save(update_fields=['dismissal_date'])
 
+            action_label = dict(DisciplineRecord.ACTION_CHOICES).get(action_type, action_type.replace('_', ' ').title())
             issuer_name = request.user.get_full_name() or request.user.username
             _notify_discipline_hierarchy(record, request.user, issuer_name, reason[:120])
 
