@@ -2071,3 +2071,120 @@ def acting_role_remove(request, pk):
 
     messages.success(request, f"Acting role removed for {target.get_full_name()}.")
     return redirect('accounts:acting_roles_list')
+
+
+# ── System Backup ─────────────────────────────────────────────────────────────
+
+BACKUP_DIR = '/root/backups'
+BACKUP_SCRIPT = '/usr/local/bin/hrm_backup_now.sh'
+
+
+def _superuser_only(request):
+    return request.user.is_authenticated and request.user.is_superuser
+
+
+@login_required
+def backup_panel(request):
+    if not _superuser_only(request):
+        messages.error(request, "Superuser access only.")
+        return redirect('dashboard:home')
+
+    import os
+    backups = []
+    if os.path.isdir(BACKUP_DIR):
+        for folder in sorted(os.listdir(BACKUP_DIR), reverse=True):
+            folder_path = os.path.join(BACKUP_DIR, folder)
+            if not os.path.isdir(folder_path):
+                continue
+            files = []
+            total_bytes = 0
+            for fname in os.listdir(folder_path):
+                fpath = os.path.join(folder_path, fname)
+                size = os.path.getsize(fpath)
+                total_bytes += size
+                files.append({'name': fname, 'size_mb': round(size / 1024 / 1024, 1)})
+            backups.append({
+                'folder': folder,
+                'files': sorted(files, key=lambda x: x['name']),
+                'total_mb': round(total_bytes / 1024 / 1024, 1),
+            })
+
+    return render(request, 'accounts/backup_panel.html', {'backups': backups})
+
+
+@login_required
+def backup_run(request):
+    if not _superuser_only(request):
+        messages.error(request, "Superuser access only.")
+        return redirect('dashboard:home')
+    if request.method != 'POST':
+        return redirect('accounts:backup_panel')
+
+    import subprocess, os
+    if not os.path.isfile(BACKUP_SCRIPT):
+        messages.error(request, f"Backup script not found at {BACKUP_SCRIPT}.")
+        return redirect('accounts:backup_panel')
+
+    try:
+        result = subprocess.run(
+            [BACKUP_SCRIPT],
+            capture_output=True, text=True, timeout=300
+        )
+        if result.returncode == 0:
+            messages.success(request, "Backup completed successfully.")
+        else:
+            messages.error(request, f"Backup failed: {result.stderr[:300]}")
+    except subprocess.TimeoutExpired:
+        messages.error(request, "Backup timed out after 5 minutes.")
+    except Exception as e:
+        messages.error(request, f"Backup error: {e}")
+
+    return redirect('accounts:backup_panel')
+
+
+@login_required
+def backup_download(request, filename):
+    if not _superuser_only(request):
+        messages.error(request, "Superuser access only.")
+        return redirect('dashboard:home')
+
+    import os
+    from django.http import FileResponse, Http404
+    # filename is like "hrm_2026-08-18_082919/database_....dump"
+    full_path = os.path.join(BACKUP_DIR, filename)
+    # Security: must stay within BACKUP_DIR
+    real_path = os.path.realpath(full_path)
+    real_base = os.path.realpath(BACKUP_DIR)
+    if not real_path.startswith(real_base + os.sep):
+        raise Http404
+    if not os.path.isfile(real_path):
+        raise Http404
+
+    return FileResponse(
+        open(real_path, 'rb'),
+        as_attachment=True,
+        filename=os.path.basename(real_path),
+    )
+
+
+@login_required
+def backup_delete(request, folder):
+    if not _superuser_only(request):
+        messages.error(request, "Superuser access only.")
+        return redirect('dashboard:home')
+    if request.method != 'POST':
+        return redirect('accounts:backup_panel')
+
+    import os, shutil
+    folder_path = os.path.join(BACKUP_DIR, folder)
+    real_path = os.path.realpath(folder_path)
+    real_base = os.path.realpath(BACKUP_DIR)
+    if not real_path.startswith(real_base + os.sep):
+        messages.error(request, "Invalid path.")
+        return redirect('accounts:backup_panel')
+    if os.path.isdir(real_path):
+        shutil.rmtree(real_path)
+        messages.success(request, f"Backup '{folder}' deleted.")
+    else:
+        messages.error(request, "Backup not found.")
+    return redirect('accounts:backup_panel')

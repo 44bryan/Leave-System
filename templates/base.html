@@ -1827,6 +1827,11 @@
                     <i class="bi bi-journal-text"></i> {% trans "Activity Log" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'accounts:backup_panel' %}" class="nav-link-sidebar {% block nav_backup %}{% endblock %}">
+                    <i class="bi bi-shield-lock"></i> {% trans "System Backup" %}
+                </a>
+            </li>
             {% endif %}
         </ul>
     </div>

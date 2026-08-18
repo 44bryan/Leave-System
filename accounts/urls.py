@@ -68,4 +68,9 @@ urlpatterns = [
     path('acting-roles/', views.acting_roles_list, name='acting_roles_list'),
     path('acting-roles/assign/', views.acting_role_assign, name='acting_role_assign'),
     path('acting-roles/<int:pk>/remove/', views.acting_role_remove, name='acting_role_remove'),
+    # System Backup
+    path('backup/', views.backup_panel, name='backup_panel'),
+    path('backup/run/', views.backup_run, name='backup_run'),
+    path('backup/download/<path:filename>/', views.backup_download, name='backup_download'),
+    path('backup/delete/<path:folder>/', views.backup_delete, name='backup_delete'),
 ]

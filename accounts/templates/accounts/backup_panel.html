@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}System Backup{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-2" style="color:#2db4c3;"></i>System Backup</h4>
+    <small class="text-muted">Full backup: database + all media files (photos, documents, signatures)</small>
+  </div>
+  <form method="post" action="{% url 'accounts:backup_run' %}"
+        onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerHTML='<span class=\'spinner-border spinner-border-sm me-2\'></span>Running…';">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary" style="background:#0A4D68;border-color:#0A4D68;">
+      <i class="bi bi-cloud-arrow-up me-2"></i>Run Backup Now
+    </button>
+  </form>
+</div>
+
+{% if messages %}
+{% for m in messages %}
+<div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
+  {{ m }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<!-- Info card -->
+<div class="card mb-4 border-0" style="background:#f0f9fb;">
+  <div class="card-body py-3">
+    <div class="row g-3 text-center">
+      <div class="col-md-3">
+        <div class="fw-bold" style="color:#0A4D68;font-size:1.2rem;">{{ backups|length }}</div>
+        <small class="text-muted">Backups stored</small>
+      </div>
+      <div class="col-md-3">
+        <div class="fw-bold" style="color:#0A4D68;font-size:1.2rem;">
+          {% if backups %}{{ backups.0.folder|slice:"4:14" }}{% else %}—{% endif %}
+        </div>
+        <small class="text-muted">Latest backup</small>
+      </div>
+      <div class="col-md-3">
+        <div class="fw-bold" style="color:#0A4D68;font-size:1.2rem;">/root/backups/</div>
+        <small class="text-muted">Storage location (VPS)</small>
+      </div>
+      <div class="col-md-3">
+        <div class="fw-bold" style="color:#0A4D68;font-size:1.2rem;">30 days</div>
+        <small class="text-muted">Auto-cleanup after</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backup list -->
+<div class="card">
+  <div class="card-header">
+    <i class="bi bi-archive me-2" style="color:#2db4c3;"></i>Stored Backups
+    <span class="badge bg-secondary ms-2">{{ backups|length }}</span>
+  </div>
+  <div class="card-body p-0">
+    {% if backups %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Backup</th>
+            <th>Files</th>
+            <th class="text-end">Total Size</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in backups %}
+          <tr>
+            <td>
+              <div class="fw-semibold">{{ b.folder }}</div>
+              <div class="mt-1">
+                {% for f in b.files %}
+                <span class="badge rounded-pill me-1" style="background:#e8f4f8;color:#0A4D68;font-size:0.73rem;">
+                  {% if "database" in f.name %}<i class="bi bi-database me-1"></i>{% else %}<i class="bi bi-folder-zip me-1"></i>{% endif %}
+                  {{ f.name|truncatechars:35 }} — {{ f.size_mb }} MB
+                </span>
+                {% endfor %}
+              </div>
+            </td>
+            <td class="text-muted small align-middle">{{ b.files|length }} file{{ b.files|length|pluralize }}</td>
+            <td class="text-end align-middle fw-semibold">{{ b.total_mb }} MB</td>
+            <td class="text-end align-middle">
+              <div class="d-flex gap-1 justify-content-end flex-wrap">
+                {% for f in b.files %}
+                <a href="{% url 'accounts:backup_download' b.folder|add:'/'|add:f.name %}"
+                   class="btn btn-sm btn-outline-primary"
+                   title="Download {{ f.name }}">
+                  {% if "database" in f.name %}
+                    <i class="bi bi-database-down"></i> DB
+                  {% else %}
+                    <i class="bi bi-file-earmark-zip"></i> Media
+                  {% endif %}
+                </a>
+                {% endfor %}
+                <form method="post" action="{% url 'accounts:backup_delete' b.folder %}"
+                      onsubmit="return confirm('Delete backup {{ b.folder }}? This cannot be undone.')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete this backup">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-archive" style="font-size:2.5rem;color:#2db4c3;"></i>
+      <p class="mt-2 mb-0">No backups yet. Click <strong>Run Backup Now</strong> to create the first one.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Restore instructions -->
+<div class="card mt-4 border-0" style="background:#fff8e1;">
+  <div class="card-body">
+    <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-2" style="color:#f59e0b;"></i>How to Restore</h6>
+    <p class="small mb-2 text-muted">If you ever need to restore the system from a backup, follow these steps via SSH on the VPS:</p>
+    <pre class="small mb-0" style="background:#1e293b;color:#e2e8f0;padding:12px;border-radius:8px;font-size:0.78rem;">
+# 1. Restore database (replace TIMESTAMP with the backup name)
+PGPASSWORD="HrmDb2024!" pg_restore -U hrmuser -h localhost -d hrmdb \
+  --clean --if-exists /root/backups/FOLDER/database_TIMESTAMP.dump
+
+# 2. Restore media files
+tar -xzf /root/backups/FOLDER/media_TIMESTAMP.tar.gz -C /var/www/hrm/
+
+# 3. Restart the application
+systemctl restart hrm</pre>
+  </div>
+</div>
+{% endblock %}
