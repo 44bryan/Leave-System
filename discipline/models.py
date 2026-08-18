@@ -36,6 +36,7 @@ class DisciplineRecord(models.Model):
     # Suspension fields
     suspension_start = models.DateField(null=True, blank=True)
     suspension_end = models.DateField(null=True, blank=True)  # auto = start + 8 days
+    suspension_resume_date = models.DateField(null=True, blank=True, help_text='Date the employee is expected to resume work')
 
     # Manager recommendation (hidden from employee — visible to HR/Director/Superuser only)
     recommended_sanction = models.CharField(

@@ -198,6 +198,7 @@ def issue_discipline(request):
     posted_action_type = ''
     posted_suspension_start = ''
     posted_suspension_end = ''
+    posted_suspension_resume_date = ''
     posted_reason = ''
 
     # Available action types
@@ -214,6 +215,7 @@ def issue_discipline(request):
         notes = request.POST.get('notes', '').strip()
         suspension_start = request.POST.get('suspension_start') or None
         suspension_end = request.POST.get('suspension_end') or None
+        suspension_resume_date = request.POST.get('suspension_resume_date') or None
         document = request.FILES.get('document')
         proposal_note = request.POST.get('proposal_note', '').strip()
         submit_as_proposal = request.POST.get('submit_as_proposal') == '1'
@@ -249,6 +251,7 @@ def issue_discipline(request):
             posted_action_type = action_type or ''
             posted_suspension_start = suspension_start or ''
             posted_suspension_end = suspension_end or ''
+            posted_suspension_resume_date = suspension_resume_date or ''
             posted_reason = reason
         else:
             try:
@@ -270,6 +273,8 @@ def issue_discipline(request):
                 record.suspension_start = suspension_start
             if action_type == 'suspension' and suspension_end:
                 record.suspension_end = suspension_end
+            if action_type == 'suspension' and suspension_resume_date:
+                record.suspension_resume_date = suspension_resume_date
             if document:
                 record.document = document
             # Directly issued by HR/CEO/Director — mark review chain complete immediately
@@ -351,6 +356,7 @@ def issue_discipline(request):
         'prefill_type': prefill_type or posted_action_type,
         'posted_suspension_start': posted_suspension_start,
         'posted_suspension_end': posted_suspension_end,
+        'posted_suspension_resume_date': posted_suspension_resume_date,
         'posted_reason': posted_reason,
     })
 
@@ -375,10 +381,13 @@ def execute_proposal(request, pk):
             messages.error(request, "Please provide the suspension start date to execute this notice.")
             return redirect('discipline:detail', pk=pk)
 
+        suspension_resume_date = request.POST.get('suspension_resume_date') or None
         if suspension_start and not record.suspension_start:
             record.suspension_start = suspension_start
         if suspension_end and not record.suspension_end:
             record.suspension_end = suspension_end
+        if suspension_resume_date and not record.suspension_resume_date:
+            record.suspension_resume_date = suspension_resume_date
 
         record.is_proposal = False
         record.issued_by = request.user  # HR becomes the formal issuer
@@ -681,6 +690,7 @@ def direct_issue_discipline(request):
         notes          = request.POST.get('notes', '').strip()
         suspension_start = request.POST.get('suspension_start') or None
         suspension_end   = request.POST.get('suspension_end') or None
+        suspension_resume_date = request.POST.get('suspension_resume_date') or None
         document       = request.FILES.get('document')
 
         posted = {
@@ -689,6 +699,7 @@ def direct_issue_discipline(request):
             'notes': notes,
             'suspension_start': suspension_start or '',
             'suspension_end': suspension_end or '',
+            'suspension_resume_date': suspension_resume_date or '',
         }
 
         errors = []
@@ -728,6 +739,8 @@ def direct_issue_discipline(request):
                 record.suspension_start = suspension_start
             if action_type == 'suspension' and suspension_end:
                 record.suspension_end = suspension_end
+            if action_type == 'suspension' and suspension_resume_date:
+                record.suspension_resume_date = suspension_resume_date
             if document:
                 record.document = document
             record.save()

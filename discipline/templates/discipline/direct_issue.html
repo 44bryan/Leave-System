@@ -75,13 +75,18 @@
                             <i class="bi bi-calendar-range me-1"></i> Suspension Period
                         </label>
                         <div class="row g-3">
-                            <div class="col-sm-6">
+                            <div class="col-sm-4">
                                 <label class="form-label" style="font-size:.85rem;">Start Date <span class="text-danger">*</span></label>
                                 <input type="date" name="suspension_start" class="form-control" value="{{ posted.suspension_start }}">
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-sm-4">
                                 <label class="form-label" style="font-size:.85rem;">End Date <span class="text-danger">*</span></label>
                                 <input type="date" name="suspension_end" class="form-control" value="{{ posted.suspension_end }}">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" style="font-size:.85rem;">Resume Date</label>
+                                <input type="date" name="suspension_resume_date" class="form-control" value="{{ posted.suspension_resume_date }}">
+                                <div class="form-text">Date employee returns to work</div>
                             </div>
                         </div>
                         <div class="form-text mt-2">If end date is left blank, the system defaults to 8 days from start.</div>

@@ -118,13 +118,18 @@
                                 <small class="text-muted fw-normal ms-1 susp-hint">({% trans "select Suspension above to activate" %})</small>
                             </label>
                             <div class="row g-3">
-                                <div class="col-sm-6">
+                                <div class="col-sm-4">
                                     <label class="form-label" style="font-size:.85rem;">{% trans "Start Date" %} <span class="text-danger">*</span></label>
                                     <input type="date" name="suspension_start" class="form-control" value="{{ posted_suspension_start }}">
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm-4">
                                     <label class="form-label" style="font-size:.85rem;">{% trans "End Date" %} <span class="text-danger">*</span></label>
                                     <input type="date" name="suspension_end" class="form-control" value="{{ posted_suspension_end }}">
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-label" style="font-size:.85rem;">{% trans "Resume Date" %}</label>
+                                    <input type="date" name="suspension_resume_date" class="form-control" value="{{ posted_suspension_resume_date }}">
+                                    <div class="form-text">{% trans "Date employee returns to work" %}</div>
                                 </div>
                             </div>
                         </div>

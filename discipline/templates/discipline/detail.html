@@ -97,9 +97,14 @@
                                     <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Suspension Start Date" %} <span class="text-danger">*</span></label>
                                     <input type="date" name="suspension_start" class="form-control form-control-sm" required>
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Suspension End Date" %} <span class="text-danger">*</span></label>
                                     <input type="date" name="suspension_end" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-600" style="font-size:.85rem;">{% trans "Resume Date" %}</label>
+                                    <input type="date" name="suspension_resume_date" class="form-control form-control-sm">
+                                    <div class="form-text">{% trans "Date employee returns to work" %}</div>
                                 </div>
                                 {% endif %}
                             </div>
@@ -182,13 +187,17 @@
                         </div>
 
                         {% if record.action_type == 'suspension' %}
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Suspension Start" %}</div>
                             <div class="mt-1">{{ record.suspension_start|date:"d F Y"|default:"—" }}</div>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Suspension End" %}</div>
                             <div class="mt-1">{{ record.suspension_end|date:"d F Y"|default:"—" }}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Resume Date" %}</div>
+                            <div class="mt-1">{{ record.suspension_resume_date|date:"d F Y"|default:"—" }}</div>
                         </div>
                         {% if record.is_currently_suspended %}
                         <div class="col-12">
