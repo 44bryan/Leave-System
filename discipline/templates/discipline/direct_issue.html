@@ -102,15 +102,32 @@
                             placeholder="Describe the reason for this disciplinary action in clear and objective terms…">{{ posted.reason }}</textarea>
                     </div>
 
-                    <!-- Supporting Document -->
+                    <!-- Supporting Documents — add one at a time (mobile-friendly) -->
                     <div class="mb-4">
                         <label class="form-label fw-600">
                             <span class="badge me-2" style="background:#0A4D68;font-size:.72rem;">4</span>
-                            Supporting Document <span class="text-muted fw-normal">(optional)</span>
+                            Supporting Documents <span class="text-muted fw-normal">(optional)</span>
                         </label>
-                        <input type="file" name="documents" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
-                        <div class="form-text">Attach the signed notice letter and any supporting documents. You can select multiple files at once.</div>
+                        <div id="docInputsDI">
+                            <div class="doc-row d-flex align-items-center gap-2 mb-2">
+                                <input type="file" name="documents" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addDocInputDI()">
+                            <i class="bi bi-plus-circle me-1"></i> Add another document
+                        </button>
+                        <div class="form-text mt-1">Attach notice letters, evidence or any supporting files. Add one at a time.</div>
                     </div>
+                    <script>
+                    function addDocInputDI() {
+                        var wrap = document.getElementById('docInputsDI');
+                        var row = document.createElement('div');
+                        row.className = 'doc-row d-flex align-items-center gap-2 mb-2';
+                        row.innerHTML = '<input type="file" name="documents" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">'
+                                      + '<button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()" title="Remove"><i class="bi bi-x"></i></button>';
+                        wrap.appendChild(row);
+                    }
+                    </script>
 
                     <!-- Internal Notes -->
                     <div class="mb-4">

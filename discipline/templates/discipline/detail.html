@@ -247,16 +247,34 @@
                                 {% endif %}
                                 {% endwith %}
 
-                                <!-- Upload more documents -->
+                                <!-- Upload more documents — one at a time (mobile-friendly) -->
                                 {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_manager or request.user.employee.is_unit_head or record.issued_by == request.user %}
-                                <form method="post" action="{% url 'discipline:upload_doc' record.pk %}" enctype="multipart/form-data" class="d-flex align-items-center gap-2 flex-wrap mt-1">
+                                <form method="post" action="{% url 'discipline:upload_doc' record.pk %}" enctype="multipart/form-data" class="mt-2">
                                     {% csrf_token %}
-                                    <input type="file" name="documents" class="form-control form-control-sm" style="max-width:320px;"
-                                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
-                                    <button type="submit" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-paperclip me-1"></i>{% trans "Attach" %}
-                                    </button>
+                                    <div id="docInputsDetail">
+                                        <div class="doc-row d-flex align-items-center gap-2 mb-2">
+                                            <input type="file" name="documents" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addDetailDoc()">
+                                            <i class="bi bi-plus-circle me-1"></i>{% trans "Add another" %}
+                                        </button>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-paperclip me-1"></i>{% trans "Attach" %}
+                                        </button>
+                                    </div>
                                 </form>
+                                <script>
+                                function addDetailDoc() {
+                                    var wrap = document.getElementById('docInputsDetail');
+                                    var row = document.createElement('div');
+                                    row.className = 'doc-row d-flex align-items-center gap-2 mb-2';
+                                    row.innerHTML = '<input type="file" name="documents" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">'
+                                                  + '<button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>';
+                                    wrap.appendChild(row);
+                                }
+                                </script>
                                 {% endif %}
                             </div>
                         </div>
