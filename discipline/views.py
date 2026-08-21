@@ -8,7 +8,13 @@ from django.urls import reverse
 from datetime import date
 
 from accounts.models import Employee
-from .models import DisciplineRecord
+from .models import DisciplineRecord, DisciplineDocument
+
+
+def _save_discipline_docs(record, files, user):
+    """Save multiple uploaded files as DisciplineDocument instances."""
+    for f in files:
+        DisciplineDocument.objects.create(record=record, file=f, uploaded_by=user)
 
 
 def _notify_discipline_hierarchy(record, issuer_user, issuer_name, short_reason):
@@ -216,7 +222,7 @@ def issue_discipline(request):
         suspension_start = request.POST.get('suspension_start') or None
         suspension_end = request.POST.get('suspension_end') or None
         suspension_resume_date = request.POST.get('suspension_resume_date') or None
-        document = request.FILES.get('document')
+        documents = request.FILES.getlist('documents')
         proposal_note = request.POST.get('proposal_note', '').strip()
         submit_as_proposal = request.POST.get('submit_as_proposal') == '1'
 
@@ -275,14 +281,13 @@ def issue_discipline(request):
                 record.suspension_end = suspension_end
             if action_type == 'suspension' and suspension_resume_date:
                 record.suspension_resume_date = suspension_resume_date
-            if document:
-                record.document = document
             # Directly issued by HR/CEO/Director — mark review chain complete immediately
             if not is_prop:
                 record.hr_proposed_sanction = 'no_further_action'
                 record.director_proposed_sanction = 'no_further_action'
 
             record.save()
+            _save_discipline_docs(record, documents, request.user)
 
             from notifications.utils import notify
             issuer_name = request.user.get_full_name() or request.user.username
@@ -691,7 +696,7 @@ def direct_issue_discipline(request):
         suspension_start = request.POST.get('suspension_start') or None
         suspension_end   = request.POST.get('suspension_end') or None
         suspension_resume_date = request.POST.get('suspension_resume_date') or None
-        document       = request.FILES.get('document')
+        documents      = request.FILES.getlist('documents')
 
         posted = {
             'action_type': action_type,
@@ -741,9 +746,8 @@ def direct_issue_discipline(request):
                 record.suspension_end = suspension_end
             if action_type == 'suspension' and suspension_resume_date:
                 record.suspension_resume_date = suspension_resume_date
-            if document:
-                record.document = document
             record.save()
+            _save_discipline_docs(record, documents, request.user)
 
             if action_type == 'dismissal':
                 target.dismissal_date = date.today()
@@ -771,3 +775,40 @@ def direct_issue_discipline(request):
         'action_choices': DisciplineRecord.ACTION_CHOICES,
         'posted': posted,
     })
+
+
+@login_required
+def discipline_upload_doc(request, pk):
+    """Add more documents to an existing discipline record."""
+    record = get_object_or_404(DisciplineRecord, pk=pk)
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+    if not (is_super or (emp and (emp.is_hr() or emp.is_manager() or emp.is_unit_head() or
+            emp.role in ('admin_director', 'medical_director') or emp.is_ceo()))):
+        messages.error(request, "Access denied.")
+        return redirect('discipline:detail', pk=pk)
+
+    if request.method == 'POST':
+        files = request.FILES.getlist('documents')
+        if not files:
+            messages.error(request, "Please select at least one file.")
+        else:
+            _save_discipline_docs(record, files, request.user)
+            messages.success(request, f"{len(files)} document(s) attached successfully.")
+    return redirect('discipline:detail', pk=pk)
+
+
+@login_required
+def discipline_delete_doc(request, doc_pk):
+    """Delete a single discipline document. HR/superuser only."""
+    doc = get_object_or_404(DisciplineDocument, pk=doc_pk)
+    emp = get_employee(request)
+    is_super = request.user.is_superuser
+    if not (is_super or (emp and emp.is_hr())):
+        messages.error(request, "Only HR can delete discipline documents.")
+        return redirect('discipline:detail', pk=doc.record.pk)
+    record_pk = doc.record.pk
+    doc.file.delete(save=False)
+    doc.delete()
+    messages.success(request, "Document removed.")
+    return redirect('discipline:detail', pk=record_pk)

@@ -78,6 +78,9 @@ class DisciplineRecord(models.Model):
     class Meta:
         ordering = ['-date_issued', '-created_at']
 
+    def get_documents(self):
+        return self.documents.all()
+
     def __str__(self):
         return f"{self.get_action_type_display()} — {self.employee.get_full_name()} ({self.date_issued})"
 
@@ -112,3 +115,25 @@ class DisciplineRecord(models.Model):
             'dismissal': 'danger',
         }
         return colors.get(self.action_type, 'secondary')
+
+
+class DisciplineDocument(models.Model):
+    record = models.ForeignKey(
+        DisciplineRecord, on_delete=models.CASCADE, related_name='documents'
+    )
+    file = models.FileField(upload_to='discipline_docs/')
+    label = models.CharField(max_length=150, blank=True, default='')
+    uploaded_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='+'
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['uploaded_at']
+
+    def filename(self):
+        import os
+        return os.path.basename(self.file.name)
+
+    def __str__(self):
+        return f"{self.filename()} — {self.record}"

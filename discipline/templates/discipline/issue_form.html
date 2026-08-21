@@ -159,10 +159,10 @@
                         <div class="mb-4">
                             <label class="form-label fw-600">
                                 <i class="bi bi-paperclip me-1"></i>
-                                {% trans "Supporting Document" %} <span class="text-muted fw-normal">({% trans "optional" %})</span>
+                                {% trans "Supporting Documents" %} <span class="text-muted fw-normal">({% trans "optional — multiple allowed" %})</span>
                             </label>
-                            <input type="file" name="document" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png">
-                            <div class="form-text">{% trans "Attach the official notice letter or any supporting document (PDF, Word, or image)." %}</div>
+                            <input type="file" name="documents" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+                            <div class="form-text">{% trans "Attach warning letters, evidence, or any supporting files. You can select multiple files at once (PDF, Word, images)." %}</div>
                         </div>
 
                         <!-- Proposal note -->

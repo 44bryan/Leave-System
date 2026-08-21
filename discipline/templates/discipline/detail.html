@@ -216,16 +216,50 @@
                             </div>
                         </div>
 
-                        {% if record.document %}
+                        <!-- Documents section -->
                         <div class="col-12">
-                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Attached Document" %}</div>
+                            <div style="font-size:0.75rem; color:#9ab4c0; text-transform:uppercase; letter-spacing:0.06em;">{% trans "Attached Documents" %}</div>
                             <div class="mt-2">
-                                <a href="{{ record.document.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-file-earmark-arrow-down me-1"></i> {% trans "Download Document" %}
-                                </a>
+                                {% with docs=record.get_documents %}
+                                {% if docs %}
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    {% for doc in docs %}
+                                    <div class="d-flex align-items-center gap-1 px-2 py-1 rounded" style="background:#f0f9fb;border:1px solid #d0ecf1;">
+                                        <i class="bi bi-file-earmark me-1" style="color:#2db4c3;"></i>
+                                        <a href="{{ doc.file.url }}" target="_blank" class="text-decoration-none small fw-semibold" style="color:#0A4D68;">
+                                            {{ doc.filename }}
+                                        </a>
+                                        <span class="text-muted small ms-1">— {{ doc.uploaded_at|date:"d M Y" }}</span>
+                                        {% if request.user.is_superuser or request.user.employee.is_hr %}
+                                        <form method="post" action="{% url 'discipline:delete_doc' doc.pk %}" class="ms-1"
+                                              onsubmit="return confirm('Remove this document?')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-link btn-sm p-0 text-danger" title="Remove">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <p class="text-muted small mb-2">{% trans "No documents attached." %}</p>
+                                {% endif %}
+                                {% endwith %}
+
+                                <!-- Upload more documents -->
+                                {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_manager or request.user.employee.is_unit_head or record.issued_by == request.user %}
+                                <form method="post" action="{% url 'discipline:upload_doc' record.pk %}" enctype="multipart/form-data" class="d-flex align-items-center gap-2 flex-wrap mt-1">
+                                    {% csrf_token %}
+                                    <input type="file" name="documents" class="form-control form-control-sm" style="max-width:320px;"
+                                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-paperclip me-1"></i>{% trans "Attach" %}
+                                    </button>
+                                </form>
+                                {% endif %}
                             </div>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
