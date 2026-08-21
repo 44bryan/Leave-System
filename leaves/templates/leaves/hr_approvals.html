@@ -40,7 +40,10 @@
                         <div class="t-secondary">{{ req.employee.employee_id }}</div>
                     </td>
                     <td>{{ req.employee.department|default:"—" }}</td>
-                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                    <td>
+                        <span class="badge bg-info text-dark">{{ req.leave_type }}</span>
+                        {% if req.leave_type.is_deductible %}<span class="badge bg-danger ms-1" title="Will be deducted from annual leave balance">Deductible</span>{% endif %}
+                    </td>
                     <td class="t-sm text-nowrap">{{ req.start_date }} → {{ req.end_date }}</td>
                     <td><strong>{{ req.total_days }}d</strong></td>
                     <td class="td-opt t-sm">

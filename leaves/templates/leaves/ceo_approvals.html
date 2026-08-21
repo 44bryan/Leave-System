@@ -44,7 +44,10 @@
                         <div style="font-weight:600;">{{ req.employee.get_full_name }}</div>
                         <div class="t-secondary">{{ req.employee.employee_id }} · Administration Director</div>
                     </td>
-                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                    <td>
+                        <span class="badge bg-info text-dark">{{ req.leave_type }}</span>
+                        {% if req.leave_type.is_deductible %}<span class="badge bg-danger ms-1" title="Will be deducted from annual leave balance">Deductible</span>{% endif %}
+                    </td>
                     <td class="t-sm text-nowrap">{{ req.start_date }} → {{ req.end_date }}</td>
                     <td><strong>{{ req.total_days }}d</strong></td>
                     <td style="font-size:0.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>

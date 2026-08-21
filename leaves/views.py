@@ -256,6 +256,7 @@ def submit_leave(request):
                     leave.employee_sig_b64 = employee.signature_b64
                 leave.save()
                 _notify_backup_selected(leave)
+                deduct_note = ' ⚠ Note: This leave is DEDUCTIBLE and will be subtracted from the employee\'s annual leave balance.' if leave.leave_type.is_deductible else ''
                 if employee.is_intern() or employee.is_wacs_resident():
                     # Interns and WACS residents skip manager — go directly to HR
                     role_label = 'Intern' if employee.is_intern() else 'WACS Resident'
@@ -268,7 +269,7 @@ def submit_leave(request):
                             f'{role_label} Leave Request — {employee.get_full_name()}',
                             f'{employee.get_full_name()} ({role_label}) has submitted a {leave.leave_type} request '
                             f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). '
-                            f'No manager approval required — awaiting your HR review.',
+                            f'No manager approval required — awaiting your HR review.{deduct_note}',
                             notification_type='leave_submitted',
                             url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                         )
@@ -284,7 +285,7 @@ def submit_leave(request):
                             ceo_emp.user,
                             f'{role_label} Leave — Awaiting Your Approval',
                             f'{employee.get_full_name()} ({role_label}) has submitted a {leave.leave_type} request '
-                            f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.',
+                            f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). Awaiting your approval.{deduct_note}',
                             notification_type='leave_submitted',
                             url=reverse('leaves:ceo_action', kwargs={'pk': leave.pk}),
                         )
@@ -302,7 +303,7 @@ def submit_leave(request):
                             f'HR Staff Leave — Awaiting Your Approval — {employee.get_full_name()}',
                             f'{employee.get_full_name()} (HR) has submitted a {leave.leave_type} request '
                             f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). '
-                            f'No intermediate approvals required — awaiting your decision.',
+                            f'No intermediate approvals required — awaiting your decision.{deduct_note}',
                             notification_type='leave_submitted',
                             url=reverse('leaves:director_action', kwargs={'pk': leave.pk}),
                         )
@@ -317,7 +318,7 @@ def submit_leave(request):
                             f'Leave Request (HR Final) — {employee.get_full_name()}',
                             f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
                             f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). '
-                            f'You are the final approver — no Director step required.',
+                            f'You are the final approver — no Director step required.{deduct_note}',
                             notification_type='leave_submitted',
                             url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
                         )
@@ -332,7 +333,7 @@ def submit_leave(request):
                             f'Leave Request (Direct Report) — {employee.get_full_name()}',
                             f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
                             f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). '
-                            f'No unit head or manager approval required — awaiting your HR review.',
+                            f'No unit head or manager approval required — awaiting your HR review.{deduct_note}',
                             notification_type='leave_submitted',
                             url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
                         )
@@ -346,7 +347,7 @@ def submit_leave(request):
                         f'New Leave Request — {employee.get_full_name()}',
                         f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
                         f'for {leave.total_days} day(s) ({leave.start_date} to {leave.end_date}). '
-                        f'Awaiting your Unit Head approval{uh_label}.',
+                        f'Awaiting your Unit Head approval{uh_label}.{deduct_note}',
                         notification_type='leave_submitted',
                         url=reverse('leaves:unit_head_action', kwargs={'pk': leave.pk}),
                     )
@@ -360,7 +361,7 @@ def submit_leave(request):
                         f'Leave Request (Line Manager) — {employee.get_full_name()}',
                         f'{employee.get_full_name()} (Line Manager) has submitted a {leave.leave_type} request '
                         f'for {leave.total_days} day(s) ({leave.start_date} to {leave.end_date}). '
-                        f'Your approval as Nurse Superintendent is required first{ns_label}.',
+                        f'Your approval as Nurse Superintendent is required first{ns_label}.{deduct_note}',
                         notification_type='leave_submitted',
                         url=reverse('leaves:nurse_supt_action', kwargs={'pk': leave.pk}),
                     )
@@ -375,7 +376,7 @@ def submit_leave(request):
                             f'New Leave Request — {employee.get_full_name()}',
                             f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
                             f'for {leave.total_days} day(s) ({leave.start_date} to {leave.end_date}). '
-                            f'Awaiting your approval{sup_label}.',
+                            f'Awaiting your approval{sup_label}.{deduct_note}',
                             notification_type='leave_submitted',
                             url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
                         )
