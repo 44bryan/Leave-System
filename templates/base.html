@@ -1341,6 +1341,11 @@
                     <i class="bi bi-shield-plus"></i> {% trans "Propose Discipline" %}
                 </a>
             </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'discipline:list' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-check"></i> {% trans "My Submitted Proposals" %}
+                </a>
+            </li>
         </ul>
     </div>
     {% endif %}
@@ -1389,6 +1394,11 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
+                <a href="{% url 'discipline:list' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-check"></i> {% trans "My Submitted Proposals" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:plan_manager' %}" class="nav-link-sidebar {% block nav_plan_manager %}{% endblock %}">
                     <i class="bi bi-calendar2-week"></i> {% trans "Team Leave Plan" %}
                 </a>
@@ -1425,6 +1435,11 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'discipline:issue' %}" class="nav-link-sidebar">
                     <i class="bi bi-shield-plus"></i> {% trans "Propose Discipline" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
+                <a href="{% url 'discipline:list' %}" class="nav-link-sidebar">
+                    <i class="bi bi-shield-check"></i> {% trans "My Submitted Proposals" %}
                 </a>
             </li>
         </ul>
