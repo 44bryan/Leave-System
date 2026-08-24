@@ -69,11 +69,14 @@ class Command(BaseCommand):
 
         for lr in pending_leaves:
             emp = lr.employee
-            approvers = set()
+            # Only notify the CURRENT stage approver:
+            # if employee has a unit head, it's their stage — don't bother the manager yet
             if emp.unit_head:
-                approvers.add(emp.unit_head)
-            if emp.supervisor:
-                approvers.add(emp.supervisor)
+                approvers = {emp.unit_head}
+            elif emp.supervisor:
+                approvers = {emp.supervisor}
+            else:
+                approvers = set()
             for approver in approvers:
                 title = 'Reminder: Leave Request Awaiting Your Approval'
                 if not already_reminded(approver.user, 'Leave Request Awaiting'):

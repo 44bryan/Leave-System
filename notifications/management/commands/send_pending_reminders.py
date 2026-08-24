@@ -67,6 +67,7 @@ class Command(BaseCommand):
                     LeaveRequest.STATUS_PENDING,
                     LeaveRequest.STATUS_UNIT_HEAD_APPROVED,
                     LeaveRequest.STATUS_MANAGER_APPROVED,
+                    LeaveRequest.STATUS_NURSE_SUPT_APPROVED,
                     LeaveRequest.STATUS_HR_APPROVED,
                 ],
             ).select_related('leave_type')
