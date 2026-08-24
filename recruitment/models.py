@@ -74,8 +74,9 @@ class JobPosting(models.Model):
     department      = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     location        = models.CharField(max_length=100, blank=True, default='')
     employment_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_FULL_TIME)
-    about           = models.TextField(blank=True, default='', help_text='Short intro shown at the top of the job detail page.')
-    description     = models.TextField()
+    advert          = models.TextField(blank=True, default='', help_text='Short text shown on the job card listing.')
+    about           = models.TextField(blank=True, default='', help_text='Legacy — use advert instead.')
+    description     = models.TextField(blank=True, default='')
     requirements    = models.TextField(blank=True)
     status          = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_DRAFT)
     deadline        = models.DateField(null=True, blank=True)
@@ -133,6 +134,20 @@ class FormFieldConfig(models.Model):
         if self.options:
             return [o.strip() for o in self.options.split(',') if o.strip()]
         return []
+
+
+class PostingSection(models.Model):
+    """A content section (heading + body) on a job posting. Like LinkedIn/Greenhouse sections."""
+    posting = models.ForeignKey(JobPosting, on_delete=models.CASCADE, related_name='sections')
+    heading = models.CharField(max_length=150)
+    body    = models.TextField()
+    order   = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'pk']
+
+    def __str__(self):
+        return f'{self.posting.title} — {self.heading}'
 
 
 class ScoringCriterion(models.Model):

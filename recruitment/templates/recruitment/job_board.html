@@ -102,24 +102,26 @@
                 {% if job.department and job.location %}<span class="meta-sep">•</span>{% endif %}
                 {% if job.location %}<span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>{% endif %}
             </div>
-            <!-- Excerpt -->
+            <!-- Excerpt (advert > about > description fallback) -->
+            {% with advert=job.advert|default:job.about %}
             <p class="job-excerpt" id="exc-{{ job.pk }}" style="margin-bottom:.5rem;">
-                {% if job.about %}
-                    <span class="exc-short">{{ job.about|truncatechars:130 }}</span>
-                    {% if job.about|length > 130 %}
-                    <span class="exc-full" style="display:none;">{{ job.about }}</span>
+                {% if advert %}
+                    <span class="exc-short">{{ advert|truncatechars:130 }}</span>
+                    {% if advert|length > 130 %}
+                    <span class="exc-full" style="display:none;">{{ advert }}</span>
                     {% endif %}
                 {% else %}
                     <span class="exc-short">{{ job.description|truncatechars:120 }}</span>
                 {% endif %}
             </p>
-            {% if job.about|length > 130 %}
+            {% if advert|length > 130 %}
             <span class="read-more-btn" data-pk="{{ job.pk }}"
                   onclick="event.preventDefault();event.stopPropagation();toggleExc({{ job.pk }},this)"
                   style="font-size:.75rem;font-weight:700;color:#2db4c3;cursor:pointer;display:inline-block;margin-bottom:.6rem;">
                 {% trans "Read more" %} <i class="bi bi-chevron-down" style="font-size:.65rem;"></i>
             </span>
             {% endif %}
+            {% endwith %}
             <!-- Footer -->
             <div class="job-card-footer">
                 <span class="posted-ago"><i class="bi bi-clock-history"></i>{{ job.created_at|timesince }} {% trans "ago" %}</span>

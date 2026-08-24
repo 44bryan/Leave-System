@@ -632,9 +632,8 @@ def posting_create(request):
 
     if request.method == 'POST':
         title  = request.POST.get('title', '').strip()
-        desc   = request.POST.get('description', '').strip()
-        if not title or not desc:
-            messages.error(request, 'Title and description are required.')
+        if not title:
+            messages.error(request, 'Job title is required.')
             return render(request, 'recruitment/posting_form.html', {
                 'departments': departments,
                 'type_choices': JobPosting.TYPE_CHOICES,
@@ -652,18 +651,25 @@ def posting_create(request):
             except ValueError:
                 pass
 
+        headings = request.POST.getlist('section_heading')
+        bodies   = request.POST.getlist('section_body')
+        sections_data = [(h.strip(), b.strip()) for h, b in zip(headings, bodies) if h.strip()]
+        combined_desc = '\n\n'.join(f'## {h}\n{b}' for h, b in sections_data)
+
         posting = JobPosting.objects.create(
             title=title,
             department=dept,
             location=request.POST.get('location', '').strip(),
             employment_type=request.POST.get('employment_type', JobPosting.TYPE_FULL_TIME),
-            about=request.POST.get('about', '').strip(),
-            description=desc,
-            requirements=request.POST.get('requirements', '').strip(),
+            advert=request.POST.get('advert', '').strip(),
+            description=combined_desc,
             status=request.POST.get('status', JobPosting.STATUS_DRAFT),
             deadline=deadline,
             created_by=request.user,
         )
+        from .models import PostingSection
+        for i, (heading, body) in enumerate(sections_data):
+            PostingSection.objects.create(posting=posting, heading=heading, body=body, order=i)
         posting.create_default_fields()
         messages.success(request, f'Job posting "{posting.title}" created. Configure the application form below.')
         return redirect('recruitment:form_config', pk=posting.pk)
@@ -686,9 +692,8 @@ def posting_edit(request, pk):
 
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
-        desc  = request.POST.get('description', '').strip()
-        if not title or not desc:
-            messages.error(request, 'Title and description are required.')
+        if not title:
+            messages.error(request, 'Job title is required.')
         else:
             dept_pk = request.POST.get('department')
             dept = Department.objects.filter(pk=dept_pk).first() if dept_pk else None
@@ -700,21 +705,34 @@ def posting_edit(request, pk):
                     deadline = date.fromisoformat(dl_str)
                 except ValueError:
                     pass
+
+            headings = request.POST.getlist('section_heading')
+            bodies   = request.POST.getlist('section_body')
+            sections_data = [(h.strip(), b.strip()) for h, b in zip(headings, bodies) if h.strip()]
+            combined_desc = '\n\n'.join(f'## {h}\n{b}' for h, b in sections_data)
+
             posting.title           = title
             posting.department      = dept
             posting.location        = request.POST.get('location', '').strip()
             posting.employment_type = request.POST.get('employment_type', JobPosting.TYPE_FULL_TIME)
-            posting.about           = request.POST.get('about', '').strip()
-            posting.description     = desc
-            posting.requirements    = request.POST.get('requirements', '').strip()
+            posting.advert          = request.POST.get('advert', '').strip()
+            posting.description     = combined_desc
             posting.status          = request.POST.get('status', posting.status)
             posting.deadline        = deadline
             posting.save()
+
+            from .models import PostingSection
+            posting.sections.all().delete()
+            for i, (heading, body) in enumerate(sections_data):
+                PostingSection.objects.create(posting=posting, heading=heading, body=body, order=i)
+
             messages.success(request, 'Job posting updated.')
             return redirect('recruitment:list')
 
+    from .models import PostingSection
     return render(request, 'recruitment/posting_form.html', {
         'posting':      posting,
+        'sections':     posting.sections.all(),
         'departments':  departments,
         'type_choices': JobPosting.TYPE_CHOICES,
         'post': posting,
