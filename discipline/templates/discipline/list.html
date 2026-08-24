@@ -156,6 +156,7 @@
     {% endif %}
 
     <!-- Filters -->
+    {% if is_privileged or request.user.is_superuser %}
     <div class="card mb-4">
         <div class="card-body py-3">
             <form method="get" class="d-flex flex-wrap gap-3 align-items-end">
@@ -206,8 +207,10 @@
             </form>
         </div>
     </div>
+    {% endif %}
 
     <!-- Records -->
+    {% if is_privileged or request.user.is_superuser %}
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span>
@@ -354,6 +357,7 @@
         </div>
         {% endif %}
     </div>
+    {% endif %}
 
 {% endblock %}
 
