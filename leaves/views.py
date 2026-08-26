@@ -15,49 +15,39 @@ from notifications.utils import notify
 
 def _notify_leave_hierarchy(leave, actor_name, approved, extra_msg=''):
     """
-    Notify the full management hierarchy when a leave is finally approved or rejected.
-    approved=True  → everyone learns the employee IS going on leave.
-    approved=False → everyone learns the leave was denied.
+    Notify the direct coverage chain when a leave is FINALLY APPROVED.
+    Only the supervisor and unit head need to know — they must plan coverage.
+    HR and Directors already know because they approved it.
+    Do NOT call this for rejections — the employee is already notified individually.
     """
-    from accounts.models import Employee as _Emp
+    if not approved:
+        return  # Rejections: employee already notified individually — no need to blast others
+
     emp    = leave.employee
     ltype  = str(leave.leave_type)
     period = f"{leave.start_date.strftime('%d %b')} → {leave.end_date.strftime('%d %b %Y')}"
     days   = leave.total_days
     detail_url = reverse('leaves:detail', kwargs={'pk': leave.pk})
-    notified = {emp.user.pk}  # employee already notified separately
+    notified = {emp.user.pk}
 
-    def _send(user, title, message, ntype):
+    def _send(user):
         if user and user.pk not in notified:
             notified.add(user.pk)
-            notify(user, title=title, message=message, notification_type=ntype, url=detail_url)
-
-    if approved:
-        ntype  = 'leave_approved'
-        title  = f'Leave Approved — {emp.get_full_name()}'
-        body   = (f'{emp.get_full_name()} has been approved for {ltype} '
-                  f'({period}, {days} day(s)). Please plan accordingly.')
-    else:
-        ntype  = 'leave_rejected'
-        title  = f'Leave Rejected — {emp.get_full_name()}'
-        body   = (f'{emp.get_full_name()}\'s {ltype} request ({period}) '
-                  f'was rejected by {actor_name}.{" " + extra_msg if extra_msg else ""}')
+            notify(
+                user,
+                title=f'Leave Approved — {emp.get_full_name()}',
+                message=(f'{emp.get_full_name()} has been approved for {ltype} '
+                         f'({period}, {days} day(s)). Please plan coverage accordingly.'),
+                notification_type='leave_approved',
+                url=detail_url,
+            )
 
     if emp.supervisor:
-        _send(emp.supervisor.user, title, body, ntype)
+        _send(emp.supervisor.user)
     if emp.unit_head:
-        _send(emp.unit_head.user, title, body, ntype)
+        _send(emp.unit_head.user)
     if emp.nurse_superintendent:
-        _send(emp.nurse_superintendent.user, title, body, ntype)
-    for hr in _Emp.objects.filter(role='hr', is_active=True).select_related('user'):
-        _send(hr.user, title, body, ntype)
-    for ad in _Emp.objects.filter(
-        Q(role='admin_director') | Q(acting_role__in=('admin_director', 'finance_director')),
-        is_active=True
-    ).select_related('user'):
-        _send(ad.user, title, body, ntype)
-    for ceo in _Emp.objects.filter(role='ceo', is_active=True).select_related('user'):
-        _send(ceo.user, title, body, ntype)
+        _send(emp.nurse_superintendent.user)
 
 
 def get_employee(request):
@@ -563,7 +553,6 @@ def unit_head_action(request, pk):
                     notification_type='leave_rejected',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
-                _notify_leave_hierarchy(leave, employee.get_full_name(), approved=False, extra_msg=remarks)
             return redirect('leaves:unit_head_approvals')
     else:
         form = ApprovalForm()
@@ -710,7 +699,6 @@ def manager_action(request, pk):
                     notification_type='leave_rejected',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
-                _notify_leave_hierarchy(leave, employee.get_full_name(), approved=False, extra_msg=remarks)
             leave.save()
             try:
                 from dashboard.models import AuditLog
@@ -847,7 +835,6 @@ def nurse_supt_action(request, pk):
                     notification_type='leave_rejected',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
-                _notify_leave_hierarchy(leave, employee.get_full_name(), approved=False, extra_msg=remarks)
             leave.save()
             return redirect('leaves:nurse_supt_approvals')
     else:
@@ -980,7 +967,6 @@ def hr_action(request, pk):
                     notification_type='leave_rejected',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
-                _notify_leave_hierarchy(leave, employee.get_full_name(), approved=False, extra_msg=remarks)
             leave.save()
             try:
                 from dashboard.models import AuditLog
@@ -1112,7 +1098,6 @@ def director_action(request, pk):
                     notification_type='leave_rejected',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
-                _notify_leave_hierarchy(leave, employee.get_full_name(), approved=False, extra_msg=remarks)
             leave.save()
             try:
                 from dashboard.models import AuditLog
@@ -1233,7 +1218,6 @@ def ceo_action(request, pk):
                     notification_type='leave_rejected',
                     url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                 )
-                _notify_leave_hierarchy(leave, employee.get_full_name(), approved=False, extra_msg=remarks)
             try:
                 from dashboard.models import AuditLog
                 audit_action = AuditLog.ACTION_LEAVE_APPROVE if action == 'approve' else AuditLog.ACTION_LEAVE_REJECT
