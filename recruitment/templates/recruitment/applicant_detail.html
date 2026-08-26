@@ -201,12 +201,24 @@
                 </div>
                 {% endif %}
                 {% if app.ai_gaps %}
-                <div>
+                <div class="mb-3">
                     <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;margin-bottom:.4rem;">
                         <i class="bi bi-exclamation-triangle me-1"></i>{% trans "Gaps / Concerns" %}
                     </div>
                     <ul style="margin:0;padding-left:1.2rem;font-size:.85rem;color:#374151;line-height:1.75;">
                         {% for line in app.ai_gaps.splitlines %}{% if line.strip %}
+                        <li>{{ line|cut:"• "|cut:"- "|cut:"* " }}</li>
+                        {% endif %}{% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                {% if app.ai_certifications %}
+                <div>
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1d4ed8;margin-bottom:.4rem;">
+                        <i class="bi bi-patch-check me-1"></i>{% trans "Certifications & Credentials" %}
+                    </div>
+                    <ul style="margin:0;padding-left:1.2rem;font-size:.85rem;color:#374151;line-height:1.75;">
+                        {% for line in app.ai_certifications.splitlines %}{% if line.strip %}
                         <li>{{ line|cut:"• "|cut:"- "|cut:"* " }}</li>
                         {% endif %}{% endfor %}
                     </ul>
@@ -339,8 +351,9 @@ toggleStatusFields();
                     + '</ul>';
             }
             if (r.ai_summary)    bodyHtml += '<div class="mb-2"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7a8d;">Summary</div><p style="font-size:.85rem;color:#374151;margin:.3rem 0 0;">' + r.ai_summary + '</p></div>';
-            if (r.ai_strengths)  bodyHtml += '<div class="mb-3"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#065f46;margin-bottom:.4rem;"><i class="bi bi-check2-circle me-1"></i>Strengths</div>' + toList(r.ai_strengths) + '</div>';
-            if (r.ai_gaps)       bodyHtml += '<div><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;margin-bottom:.4rem;"><i class="bi bi-exclamation-triangle me-1"></i>Gaps / Concerns</div>' + toList(r.ai_gaps) + '</div>';
+            if (r.ai_strengths)       bodyHtml += '<div class="mb-3"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#065f46;margin-bottom:.4rem;"><i class="bi bi-check2-circle me-1"></i>Strengths</div>' + toList(r.ai_strengths) + '</div>';
+            if (r.ai_gaps)            bodyHtml += '<div class="mb-3"><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#991b1b;margin-bottom:.4rem;"><i class="bi bi-exclamation-triangle me-1"></i>Gaps / Concerns</div>' + toList(r.ai_gaps) + '</div>';
+            if (r.ai_certifications)  bodyHtml += '<div><div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1d4ed8;margin-bottom:.4rem;"><i class="bi bi-patch-check me-1"></i>Certifications & Credentials</div>' + toList(r.ai_certifications) + '</div>';
 
             document.getElementById('aiCardBody').innerHTML = bodyHtml;
             btn.disabled = false;

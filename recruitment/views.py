@@ -1163,10 +1163,11 @@ def _ai_analyse_background(posting, app):
         app.ai_summary        = data.get('summary', '')
         app.ai_strengths      = data.get('strengths', '')
         app.ai_gaps           = data.get('gaps', '')
+        app.ai_certifications = data.get('certifications', '')
         app.ai_analysed_at    = timezone.now()
         app.save(update_fields=[
             'ai_score', 'ai_recommendation', 'ai_summary',
-            'ai_strengths', 'ai_gaps', 'ai_analysed_at',
+            'ai_strengths', 'ai_gaps', 'ai_certifications', 'ai_analysed_at',
         ])
     except Exception as exc:
         logger.warning('Auto AI analysis failed for application %s: %s', app.pk, exc)
@@ -1256,54 +1257,82 @@ def _call_gemini(posting, application):
     applicant_block = '\n'.join(answer_lines) or '(No form answers provided.)'
     cv_block = f'\n\nCV / Resume Content:\n{cv_text}' if cv_text else '\n\n(No CV text could be extracted — penalise if CV was expected.)'
 
-    requirements_block = posting.requirements.strip() if posting.requirements.strip() else None
-    description_block  = posting.description.strip()  if posting.description.strip()  else None
-
-    if requirements_block:
-        requirements_section = (
-            'JOB REQUIREMENTS — evaluate the applicant STRICTLY against each one:\n'
-            + requirements_block
+    # Build job context from PostingSection objects (new system)
+    # Fall back to legacy description/requirements fields if no sections exist
+    sections = list(posting.sections.all())
+    if sections:
+        job_content_block = '\n\n'.join(
+            f'[{s.heading.upper()}]\n{s.body.strip()}' for s in sections
         )
     else:
-        requirements_section = (
-            'JOB REQUIREMENTS: Not explicitly listed.\n'
-            'Use the job description below as the benchmark. Be conservative — '
-            'if a qualification is not clearly evidenced, treat it as missing.'
-        )
+        # Legacy fallback
+        parts = []
+        if posting.description.strip():
+            parts.append(f'[JOB DESCRIPTION]\n{posting.description.strip()}')
+        if posting.requirements.strip():
+            parts.append(f'[REQUIREMENTS]\n{posting.requirements.strip()}')
+        job_content_block = '\n\n'.join(parts) if parts else '(No job content provided.)'
 
-    description_section = (
-        f'JOB DESCRIPTION (additional context on expectations):\n{description_block}'
-    ) if description_block else ''
+    # Identify if there's an explicit requirements or competency section
+    req_section_names = {'requirements', 'requirement', 'qualifications', 'core competencies',
+                         'competencies', 'skills required', 'what we need', 'must have'}
+    has_explicit_requirements = any(
+        s.heading.lower().strip() in req_section_names for s in sections
+    ) if sections else bool(posting.requirements.strip())
 
-    prompt = f"""You are a strict HR screening analyst. Your role is to protect the organisation from weak hires by evaluating candidates objectively and without leniency.
+    prompt = f"""You are a senior HR screening analyst at a medical eye care institution. Your role is to evaluate candidates objectively, strictly based on evidence found in their CV and application — not assumptions.
 
-POSITION: {posting.title} ({posting.get_employment_type_display()})
-DEPARTMENT: {posting.department or 'Not specified'}
+═══════════════════════════════════════════
+ROLE BEING FILLED
+═══════════════════════════════════════════
+Position  : {posting.title}
+Type      : {posting.get_employment_type_display()}
+Department: {posting.department or 'Not specified'}
+Location  : {posting.location or 'Not specified'}
 
-{requirements_section}
+═══════════════════════════════════════════
+JOB POSTING CONTENT
+═══════════════════════════════════════════
+{job_content_block}
 
-{description_section}
-
-APPLICANT: {application.applicant_name}
-=== Application Form Answers ===
+═══════════════════════════════════════════
+CANDIDATE: {application.applicant_name}
+═══════════════════════════════════════════
+--- Application Form Answers ---
 {applicant_block}
-=== End of Form ==={cv_block}
+--- End of Form ---{cv_block}
 
-MANDATORY EVALUATION RULES:
-1. Score ONLY based on clear evidence in the form answers and CV — do NOT assume or infer qualifications that are not explicitly stated.
-2. If a requirement is not clearly evidenced, mark it as a GAP. Giving benefit of the doubt is not permitted.
-3. A vague cover letter or missing answers for required fields must reduce the score.
-4. If no CV is provided or CV text is missing, penalise heavily (deduct at least 20 points).
-5. Consider professionalism, clarity, and completeness of the applicant's responses.
-6. Each stated requirement that is NOT met must appear in the gaps field.
+═══════════════════════════════════════════
+EVALUATION INSTRUCTIONS
+═══════════════════════════════════════════
+Analyse this candidate against the job posting above. Your evaluation must cover:
 
-Scoring thresholds:
-- 80–100 → meets all or nearly all requirements → recommend: invite
-- 50–79  → meets some requirements but has notable gaps → recommend: hold
-- 0–49   → does not meet the requirements → recommend: reject
+1. ROLE FIT — How well does the candidate's background, experience and skills match the specific responsibilities and expectations described in the job posting?
 
-Respond with ONLY valid JSON (no markdown, no extra text). For strengths and gaps, write each point as a short, clear sentence on its own line starting with "• ". Use plain language an HR officer can read at a glance — no jargon.
-{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-sentence overall fit verdict in plain language>", "strengths": "<each strength on its own line starting with • >", "gaps": "<each gap on its own line starting with • >"}}"""
+2. REQUIREMENTS MATCH — {"Go through EACH requirement listed and check whether the candidate clearly evidences it. Unstated = not evidenced = a gap." if has_explicit_requirements else "No explicit requirements listed — infer expectations from the job content and evaluate accordingly."}
+
+3. CERTIFICATIONS & CREDENTIALS — Identify any professional certifications, licences, diplomas or credentials mentioned in the CV that are relevant to this role. Also flag any that are expected but missing.
+
+4. CORE COMPETENCIES — Based on the role description, what are the key competencies needed? Does the candidate's CV demonstrate these? (e.g. clinical skills, management ability, technical proficiency, communication, etc.)
+
+5. EXPERIENCE DEPTH — Does the candidate have the right type AND level of experience for this role? Generic experience does not count — it must be role-relevant.
+
+6. PROFESSIONALISM — Is the CV clear, well-structured and complete? Are the form answers detailed and professional?
+
+STRICT RULES:
+• Score ONLY on clear evidence. Do NOT assume or infer qualifications not explicitly stated.
+• Missing CV = deduct at least 20 points.
+• Vague or incomplete answers = reduce score.
+• Each unmet requirement must appear as a gap.
+• Be conservative — benefit of the doubt is not permitted.
+
+SCORING:
+• 80–100 → Strong fit, meets all or nearly all requirements → recommend: invite
+• 50–79  → Partial fit, notable gaps → recommend: hold
+• 0–49   → Poor fit, does not meet requirements → recommend: reject
+
+Respond with ONLY valid JSON (no markdown, no extra text). Write each bullet point as a short clear sentence starting with "• ".
+{{"score": <integer 0-100>, "recommendation": "<invite|hold|reject>", "summary": "<2-3 sentence overall verdict — mention role fit, key strengths and main concern>", "strengths": "<each strength on its own line starting with • >", "gaps": "<each gap or missing requirement on its own line starting with • >", "certifications": "<relevant certifications found in CV, each on its own line starting with • , or • None identified if absent>"}}"""
 
     import time as _time
     payload = {

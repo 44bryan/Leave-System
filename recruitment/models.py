@@ -227,12 +227,13 @@ class Application(models.Model):
     reviewed_by      = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                                          related_name='reviewed_applications')
     # AI analysis fields
-    ai_score          = models.FloatField(null=True, blank=True)
-    ai_summary        = models.TextField(blank=True)
-    ai_strengths      = models.TextField(blank=True)
-    ai_gaps           = models.TextField(blank=True)
-    ai_recommendation = models.CharField(max_length=10, choices=AI_RECOMMENDATION_CHOICES, blank=True)
-    ai_analysed_at    = models.DateTimeField(null=True, blank=True)
+    ai_score            = models.FloatField(null=True, blank=True)
+    ai_summary          = models.TextField(blank=True)
+    ai_strengths        = models.TextField(blank=True)
+    ai_gaps             = models.TextField(blank=True)
+    ai_certifications   = models.TextField(blank=True)
+    ai_recommendation   = models.CharField(max_length=10, choices=AI_RECOMMENDATION_CHOICES, blank=True)
+    ai_analysed_at      = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-score', '-submitted_at']
