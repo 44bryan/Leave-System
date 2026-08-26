@@ -1400,10 +1400,11 @@ def ai_analyse(request, pk):
             app.ai_summary        = data.get('summary', '')
             app.ai_strengths      = data.get('strengths', '')
             app.ai_gaps           = data.get('gaps', '')
+            app.ai_certifications = data.get('certifications', '')
             app.ai_analysed_at    = timezone.now()
             app.save(update_fields=[
                 'ai_score', 'ai_recommendation', 'ai_summary',
-                'ai_strengths', 'ai_gaps', 'ai_analysed_at',
+                'ai_strengths', 'ai_gaps', 'ai_certifications', 'ai_analysed_at',
             ])
             results.append({
                 'app_pk':            app.pk,
@@ -1412,6 +1413,7 @@ def ai_analyse(request, pk):
                 'ai_summary':        app.ai_summary,
                 'ai_strengths':      app.ai_strengths,
                 'ai_gaps':           app.ai_gaps,
+                'ai_certifications': app.ai_certifications,
             })
         except Exception as exc:
             errors.append({'app_pk': app.pk, 'name': app.applicant_name, 'error': str(exc)})
