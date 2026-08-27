@@ -360,7 +360,7 @@ toggleStatusFields();
             btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Re-analyse';
         })
         .catch(function (err) {
-            alert('Network error: ' + err);
+            alert('AI analysis failed — the server took too long or is temporarily unavailable. Please try again in a moment.');
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-stars me-1"></i>Analyse with AI';
         });

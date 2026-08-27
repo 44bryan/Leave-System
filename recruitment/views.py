@@ -1339,7 +1339,7 @@ Respond with ONLY valid JSON (no markdown, no extra text). Write each bullet poi
         'contents': [{'parts': [{'text': prompt}]}],
         'generationConfig': {
             'temperature': 0.1,
-            'maxOutputTokens': 600,
+            'maxOutputTokens': 1200,
             'responseMimeType': 'application/json',
             'thinkingConfig': {'thinkingBudget': 0},
         },
@@ -1349,9 +1349,9 @@ Respond with ONLY valid JSON (no markdown, no extra text). Write each bullet poi
         f'?key={settings.GEMINI_API_KEY}'
     )
     for attempt in range(3):
-        resp = http_requests.post(url, json=payload, timeout=40)
+        resp = http_requests.post(url, json=payload, timeout=25)
         if resp.status_code == 429:
-            wait = 15 * (attempt + 1)   # 15s, 30s, 45s
+            wait = 8 * (attempt + 1)   # 8s, 16s — total worst case ~75s, well under 120s timeout
             _time.sleep(wait)
             continue
         break
