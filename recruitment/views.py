@@ -1154,8 +1154,10 @@ def applicant_detail(request, posting_pk, pk):
 
 def _ai_analyse_background(posting, app):
     """Run AI analysis in a background thread after application submission."""
-    import logging
+    import logging, random, time as _t
     logger = logging.getLogger(__name__)
+    # Stagger concurrent submissions so multiple CVs don't all hit Gemini at once
+    _t.sleep(random.uniform(5, 45))
     try:
         data = _call_gemini(posting, app)
         app.ai_score          = float(data.get('score', 0))
