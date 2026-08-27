@@ -203,12 +203,6 @@
             {% if dependants %}<span class="badge bg-secondary ms-1">{{ dependants|length }}</span>{% endif %}
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#tab-sick-leaves">
-            <i class="bi bi-hospital me-1"></i>{% trans "Sick Leaves" %}
-            {% if sick_leaves %}<span class="badge bg-info ms-1">{{ sick_leaves|length }}</span>{% endif %}
-        </a>
-    </li>
 </ul>
 
 <div class="tab-content">
@@ -730,60 +724,6 @@
                 </div>
                 {% endif %}
             </div>
-        </div>
-    </div>
-
-    <!-- ── TAB: Medical Sick Leaves ── -->
-    <div class="tab-pane fade" id="tab-sick-leaves">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <span><i class="bi bi-hospital me-2" style="color:#2db4c3;"></i>{% trans "Medical Sick Leave Records" %}</span>
-                <span class="badge bg-info">{{ sick_leaves|length }}</span>
-            </div>
-            {% if not sick_leaves %}
-            <div class="card-body text-center py-5 text-muted">
-                <i class="bi bi-file-earmark-medical fs-2 d-block mb-2"></i>
-                {% trans "No medical sick leave records found." %}
-            </div>
-            {% else %}
-            <div class="table-responsive">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>{% trans "Issued By" %}</th>
-                            <th>{% trans "Date Issued" %}</th>
-                            <th>{% trans "Period" %}</th>
-                            <th>{% trans "Days" %}</th>
-                            <th>{% trans "Status" %}</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for sl in sick_leaves %}
-                        <tr>
-                            <td style="font-size:.78rem;color:#6b7a8d;">MSL-{{ sl.pk|stringformat:"04d" }}</td>
-                            <td style="font-size:.85rem;">{{ sl.issued_by.get_full_name }}</td>
-                            <td style="font-size:.82rem;">{{ sl.date_of_issuance|date:"d M Y" }}</td>
-                            <td style="font-size:.82rem;">{{ sl.start_date|date:"d M" }} → {{ sl.end_date|date:"d M Y" }}</td>
-                            <td><strong>{{ sl.days_count }}d</strong></td>
-                            <td><span class="badge bg-{{ sl.get_status_badge }}">{{ sl.get_status_display }}</span></td>
-                            <td>
-                                <a href="{% url 'medical_leave:detail' sl.pk %}" class="btn btn-xs btn-outline-primary" style="font-size:.75rem;padding:2px 8px;">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                {% if sl.is_fully_endorsed %}
-                                <a href="{% url 'medical_leave:print' sl.pk %}" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:2px 8px;" target="_blank">
-                                    <i class="bi bi-printer"></i>
-                                </a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
         </div>
     </div>
 

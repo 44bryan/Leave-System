@@ -625,11 +625,6 @@ def employee_history(request, pk):
 
     dependants = employee.health_dependants.all()
 
-    from medical_leave.models import MedicalSickLeave
-    sick_leaves = MedicalSickLeave.objects.filter(employee=employee).select_related(
-        'issued_by__user', 'line_manager_action_by__user', 'hr_action_by__user'
-    ).order_by('-date_of_issuance')
-
     return render(request, 'accounts/employee_history.html', {
         'employee': employee,
         'contracts': contracts,
@@ -641,7 +636,6 @@ def employee_history(request, pk):
         'is_privileged': is_privileged,
         'appraisals': appraisals,
         'dependants': dependants,
-        'sick_leaves': sick_leaves,
     })
 
 
