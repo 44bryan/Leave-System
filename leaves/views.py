@@ -1474,7 +1474,6 @@ def leave_records(request):
     except (ValueError, TypeError):
         year_filter = date.today().year
 
-    from django.db.models import Count, Sum
     from .models import LeaveType
     from accounts.models import Department
 
@@ -1486,12 +1485,6 @@ def leave_records(request):
         base_qs = base_qs.filter(employee_id=emp_filter)
     elif dept_filter:
         base_qs = base_qs.filter(employee__department_id=dept_filter)
-
-    leave_type_stats = (
-        base_qs.values('leave_type__pk', 'leave_type__name')
-        .annotate(count=Count('id'), total_days=Sum('total_days'))
-        .order_by('-count')
-    )
 
     leave_types   = LeaveType.objects.filter(is_active=True).order_by('name')
     departments   = Department.objects.all()
@@ -1506,7 +1499,6 @@ def leave_records(request):
         'leave_type_filter': leave_type_filter,
         'dept_filter': dept_filter,
         'emp_filter': emp_filter,
-        'leave_type_stats': leave_type_stats,
         'leave_types': leave_types,
         'departments': departments,
         'all_employees': all_employees,

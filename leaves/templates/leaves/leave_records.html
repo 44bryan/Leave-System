@@ -59,24 +59,19 @@
     </div>
 </div>
 
-<!-- Per-type summary badges -->
-{% if leave_type_stats %}
-<div class="mb-3 d-flex flex-wrap gap-2 animate-in">
-    {% for stat in leave_type_stats %}
-    <span class="badge rounded-pill text-bg-light border" style="font-size:.82rem;padding:.45rem .9rem;">
-        <span style="color:#0A4D68;font-weight:600;">{{ stat.leave_type__name }}</span>
-        <span class="ms-1 text-muted">{{ stat.count }} request{{ stat.count|pluralize }} · {{ stat.total_days|default:0 }}d</span>
-    </span>
-    {% endfor %}
-</div>
-{% endif %}
-
 <!-- Records table -->
 <div class="card animate-in delay-1">
-    <div class="card-header">
-        <i class="bi bi-check2-circle me-2" style="color:#2db4c3;"></i>
-        {{ leave_requests|length }} Approved Record{{ leave_requests|length|pluralize }}
-        {% if leave_type_filter and leave_requests %} — {{ leave_requests.0.leave_type }}{% endif %}
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            <i class="bi bi-check2-circle me-2" style="color:#2db4c3;"></i>
+            {{ leave_requests|length }} Approved Record{{ leave_requests|length|pluralize }}
+            {% if leave_type_filter and leave_requests %} — {{ leave_requests.0.leave_type }}{% endif %}
+        </span>
+        {% if leave_type_filter %}
+        <a href="?year={{ year_filter }}&dept={{ dept_filter }}&employee={{ emp_filter }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-x me-1"></i>Clear type filter
+        </a>
+        {% endif %}
     </div>
     <div class="table-responsive">
         <table class="table mb-0" style="min-width:560px;">
