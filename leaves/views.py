@@ -1473,6 +1473,9 @@ def leave_records(request):
         .order_by('-count')
     )
 
+    from .models import LeaveType
+    leave_types = LeaveType.objects.filter(is_active=True).order_by('name')
+
     qs = base_qs.select_related('employee__user', 'employee__department', 'leave_type')
     if leave_type_filter:
         qs = qs.filter(leave_type_id=leave_type_filter)
@@ -1481,6 +1484,7 @@ def leave_records(request):
         'leave_requests': qs,
         'leave_type_filter': leave_type_filter,
         'leave_type_stats': leave_type_stats,
+        'leave_types': leave_types,
         'year_filter': year_filter,
         'years': range(2024, date.today().year + 2),
     })

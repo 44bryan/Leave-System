@@ -7,42 +7,44 @@
 
 {% block content %}
 
-<!-- Year filter -->
+<!-- Filters -->
 <div class="card mb-4 animate-in">
     <div class="card-body p-3">
-        <form method="get" class="d-flex align-items-end gap-3">
-            <div>
-                <label class="form-label mb-1">Year</label>
-                <select name="year" class="form-select" style="width:120px;">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-6 col-md-3">
+                <label class="form-label">Year</label>
+                <select name="year" class="form-select">
                     {% for y in years %}
                     <option value="{{ y }}" {% if y == year_filter %}selected{% endif %}>{{ y }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <input type="hidden" name="leave_type" value="{{ leave_type_filter }}">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-funnel me-1"></i>Filter
-            </button>
+            <div class="col-6 col-md-4">
+                <label class="form-label">Leave Type</label>
+                <select name="leave_type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for lt in leave_types %}
+                    <option value="{{ lt.pk }}" {% if lt.pk|stringformat:"s" == leave_type_filter %}selected{% endif %}>{{ lt.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+            </div>
         </form>
     </div>
 </div>
 
-<!-- Leave type pills -->
+<!-- Per-type summary badges -->
 {% if leave_type_stats %}
 <div class="mb-3 d-flex flex-wrap gap-2 animate-in">
-    <a href="?year={{ year_filter }}"
-       class="badge rounded-pill text-decoration-none {% if not leave_type_filter %}text-white{% else %}text-bg-light border{% endif %}"
-       style="font-size:.85rem;padding:.5rem 1rem;{% if not leave_type_filter %}background:#0A4D68;{% endif %}">
-        All
-        <span class="ms-1 opacity-75">{{ leave_type_stats|length }} type{{ leave_type_stats|length|pluralize }}</span>
-    </a>
     {% for stat in leave_type_stats %}
-    <a href="?year={{ year_filter }}&leave_type={{ stat.leave_type__pk }}"
-       class="badge rounded-pill text-decoration-none {% if leave_type_filter == stat.leave_type__pk|stringformat:'s' %}text-white{% else %}text-bg-light border{% endif %}"
-       style="font-size:.85rem;padding:.5rem 1rem;{% if leave_type_filter == stat.leave_type__pk|stringformat:'s' %}background:#0A4D68;{% endif %}">
-        {{ stat.leave_type__name }}
-        <span class="ms-1 opacity-75">{{ stat.count }} · {{ stat.total_days|default:0 }}d</span>
-    </a>
+    <span class="badge rounded-pill text-bg-light border" style="font-size:.82rem;padding:.45rem .9rem;">
+        <span style="color:#0A4D68;font-weight:600;">{{ stat.leave_type__name }}</span>
+        <span class="ms-1 text-muted">{{ stat.count }} request{{ stat.count|pluralize }} · {{ stat.total_days|default:0 }}d</span>
+    </span>
     {% endfor %}
 </div>
 {% endif %}
