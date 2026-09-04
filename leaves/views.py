@@ -98,17 +98,28 @@ def _notify_backup_selected(leave):
 
 
 def _notify_backup_confirmed(leave):
-    """Notify backup employee that the leave is fully approved and they are now covering."""
+    """Notify backup employee that the leave is fully approved and they are now covering.
+    Also grant them acting_role equal to the absent employee's role so they inherit permissions."""
     if not leave.backup_employee:
         return
+
+    absent = leave.employee
+    backup = leave.backup_employee
+
+    # Grant acting role — only for meaningful roles that carry approval permissions
+    ACTING_ROLES = {'manager', 'unit_head', 'nurse_superintendent', 'hr',
+                    'admin_director', 'finance_director', 'medical_director', 'ceo'}
+    if absent.role in ACTING_ROLES and not backup.acting_role:
+        backup.acting_role = absent.role
+        backup.save(update_fields=['acting_role'])
+
     notify(
-        leave.backup_employee.user,
-        f'Confirmed: You are now covering for {leave.employee.get_full_name()}',
-        f'The {leave.leave_type} request for {leave.employee.get_full_name()} '
+        backup.user,
+        f'Confirmed: You are now acting as {absent.get_full_name()}',
+        f'The {leave.leave_type} for {absent.get_full_name()} '
         f'({leave.start_date} to {leave.end_date}, {leave.total_days} day(s)) '
-        f'has been fully approved. You are their designated backup for this period. '
-        f'Any responsibilities or leave requests that would normally go to them '
-        f'will be routed to you during this time.',
+        f'has been fully approved. You are their designated backup and will have '
+        f'their system permissions until they return.',
         notification_type='leave_approved',
         url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
     )
