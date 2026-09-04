@@ -1456,16 +1456,25 @@ def leave_records(request):
         return redirect('dashboard:home')
 
     leave_type_filter = request.GET.get('leave_type', '')
+    dept_filter       = request.GET.get('dept', '')
+    emp_filter        = request.GET.get('employee', '')
     try:
         year_filter = int(request.GET.get('year', date.today().year))
     except (ValueError, TypeError):
         year_filter = date.today().year
 
     from django.db.models import Count, Sum
+    from .models import LeaveType
+    from accounts.models import Department
+
     base_qs = LeaveRequest.objects.filter(
         status=LeaveRequest.STATUS_APPROVED,
         start_date__year=year_filter,
     )
+    if emp_filter:
+        base_qs = base_qs.filter(employee_id=emp_filter)
+    elif dept_filter:
+        base_qs = base_qs.filter(employee__department_id=dept_filter)
 
     leave_type_stats = (
         base_qs.values('leave_type__pk', 'leave_type__name')
@@ -1473,8 +1482,9 @@ def leave_records(request):
         .order_by('-count')
     )
 
-    from .models import LeaveType
-    leave_types = LeaveType.objects.filter(is_active=True).order_by('name')
+    leave_types   = LeaveType.objects.filter(is_active=True).order_by('name')
+    departments   = Department.objects.all()
+    all_employees = Employee.objects.filter(is_active=True).select_related('user').order_by('user__last_name')
 
     qs = base_qs.select_related('employee__user', 'employee__department', 'leave_type')
     if leave_type_filter:
@@ -1483,8 +1493,12 @@ def leave_records(request):
     return render(request, 'leaves/leave_records.html', {
         'leave_requests': qs,
         'leave_type_filter': leave_type_filter,
+        'dept_filter': dept_filter,
+        'emp_filter': emp_filter,
         'leave_type_stats': leave_type_stats,
         'leave_types': leave_types,
+        'departments': departments,
+        'all_employees': all_employees,
         'year_filter': year_filter,
         'years': range(2024, date.today().year + 2),
     })

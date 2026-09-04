@@ -11,7 +11,7 @@
 <div class="card mb-4 animate-in">
     <div class="card-body p-3">
         <form method="get" class="row g-2 align-items-end">
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
                 <label class="form-label">Year</label>
                 <select name="year" class="form-select">
                     {% for y in years %}
@@ -19,7 +19,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-6 col-md-2">
                 <label class="form-label">Leave Type</label>
                 <select name="leave_type" class="form-select">
                     <option value="">All Types</option>
@@ -27,6 +27,28 @@
                     <option value="{{ lt.pk }}" {% if lt.pk|stringformat:"s" == leave_type_filter %}selected{% endif %}>{{ lt.name }}</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label">Department</label>
+                <select name="dept" class="form-select">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.pk }}" {% if dept.pk|stringformat:"s" == dept_filter %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label">Employee</label>
+                <div class="emp-ajax-wrap">
+                    <input type="text" class="form-control emp-ajax-input" placeholder="Type name to search…" autocomplete="off">
+                    <div class="emp-ajax-dropdown"></div>
+                    <input type="hidden" name="employee" class="emp-ajax-value" value="{{ emp_filter }}">
+                    <div class="emp-ajax-selected mt-1" style="{% if not emp_filter %}display:none;{% endif %}font-size:.85rem;color:#0A4D68;">
+                        <i class="bi bi-person-check me-1"></i>
+                        <span class="emp-ajax-name">{% if emp_filter %}{% for e in all_employees %}{% if e.pk|stringformat:"s" == emp_filter %}{{ e.get_full_name }}{% endif %}{% endfor %}{% endif %}</span>
+                        <a href="#" class="emp-ajax-clear ms-2 text-danger">✕</a>
+                    </div>
+                </div>
             </div>
             <div class="col-12 col-md-2">
                 <button type="submit" class="btn btn-primary w-100">
@@ -51,12 +73,10 @@
 
 <!-- Records table -->
 <div class="card animate-in delay-1">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span>
-            <i class="bi bi-check2-circle me-2" style="color:#2db4c3;"></i>
-            {{ leave_requests|length }} Approved Record{{ leave_requests|length|pluralize }}
-            {% if leave_type_filter and leave_requests %} — {{ leave_requests.0.leave_type }}{% endif %}
-        </span>
+    <div class="card-header">
+        <i class="bi bi-check2-circle me-2" style="color:#2db4c3;"></i>
+        {{ leave_requests|length }} Approved Record{{ leave_requests|length|pluralize }}
+        {% if leave_type_filter and leave_requests %} — {{ leave_requests.0.leave_type }}{% endif %}
     </div>
     <div class="table-responsive">
         <table class="table mb-0" style="min-width:560px;">
