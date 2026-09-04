@@ -1398,24 +1398,35 @@ def all_leaves_hr(request):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
 
-    status_filter = request.GET.get('status', '')
-    dept_filter   = request.GET.get('dept', '')
-    emp_filter    = request.GET.get('employee', '')
+    status_filter     = request.GET.get('status', '')
+    dept_filter       = request.GET.get('dept', '')
+    emp_filter        = request.GET.get('employee', '')
+    leave_type_filter = request.GET.get('leave_type', '')
     try:
         year_filter = int(request.GET.get('year', date.today().year))
     except (ValueError, TypeError):
         year_filter = date.today().year
 
-    qs = LeaveRequest.objects.select_related(
-        'employee__user', 'employee__department', 'leave_type'
-    ).filter(start_date__year=year_filter)
-
+    # Base queryset without leave_type filter — used for per-type counts
+    from django.db.models import Count
+    base_qs = LeaveRequest.objects.filter(start_date__year=year_filter)
     if status_filter:
-        qs = qs.filter(status=status_filter)
+        base_qs = base_qs.filter(status=status_filter)
     if emp_filter:
-        qs = qs.filter(employee_id=emp_filter)
+        base_qs = base_qs.filter(employee_id=emp_filter)
     elif dept_filter:
-        qs = qs.filter(employee__department_id=dept_filter)
+        base_qs = base_qs.filter(employee__department_id=dept_filter)
+
+    leave_type_stats = (
+        base_qs.values('leave_type__pk', 'leave_type__name')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+
+    # Apply leave_type filter for the displayed records
+    qs = base_qs.select_related('employee__user', 'employee__department', 'leave_type')
+    if leave_type_filter:
+        qs = qs.filter(leave_type_id=leave_type_filter)
 
     from accounts.models import Department
     departments = Department.objects.all()
@@ -1426,6 +1437,8 @@ def all_leaves_hr(request):
         'status_filter': status_filter,
         'dept_filter': dept_filter,
         'emp_filter': emp_filter,
+        'leave_type_filter': leave_type_filter,
+        'leave_type_stats': leave_type_stats,
         'year_filter': year_filter,
         'departments': departments,
         'all_employees': all_employees,

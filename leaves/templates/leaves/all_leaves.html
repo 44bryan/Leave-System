@@ -58,9 +58,27 @@
     </div>
 </div>
 
+<!-- Leave type quick-filter pills -->
+{% if leave_type_stats %}
+<div class="mb-3 d-flex flex-wrap gap-2 animate-in">
+    <a href="?year={{ year_filter }}&status={{ status_filter }}&dept={{ dept_filter }}&employee={{ emp_filter }}"
+       class="badge rounded-pill text-decoration-none {% if not leave_type_filter %}text-white{% else %}text-bg-light border{% endif %}"
+       style="font-size:.82rem;padding:.45rem .9rem;{% if not leave_type_filter %}background:#0A4D68;{% endif %}">
+        All &nbsp;<span class="opacity-75">{{ leave_type_stats|length }} type{{ leave_type_stats|length|pluralize }}</span>
+    </a>
+    {% for stat in leave_type_stats %}
+    <a href="?year={{ year_filter }}&status={{ status_filter }}&dept={{ dept_filter }}&employee={{ emp_filter }}&leave_type={{ stat.leave_type__pk }}"
+       class="badge rounded-pill text-decoration-none {% if leave_type_filter == stat.leave_type__pk|stringformat:'s' %}text-white{% else %}text-bg-light border{% endif %}"
+       style="font-size:.82rem;padding:.45rem .9rem;{% if leave_type_filter == stat.leave_type__pk|stringformat:'s' %}background:#0A4D68;{% endif %}">
+        {{ stat.leave_type__name }} &nbsp;<span class="opacity-75">{{ stat.count }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="card animate-in delay-1">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-list-ul me-2"></i>{{ leave_requests|length }} Record(s)</span>
+        <span><i class="bi bi-list-ul me-2"></i>{{ leave_requests|length }} Record(s){% if leave_type_filter %} — {{ leave_requests.0.leave_type }}{% endif %}</span>
         {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_director or request.user.employee.is_ceo %}
         <a href="{% url 'dashboard:export_leaves' %}?year={{ year_filter }}&department={{ dept_filter }}&employee={{ emp_filter }}&status={{ status_filter }}" class="btn btn-sm btn-primary" title="Download exactly what you see as PDF">
             <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download PDF" %}
