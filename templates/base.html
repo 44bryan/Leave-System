@@ -1472,6 +1472,11 @@
                 </a>
             </li>
             <li class="nav-item-sidebar">
+                <a href="{% url 'leaves:leave_records' %}" class="nav-link-sidebar {% block nav_leave_records %}{% endblock %}">
+                    <i class="bi bi-journal-check"></i> {% trans "Leave Records" %}
+                </a>
+            </li>
+            <li class="nav-item-sidebar">
                 <a href="{% url 'dashboard:tracker' %}" class="nav-link-sidebar {% block nav_tracker %}{% endblock %}">
                     <i class="bi bi-bar-chart-line"></i> {% trans "Leave Tracker" %}
                 </a>

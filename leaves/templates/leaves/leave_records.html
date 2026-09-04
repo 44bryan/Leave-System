@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Leave Records — AEF HRM{% endblock %}
+{% block page_title %}Leave Records{% endblock %}
+{% block page_subtitle %}Approved leave records — {{ year_filter }}{% endblock %}
+{% block nav_leave_records %}active{% endblock %}
+
+{% block content %}
+
+<!-- Year filter -->
+<div class="card mb-4 animate-in">
+    <div class="card-body p-3">
+        <form method="get" class="d-flex align-items-end gap-3">
+            <div>
+                <label class="form-label mb-1">Year</label>
+                <select name="year" class="form-select" style="width:120px;">
+                    {% for y in years %}
+                    <option value="{{ y }}" {% if y == year_filter %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="leave_type" value="{{ leave_type_filter }}">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-funnel me-1"></i>Filter
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Leave type pills -->
+{% if leave_type_stats %}
+<div class="mb-3 d-flex flex-wrap gap-2 animate-in">
+    <a href="?year={{ year_filter }}"
+       class="badge rounded-pill text-decoration-none {% if not leave_type_filter %}text-white{% else %}text-bg-light border{% endif %}"
+       style="font-size:.85rem;padding:.5rem 1rem;{% if not leave_type_filter %}background:#0A4D68;{% endif %}">
+        All
+        <span class="ms-1 opacity-75">{{ leave_type_stats|length }} type{{ leave_type_stats|length|pluralize }}</span>
+    </a>
+    {% for stat in leave_type_stats %}
+    <a href="?year={{ year_filter }}&leave_type={{ stat.leave_type__pk }}"
+       class="badge rounded-pill text-decoration-none {% if leave_type_filter == stat.leave_type__pk|stringformat:'s' %}text-white{% else %}text-bg-light border{% endif %}"
+       style="font-size:.85rem;padding:.5rem 1rem;{% if leave_type_filter == stat.leave_type__pk|stringformat:'s' %}background:#0A4D68;{% endif %}">
+        {{ stat.leave_type__name }}
+        <span class="ms-1 opacity-75">{{ stat.count }} · {{ stat.total_days|default:0 }}d</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Records table -->
+<div class="card animate-in delay-1">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            <i class="bi bi-check2-circle me-2" style="color:#2db4c3;"></i>
+            {{ leave_requests|length }} Approved Record{{ leave_requests|length|pluralize }}
+            {% if leave_type_filter and leave_requests %} — {{ leave_requests.0.leave_type }}{% endif %}
+        </span>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0" style="min-width:560px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Leave Type</th>
+                    <th class="text-nowrap">Period</th>
+                    <th>Days</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in leave_requests %}
+                <tr>
+                    <td class="text-muted" style="font-size:.78rem;">#{{ req.pk }}</td>
+                    <td>
+                        <a href="{% url 'accounts:employee_history' req.employee.pk %}" class="text-decoration-none text-dark">
+                            <div style="font-weight:600;font-size:.875rem;">{{ req.employee.get_full_name }}</div>
+                            <div class="t-secondary">{{ req.employee.employee_id }}</div>
+                        </a>
+                    </td>
+                    <td class="t-sm">{{ req.employee.department|default:"—" }}</td>
+                    <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
+                    <td class="t-sm text-nowrap">{{ req.start_date }} → {{ req.end_date }}</td>
+                    <td><strong>{{ req.total_days }}d</strong></td>
+                    <td>
+                        <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-file-earmark-x fs-2 d-block mb-2"></i>
+                        No approved leave records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

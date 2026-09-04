@@ -1448,6 +1448,45 @@ def all_leaves_hr(request):
 
 
 @login_required
+def leave_records(request):
+    """HR/Director: approved leave records filterable by leave type."""
+    employee = get_employee(request)
+    if not employee or (not employee.is_hr() and not employee.is_director() and not employee.is_ceo()):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    leave_type_filter = request.GET.get('leave_type', '')
+    try:
+        year_filter = int(request.GET.get('year', date.today().year))
+    except (ValueError, TypeError):
+        year_filter = date.today().year
+
+    from django.db.models import Count, Sum
+    base_qs = LeaveRequest.objects.filter(
+        status=LeaveRequest.STATUS_APPROVED,
+        start_date__year=year_filter,
+    )
+
+    leave_type_stats = (
+        base_qs.values('leave_type__pk', 'leave_type__name')
+        .annotate(count=Count('id'), total_days=Sum('total_days'))
+        .order_by('-count')
+    )
+
+    qs = base_qs.select_related('employee__user', 'employee__department', 'leave_type')
+    if leave_type_filter:
+        qs = qs.filter(leave_type_id=leave_type_filter)
+
+    return render(request, 'leaves/leave_records.html', {
+        'leave_requests': qs,
+        'leave_type_filter': leave_type_filter,
+        'leave_type_stats': leave_type_stats,
+        'year_filter': year_filter,
+        'years': range(2024, date.today().year + 2),
+    })
+
+
+@login_required
 def employee_leave_summary(request, pk):
     """Full leave summary for a specific employee — accessible to HR, Director, and the employee themselves."""
     from accounts.models import Employee as EmpModel

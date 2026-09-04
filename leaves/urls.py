@@ -18,6 +18,7 @@ urlpatterns = [
     path('hr/pending/', views.hr_approvals, name='hr_approvals'),
     path('hr/action/<int:pk>/', views.hr_action, name='hr_action'),
     path('hr/all/', views.all_leaves_hr, name='all_leaves'),
+    path('hr/records/', views.leave_records, name='leave_records'),
     path('director/pending/', views.director_approvals, name='director_approvals'),
     path('director/action/<int:pk>/', views.director_action, name='director_action'),
     path('ceo/pending/', views.ceo_approvals, name='ceo_approvals'),
