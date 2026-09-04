@@ -1398,10 +1398,9 @@ def all_leaves_hr(request):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
 
-    status_filter    = request.GET.get('status', '')
-    dept_filter      = request.GET.get('dept', '')
-    emp_filter       = request.GET.get('employee', '')
-    leave_type_filter = request.GET.get('leave_type', '')
+    status_filter = request.GET.get('status', '')
+    dept_filter   = request.GET.get('dept', '')
+    emp_filter    = request.GET.get('employee', '')
     try:
         year_filter = int(request.GET.get('year', date.today().year))
     except (ValueError, TypeError):
@@ -1413,43 +1412,23 @@ def all_leaves_hr(request):
 
     if status_filter:
         qs = qs.filter(status=status_filter)
-    if leave_type_filter:
-        qs = qs.filter(leave_type_id=leave_type_filter)
     if emp_filter:
         qs = qs.filter(employee_id=emp_filter)
     elif dept_filter:
         qs = qs.filter(employee__department_id=dept_filter)
 
     from accounts.models import Department
-    from .models import LeaveType
     departments = Department.objects.all()
     all_employees = Employee.objects.filter(is_active=True).select_related('user', 'department').order_by('user__last_name')
-    leave_types = LeaveType.objects.filter(is_active=True).order_by('name')
-
-    # Stats: count per leave type across current filtered results (excluding leave_type filter so we show all types)
-    from django.db.models import Count, Sum
-    base_qs = LeaveRequest.objects.filter(start_date__year=year_filter)
-    if status_filter:
-        base_qs = base_qs.filter(status=status_filter)
-    if emp_filter:
-        base_qs = base_qs.filter(employee_id=emp_filter)
-    elif dept_filter:
-        base_qs = base_qs.filter(employee__department_id=dept_filter)
-    leave_type_stats = base_qs.values('leave_type__name').annotate(
-        count=Count('id'), total_days=Sum('total_days')
-    ).order_by('-count')
 
     return render(request, 'leaves/all_leaves.html', {
         'leave_requests': qs,
         'status_filter': status_filter,
         'dept_filter': dept_filter,
         'emp_filter': emp_filter,
-        'leave_type_filter': leave_type_filter,
         'year_filter': year_filter,
         'departments': departments,
         'all_employees': all_employees,
-        'leave_types': leave_types,
-        'leave_type_stats': leave_type_stats,
         'status_choices': LeaveRequest.STATUS_CHOICES,
         'years': range(2000, date.today().year + 11),
     })
