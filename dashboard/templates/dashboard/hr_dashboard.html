@@ -309,78 +309,98 @@
 
 <div class="row g-3 mb-3 animate-in">
     <div class="col-6 col-md-4 col-lg-2">
-        <div class="hr-kpi-card">
+        <a href="{% url 'accounts:employee_list' %}" class="text-decoration-none">
+        <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-people-fill"></i></div>
             <div class="hr-kpi-value">{{ total_employees }}</div>
             <div class="hr-kpi-label">{% trans "Total Active Staff" %}</div>
         </div>
+        </a>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
-        <div class="hr-kpi-card" style="{% if pending_hr > 0 %}background:linear-gradient(135deg,#e0f7fa,#f0fdff);border-color:#2db4c3;{% endif %}">
+        <a href="{% url 'leaves:hr_approvals' %}" class="text-decoration-none">
+        <div class="hr-kpi-card" style="cursor:pointer;{% if pending_hr > 0 %}background:linear-gradient(135deg,#e0f7fa,#f0fdff);border-color:#2db4c3;{% endif %}">
             <div class="hr-kpi-icon" style="background:#e0f7fa;color:#2db4c3;"><i class="bi bi-clipboard2-check-fill"></i></div>
             <div class="hr-kpi-value" style="{% if pending_hr > 0 %}color:#2db4c3;{% endif %}">{{ pending_hr }}</div>
             <div class="hr-kpi-label">{% trans "Pending HR Review" %}</div>
         </div>
+        </a>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
-        <div class="hr-kpi-card">
+        <a href="{% url 'leaves:all_leaves' %}?status=approved" class="text-decoration-none">
+        <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#e8f5e9;color:#1a8fa0;"><i class="bi bi-check2-all"></i></div>
             <div class="hr-kpi-value">{{ approved_year }}</div>
             <div class="hr-kpi-label">{% blocktrans with y=year %}Leaves Approved in {{ y }}{% endblocktrans %}</div>
         </div>
+        </a>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
-        <div class="hr-kpi-card">
+        <a href="{% url 'leaves:all_leaves' %}?status=rejected" class="text-decoration-none">
+        <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#fce4ec;color:#dc2626;"><i class="bi bi-x-circle-fill"></i></div>
             <div class="hr-kpi-value">{{ rejected_year }}</div>
             <div class="hr-kpi-label">{% blocktrans with y=year %}Leaves Rejected in {{ y }}{% endblocktrans %}</div>
         </div>
+        </a>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
-        <div class="hr-kpi-card">
+        <a href="{% url 'leaves:all_leaves' %}?status=approved" class="text-decoration-none" title="View staff currently on approved leave">
+        <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#fff3e0;color:#d97706;"><i class="bi bi-airplane-fill"></i></div>
             <div class="hr-kpi-value">{{ on_leave_now|length }}</div>
             <div class="hr-kpi-label">{% trans "Staff on Leave Today" %}</div>
         </div>
+        </a>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
-        <div class="hr-kpi-card" style="{% if low_balance %}border-color:#fca5a5;{% endif %}">
+        <a href="{% url 'dashboard:tracker' %}" class="text-decoration-none" title="View leave balances">
+        <div class="hr-kpi-card" style="cursor:pointer;{% if low_balance %}border-color:#fca5a5;{% endif %}">
             <div class="hr-kpi-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-battery-half"></i></div>
             <div class="hr-kpi-value" style="{% if low_balance %}color:#dc2626;{% endif %}">{{ low_balance|length }}</div>
             <div class="hr-kpi-label">{% trans "Low Leave Balance (≤ 3 days)" %}</div>
         </div>
+        </a>
     </div>
 </div>
 
 <!-- ── Rate Indicators ── -->
 <div class="row g-3 mb-3 animate-in">
     <div class="col-6 col-sm-3">
-        <div class="hr-kpi-card">
+        <a href="{% url 'leaves:all_leaves' %}" class="text-decoration-none">
+        <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#e8f5e9;color:#059669;"><i class="bi bi-percent"></i></div>
             <div class="hr-kpi-value" style="color:#059669;">{{ approval_rate }}%</div>
             <div class="hr-kpi-label">{% trans "Approval Rate" %} {{ year }}</div>
         </div>
+        </a>
     </div>
     <div class="col-6 col-sm-3">
-        <div class="hr-kpi-card">
+        <a href="{% url 'leaves:all_leaves' %}?status=approved" class="text-decoration-none">
+        <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#fff3e0;color:#d97706;"><i class="bi bi-bar-chart-fill"></i></div>
             <div class="hr-kpi-value" style="color:#d97706;">{{ on_leave_pct }}%</div>
             <div class="hr-kpi-label">{% trans "% Staff on Leave Today" %}</div>
         </div>
+        </a>
     </div>
     <div class="col-6 col-sm-3">
-        <div class="hr-kpi-card">
+        <a href="{% url 'leaves:all_leaves' %}?status=approved" class="text-decoration-none">
+        <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#e0f7fa;color:#2db4c3;"><i class="bi bi-person-check-fill"></i></div>
             <div class="hr-kpi-value" style="color:#2db4c3;">{{ on_leave_count }}</div>
             <div class="hr-kpi-label">{% trans "Absent Today (count)" %}</div>
         </div>
+        </a>
     </div>
     <div class="col-6 col-sm-3">
-        <div class="hr-kpi-card">
+        <a href="{% url 'leaves:all_leaves' %}" class="text-decoration-none">
+        <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#e3f2fd;color:#0A4D68;"><i class="bi bi-check2-square"></i></div>
             <div class="hr-kpi-value" style="color:#0A4D68;">{{ approved_year|add:rejected_year }}</div>
             <div class="hr-kpi-label">{% trans "Decisions Made" %} {{ year }}</div>
         </div>
+        </a>
     </div>
 </div>
 </div><!-- /block overview -->
