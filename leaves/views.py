@@ -1435,7 +1435,7 @@ def all_leaves_hr(request):
     )
 
     # Apply leave_type filter for the displayed records
-    qs = base_qs.select_related('employee__user', 'employee__department', 'leave_type')
+    qs = base_qs.select_related('employee__user', 'employee__department', 'employee__supervisor__user', 'leave_type')
     if leave_type_filter:
         qs = qs.filter(leave_type_id=leave_type_filter)
 

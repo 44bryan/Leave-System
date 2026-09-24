@@ -96,6 +96,7 @@
                     <th class="text-nowrap">{% trans "Period" %}</th>
                     <th>{% trans "Days" %}</th>
                     <th>{% trans "Status" %}</th>
+                    <th>{% trans "Waiting On" %}</th>
                     <th class="th-opt">{% trans "Applied" %}</th>
                     <th>{% trans "View" %}</th>
                 </tr>
@@ -117,6 +118,31 @@
                     <td class="text-nowrap">
                         <span class="badge bg-{{ req.get_status_badge }}">{{ req.get_status_display }}</span>
                     </td>
+                    <td class="t-sm">
+                        {% if req.status == 'pending' %}
+                            {% if req.employee.supervisor %}
+                                <i class="bi bi-hourglass-split text-warning me-1"></i>{{ req.employee.supervisor.get_full_name }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        {% elif req.status == 'unit_head_approved' %}
+                            {% if req.employee.supervisor %}
+                                <i class="bi bi-hourglass-split text-warning me-1"></i>{{ req.employee.supervisor.get_full_name }}
+                            {% else %}
+                                <span class="text-muted">Manager</span>
+                            {% endif %}
+                        {% elif req.status == 'manager_approved' %}
+                            <i class="bi bi-hourglass-split text-info me-1"></i>HR
+                        {% elif req.status == 'hr_approved' %}
+                            <i class="bi bi-hourglass-split me-1" style="color:#0A4D68;"></i>Director
+                        {% elif req.status == 'approved' %}
+                            <span class="text-success"><i class="bi bi-check-circle me-1"></i>Complete</span>
+                        {% elif req.status == 'rejected' %}
+                            <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Rejected</span>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
                     <td class="td-opt text-nowrap" style="font-size:.78rem;color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
                     <td class="text-nowrap">
                         <div class="d-flex gap-1">
@@ -133,7 +159,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-5">
+                    <td colspan="10" class="text-center text-muted py-5">
                         <i class="bi bi-search fs-2 d-block mb-2"></i>
                         {% trans "No records match your filters." %}
                     </td>
