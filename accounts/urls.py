@@ -62,6 +62,7 @@ urlpatterns = [
     path('employee-search/', views.employee_search_api, name='employee_search'),
 
     # Health Insurance
+    path('my-children/', views.my_children_edit, name='my_children_edit'),
     path('employees/<int:pk>/health-insurance/', views.health_insurance_edit, name='health_insurance_edit'),
     path('employees/<int:pk>/health-insurance/pdf/', views.health_insurance_pdf, name='health_insurance_pdf'),
     path('employees/health-insurance/pdf/bulk/', views.health_insurance_pdf_bulk, name='health_insurance_pdf_bulk'),

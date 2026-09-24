@@ -1677,6 +1677,75 @@ def health_insurance_edit(request, pk):
 
 
 @login_required
+def my_children_edit(request):
+    """Employee self-service: edit own children (beneficiary & non-beneficiary)."""
+    from datetime import datetime, date as _date
+    employee = get_object_or_404(Employee, user=request.user)
+    is_female = (employee.sex == 'F')
+    can_add_ben = (employee.marital_status == 'married') or is_female
+
+    if request.method == 'POST':
+        p = request.POST
+        # Delete only children (preserve spouse)
+        employee.health_dependants.filter(relation__in=[HealthDependant.CHILD_BEN, HealthDependant.CHILD_OTHER]).delete()
+
+        # Beneficiary children (max 3, only if married or female)
+        if can_add_ben:
+            for i in range(1, 4):
+                name = p.get(f'ben_child_{i}_name', '').strip()
+                dob_str = p.get(f'ben_child_{i}_dob', '').strip()
+                if not name:
+                    continue
+                dob = None
+                if dob_str:
+                    try:
+                        dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+                    except ValueError:
+                        pass
+                HealthDependant.objects.create(
+                    employee=employee, relation=HealthDependant.CHILD_BEN,
+                    full_name=name, date_of_birth=dob,
+                )
+
+        # Non-beneficiary children
+        nb_count_str = p.get('non_ben_count', '0')
+        try:
+            nb_count = max(0, min(20, int(nb_count_str)))
+        except ValueError:
+            nb_count = 0
+        for i in range(1, nb_count + 1):
+            name = p.get(f'non_ben_{i}_name', '').strip()
+            dob_str = p.get(f'non_ben_{i}_dob', '').strip()
+            if not name:
+                continue
+            dob = None
+            if dob_str:
+                try:
+                    dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            HealthDependant.objects.create(
+                employee=employee, relation=HealthDependant.CHILD_OTHER,
+                full_name=name, date_of_birth=dob,
+            )
+
+        messages.success(request, "Children information updated successfully.")
+        return redirect('accounts:my_children_edit')
+
+    ben_children = list(employee.health_dependants.filter(relation=HealthDependant.CHILD_BEN))
+    non_ben_children = list(employee.health_dependants.filter(relation=HealthDependant.CHILD_OTHER))
+    for child in ben_children:
+        child.is_overage = (child.age is not None and child.age >= 18)
+
+    return render(request, 'accounts/my_children_edit.html', {
+        'employee': employee,
+        'can_add_ben': can_add_ben,
+        'ben_children': ben_children,
+        'non_ben_children': non_ben_children,
+    })
+
+
+@login_required
 def health_insurance_pdf(request, pk):
     """PDF report for a single employee's health insurance dependants."""
     from io import BytesIO

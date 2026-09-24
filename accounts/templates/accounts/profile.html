@@ -337,9 +337,14 @@ document.addEventListener('DOMContentLoaded', function() {
         <p class="text-muted small mb-3">{% trans "No dependants recorded yet." %}</p>
         {% endif %}
 
-        <div class="mt-2" style="font-size:.78rem;color:#9ab4c0;">
-            <i class="bi bi-info-circle me-1"></i>
-            {% trans "Health insurance details are managed by HR. Contact HR to update your dependants." %}
+        <div class="mt-3 d-flex justify-content-between align-items-center">
+            <span style="font-size:.78rem;color:#9ab4c0;">
+                <i class="bi bi-info-circle me-1"></i>
+                Spouse & marital status are managed by HR. You can edit your children below.
+            </span>
+            <a href="{% url 'accounts:my_children_edit' %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i>Edit Children
+            </a>
         </div>
     </div>
 </div>

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}My Children — Health Insurance{% endblock %}
+{% block page_title %}My Children{% endblock %}
+{% block page_subtitle %}Health insurance dependants{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-8">
+
+<div class="card animate-in">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-people me-2" style="color:#2db4c3;"></i>Children / Dependants</span>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Profile
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if can_add_ben %}
+            <!-- Beneficiary Children (max 3) -->
+            <h6 class="mb-3" style="color:#0A4D68;font-weight:700;">
+                <i class="bi bi-shield-check me-1"></i>Beneficiary Children (max 3, age &le; 18)
+            </h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm align-middle" style="font-size:.85rem;">
+                    <thead class="table-light">
+                        <tr><th style="width:40px;">#</th><th>Full Name</th><th>Date of Birth</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for i in "123" %}
+                        {% with idx=forloop.counter %}
+                        <tr>
+                            <td class="text-muted">{{ idx }}</td>
+                            <td>
+                                <input type="text" name="ben_child_{{ idx }}_name" class="form-control form-control-sm"
+                                    value="{% if idx == 1 and ben_children|length >= 1 %}{{ ben_children.0.full_name }}{% elif idx == 2 and ben_children|length >= 2 %}{{ ben_children.1.full_name }}{% elif idx == 3 and ben_children|length >= 3 %}{{ ben_children.2.full_name }}{% endif %}"
+                                    placeholder="Child {{ idx }} full name">
+                            </td>
+                            <td>
+                                <input type="date" name="ben_child_{{ idx }}_dob" class="form-control form-control-sm"
+                                    value="{% if idx == 1 and ben_children|length >= 1 %}{{ ben_children.0.date_of_birth|date:'Y-m-d' }}{% elif idx == 2 and ben_children|length >= 2 %}{{ ben_children.1.date_of_birth|date:'Y-m-d' }}{% elif idx == 3 and ben_children|length >= 3 %}{{ ben_children.2.date_of_birth|date:'Y-m-d' }}{% endif %}">
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-light border mb-4" style="font-size:.85rem;">
+                <i class="bi bi-info-circle me-1 text-muted"></i>
+                Beneficiary children slots are available for married employees or single mothers. Contact HR if your marital status needs updating.
+            </div>
+            {% endif %}
+
+            <!-- Non-Beneficiary Children -->
+            <h6 class="mb-3" style="color:#0A4D68;font-weight:700;">
+                <i class="bi bi-people me-1"></i>Other Children (Non-Beneficiary)
+            </h6>
+            <div class="mb-3">
+                <label class="form-label" style="font-size:.85rem;">Number of other children</label>
+                <input type="number" name="non_ben_count" id="nbCount" class="form-control form-control-sm" style="width:100px;"
+                    value="{{ non_ben_children|length }}" min="0" max="20" onchange="buildNonBenRows()">
+            </div>
+            <div id="nonBenRows">
+                {% for child in non_ben_children %}
+                <div class="row g-2 mb-2 nb-row">
+                    <div class="col-1 d-flex align-items-center text-muted" style="font-size:.8rem;">{{ forloop.counter }}</div>
+                    <div class="col-6">
+                        <input type="text" name="non_ben_{{ forloop.counter }}_name" class="form-control form-control-sm"
+                            value="{{ child.full_name }}" placeholder="Full name">
+                    </div>
+                    <div class="col-5">
+                        <input type="date" name="non_ben_{{ forloop.counter }}_dob" class="form-control form-control-sm"
+                            value="{{ child.date_of_birth|date:'Y-m-d' }}">
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i>Save Children Info
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+function buildNonBenRows() {
+    const count = Math.min(20, Math.max(0, parseInt(document.getElementById('nbCount').value) || 0));
+    const container = document.getElementById('nonBenRows');
+    const existing = container.querySelectorAll('.nb-row');
+    // Preserve existing values
+    const vals = [];
+    existing.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        vals.push({ name: inputs[0]?.value || '', dob: inputs[1]?.value || '' });
+    });
+    container.innerHTML = '';
+    for (let i = 1; i <= count; i++) {
+        const v = vals[i-1] || { name: '', dob: '' };
+        container.innerHTML += `
+        <div class="row g-2 mb-2 nb-row">
+            <div class="col-1 d-flex align-items-center text-muted" style="font-size:.8rem;">${i}</div>
+            <div class="col-6">
+                <input type="text" name="non_ben_${i}_name" class="form-control form-control-sm"
+                    value="${v.name}" placeholder="Full name">
+            </div>
+            <div class="col-5">
+                <input type="date" name="non_ben_${i}_dob" class="form-control form-control-sm"
+                    value="${v.dob}">
+            </div>
+        </div>`;
+    }
+}
+</script>
+{% endblock %}
