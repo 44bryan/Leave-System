@@ -2848,11 +2848,12 @@ def absent_today(request):
     if dept_filter:
         on_leave = on_leave.filter(employee__department_id=dept_filter)
 
-    departments = Department.objects.filter(
-        employees__leave_requests__status='approved',
-        employees__leave_requests__start_date__lte=today,
-        employees__leave_requests__end_date__gte=today,
-    ).distinct()
+    dept_ids = LeaveRequest.objects.filter(
+        status='approved',
+        start_date__lte=today,
+        end_date__gte=today,
+    ).values_list('employee__department_id', flat=True).distinct()
+    departments = Department.objects.filter(pk__in=dept_ids).order_by('name')
 
     return render(request, 'dashboard/absent_today.html', {
         'on_leave': on_leave,
