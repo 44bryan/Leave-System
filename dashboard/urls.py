@@ -33,4 +33,5 @@ urlpatterns = [
     path('analytics/', views.analytics_dashboard, name='analytics'),
     path('analytics/discipline/', views.discipline_analytics, name='discipline_analytics'),
     path('analytics/payroll/', views.payroll_analytics, name='payroll_analytics'),
+    path('absent-today/', views.absent_today, name='absent_today'),
 ]

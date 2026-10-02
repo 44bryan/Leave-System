@@ -2812,3 +2812,44 @@ def payroll_analytics(request):
         'dept_cov_labels_json': json.dumps(dcov_labels),
         'dept_cov_data_json':   json.dumps(dcov_data),
     })
+
+
+@login_required
+def absent_today(request):
+    """HR/Director: list of all employees on approved leave today."""
+    from accounts.models import Employee as Emp
+    try:
+        viewer = request.user.employee
+    except Exception:
+        viewer = None
+    if not viewer or (not viewer.is_hr() and not viewer.is_director() and not viewer.is_ceo() and not request.user.is_superuser):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard:home')
+
+    today = date.today()
+    on_leave = LeaveRequest.objects.filter(
+        status='approved',
+        start_date__lte=today,
+        end_date__gte=today,
+    ).select_related(
+        'employee__user', 'employee__department', 'leave_type', 'backup_employee__user'
+    ).order_by('employee__department__name', 'employee__user__last_name')
+
+    from accounts.models import Department
+    dept_filter = request.GET.get('dept', '')
+    if dept_filter:
+        on_leave = on_leave.filter(employee__department_id=dept_filter)
+
+    departments = Department.objects.filter(
+        employees__leave_requests__status='approved',
+        employees__leave_requests__start_date__lte=today,
+        employees__leave_requests__end_date__gte=today,
+    ).distinct()
+
+    return render(request, 'dashboard/absent_today.html', {
+        'on_leave': on_leave,
+        'today': today,
+        'dept_filter': dept_filter,
+        'departments': departments,
+    })
+

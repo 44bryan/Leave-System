@@ -345,7 +345,7 @@
         </a>
     </div>
     <div class="col-6 col-md-4 col-lg-2">
-        <a href="{% url 'leaves:all_leaves' %}?status=approved" class="text-decoration-none" title="View staff currently on approved leave">
+        <a href="{% url 'dashboard:absent_today' %}" class="text-decoration-none">
         <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#fff3e0;color:#d97706;"><i class="bi bi-airplane-fill"></i></div>
             <div class="hr-kpi-value">{{ on_leave_now|length }}</div>
@@ -376,7 +376,7 @@
         </a>
     </div>
     <div class="col-6 col-sm-3">
-        <a href="{% url 'leaves:all_leaves' %}?status=approved" class="text-decoration-none">
+        <a href="{% url 'dashboard:absent_today' %}" class="text-decoration-none">
         <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#fff3e0;color:#d97706;"><i class="bi bi-bar-chart-fill"></i></div>
             <div class="hr-kpi-value" style="color:#d97706;">{{ on_leave_pct }}%</div>
@@ -385,7 +385,7 @@
         </a>
     </div>
     <div class="col-6 col-sm-3">
-        <a href="{% url 'leaves:all_leaves' %}?status=approved" class="text-decoration-none">
+        <a href="{% url 'dashboard:absent_today' %}" class="text-decoration-none">
         <div class="hr-kpi-card" style="cursor:pointer;">
             <div class="hr-kpi-icon" style="background:#e0f7fa;color:#2db4c3;"><i class="bi bi-person-check-fill"></i></div>
             <div class="hr-kpi-value" style="color:#2db4c3;">{{ on_leave_count }}</div>
