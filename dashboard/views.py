@@ -2518,8 +2518,15 @@ def analytics_dashboard(request):
     from accounts.models import Employee, Department
     from leaves.models import LeaveRequest, LeaveType
 
-    emp = request.user.employee
-    if not (emp.is_hr() or emp.is_ceo() or request.user.is_superuser):
+    try:
+        emp = request.user.employee
+    except Exception:
+        emp = None
+    if emp and not (emp.is_hr() or emp.is_ceo() or request.user.is_superuser):
+        from django.contrib import messages as _msg
+        _msg.error(request, "Access denied.")
+        return redirect('dashboard:home')
+    if not emp and not request.user.is_superuser:
         from django.contrib import messages as _msg
         _msg.error(request, "Access denied.")
         return redirect('dashboard:home')
@@ -2817,6 +2824,7 @@ def payroll_analytics(request):
 @login_required
 def absent_today(request):
     """HR/Director: list of all employees on approved leave today."""
+    from django.contrib import messages
     from accounts.models import Employee as Emp
     try:
         viewer = request.user.employee
