@@ -1367,7 +1367,7 @@
     </div>
     {% endif %}
 
-    {% if user.employee.is_manager %}
+    {% if user.employee.is_manager or user.employee.is_director %}
     <div class="sidebar-section">
         <div class="sidebar-section-label">{% trans "Approvals" %}</div>
         <ul class="list-unstyled mb-0">

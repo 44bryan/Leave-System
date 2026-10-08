@@ -200,7 +200,7 @@ def print_view(request, pk):
 def lm_queue(request):
     """Line manager sees sick leaves awaiting their endorsement."""
     emp = _get_employee(request)
-    if not (emp.is_manager() or request.user.is_superuser):
+    if not (emp.is_manager() or emp.is_director() or request.user.is_superuser):
         raise Http404
 
     # Sick leaves for employees whose supervisor is this manager
@@ -217,7 +217,7 @@ def lm_endorse(request, pk):
     emp = _get_employee(request)
     sl = get_object_or_404(MedicalSickLeave, pk=pk, status=MedicalSickLeave.STATUS_PENDING_LINE_MANAGER)
 
-    is_manager = emp.is_manager() or request.user.is_superuser
+    is_manager = emp.is_manager() or emp.is_director() or request.user.is_superuser
     is_supervising = sl.employee.supervisor == emp
     if not (is_manager and (is_supervising or request.user.is_superuser)):
         raise Http404

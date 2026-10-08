@@ -580,7 +580,7 @@ def unit_head_action(request, pk):
 @login_required
 def manager_approvals(request):
     employee = get_employee(request)
-    if not employee or not employee.is_manager():
+    if not employee or not (employee.is_manager() or employee.is_director()):
         messages.error(request, "Access denied.")
         return redirect('dashboard:home')
 
@@ -616,7 +616,7 @@ def manager_approvals(request):
 @login_required
 def manager_action(request, pk):
     employee = get_employee(request)
-    if not employee or not employee.is_manager():
+    if not employee or not (employee.is_manager() or employee.is_director()):
         messages.error(request, "Access denied. Manager role required.")
         return redirect('dashboard:home')
 
