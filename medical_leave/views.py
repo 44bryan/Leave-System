@@ -215,7 +215,11 @@ def lm_queue(request):
 @login_required
 def lm_endorse(request, pk):
     emp = _get_employee(request)
-    sl = get_object_or_404(MedicalSickLeave, pk=pk, status=MedicalSickLeave.STATUS_PENDING_LINE_MANAGER)
+    sl = get_object_or_404(MedicalSickLeave, pk=pk)
+
+    if sl.status != MedicalSickLeave.STATUS_PENDING_LINE_MANAGER:
+        messages.info(request, 'This sick leave has already been processed.')
+        return redirect('medical_leave:detail', pk=pk)
 
     is_manager = emp.is_manager() or emp.is_director() or request.user.is_superuser
     is_supervising = sl.employee.supervisor == emp
@@ -304,7 +308,11 @@ def hr_endorse(request, pk):
     if not (emp.is_hr() or request.user.is_superuser):
         raise Http404
 
-    sl = get_object_or_404(MedicalSickLeave, pk=pk, status=MedicalSickLeave.STATUS_PENDING_HR)
+    sl = get_object_or_404(MedicalSickLeave, pk=pk)
+
+    if sl.status != MedicalSickLeave.STATUS_PENDING_HR:
+        messages.info(request, 'This sick leave has already been processed.')
+        return redirect('medical_leave:detail', pk=pk)
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -397,7 +405,11 @@ def director_queue(request):
 @login_required
 def director_endorse(request, pk):
     emp = _get_employee(request)
-    sl = get_object_or_404(MedicalSickLeave, pk=pk, status=MedicalSickLeave.STATUS_PENDING_DIRECTOR)
+    sl = get_object_or_404(MedicalSickLeave, pk=pk)
+
+    if sl.status != MedicalSickLeave.STATUS_PENDING_DIRECTOR:
+        messages.info(request, 'This sick leave has already been processed.')
+        return redirect('medical_leave:detail', pk=pk)
 
     if not (emp.is_director() or request.user.is_superuser):
         raise Http404

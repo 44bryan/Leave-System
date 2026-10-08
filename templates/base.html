@@ -1386,12 +1386,14 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'medical_leave:lm_queue' %}" class="nav-link-sidebar {% block nav_medical_lm %}{% endblock %}">
                     <i class="bi bi-heart-pulse"></i> {% trans "Sick Leave — LM Queue" %}
+                    {% if pending_medical_lm_count > 0 %}<span class="nav-badge">{{ pending_medical_lm_count }}</span>{% endif %}
                 </a>
             </li>
             {% if user.employee.is_director %}
             <li class="nav-item-sidebar">
                 <a href="{% url 'medical_leave:director_queue' %}" class="nav-link-sidebar {% block nav_medical_director %}{% endblock %}">
                     <i class="bi bi-shield-check"></i> {% trans "Sick Leave — Director Queue" %}
+                    {% if pending_medical_director_count > 0 %}<span class="nav-badge">{{ pending_medical_director_count }}</span>{% endif %}
                 </a>
             </li>
             {% endif %}

@@ -13,6 +13,8 @@ def notifications_ctx(request):
         suspension_end = None
         pending_coworker_count = 0
         pending_leave_count = 0
+        pending_medical_lm_count = 0
+        pending_medical_director_count = 0
         pending_discipline_proposals = 0
         pending_appraisals_count = 0
         pending_consultations_count = 0
@@ -70,20 +72,19 @@ def notifications_ctx(request):
                 pending_discipline_proposals = DisciplineRecord.objects.filter(
                     is_proposal=True
                 ).count()
-            elif emp.role == 'admin_director':
+            elif emp.role in ('admin_director', 'finance_director') or emp.acting_role in ('admin_director', 'finance_director'):
+                # Director leave queue — match exactly what director_approvals view shows
                 pending_leave_count = LeaveRequest.objects.filter(
                     status=LeaveRequest.STATUS_HR_APPROVED
+                ).exclude(
+                    Q(employee__role__in=('admin_director', 'medical_director')) | Q(employee__reports_to_ceo=True)
                 ).count()
                 pending_leave_url = reverse('leaves:director_approvals')
-                pending_discipline_proposals = DisciplineRecord.objects.filter(
-                    is_proposal=True
-                ).count()
-            elif emp.role == 'finance_director':
-                pending_leave_count = LeaveRequest.objects.filter(
-                    status=LeaveRequest.STATUS_HR_APPROVED
-                ).count()
-                pending_leave_url = reverse('leaves:director_approvals')
-            elif emp.is_manager():
+                if emp.role == 'admin_director' or emp.acting_role == 'admin_director':
+                    pending_discipline_proposals = DisciplineRecord.objects.filter(
+                        is_proposal=True
+                    ).count()
+            elif emp.is_manager() or emp.is_director():
                 pending_leave_count = LeaveRequest.objects.filter(
                     status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED,
                     employee__supervisor=emp,
@@ -116,6 +117,18 @@ def notifications_ctx(request):
                 status=LeaveConsultation.STATUS_PENDING,
             ).count()
 
+            # Medical sick leave pending counts
+            from medical_leave.models import MedicalSickLeave
+            if emp.is_manager() or emp.is_director():
+                pending_medical_lm_count = MedicalSickLeave.objects.filter(
+                    status=MedicalSickLeave.STATUS_PENDING_LINE_MANAGER,
+                    employee__supervisor=emp,
+                ).count()
+            if emp.is_director():
+                pending_medical_director_count = MedicalSickLeave.objects.filter(
+                    status=MedicalSickLeave.STATUS_PENDING_DIRECTOR,
+                ).count()
+
         except Exception:
             pass
 
@@ -127,6 +140,8 @@ def notifications_ctx(request):
             'pending_coworker_count': pending_coworker_count,
             'pending_leave_count': pending_leave_count,
             'pending_leave_url': pending_leave_url,
+            'pending_medical_lm_count': pending_medical_lm_count,
+            'pending_medical_director_count': pending_medical_director_count,
             'pending_discipline_proposals': pending_discipline_proposals,
             'pending_appraisals_count': pending_appraisals_count,
             'pending_consultations_count': pending_consultations_count,
@@ -140,6 +155,8 @@ def notifications_ctx(request):
             'pending_coworker_count': 0,
             'pending_leave_count': 0,
             'pending_leave_url': '',
+            'pending_medical_lm_count': 0,
+            'pending_medical_director_count': 0,
             'pending_discipline_proposals': 0,
             'pending_appraisals_count': 0,
             'pending_consultations_count': 0,
