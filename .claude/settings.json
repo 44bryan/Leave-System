@@ -34,7 +34,34 @@
       "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py startapp offboarding)",
       "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py makemigrations offboarding)",
       "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py check)",
-      "Bash(c:/Users/GROD/Desktop/leave_system/dashboard/views.py:*)"
+      "Bash(c:/Users/GROD/Desktop/leave_system/dashboard/views.py:*)",
+      "Bash(git add leaves/views.py discipline/views.py templates/base.html)",
+      "Bash(git add dashboard/views.py)",
+      "Bash(git add discipline/views.py discipline/templates/discipline/list.html)",
+      "Bash(git add discipline/views.py discipline/templates/discipline/detail.html)",
+      "Bash(git add discipline/views.py)",
+      "Bash(git add leaves/views.py dashboard/templates/dashboard/analytics.html dashboard/templates/dashboard/discipline_analytics.html dashboard/templates/dashboard/payroll_analytics.html)",
+      "Bash(git add accounts/templates/accounts/profile.html)",
+      "Bash(python3:*)",
+      "Bash(git add leaves/views.py)",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe -c \"import reportlab; print\\(''reportlab ok''\\)\")",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe -c \"import fpdf; print\\(''fpdf ok''\\)\")",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe \"c:/Users/GROD/Desktop/generate_chains_pdf.py\")",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py startapp training)",
+      "Bash(xargs grep -l \"queue\\\\|approval\\\\|pending\")",
+      "Bash(git add discipline/templates/discipline/list.html)",
+      "Bash(git add leaves/management/commands/send_pending_reminders.py notifications/management/commands/send_pending_reminders.py)",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py makemigrations recruitment --name=\"posting_advert_sections\")",
+      "Bash(git add recruitment/models.py recruitment/migrations/0005_posting_advert_sections.py recruitment/views.py recruitment/templates/recruitment/posting_form.html recruitment/templates/recruitment/job_board.html recruitment/templates/recruitment/job_detail.html)",
+      "Bash(/c/Users/GROD/AppData/Local/Programs/Python/Python314/python.exe manage.py makemigrations recruitment --name=\"ai_certifications_field\")",
+      "Bash(git add recruitment/models.py recruitment/views.py recruitment/migrations/0006_ai_certifications_field.py \"recruitment/templates/recruitment/applicant_detail.html\")",
+      "Bash(git add recruitment/views.py \"recruitment/templates/recruitment/applicant_detail.html\")",
+      "Bash(git add leaves/views.py leaves/templates/leaves/all_leaves.html)",
+      "Bash(ping -n 3 31.97.114.107)",
+      "Bash(git add leaves/views.py leaves/templates/leaves/leave_records.html)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\GROD\\Desktop"
     ]
   }
 }

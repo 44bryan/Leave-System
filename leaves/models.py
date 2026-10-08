@@ -113,6 +113,11 @@ class LeaveRequest(models.Model):
     hr_sig_b64          = models.TextField(blank=True, default='')
     director_sig_b64    = models.TextField(blank=True, default='')
 
+    is_advance = models.BooleanField(
+        default=False,
+        help_text="Leave approved against next year's entitlement (balance was exhausted)."
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -226,13 +231,24 @@ class LeaveBalance(models.Model):
 
     @property
     def remaining_days(self):
-        return max(0, self.total_available - self.used_days)
+        return self.total_available - self.used_days
+
+    @property
+    def advance_taken(self):
+        """Days approved as advance against next year's entitlement."""
+        result = self.employee.leave_requests.filter(
+            status='approved',
+            start_date__year=self.year,
+            leave_type__is_deductible=True,
+            is_advance=True,
+        ).aggregate(total=models.Sum('total_days'))['total'] or 0
+        return result
 
     @property
     def usage_percentage(self):
         if self.total_available == 0:
-            return 0
-        return round((self.used_days / self.total_available) * 100)
+            return 100 if self.used_days > 0 else 0
+        return min(100, round((self.used_days / self.total_available) * 100))
 
     def non_deductible_by_type(self):
         """Returns list of {name, days} for approved non-deductible leaves this year."""

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Medical Sick Leave — Director Queue — AEF HRM{% endblock %}
+{% block page_title %}Medical Sick Leave — Director Acceptance{% endblock %}
+{% block page_subtitle %}HR-endorsed sick leaves awaiting your final acceptance{% endblock %}
+
+{% block content %}
+{% if leaves %}
+<div class="alert alert-primary d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-shield-check fs-5"></i>
+    <span><strong>{{ leaves|length }}</strong> sick leave(s) endorsed by HR and awaiting your acceptance.</span>
+</div>
+{% endif %}
+
+<div class="card animate-in">
+    <div class="card-header">
+        <i class="bi bi-shield-check me-2"></i>Pending Admin Director Acceptance
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0" style="min-width:560px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Employee</th>
+                    <th>Issued By</th>
+                    <th>Period</th>
+                    <th>Days</th>
+                    <th>HR Endorser</th>
+                    <th>HR Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sl in leaves %}
+                <tr>
+                    <td class="text-muted small">MSL-{{ sl.pk|stringformat:"04d" }}</td>
+                    <td>
+                        <div class="fw-semibold">{{ sl.employee.get_full_name }}</div>
+                        <div class="t-secondary">{{ sl.employee.department|default:"—" }}</div>
+                    </td>
+                    <td class="t-sm">{{ sl.issued_by.get_full_name }}</td>
+                    <td class="t-sm text-nowrap">{{ sl.start_date }} → {{ sl.end_date }}</td>
+                    <td><strong>{{ sl.days_count }}d</strong></td>
+                    <td class="t-sm">{{ sl.hr_action_by.get_full_name|default:"—" }}</td>
+                    <td class="t-sm">{{ sl.hr_action_date|date:"d M Y"|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'medical_leave:director_endorse' sl.pk %}" class="btn btn-sm btn-primary fw-semibold">
+                            <i class="bi bi-shield-check me-1"></i>Accept
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="bi bi-check2-all fs-3 d-block mb-2 text-success"></i>
+                        No pending acceptances.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

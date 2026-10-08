@@ -251,14 +251,10 @@
                                 {% if request.user.is_superuser or request.user.employee.is_hr or request.user.employee.is_manager or request.user.employee.is_unit_head or record.issued_by == request.user %}
                                 <form method="post" action="{% url 'discipline:upload_doc' record.pk %}" enctype="multipart/form-data" class="mt-2">
                                     {% csrf_token %}
-                                    <div id="docInputsDetail">
-                                        <div class="doc-row d-flex align-items-center gap-2 mb-2">
-                                            <input type="file" name="documents" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex gap-2 align-items-center flex-wrap">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addDetailDoc()">
-                                            <i class="bi bi-plus-circle me-1"></i>{% trans "Add another" %}
+                                    <div id="docInputsDetail"></div>
+                                    <div class="d-flex gap-2 align-items-center flex-wrap mt-1">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addDetailDocRow(true)">
+                                            <i class="bi bi-plus-circle me-1"></i>{% trans "Add document" %}
                                         </button>
                                         <button type="submit" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-paperclip me-1"></i>{% trans "Attach" %}
@@ -266,14 +262,43 @@
                                     </div>
                                 </form>
                                 <script>
-                                function addDetailDoc() {
-                                    var wrap = document.getElementById('docInputsDetail');
+                                function makeDetailDocRow(removable) {
                                     var row = document.createElement('div');
-                                    row.className = 'doc-row d-flex align-items-center gap-2 mb-2';
-                                    row.innerHTML = '<input type="file" name="documents" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">'
-                                                  + '<button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>';
-                                    wrap.appendChild(row);
+                                    row.className = 'doc-row d-flex align-items-center gap-2 mb-2 flex-wrap';
+                                    var inp = document.createElement('input');
+                                    inp.type = 'file'; inp.name = 'documents';
+                                    inp.className = 'form-control form-control-sm'; inp.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+                                    inp.style.flex = '1';
+                                    var preview = document.createElement('span');
+                                    preview.className = 'text-muted small d-none';
+                                    var clearBtn = document.createElement('button');
+                                    clearBtn.type = 'button';
+                                    clearBtn.className = 'btn btn-sm btn-outline-warning d-none';
+                                    clearBtn.innerHTML = '<i class="bi bi-x-circle"></i> Clear';
+                                    clearBtn.onclick = function() {
+                                        inp.value = ''; preview.textContent = '';
+                                        preview.classList.add('d-none'); clearBtn.classList.add('d-none');
+                                    };
+                                    inp.onchange = function() {
+                                        if (inp.files && inp.files[0]) {
+                                            preview.textContent = inp.files[0].name;
+                                            preview.classList.remove('d-none'); clearBtn.classList.remove('d-none');
+                                        }
+                                    };
+                                    row.appendChild(inp); row.appendChild(clearBtn); row.appendChild(preview);
+                                    if (removable) {
+                                        var rb = document.createElement('button');
+                                        rb.type = 'button'; rb.className = 'btn btn-sm btn-outline-danger';
+                                        rb.innerHTML = '<i class="bi bi-trash"></i>';
+                                        rb.onclick = function() { row.remove(); };
+                                        row.appendChild(rb);
+                                    }
+                                    return row;
                                 }
+                                function addDetailDocRow(removable) {
+                                    document.getElementById('docInputsDetail').appendChild(makeDetailDocRow(removable));
+                                }
+                                addDetailDocRow(false);
                                 </script>
                                 {% endif %}
                             </div>

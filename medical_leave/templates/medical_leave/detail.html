@@ -100,7 +100,7 @@
                         </div>
                     </li>
 
-                    <li class="d-flex gap-3">
+                    <li class="d-flex gap-3 mb-3">
                         <div class="text-center" style="width:32px;">
                             {% if sl.hr_action_by %}
                                 {% if sl.status == 'rejected_hr' %}
@@ -123,6 +123,29 @@
                         </div>
                     </li>
 
+                    <li class="d-flex gap-3">
+                        <div class="text-center" style="width:32px;">
+                            {% if sl.director_action_by %}
+                                {% if sl.status == 'rejected_director' %}
+                                    <span class="badge rounded-circle bg-danger p-2"><i class="bi bi-x-lg"></i></span>
+                                {% else %}
+                                    <span class="badge rounded-circle bg-success p-2"><i class="bi bi-check-lg"></i></span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge rounded-circle bg-secondary p-2"><i class="bi bi-clock"></i></span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="fw-semibold">Admin Director Acceptance</div>
+                            {% if sl.director_action_by %}
+                                <div class="t-secondary small">{{ sl.director_action_by.get_full_name }} · {{ sl.director_action_date|date:"d M Y" }}</div>
+                                {% if sl.director_remarks %}<div class="t-secondary small fst-italic">{{ sl.director_remarks }}</div>{% endif %}
+                            {% else %}
+                                <div class="t-secondary small">Pending</div>
+                            {% endif %}
+                        </div>
+                    </li>
+
                 </ul>
             </div>
         </div>
@@ -138,7 +161,7 @@
                 <a href="{% url 'medical_leave:print' sl.pk %}" target="_blank" class="btn btn-outline-primary">
                     <i class="bi bi-printer me-2"></i>Print / Save as PDF
                 </a>
-                {% if user.employee.is_manager and sl.status == 'pending_line_manager' and sl.employee.supervisor == user.employee %}
+                {% if sl.status == 'pending_line_manager' and sl.employee.supervisor == user.employee %}
                 <a href="{% url 'medical_leave:lm_endorse' sl.pk %}" class="btn btn-warning">
                     <i class="bi bi-pen me-2"></i>Endorse as Line Manager
                 </a>
@@ -146,6 +169,11 @@
                 {% if user.employee.is_hr and sl.status == 'pending_hr' %}
                 <a href="{% url 'medical_leave:hr_endorse' sl.pk %}" class="btn btn-info text-white">
                     <i class="bi bi-clipboard2-check me-2"></i>Endorse as HR
+                </a>
+                {% endif %}
+                {% if user.employee.is_director and sl.status == 'pending_director' %}
+                <a href="{% url 'medical_leave:director_endorse' sl.pk %}" class="btn btn-primary">
+                    <i class="bi bi-shield-check me-2"></i>Accept as Admin Director
                 </a>
                 {% endif %}
                 <a href="javascript:history.back()" class="btn btn-outline-secondary">

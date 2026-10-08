@@ -81,6 +81,29 @@ def _save_drawn_signature(employee, b64_data):
     employee.save(update_fields=save_fields)
 
 
+def _mark_advance_if_needed(leave):
+    """
+    If a deductible leave being approved exhausts or exceeds the employee's
+    current year balance, mark it as advance leave (borrowing from next year).
+    """
+    from django.db.models import Sum
+    if not leave.leave_type.is_deductible:
+        return
+    year = leave.start_date.year
+    balance, _ = LeaveBalance.objects.get_or_create(
+        employee=leave.employee, year=year,
+        defaults={'total_entitlement': 18}
+    )
+    # Count already-approved deductible days for this year (excluding this leave)
+    used_excluding_this = leave.employee.leave_requests.filter(
+        status='approved',
+        start_date__year=year,
+        leave_type__is_deductible=True,
+    ).exclude(pk=leave.pk).aggregate(total=Sum('total_days'))['total'] or 0
+    if used_excluding_this + leave.total_days > balance.total_available:
+        leave.is_advance = True
+
+
 def _notify_backup_selected(leave):
     """Notify backup employee they have been selected — sent immediately at submission."""
     if not leave.backup_employee:
@@ -929,6 +952,7 @@ def hr_action(request, pk):
                     leave.director_remarks = 'Final approval by HR (reports directly to HR)'
                     leave.director_sig_b64 = hr_sig
                     leave.status = LeaveRequest.STATUS_APPROVED
+                    _mark_advance_if_needed(leave)
                     _notify_backup_confirmed(leave)
                     messages.success(request, "Leave request FULLY APPROVED by HR (final approver).")
                     notify(
@@ -994,12 +1018,20 @@ def hr_action(request, pk):
     else:
         form = ApprovalForm()
 
+    from django.db.models import Sum
+    year = leave.start_date.year
+    balance = LeaveBalance.objects.filter(employee=leave.employee, year=year).first()
+    used_excl = leave.employee.leave_requests.filter(
+        status='approved', start_date__year=year, leave_type__is_deductible=True
+    ).exclude(pk=leave.pk).aggregate(total=Sum('total_days'))['total'] or 0
+    balance_after = (balance.total_available if balance else 0) - used_excl - (leave.total_days if leave.leave_type.is_deductible else 0)
     return render(request, 'leaves/action_form.html', {
         'leave': leave,
         'form': form,
         'action_title': 'HR Final Review',
         'action_type': 'hr',
         'current_sig_b64': employee.signature_b64 or '',
+        'balance_after': balance_after,
     })
 
 
@@ -1067,6 +1099,7 @@ def director_action(request, pk):
                 dir_sig = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
                 leave.director_sig_b64 = dir_sig
                 leave.status = LeaveRequest.STATUS_APPROVED
+                _mark_advance_if_needed(leave)
                 _notify_backup_confirmed(leave)
                 # Auto-fill bypassed approval slots for direct reports and HR staff
                 applicant = leave.employee
@@ -1125,12 +1158,20 @@ def director_action(request, pk):
     else:
         form = ApprovalForm()
 
+    from django.db.models import Sum
+    year = leave.start_date.year
+    balance = LeaveBalance.objects.filter(employee=leave.employee, year=year).first()
+    used_excl = leave.employee.leave_requests.filter(
+        status='approved', start_date__year=year, leave_type__is_deductible=True
+    ).exclude(pk=leave.pk).aggregate(total=Sum('total_days'))['total'] or 0
+    balance_after = (balance.total_available if balance else 0) - used_excl - (leave.total_days if leave.leave_type.is_deductible else 0)
     return render(request, 'leaves/action_form.html', {
         'leave': leave,
         'form': form,
         'action_title': 'Administration Director — Final Review',
         'action_type': 'director',
         'current_sig_b64': employee.signature_b64 or '',
+        'balance_after': balance_after,
     })
 
 
@@ -1199,6 +1240,7 @@ def ceo_action(request, pk):
                 leave.hr_remarks = 'Approved by CEO'
                 leave.hr_sig_b64 = ceo_sig
                 leave.status = LeaveRequest.STATUS_APPROVED
+                _mark_advance_if_needed(leave)
                 _notify_backup_confirmed(leave)
                 leave.save()
                 messages.success(request, "Leave request FULLY APPROVED by CEO.")

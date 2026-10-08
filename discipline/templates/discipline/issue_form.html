@@ -161,25 +161,60 @@
                                 <i class="bi bi-paperclip me-1"></i>
                                 {% trans "Supporting Documents" %} <span class="text-muted fw-normal">({% trans "optional" %})</span>
                             </label>
-                            <div id="docInputs">
-                                <div class="doc-row d-flex align-items-center gap-2 mb-2">
-                                    <input type="file" name="documents" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addDocInput()">
-                                <i class="bi bi-plus-circle me-1"></i>{% trans "Add another document" %}
+                            <div id="docInputs"></div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addDocRow('docInputs', true)">
+                                <i class="bi bi-plus-circle me-1"></i>{% trans "Add document" %}
                             </button>
-                            <div class="form-text mt-1">{% trans "Attach warning letters, evidence or notice letters. Add one file at a time." %}</div>
+                            <div class="form-text mt-1">{% trans "Pick one file at a time. You can clear a selection or remove a row before submitting." %}</div>
                         </div>
                         <script>
-                        function addDocInput() {
-                            var wrap = document.getElementById('docInputs');
+                        var ACCEPT = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+                        function makeDocRow(wrapperId, removable) {
                             var row = document.createElement('div');
-                            row.className = 'doc-row d-flex align-items-center gap-2 mb-2';
-                            row.innerHTML = '<input type="file" name="documents" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">'
-                                          + '<button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()" title="Remove"><i class="bi bi-x"></i></button>';
-                            wrap.appendChild(row);
+                            row.className = 'doc-row d-flex align-items-center gap-2 mb-2 flex-wrap';
+                            var inp = document.createElement('input');
+                            inp.type = 'file'; inp.name = 'documents';
+                            inp.className = 'form-control'; inp.accept = ACCEPT;
+                            inp.style.flex = '1';
+                            var preview = document.createElement('span');
+                            preview.className = 'text-muted small d-none';
+                            var clearBtn = document.createElement('button');
+                            clearBtn.type = 'button';
+                            clearBtn.className = 'btn btn-sm btn-outline-warning d-none';
+                            clearBtn.title = 'Clear selection';
+                            clearBtn.innerHTML = '<i class="bi bi-x-circle"></i> Clear';
+                            clearBtn.onclick = function() {
+                                inp.value = '';
+                                preview.textContent = '';
+                                preview.classList.add('d-none');
+                                clearBtn.classList.add('d-none');
+                            };
+                            inp.onchange = function() {
+                                if (inp.files && inp.files[0]) {
+                                    preview.textContent = inp.files[0].name;
+                                    preview.classList.remove('d-none');
+                                    clearBtn.classList.remove('d-none');
+                                }
+                            };
+                            row.appendChild(inp);
+                            row.appendChild(clearBtn);
+                            row.appendChild(preview);
+                            if (removable) {
+                                var removeBtn = document.createElement('button');
+                                removeBtn.type = 'button';
+                                removeBtn.className = 'btn btn-sm btn-outline-danger';
+                                removeBtn.title = 'Remove row';
+                                removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                                removeBtn.onclick = function() { row.remove(); };
+                                row.appendChild(removeBtn);
+                            }
+                            return row;
                         }
+                        function addDocRow(wrapperId, removable) {
+                            document.getElementById(wrapperId).appendChild(makeDocRow(wrapperId, removable));
+                        }
+                        // Start with one row (not removable)
+                        addDocRow('docInputs', false);
                         </script>
 
                         <!-- Proposal note -->

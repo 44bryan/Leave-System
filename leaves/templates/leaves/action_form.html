@@ -250,8 +250,28 @@
                         <div class="progress-bar {% if balance.usage_percentage > 80 %}bg-danger{% elif balance.usage_percentage > 60 %}bg-warning{% else %}bg-primary{% endif %}"
                              style="width:{{ balance.usage_percentage }}%"></div>
                     </div>
-                    <div style="font-size:0.72rem;color:#6b7a8d;">{% blocktrans with days=balance.remaining_days %}{{ days }} days remaining{% endblocktrans %}</div>
+                    <div style="font-size:0.72rem;color:#6b7a8d;">
+                        {% if balance.remaining_days >= 0 %}
+                            {% blocktrans with days=balance.remaining_days %}{{ days }} days remaining{% endblocktrans %}
+                        {% else %}
+                            <span class="text-danger fw-semibold">{{ balance.remaining_days }} days (balance exhausted)</span>
+                        {% endif %}
+                    </div>
+                    {% if balance.advance_taken > 0 %}
+                    <div style="font-size:0.72rem;color:#dc3545;margin-top:4px;">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ balance.advance_taken }} advance day(s) already taken from next year
+                    </div>
+                    {% endif %}
                 </div>
+                {% if balance_after is not None and leave.leave_type.is_deductible %}
+                    {% if balance_after < 0 %}
+                    <div class="alert alert-warning py-2 px-3 mb-3" style="font-size:0.82rem;">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                        <strong>Advance Leave:</strong> Approving this will leave a balance of
+                        <strong>{{ balance_after }} days</strong> — this leave will borrow from next year's entitlement.
+                    </div>
+                    {% endif %}
+                {% endif %}
                 {% endif %}
                 {% endwith %}
 
