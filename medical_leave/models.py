@@ -6,20 +6,16 @@ from accounts.models import Employee
 class MedicalSickLeave(models.Model):
     STATUS_PENDING_LINE_MANAGER = 'pending_line_manager'
     STATUS_PENDING_HR = 'pending_hr'
-    STATUS_PENDING_DIRECTOR = 'pending_director'
     STATUS_APPROVED = 'approved'
     STATUS_REJECTED_LINE_MANAGER = 'rejected_line_manager'
     STATUS_REJECTED_HR = 'rejected_hr'
-    STATUS_REJECTED_DIRECTOR = 'rejected_director'
 
     STATUS_CHOICES = [
         (STATUS_PENDING_LINE_MANAGER, 'Pending Line Manager Endorsement'),
         (STATUS_PENDING_HR, 'Pending HR Endorsement'),
-        (STATUS_PENDING_DIRECTOR, 'Pending Admin Director Acceptance'),
         (STATUS_APPROVED, 'Fully Endorsed'),
         (STATUS_REJECTED_LINE_MANAGER, 'Rejected by Line Manager'),
         (STATUS_REJECTED_HR, 'Rejected by HR'),
-        (STATUS_REJECTED_DIRECTOR, 'Rejected by Admin Director'),
     ]
 
     # Core fields
@@ -57,19 +53,10 @@ class MedicalSickLeave(models.Model):
     hr_action_date = models.DateTimeField(null=True, blank=True)
     hr_remarks = models.TextField(blank=True)
 
-    # Admin Director acceptance (final step)
-    director_action_by = models.ForeignKey(
-        Employee, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='medical_leave_director_actions'
-    )
-    director_action_date = models.DateTimeField(null=True, blank=True)
-    director_remarks = models.TextField(blank=True)
-
     # Signature snapshots (captured at time of action, survive profile changes)
     issued_sig_b64 = models.TextField(blank=True, default='')
     lm_sig_b64 = models.TextField(blank=True, default='')
     hr_sig_b64 = models.TextField(blank=True, default='')
-    director_sig_b64 = models.TextField(blank=True, default='')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -104,11 +91,9 @@ class MedicalSickLeave(models.Model):
         return {
             self.STATUS_PENDING_LINE_MANAGER: 'warning',
             self.STATUS_PENDING_HR: 'info',
-            self.STATUS_PENDING_DIRECTOR: 'primary',
             self.STATUS_APPROVED: 'success',
             self.STATUS_REJECTED_LINE_MANAGER: 'danger',
             self.STATUS_REJECTED_HR: 'danger',
-            self.STATUS_REJECTED_DIRECTOR: 'danger',
         }.get(self.status, 'secondary')
 
     def is_fully_endorsed(self):

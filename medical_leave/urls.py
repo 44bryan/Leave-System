@@ -23,10 +23,6 @@ urlpatterns = [
     path('hr-queue/', views.hr_queue, name='hr_queue'),
     path('<int:pk>/endorse/hr/', views.hr_endorse, name='hr_endorse'),
 
-    # Admin Director
-    path('director-queue/', views.director_queue, name='director_queue'),
-    path('<int:pk>/endorse/director/', views.director_endorse, name='director_endorse'),
-
     # All records
     path('all/', views.all_records, name='all_records'),
 ]

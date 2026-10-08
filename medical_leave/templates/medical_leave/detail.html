@@ -100,7 +100,7 @@
                         </div>
                     </li>
 
-                    <li class="d-flex gap-3 mb-3">
+                    <li class="d-flex gap-3">
                         <div class="text-center" style="width:32px;">
                             {% if sl.hr_action_by %}
                                 {% if sl.status == 'rejected_hr' %}
@@ -117,29 +117,6 @@
                             {% if sl.hr_action_by %}
                                 <div class="t-secondary small">{{ sl.hr_action_by.get_full_name }} · {{ sl.hr_action_date|date:"d M Y" }}</div>
                                 {% if sl.hr_remarks %}<div class="t-secondary small fst-italic">{{ sl.hr_remarks }}</div>{% endif %}
-                            {% else %}
-                                <div class="t-secondary small">Pending</div>
-                            {% endif %}
-                        </div>
-                    </li>
-
-                    <li class="d-flex gap-3">
-                        <div class="text-center" style="width:32px;">
-                            {% if sl.director_action_by %}
-                                {% if sl.status == 'rejected_director' %}
-                                    <span class="badge rounded-circle bg-danger p-2"><i class="bi bi-x-lg"></i></span>
-                                {% else %}
-                                    <span class="badge rounded-circle bg-success p-2"><i class="bi bi-check-lg"></i></span>
-                                {% endif %}
-                            {% else %}
-                                <span class="badge rounded-circle bg-secondary p-2"><i class="bi bi-clock"></i></span>
-                            {% endif %}
-                        </div>
-                        <div>
-                            <div class="fw-semibold">Admin Director Acceptance</div>
-                            {% if sl.director_action_by %}
-                                <div class="t-secondary small">{{ sl.director_action_by.get_full_name }} · {{ sl.director_action_date|date:"d M Y" }}</div>
-                                {% if sl.director_remarks %}<div class="t-secondary small fst-italic">{{ sl.director_remarks }}</div>{% endif %}
                             {% else %}
                                 <div class="t-secondary small">Pending</div>
                             {% endif %}
@@ -169,11 +146,6 @@
                 {% if user.employee.is_hr and sl.status == 'pending_hr' %}
                 <a href="{% url 'medical_leave:hr_endorse' sl.pk %}" class="btn btn-info text-white">
                     <i class="bi bi-clipboard2-check me-2"></i>Endorse as HR
-                </a>
-                {% endif %}
-                {% if user.employee.is_director and sl.status == 'pending_director' %}
-                <a href="{% url 'medical_leave:director_endorse' sl.pk %}" class="btn btn-primary">
-                    <i class="bi bi-shield-check me-2"></i>Accept as Admin Director
                 </a>
                 {% endif %}
                 <a href="javascript:history.back()" class="btn btn-outline-secondary">

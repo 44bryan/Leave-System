@@ -328,38 +328,24 @@ def hr_endorse(request, pk):
             if sig_b64.startswith('data:image/'):
                 from leaves.views import _save_drawn_signature
                 _save_drawn_signature(emp, sig_b64)
-            sl.status = MedicalSickLeave.STATUS_PENDING_DIRECTOR
+            sl.status = MedicalSickLeave.STATUS_APPROVED
             sl.save()
-            # Notify Admin Director(s)
-            directors = Employee.objects.filter(
-                role='admin_director', is_active=True
-            ).select_related('user')
-            for director in directors:
-                notify(
-                    director.user,
-                    'Medical Sick Leave — Awaiting Your Acceptance',
-                    f'{sl.employee.get_full_name()} ({sl.employee.department or "No dept"}) '
-                    f'has a medical sick leave ({sl.start_date} → {sl.end_date}, {sl.days_count} day(s)) '
-                    f'endorsed by HR and awaiting your final acceptance.',
-                    'leave',
-                    f'/medical-leave/{sl.pk}/endorse/director/',
-                )
+            _create_leave_request_for_sick_leave(sl, emp)
             notify(
                 sl.employee.user,
-                'Medical Sick Leave — HR Endorsed',
-                f'Your medical sick leave ({sl.start_date} → {sl.end_date}) has been endorsed by HR '
-                f'and is now awaiting the Admin Director\'s acceptance.',
+                'Medical Sick Leave Fully Endorsed',
+                f'Your medical sick leave ({sl.start_date} → {sl.end_date}) has been fully endorsed.',
                 'leave',
                 f'/medical-leave/{sl.pk}/view/',
             )
             from dashboard.models import AuditLog
             AuditLog.log(
                 request, AuditLog.ACTION_MEDICAL_LEAVE,
-                f'MSL-{sl.pk:04d} — HR endorsed sick leave for {sl.employee.get_full_name()} '
-                f'({sl.start_date} → {sl.end_date}). Forwarded to Admin Director.',
+                f'MSL-{sl.pk:04d} — HR fully endorsed sick leave for {sl.employee.get_full_name()} '
+                f'({sl.start_date} → {sl.end_date}).',
                 target_user=sl.employee.user,
             )
-            messages.success(request, 'Sick leave endorsed by HR. Forwarded to Admin Director for acceptance.')
+            messages.success(request, 'Sick leave fully endorsed.')
         elif action == 'reject':
             sl.status = MedicalSickLeave.STATUS_REJECTED_HR
             sl.save()
@@ -381,94 +367,6 @@ def hr_endorse(request, pk):
         return redirect('medical_leave:hr_queue')
 
     return render(request, 'medical_leave/hr_endorse.html', {
-        'sl': sl,
-        'current_sig_b64': emp.signature_b64 or '',
-    })
-
-
-# ─── Admin Director Acceptance ────────────────────────────────────────────────
-
-@login_required
-def director_queue(request):
-    """Admin Director sees sick leaves awaiting their final acceptance."""
-    emp = _get_employee(request)
-    if not (emp.is_director() or request.user.is_superuser):
-        raise Http404
-
-    leaves = MedicalSickLeave.objects.filter(
-        status=MedicalSickLeave.STATUS_PENDING_DIRECTOR,
-    ).select_related('employee__user', 'issued_by__user', 'line_manager_action_by__user', 'hr_action_by__user')
-
-    return render(request, 'medical_leave/director_queue.html', {'leaves': leaves})
-
-
-@login_required
-def director_endorse(request, pk):
-    emp = _get_employee(request)
-    sl = get_object_or_404(MedicalSickLeave, pk=pk)
-
-    if sl.status != MedicalSickLeave.STATUS_PENDING_DIRECTOR:
-        messages.info(request, 'This sick leave has already been processed.')
-        return redirect('medical_leave:detail', pk=pk)
-
-    if not (emp.is_director() or request.user.is_superuser):
-        raise Http404
-
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        remarks = request.POST.get('remarks', '')
-        sig_b64 = request.POST.get('signature_data', '')
-        sl.director_action_by = emp
-        sl.director_action_date = timezone.now()
-        sl.director_remarks = remarks
-
-        if action == 'approve':
-            director_sig = sig_b64 if sig_b64.startswith('data:image/') else (emp.signature_b64 or '')
-            sl.director_sig_b64 = director_sig
-            if sig_b64.startswith('data:image/'):
-                from leaves.views import _save_drawn_signature
-                _save_drawn_signature(emp, sig_b64)
-            sl.status = MedicalSickLeave.STATUS_APPROVED
-            sl.save()
-            _create_leave_request_for_sick_leave(sl, emp)
-            notify(
-                sl.employee.user,
-                'Medical Sick Leave Fully Accepted',
-                f'Your medical sick leave ({sl.start_date} → {sl.end_date}) has been fully accepted '
-                f'by the Admin Director.',
-                'leave',
-                f'/medical-leave/{sl.pk}/view/',
-            )
-            from dashboard.models import AuditLog
-            AuditLog.log(
-                request, AuditLog.ACTION_MEDICAL_LEAVE,
-                f'MSL-{sl.pk:04d} — Admin Director accepted sick leave for {sl.employee.get_full_name()} '
-                f'({sl.start_date} → {sl.end_date}).',
-                target_user=sl.employee.user,
-            )
-            messages.success(request, 'Sick leave accepted and fully endorsed.')
-        elif action == 'reject':
-            sl.status = MedicalSickLeave.STATUS_REJECTED_DIRECTOR
-            sl.save()
-            notify(
-                sl.employee.user,
-                'Medical Sick Leave — Not Accepted by Admin Director',
-                f'Your medical sick leave ({sl.start_date} → {sl.end_date}) was not accepted by the Admin Director.'
-                + (f' Remarks: {remarks}' if remarks else ''),
-                'leave',
-                f'/medical-leave/{sl.pk}/view/',
-            )
-            from dashboard.models import AuditLog
-            AuditLog.log(
-                request, AuditLog.ACTION_MEDICAL_LEAVE,
-                f'MSL-{sl.pk:04d} — Admin Director rejected sick leave for {sl.employee.get_full_name()}.',
-                target_user=sl.employee.user,
-            )
-            messages.warning(request, 'Sick leave has been rejected.')
-
-        return redirect('medical_leave:director_queue')
-
-    return render(request, 'medical_leave/director_endorse.html', {
         'sl': sl,
         'current_sig_b64': emp.signature_b64 or '',
     })

@@ -14,7 +14,6 @@ def notifications_ctx(request):
         pending_coworker_count = 0
         pending_leave_count = 0
         pending_medical_lm_count = 0
-        pending_medical_director_count = 0
         pending_discipline_proposals = 0
         pending_appraisals_count = 0
         pending_consultations_count = 0
@@ -124,11 +123,6 @@ def notifications_ctx(request):
                     status=MedicalSickLeave.STATUS_PENDING_LINE_MANAGER,
                     employee__supervisor=emp,
                 ).count()
-            if emp.is_director():
-                pending_medical_director_count = MedicalSickLeave.objects.filter(
-                    status=MedicalSickLeave.STATUS_PENDING_DIRECTOR,
-                ).count()
-
         except Exception:
             pass
 
@@ -141,7 +135,6 @@ def notifications_ctx(request):
             'pending_leave_count': pending_leave_count,
             'pending_leave_url': pending_leave_url,
             'pending_medical_lm_count': pending_medical_lm_count,
-            'pending_medical_director_count': pending_medical_director_count,
             'pending_discipline_proposals': pending_discipline_proposals,
             'pending_appraisals_count': pending_appraisals_count,
             'pending_consultations_count': pending_consultations_count,
@@ -156,7 +149,6 @@ def notifications_ctx(request):
             'pending_leave_count': 0,
             'pending_leave_url': '',
             'pending_medical_lm_count': 0,
-            'pending_medical_director_count': 0,
             'pending_discipline_proposals': 0,
             'pending_appraisals_count': 0,
             'pending_consultations_count': 0,
