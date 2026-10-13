@@ -389,6 +389,21 @@ def submit_leave(request):
                         notification_type='leave_submitted',
                         url=reverse('leaves:nurse_supt_action', kwargs={'pk': leave.pk}),
                     )
+                elif employee.supervisor and employee.supervisor.is_director():
+                    # Supervisor is a Director — skip manager step, go directly to HR then Director
+                    leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
+                    leave.save(update_fields=['status'])
+                    messages.success(request, f"Leave request submitted for {leave.total_days} day(s). Sent directly to HR for review.")
+                    for hr_emp in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
+                        notify(
+                            hr_emp.user,
+                            f'Leave Request (Director Report) — {employee.get_full_name()}',
+                            f'{employee.get_full_name()} has submitted a {leave.leave_type} request '
+                            f'for {leave.total_days} day(s) ({leave.start_date} → {leave.end_date}). '
+                            f'No manager approval required — awaiting your HR review.{deduct_note}',
+                            notification_type='leave_submitted',
+                            url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
+                        )
                 else:
                     # No unit head — notify supervisor (or their backup if on leave)
                     messages.success(request, f"Leave request submitted successfully for {leave.total_days} day(s). Awaiting manager approval.")
@@ -551,29 +566,59 @@ def unit_head_action(request, pk):
                 sig_b64 = request.POST.get('signature_data', '')
                 _save_drawn_signature(employee, sig_b64)
                 leave.unit_head_sig_b64 = sig_b64 if sig_b64.startswith('data:image/') else (employee.signature_b64 or '')
-                leave.status = LeaveRequest.STATUS_UNIT_HEAD_APPROVED
-                leave.save()
-                messages.success(request, "Leave approved. Forwarded to Line Manager.")
-                notify(
-                    leave.employee.user,
-                    'Leave Request — Unit Head Approved',
-                    f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
-                    f'has been approved by your Unit Head and is now awaiting your Line Manager.',
-                    notification_type='leave_manager_approved',
-                    url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
-                )
-                if leave.employee.supervisor:
-                    effective_sup = get_effective_approver(leave.employee.supervisor)
-                    sup_label = f" (covering for {leave.employee.supervisor.get_full_name()})" if effective_sup != leave.employee.supervisor else ""
+                sup = leave.employee.supervisor
+                if sup and sup.is_director():
+                    # Supervisor is Director — auto-skip manager step, forward directly to HR
+                    now = timezone.now()
+                    leave.manager_action_by = sup
+                    leave.manager_action_date = now
+                    leave.manager_remarks = 'Auto-approved: line manager is Administration Director'
+                    leave.manager_sig_b64 = sup.signature_b64 or ''
+                    leave.status = LeaveRequest.STATUS_MANAGER_APPROVED
+                    leave.save()
+                    messages.success(request, "Leave approved. Forwarded directly to HR (supervisor is Director).")
                     notify(
-                        effective_sup.user,
-                        f'Leave Awaiting Your Approval — {leave.employee.get_full_name()}',
-                        f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
-                        f'has a {leave.leave_type} request ({leave.start_date} to {leave.end_date}, '
-                        f'{leave.total_days} day(s)) approved by Unit Head, pending your review{sup_label}.',
-                        notification_type='leave_submitted',
-                        url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
+                        leave.employee.user,
+                        'Leave Request — Unit Head Approved',
+                        f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                        f'has been approved by your Unit Head and is now awaiting HR review.',
+                        notification_type='leave_manager_approved',
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
                     )
+                    for hr_emp in Employee.objects.filter(role='hr', is_active=True).select_related('user'):
+                        notify(
+                            hr_emp.user,
+                            f'Leave Awaiting HR Review — {leave.employee.get_full_name()}',
+                            f'{leave.employee.get_full_name()} has a {leave.leave_type} request '
+                            f'({leave.start_date} to {leave.end_date}, {leave.total_days} day(s)) '
+                            f'approved by Unit Head. Awaiting your HR review.',
+                            notification_type='leave_submitted',
+                            url=reverse('leaves:hr_action', kwargs={'pk': leave.pk}),
+                        )
+                else:
+                    leave.status = LeaveRequest.STATUS_UNIT_HEAD_APPROVED
+                    leave.save()
+                    messages.success(request, "Leave approved. Forwarded to Line Manager.")
+                    notify(
+                        leave.employee.user,
+                        'Leave Request — Unit Head Approved',
+                        f'Your {leave.leave_type} request ({leave.start_date} → {leave.end_date}) '
+                        f'has been approved by your Unit Head and is now awaiting your Line Manager.',
+                        notification_type='leave_manager_approved',
+                        url=reverse('leaves:detail', kwargs={'pk': leave.pk}),
+                    )
+                    if sup:
+                        effective_sup = get_effective_approver(sup)
+                        sup_label = f" (covering for {sup.get_full_name()})" if effective_sup != sup else ""
+                        notify(
+                            effective_sup.user,
+                            f'Leave Awaiting Your Approval — {leave.employee.get_full_name()}',
+                            f'{leave.employee.get_full_name()} ({leave.employee.department or "No dept"}) '
+                            f'has a {leave.leave_type} request ({leave.start_date} to {leave.end_date}, '
+                            f'{leave.total_days} day(s)) approved by Unit Head, pending your review{sup_label}.',
+                            notification_type='leave_submitted',
+                            url=reverse('leaves:manager_action', kwargs={'pk': leave.pk}),
+                        )
             else:
                 leave.status = LeaveRequest.STATUS_REJECTED_UNIT_HEAD
                 leave.save()
@@ -1104,7 +1149,7 @@ def director_action(request, pk):
                 # Auto-fill bypassed approval slots for direct reports and HR staff
                 applicant = leave.employee
                 now = timezone.now()
-                if applicant.reports_to_director or applicant.is_hr():
+                if applicant.reports_to_director or applicant.is_hr() or applicant.supervisor == employee:
                     if not leave.unit_head_action_by:
                         leave.unit_head_action_by = employee
                         leave.unit_head_action_date = now
