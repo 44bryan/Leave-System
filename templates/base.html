@@ -1372,7 +1372,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:manager_approvals' %}" class="nav-link-sidebar {% block nav_manager %}{% endblock %}">
                     <i class="bi bi-people-fill"></i> {% trans "Manager Queue" %}
-                    {% if pending_leave_count > 0 %}<span class="nav-badge">{{ pending_leave_count }}</span>{% endif %}
+                    {% if pending_manager_leave_count > 0 %}<span class="nav-badge">{{ pending_manager_leave_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">

@@ -14,6 +14,7 @@ def notifications_ctx(request):
         pending_coworker_count = 0
         pending_leave_count = 0
         pending_ceo_leave_count = 0
+        pending_manager_leave_count = 0
         pending_medical_lm_count = 0
         pending_medical_hr_count = 0
         pending_discipline_proposals = 0
@@ -132,6 +133,17 @@ def notifications_ctx(request):
                 ).distinct().count()
                 pending_leave_url = reverse('leaves:nurse_supt_approvals')
 
+            # Manager Queue badge — always based on direct reports, regardless of role
+            # (admin_director may also be a line manager for some employees)
+            if emp.is_manager() or emp.is_director():
+                pending_manager_leave_count = LeaveRequest.objects.filter(
+                    employee__supervisor=emp,
+                ).filter(
+                    Q(status=LeaveRequest.STATUS_PENDING, employee__unit_head__isnull=True) |
+                    Q(status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED) |
+                    Q(status=LeaveRequest.STATUS_NURSE_SUPT_APPROVED, employee__role='manager', employee__requires_nurse_supt=True)
+                ).distinct().count()
+
             # Pending consultations
             from leaves.models import LeaveConsultation
             pending_consultations_count = LeaveConsultation.objects.filter(
@@ -162,6 +174,7 @@ def notifications_ctx(request):
             'pending_coworker_count': pending_coworker_count,
             'pending_leave_count': pending_leave_count,
             'pending_ceo_leave_count': pending_ceo_leave_count,
+            'pending_manager_leave_count': pending_manager_leave_count,
             'pending_leave_url': pending_leave_url,
             'pending_medical_lm_count': pending_medical_lm_count,
             'pending_medical_hr_count': pending_medical_hr_count,
@@ -188,6 +201,7 @@ def notifications_ctx(request):
             'pending_coworker_count': 0,
             'pending_leave_count': 0,
             'pending_ceo_leave_count': 0,
+            'pending_manager_leave_count': 0,
             'pending_leave_url': '',
             'pending_medical_lm_count': 0,
             'pending_medical_hr_count': 0,
