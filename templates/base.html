@@ -1458,6 +1458,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'medical_leave:hr_queue' %}" class="nav-link-sidebar {% block nav_medical_hr %}{% endblock %}">
                     <i class="bi bi-heart-pulse"></i> {% trans "Medical Sick Leave" %}
+                    {% if pending_medical_hr_count > 0 %}<span class="nav-badge">{{ pending_medical_hr_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">
@@ -1630,6 +1631,7 @@
             <li class="nav-item-sidebar">
                 <a href="{% url 'leaves:ceo_approvals' %}" class="nav-link-sidebar {% block nav_ceo %}{% endblock %}">
                     <i class="bi bi-person-badge"></i> {% trans "Director Leave Queue" %}
+                    {% if pending_ceo_leave_count > 0 %}<span class="nav-badge">{{ pending_ceo_leave_count }}</span>{% endif %}
                 </a>
             </li>
             <li class="nav-item-sidebar">

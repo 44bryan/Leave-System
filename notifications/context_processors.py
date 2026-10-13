@@ -13,7 +13,9 @@ def notifications_ctx(request):
         suspension_end = None
         pending_coworker_count = 0
         pending_leave_count = 0
+        pending_ceo_leave_count = 0
         pending_medical_lm_count = 0
+        pending_medical_hr_count = 0
         pending_discipline_proposals = 0
         pending_consultations_count = 0
         # Per-page appraisal counts — each badge shows exactly what that page will show
@@ -76,6 +78,11 @@ def notifications_ctx(request):
                 appraisal_ceo_count = AppraisalRecord.objects.filter(
                     status=AppraisalRecord.STATUS_CEO,
                 ).count()
+                pending_ceo_leave_count = LeaveRequest.objects.filter(
+                    status=LeaveRequest.STATUS_HR_APPROVED,
+                ).filter(
+                    Q(employee__role__in=('admin_director', 'medical_director')) | Q(employee__reports_to_ceo=True)
+                ).count()
 
             # Leave queue badge — role-specific, matches exactly what the target view shows
             from leaves.models import LeaveRequest
@@ -117,10 +124,12 @@ def notifications_ctx(request):
                 pending_leave_url = reverse('leaves:unit_head_approvals')
             elif emp.role == 'nurse_superintendent':
                 pending_leave_count = LeaveRequest.objects.filter(
-                    status=LeaveRequest.STATUS_MANAGER_APPROVED,
                     employee__requires_nurse_supt=True,
                     employee__nurse_superintendent=emp,
-                ).count()
+                ).filter(
+                    Q(status=LeaveRequest.STATUS_MANAGER_APPROVED) |
+                    Q(status=LeaveRequest.STATUS_PENDING, employee__role='manager')
+                ).distinct().count()
                 pending_leave_url = reverse('leaves:nurse_supt_approvals')
 
             # Pending consultations
@@ -137,6 +146,11 @@ def notifications_ctx(request):
                     status=MedicalSickLeave.STATUS_PENDING_LINE_MANAGER,
                     employee__supervisor=emp,
                 ).count()
+            # Medical sick leave HR badge — matches hr_queue view exactly
+            if emp.is_hr():
+                pending_medical_hr_count = MedicalSickLeave.objects.filter(
+                    status=MedicalSickLeave.STATUS_PENDING_HR,
+                ).count()
         except Exception:
             pass
 
@@ -147,8 +161,10 @@ def notifications_ctx(request):
             'suspension_end': suspension_end,
             'pending_coworker_count': pending_coworker_count,
             'pending_leave_count': pending_leave_count,
+            'pending_ceo_leave_count': pending_ceo_leave_count,
             'pending_leave_url': pending_leave_url,
             'pending_medical_lm_count': pending_medical_lm_count,
+            'pending_medical_hr_count': pending_medical_hr_count,
             'pending_discipline_proposals': pending_discipline_proposals,
             'pending_consultations_count': pending_consultations_count,
             'appraisal_self_count': appraisal_self_count,
@@ -171,8 +187,10 @@ def notifications_ctx(request):
             'suspension_end': None,
             'pending_coworker_count': 0,
             'pending_leave_count': 0,
+            'pending_ceo_leave_count': 0,
             'pending_leave_url': '',
             'pending_medical_lm_count': 0,
+            'pending_medical_hr_count': 0,
             'pending_discipline_proposals': 0,
             'pending_consultations_count': 0,
             'appraisal_self_count': 0,
