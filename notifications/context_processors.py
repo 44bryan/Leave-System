@@ -15,12 +15,19 @@ def notifications_ctx(request):
         pending_leave_count = 0
         pending_medical_lm_count = 0
         pending_discipline_proposals = 0
-        pending_appraisals_count = 0
         pending_consultations_count = 0
+        # Per-page appraisal counts — each badge shows exactly what that page will show
+        appraisal_self_count = 0
+        appraisal_unit_head_count = 0
+        appraisal_manager_count = 0
+        appraisal_hr_count = 0
+        appraisal_director_count = 0
+        appraisal_ceo_count = 0
 
         try:
             emp = request.user.employee
             from discipline.models import DisciplineRecord
+            from django.db.models import Q
             today = date.today()
 
             # Suspension check
@@ -35,33 +42,46 @@ def notifications_ctx(request):
                 is_suspended = True
                 suspension_end = active_suspension.suspension_end
 
-            # Appraisal pending counts (all roles)
+            # Appraisal counts — each matches exactly what the corresponding view page shows
             from appraisals.models import AppraisalRecord
-            from django.db.models import Q
+            appraisal_self_count = AppraisalRecord.objects.filter(
+                status=AppraisalRecord.STATUS_EMPLOYEE,
+                employee=emp,
+            ).count()
             pending_coworker_count = AppraisalRecord.objects.filter(
                 coworker_signed_by=emp,
                 status=AppraisalRecord.STATUS_COWORKER,
             ).count()
-            _aq = (
-                Q(status=AppraisalRecord.STATUS_EMPLOYEE, employee=emp) |
-                Q(status=AppraisalRecord.STATUS_COWORKER, coworker_signed_by=emp) |
-                Q(status=AppraisalRecord.STATUS_UNIT_HEAD, employee__supervisor=emp) |
-                Q(status=AppraisalRecord.STATUS_MANAGER, employee__supervisor=emp)
-            )
+            # Unit head: same logic as pending_unit_head view
+            appraisal_unit_head_count = AppraisalRecord.objects.filter(
+                status=AppraisalRecord.STATUS_UNIT_HEAD,
+            ).filter(
+                Q(employee__unit_head=emp) |
+                Q(employee__unit_head__isnull=True, employee__supervisor=emp)
+            ).count()
+            # Manager: same logic as pending_manager view
+            appraisal_manager_count = AppraisalRecord.objects.filter(
+                status=AppraisalRecord.STATUS_MANAGER,
+                employee__supervisor=emp,
+            ).count()
             if emp.is_hr():
-                _aq |= Q(status=AppraisalRecord.STATUS_HR)
+                appraisal_hr_count = AppraisalRecord.objects.filter(
+                    status=AppraisalRecord.STATUS_HR,
+                ).count()
             if emp.is_director():
-                _aq |= Q(status=AppraisalRecord.STATUS_DIRECTOR)
+                appraisal_director_count = AppraisalRecord.objects.filter(
+                    status=AppraisalRecord.STATUS_DIRECTOR,
+                ).count()
             if emp.is_ceo():
-                _aq |= Q(status=AppraisalRecord.STATUS_CEO)
-            pending_appraisals_count = AppraisalRecord.objects.filter(_aq).count()
+                appraisal_ceo_count = AppraisalRecord.objects.filter(
+                    status=AppraisalRecord.STATUS_CEO,
+                ).count()
 
-            # Sidebar badge counts — role-specific pending approval queues
+            # Leave queue badge — role-specific, matches exactly what the target view shows
             from leaves.models import LeaveRequest
             from django.urls import reverse
             pending_leave_url = reverse('dashboard:home')
             if request.user.is_superuser or emp.is_hr():
-                from django.db.models import Q
                 pending_leave_count = LeaveRequest.objects.filter(
                     Q(status=LeaveRequest.STATUS_MANAGER_APPROVED, employee__requires_nurse_supt=False) |
                     Q(status=LeaveRequest.STATUS_MANAGER_APPROVED, employee__nurse_superintendent__isnull=True) |
@@ -72,7 +92,6 @@ def notifications_ctx(request):
                     is_proposal=True
                 ).count()
             elif emp.role in ('admin_director', 'finance_director') or emp.acting_role in ('admin_director', 'finance_director'):
-                # Director leave queue — match exactly what director_approvals view shows
                 pending_leave_count = LeaveRequest.objects.filter(
                     status=LeaveRequest.STATUS_HR_APPROVED
                 ).exclude(
@@ -85,15 +104,10 @@ def notifications_ctx(request):
                     ).count()
             elif emp.is_manager() or emp.is_director():
                 pending_leave_count = LeaveRequest.objects.filter(
-                    status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED,
-                    employee__supervisor=emp,
-                ).count()
-                # Also count "pending" for employees without a unit head
-                pending_leave_count += LeaveRequest.objects.filter(
-                    status=LeaveRequest.STATUS_PENDING,
-                    employee__supervisor=emp,
-                    employee__unit_head__isnull=True,
-                ).count()
+                    Q(status=LeaveRequest.STATUS_PENDING, employee__unit_head__isnull=True) |
+                    Q(status=LeaveRequest.STATUS_UNIT_HEAD_APPROVED) |
+                    Q(status=LeaveRequest.STATUS_NURSE_SUPT_APPROVED, employee__role='manager', employee__requires_nurse_supt=True)
+                ).filter(employee__supervisor=emp).distinct().count()
                 pending_leave_url = reverse('leaves:manager_approvals')
             elif emp.role == 'unit_head':
                 pending_leave_count = LeaveRequest.objects.filter(
@@ -109,14 +123,14 @@ def notifications_ctx(request):
                 ).count()
                 pending_leave_url = reverse('leaves:nurse_supt_approvals')
 
-            # Pending consultations sent to this user
+            # Pending consultations
             from leaves.models import LeaveConsultation
             pending_consultations_count = LeaveConsultation.objects.filter(
                 consulted_with=emp,
                 status=LeaveConsultation.STATUS_PENDING,
             ).count()
 
-            # Medical sick leave pending counts
+            # Medical sick leave LM badge — matches lm_queue view exactly
             from medical_leave.models import MedicalSickLeave
             if emp.is_manager() or emp.is_director():
                 pending_medical_lm_count = MedicalSickLeave.objects.filter(
@@ -136,8 +150,18 @@ def notifications_ctx(request):
             'pending_leave_url': pending_leave_url,
             'pending_medical_lm_count': pending_medical_lm_count,
             'pending_discipline_proposals': pending_discipline_proposals,
-            'pending_appraisals_count': pending_appraisals_count,
             'pending_consultations_count': pending_consultations_count,
+            'appraisal_self_count': appraisal_self_count,
+            'appraisal_unit_head_count': appraisal_unit_head_count,
+            'appraisal_manager_count': appraisal_manager_count,
+            'appraisal_hr_count': appraisal_hr_count,
+            'appraisal_director_count': appraisal_director_count,
+            'appraisal_ceo_count': appraisal_ceo_count,
+            'pending_appraisals_count': (
+                appraisal_self_count + pending_coworker_count +
+                appraisal_unit_head_count + appraisal_manager_count +
+                appraisal_hr_count + appraisal_director_count + appraisal_ceo_count
+            ),
         }
     except Exception:
         return {
@@ -150,6 +174,12 @@ def notifications_ctx(request):
             'pending_leave_url': '',
             'pending_medical_lm_count': 0,
             'pending_discipline_proposals': 0,
-            'pending_appraisals_count': 0,
             'pending_consultations_count': 0,
+            'appraisal_self_count': 0,
+            'appraisal_unit_head_count': 0,
+            'appraisal_manager_count': 0,
+            'appraisal_hr_count': 0,
+            'appraisal_director_count': 0,
+            'appraisal_ceo_count': 0,
+            'pending_appraisals_count': 0,
         }
