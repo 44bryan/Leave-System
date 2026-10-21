@@ -382,7 +382,7 @@ def all_records(request):
 
     leaves = MedicalSickLeave.objects.select_related(
         'employee__user', 'issued_by__user',
-        'line_manager_action_by__user', 'hr_action_by__user', 'director_action_by__user'
+        'line_manager_action_by__user', 'hr_action_by__user'
     )
     return render(request, 'medical_leave/all_records.html', {'leaves': leaves})
 
