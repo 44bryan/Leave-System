@@ -201,7 +201,7 @@ def admin_dashboard(request):
     total_users = User.objects.count()
     approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
     rejected_year = LeaveRequest.objects.filter(
-        status__in=['rejected_unit_head', 'rejected_manager', 'rejected_hr', 'rejected_director'],
+        status__in=['rejected_unit_head', 'rejected_manager', 'rejected_nurse_supt', 'rejected_hr', 'rejected_director'],
         start_date__year=year
     ).count()
     pending_manager = LeaveRequest.objects.filter(status='pending').count()
@@ -233,16 +233,17 @@ def admin_dashboard(request):
 
     # ── Discipline stats ──
     discipline_warned = DisciplineRecord.objects.filter(
-        action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+        action_type__in=['verbal_warning', 'written_caution', 'final_warning'],
+        is_proposal=False,
     ).values('employee').distinct().count()
     discipline_suspended = DisciplineRecord.objects.filter(
-        action_type='suspension', suspension_end__gte=today,
-    ).count()
+        action_type='suspension', suspension_end__gte=today, is_proposal=False,
+    ).values('employee').distinct().count()
     discipline_dismissed = DisciplineRecord.objects.filter(
-        action_type='dismissal'
+        action_type='dismissal', is_proposal=False,
     ).values('employee').distinct().count()
     dismissal_alert = DisciplineRecord.objects.filter(
-        action_type='dismissal'
+        action_type='dismissal', is_proposal=False,
     ).select_related('employee__user').order_by('-date_issued')[:10]
 
     # ── Currently on leave ──
@@ -681,7 +682,7 @@ def director_dashboard(request, employee):
     pending_director = LeaveRequest.objects.filter(status='hr_approved').count()
     approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
     rejected_year = LeaveRequest.objects.filter(
-        status__in=['rejected_manager', 'rejected_hr', 'rejected_director'],
+        status__in=['rejected_manager', 'rejected_nurse_supt', 'rejected_hr', 'rejected_director'],
         start_date__year=year
     ).count()
 
@@ -709,14 +710,14 @@ def director_dashboard(request, employee):
         month_labels.append(datetime(year, m, 1).strftime('%b'))
 
     discipline_warned = DisciplineRecord.objects.filter(
-        action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+        action_type__in=['verbal_warning', 'written_caution', 'final_warning'],
+        is_proposal=False,
     ).values('employee').distinct().count()
     discipline_suspended = DisciplineRecord.objects.filter(
-        action_type='suspension',
-        suspension_end__gte=today,
-    ).count()
+        action_type='suspension', suspension_end__gte=today, is_proposal=False,
+    ).values('employee').distinct().count()
     discipline_dismissed = DisciplineRecord.objects.filter(
-        action_type='dismissal'
+        action_type='dismissal', is_proposal=False,
     ).values('employee').distinct().count()
 
     dept_stats = Department.objects.annotate(
@@ -806,7 +807,7 @@ def ceo_dashboard(request, employee):
     total_employees = Employee.objects.filter(is_active=True).count()
     approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
     rejected_year = LeaveRequest.objects.filter(
-        status__in=['rejected_manager', 'rejected_hr', 'rejected_director'],
+        status__in=['rejected_manager', 'rejected_nurse_supt', 'rejected_hr', 'rejected_director'],
         start_date__year=year
     ).count()
     pending_all = LeaveRequest.objects.filter(
@@ -832,14 +833,14 @@ def ceo_dashboard(request, employee):
         month_labels.append(datetime(year, m, 1).strftime('%b'))
 
     discipline_warned = DisciplineRecord.objects.filter(
-        action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+        action_type__in=['verbal_warning', 'written_caution', 'final_warning'],
+        is_proposal=False,
     ).values('employee').distinct().count()
     discipline_suspended = DisciplineRecord.objects.filter(
-        action_type='suspension',
-        suspension_end__gte=today,
-    ).count()
+        action_type='suspension', suspension_end__gte=today, is_proposal=False,
+    ).values('employee').distinct().count()
     discipline_dismissed = DisciplineRecord.objects.filter(
-        action_type='dismissal'
+        action_type='dismissal', is_proposal=False,
     ).values('employee').distinct().count()
 
     dept_stats = Department.objects.annotate(
@@ -927,14 +928,14 @@ def hr_dashboard(request, employee):
 
     # Discipline stats
     discipline_warned = DisciplineRecord.objects.filter(
-        action_type__in=['verbal_warning', 'written_caution', 'final_warning']
+        action_type__in=['verbal_warning', 'written_caution', 'final_warning'],
+        is_proposal=False,
     ).values('employee').distinct().count()
     discipline_suspended = DisciplineRecord.objects.filter(
-        action_type='suspension',
-        suspension_end__gte=today,
-    ).count()
+        action_type='suspension', suspension_end__gte=today, is_proposal=False,
+    ).values('employee').distinct().count()
     discipline_dismissed = DisciplineRecord.objects.filter(
-        action_type='dismissal'
+        action_type='dismissal', is_proposal=False,
     ).values('employee').distinct().count()
 
     # Key stats
@@ -946,7 +947,7 @@ def hr_dashboard(request, employee):
     pending_director = LeaveRequest.objects.filter(status='hr_approved').count()
     approved_year = LeaveRequest.objects.filter(status='approved', start_date__year=year).count()
     rejected_year = LeaveRequest.objects.filter(
-        status__in=['rejected_manager', 'rejected_hr', 'rejected_director'],
+        status__in=['rejected_manager', 'rejected_nurse_supt', 'rejected_hr', 'rejected_director'],
         start_date__year=year
     ).count()
 
