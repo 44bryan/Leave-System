@@ -725,7 +725,9 @@ def manager_action(request, pk):
                 from accounts.models import Employee as _Emp
                 ns_already_approved = leave.nurse_supt_action_by is not None
                 nurse_supt = leave.employee.nurse_superintendent if leave.employee.requires_nurse_supt else None
-                if nurse_supt and not ns_already_approved:
+                # If the approving manager IS the nurse superintendent — auto-skip NS step
+                is_same_person = nurse_supt and (nurse_supt.pk == employee.pk)
+                if nurse_supt and not ns_already_approved and not is_same_person:
                     # Route to Nurse Superintendent next (standard flow for regular employees)
                     messages.success(request, "Leave request approved. Forwarded to Nurse Superintendent for review.")
                     notify(
@@ -746,7 +748,14 @@ def manager_action(request, pk):
                         url=reverse('leaves:nurse_supt_action', kwargs={'pk': leave.pk}),
                     )
                 else:
-                    # NS already approved (NS-first flow) or no NS required: go straight to HR
+                    # Same person is both manager and NS: auto-fill NS approval
+                    if is_same_person and not ns_already_approved:
+                        leave.nurse_supt_action_by = employee
+                        leave.nurse_supt_action_date = timezone.now()
+                        leave.nurse_supt_sig_b64 = leave.manager_sig_b64
+                        leave.nurse_supt_remarks = 'Auto-approved: same person as line manager.'
+                        leave.status = LeaveRequest.STATUS_NURSE_SUPT_APPROVED
+                    # NS already approved (NS-first flow), same-person skip, or no NS required: go straight to HR
                     messages.success(request, "Leave request approved. Forwarded to HR for review.")
                     notify(
                         leave.employee.user,
