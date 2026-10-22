@@ -2397,12 +2397,11 @@ document.querySelectorAll('[data-hint]').forEach(function(el) {
 })();
 </script>
 {% endif %}
-<!-- PWA Service Worker -->
+<!-- Unregister any cached service workers to prevent offline page issues -->
 <script>
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
-            .catch(() => {}); // silent fail — SW is enhancement only
+    navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
     });
 }
 </script>
