@@ -8,13 +8,13 @@ MAX_CHILD_BONUS_DAYS = 4
 
 def _child_bonus_days(emp):
     """
-    Return extra leave days for children: +1 day per child, max MAX_CHILD_BONUS_DAYS.
+    Return extra leave days for children: +2 days per child, max MAX_CHILD_BONUS_DAYS.
     Counts all children (beneficiary and non-beneficiary) registered in HealthDependant.
     """
     child_count = emp.health_dependants.filter(
         relation__in=('child_ben', 'child_other')
     ).count()
-    return min(child_count, MAX_CHILD_BONUS_DAYS)
+    return min(child_count * 2, MAX_CHILD_BONUS_DAYS)
 
 
 def seniority_entitlement(emp, year=None):
