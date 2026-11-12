@@ -270,11 +270,12 @@ def submit_leave(request):
         if leave.start_date and leave.end_date:
             leave.total_days = LeaveRequest._count_working_days(leave.start_date, leave.end_date)
 
-        # Validate balance (only for deductible leave types)
+        # Mark as advance leave if balance is exhausted
         if leave.leave_type.is_deductible and leave.total_days > balance.remaining_days:
-            messages.error(request, f"Insufficient leave balance. You have {balance.remaining_days} days remaining.")
-        else:
-            # Check for overlapping requests
+            leave.is_advance = True
+
+        # Check for overlapping requests
+        if True:
             overlapping = LeaveRequest.objects.filter(
                 employee=employee,
                 status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved', 'approved'],
@@ -1425,8 +1426,9 @@ def leave_edit(request, pk):
         if updated.start_date and updated.end_date:
             updated.total_days = LeaveRequest._count_working_days(updated.start_date, updated.end_date)
         if updated.leave_type.is_deductible and updated.total_days > balance.remaining_days + leave.total_days:
-            messages.error(request, f"Insufficient leave balance.")
-        else:
+            updated.is_advance = True
+
+        if True:
             overlapping = LeaveRequest.objects.filter(
                 employee=employee,
                 status__in=['pending', 'unit_head_approved', 'manager_approved', 'hr_approved', 'approved'],

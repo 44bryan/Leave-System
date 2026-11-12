@@ -60,10 +60,11 @@
                     </div>
 
                     <div class="mb-3" id="balance-error" style="display:none;">
-                        <div class="alert alert-danger py-2">
+                        <div class="alert alert-warning py-2">
                             <i class="bi bi-exclamation-triangle me-2"></i>
-                            You do not have enough leave balance for the selected number of days.
-                            Remaining balance: <strong>{{ balance.remaining_days }} day(s)</strong>.
+                            This exceeds your remaining balance.
+                            Remaining: <strong>{{ balance.remaining_days }} day(s)</strong>.
+                            The extra days will be deducted from next year's entitlement (advance leave).
                         </div>
                     </div>
 
@@ -221,9 +222,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
         const isDeductible = deductibleMap[leaveTypeEl.value];
         const days = countWorkingDays(sDate, eDate);
         if (isDeductible && days > remainingDays) {
-            e.preventDefault();
             balanceErr.style.display = 'block';
-            balanceErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 });

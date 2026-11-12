@@ -57,10 +57,11 @@
                     </div>
 
                     <div class="mb-3" id="balance-error" style="display:none;">
-                        <div class="alert alert-danger py-2">
+                        <div class="alert alert-warning py-2">
                             <i class="bi bi-exclamation-triangle me-2"></i>
-                            {% trans "You do not have enough leave balance for the selected number of days." %}
-                            {% trans "Remaining balance:" %} <strong>{{ balance.remaining_days }} {% trans "day(s)" %}</strong>.
+                            {% trans "This exceeds your remaining balance." %}
+                            {% trans "Remaining:" %} <strong>{{ balance.remaining_days }} {% trans "day(s)" %}</strong>.
+                            {% trans "The extra days will be deducted from next year's entitlement (advance leave)." %}
                         </div>
                     </div>
 
@@ -384,15 +385,12 @@ updateDays();
             return;
         }
 
-        // Block if deductible leave exceeds remaining balance
+        // Warn (but allow) if deductible leave exceeds remaining balance
         if (sDate && eDate && eDate >= sDate) {
             const isDeductible = deductibleMap[leaveTypeEl.value];
             const days = countWorkingDays(sDate, eDate);
             if (isDeductible && days > remainingDays) {
-                e.preventDefault();
                 balanceErr.style.display = 'block';
-                balanceErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                return;
             }
         }
 

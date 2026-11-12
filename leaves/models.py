@@ -231,9 +231,9 @@ class LeaveBalance(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='leave_balances')
     year = models.PositiveIntegerField()
     total_entitlement = models.PositiveIntegerField(default=18)
-    carried_forward = models.PositiveIntegerField(
+    carried_forward = models.IntegerField(
         default=0,
-        help_text="Unused days carried over from the previous year (accumulated leave)."
+        help_text="Days carried from previous year. Positive = unused days, Negative = advance leave debt."
     )
 
     class Meta:
