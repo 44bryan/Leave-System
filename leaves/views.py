@@ -224,6 +224,23 @@ def submit_leave(request):
         for e in all_employees.order_by('user__last_name', 'user__first_name')
     ]
 
+    # Build holidays JSON for JS day-count (needed by template)
+    from .models import PublicHoliday
+    _fixed = list(PublicHoliday.objects.filter(recurring=False).values_list('date', flat=True))
+    _recur = list(PublicHoliday.objects.filter(recurring=True).values_list('date', flat=True))
+    holidays_json = json.dumps({
+        'fixed': [d.isoformat() for d in _fixed],
+        'recurring': [[d.month, d.day] for d in _recur],
+    })
+
+    def _ctx(form):
+        return {
+            'form': form, 'balance': balance,
+            'backup_choices_json': json.dumps(backup_choices),
+            'employee': employee, 'current_sig_b64': employee.signature_b64 or '',
+            'holidays_json': holidays_json,
+        }
+
     form = LeaveRequestForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         leave = form.save(commit=False)
@@ -233,18 +250,12 @@ def submit_leave(request):
         backup_id = request.POST.get('backup_employee')
         if not backup_id:
             messages.error(request, "Please select a back-up employee to cover you during your leave.")
-            return render(request, 'leaves/request_form.html', {
-                'form': form, 'balance': balance, 'backup_choices_json': json.dumps(backup_choices),
-                'employee': employee, 'current_sig_b64': employee.signature_b64 or '',
-            })
+            return render(request, 'leaves/request_form.html', _ctx(form))
         try:
             leave.backup_employee = Employee.objects.get(pk=backup_id)
         except Employee.DoesNotExist:
             messages.error(request, "Selected back-up employee not found.")
-            return render(request, 'leaves/request_form.html', {
-                'form': form, 'balance': balance, 'backup_choices_json': json.dumps(backup_choices),
-                'employee': employee, 'current_sig_b64': employee.signature_b64 or '',
-            })
+            return render(request, 'leaves/request_form.html', _ctx(form))
 
         # Validate supporting document if provided
         supporting_doc = request.FILES.get('supporting_document')
@@ -253,10 +264,11 @@ def submit_leave(request):
             ok, err = validate_upload(supporting_doc)
             if not ok:
                 messages.error(request, err)
-                return render(request, 'leaves/request_form.html', {
-                    'form': form, 'balance': balance, 'backup_choices_json': json.dumps(backup_choices),
-                    'employee': employee, 'current_sig_b64': employee.signature_b64 or '',
-                })
+                return render(request, 'leaves/request_form.html', _ctx(form))
+
+        # Compute total_days before validation (save() hasn't been called yet)
+        if leave.start_date and leave.end_date:
+            leave.total_days = LeaveRequest._count_working_days(leave.start_date, leave.end_date)
 
         # Validate balance (only for deductible leave types)
         if leave.leave_type.is_deductible and leave.total_days > balance.remaining_days:
@@ -433,14 +445,9 @@ def submit_leave(request):
     leave_types = LeaveType.objects.filter(is_active=True).values('id', 'is_deductible')
     deductible_map = json.dumps({str(lt['id']): lt['is_deductible'] for lt in leave_types})
 
-    return render(request, 'leaves/request_form.html', {
-        'form': form,
-        'balance': balance,
-        'deductible_map': deductible_map,
-        'backup_choices_json': json.dumps(backup_choices),
-        'employee': employee,
-        'current_sig_b64': employee.signature_b64 or '',
-    })
+    ctx = _ctx(form)
+    ctx['deductible_map'] = deductible_map
+    return render(request, 'leaves/request_form.html', ctx)
 
 
 @login_required
@@ -1415,6 +1422,8 @@ def leave_edit(request, pk):
             except Employee.DoesNotExist:
                 pass
 
+        if updated.start_date and updated.end_date:
+            updated.total_days = LeaveRequest._count_working_days(updated.start_date, updated.end_date)
         if updated.leave_type.is_deductible and updated.total_days > balance.remaining_days + leave.total_days:
             messages.error(request, f"Insufficient leave balance.")
         else:
@@ -1451,6 +1460,14 @@ def leave_edit(request, pk):
     leave_types = LeaveType.objects.filter(is_active=True).values('id', 'is_deductible')
     deductible_map = json.dumps({str(lt['id']): lt['is_deductible'] for lt in leave_types})
 
+    from .models import PublicHoliday
+    fixed_holidays = list(PublicHoliday.objects.filter(recurring=False).values_list('date', flat=True))
+    recurring_holidays = list(PublicHoliday.objects.filter(recurring=True).values_list('date', flat=True))
+    holidays_json = json.dumps({
+        'fixed': [d.isoformat() for d in fixed_holidays],
+        'recurring': [[d.month, d.day] for d in recurring_holidays],
+    })
+
     return render(request, 'leaves/edit_form.html', {
         'form': form,
         'leave': leave,
@@ -1459,6 +1476,7 @@ def leave_edit(request, pk):
         'backup_choices': backup_choices,
         'employee': employee,
         'current_sig_b64': employee.signature_b64 or '',
+        'holidays_json': holidays_json,
     })
 
 

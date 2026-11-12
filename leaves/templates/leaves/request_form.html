@@ -248,10 +248,19 @@ function isWeekend(date) {
     return d === 0 || d === 6;
 }
 
+const _holidays = {{ holidays_json|safe }};
+const _fixedSet = new Set(_holidays.fixed);
+const _recurMD = new Set(_holidays.recurring.map(([m,d]) => m + '-' + d));
+function _isHoliday(dt) {
+    const iso = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+    if (_fixedSet.has(iso)) return true;
+    const md = (dt.getMonth()+1) + '-' + dt.getDate();
+    return _recurMD.has(md);
+}
 function countWorkingDays(start, end) {
     let n = 0, cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
     const fin = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-    while (cur <= fin) { const d = cur.getDay(); if (d !== 0 && d !== 6) n++; cur.setDate(cur.getDate()+1); }
+    while (cur <= fin) { const d = cur.getDay(); if (d !== 0 && d !== 6 && !_isHoliday(cur)) n++; cur.setDate(cur.getDate()+1); }
     return n;
 }
 
