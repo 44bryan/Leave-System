@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import LeaveType, LeaveRequest, LeaveBalance
+from .models import LeaveType, LeaveRequest, LeaveBalance, PublicHoliday
+
+
+@admin.register(PublicHoliday)
+class PublicHolidayAdmin(admin.ModelAdmin):
+    list_display = ['name', 'date', 'recurring']
+    list_filter = ['recurring']
+    search_fields = ['name']
+    ordering = ['date']
 
 
 @admin.register(LeaveType)

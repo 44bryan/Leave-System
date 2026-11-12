@@ -4,6 +4,23 @@ from django.contrib.auth.models import User
 from accounts.models import Employee
 
 
+class PublicHoliday(models.Model):
+    """Organisation-observed public holidays — excluded from leave day counts."""
+    name = models.CharField(max_length=150)
+    date = models.DateField()
+    recurring = models.BooleanField(
+        default=True,
+        help_text="If checked, this holiday repeats every year on the same date."
+    )
+
+    class Meta:
+        ordering = ['date']
+        unique_together = ['name', 'date']
+
+    def __str__(self):
+        return f'{self.name} ({self.date})'
+
+
 class LeaveType(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -143,13 +160,24 @@ class LeaveRequest(models.Model):
 
     @staticmethod
     def _count_working_days(start, end):
-        """Count Mon–Fri (exclude Saturday and Sunday) between start and end inclusive."""
+        """Count working days (exclude weekends and organisation public holidays)."""
         from datetime import timedelta
+        # Get explicit holiday dates in range
+        holidays = set(
+            PublicHoliday.objects.filter(
+                date__gte=start, date__lte=end, recurring=False
+            ).values_list('date', flat=True)
+        )
+        # Also check recurring holidays (match month+day for any year)
+        recurring_holidays = PublicHoliday.objects.filter(recurring=True).values_list('date', flat=True)
+        recurring_md = {(d.month, d.day) for d in recurring_holidays}
+
         count = 0
         current = start
         while current <= end:
-            if current.weekday() < 5:  # 0=Mon … 4=Fri
-                count += 1
+            if current.weekday() < 5:  # Mon–Fri
+                if current not in holidays and (current.month, current.day) not in recurring_md:
+                    count += 1
             current += timedelta(days=1)
         return count
 

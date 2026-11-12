@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Public Holidays — AEF HRM{% endblock %}
+{% block page_title %}Public Holidays{% endblock %}
+{% block page_subtitle %}Manage organisation-observed holidays (excluded from leave day counts){% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Add Holiday Form -->
+    <div class="col-md-4 animate-in">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-plus-circle me-2"></i>Add Holiday
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'leaves:public_holiday_add' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Holiday Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Christmas Day" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Date</label>
+                        <input type="date" name="date" class="form-control" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="recurring" class="form-check-input" id="recurring" checked>
+                        <label class="form-check-label" for="recurring">
+                            Recurring every year
+                        </label>
+                        <div class="form-text">If checked, this holiday applies on the same date every year.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-lg me-1"></i>Add Holiday
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Holidays List -->
+    <div class="col-md-8 animate-in delay-1">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-calendar-event me-2"></i>Organisation Holidays</span>
+                <span class="badge bg-primary">{{ holidays|length }} total</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Holiday</th>
+                            <th class="text-center">Date</th>
+                            <th class="text-center">Recurring</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for h in holidays %}
+                        <tr>
+                            <td>
+                                <i class="bi bi-star-fill text-warning me-1" style="font-size:.75rem;"></i>
+                                {{ h.name }}
+                            </td>
+                            <td class="text-center">{{ h.date|date:"d M Y" }}</td>
+                            <td class="text-center">
+                                {% if h.recurring %}
+                                <span class="badge bg-success">Every Year</span>
+                                {% else %}
+                                <span class="badge bg-secondary">One-time</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <form method="post" action="{% url 'leaves:public_holiday_delete' h.pk %}"
+                                      onsubmit="return confirm('Remove {{ h.name }}?');" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                                No public holidays defined yet. Add holidays using the form.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-3 animate-in delay-2" style="border-color:#86efac;">
+            <div class="card-body p-3" style="background:#f0fdf4;">
+                <div class="fw-bold mb-1" style="font-size:.82rem;color:#1a8fa0;">
+                    <i class="bi bi-info-circle me-1"></i>How it works
+                </div>
+                <div style="font-size:.78rem;color:#6b7a8d;">
+                    Holidays added here are automatically excluded when calculating leave days.
+                    For example, if an employee takes leave from Dec 23–27 and Dec 25 is a holiday,
+                    only 4 working days will be counted instead of 5.
+                    <strong>Recurring</strong> holidays repeat every year automatically.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

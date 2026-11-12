@@ -2662,3 +2662,53 @@ def team_calendar(request):
         'years':       range(today.year - 2, today.year + 3),
         'emp_count':   len(employees),
     })
+
+
+# ── Public Holidays Management (HR only) ──────────────────────────
+@login_required
+def public_holidays(request):
+    emp = request.user.employee
+    if not (emp.is_hr() or request.user.is_superuser):
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard:index')
+    from .models import PublicHoliday
+    holidays = PublicHoliday.objects.all().order_by('date')
+    return render(request, 'leaves/public_holidays.html', {'holidays': holidays})
+
+
+@login_required
+def public_holiday_add(request):
+    emp = request.user.employee
+    if not (emp.is_hr() or request.user.is_superuser):
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard:index')
+    if request.method == 'POST':
+        from .models import PublicHoliday
+        name = request.POST.get('name', '').strip()
+        date_str = request.POST.get('date', '').strip()
+        recurring = request.POST.get('recurring') == 'on'
+        if name and date_str:
+            from datetime import datetime as dt
+            try:
+                date = dt.strptime(date_str, '%Y-%m-%d').date()
+                PublicHoliday.objects.get_or_create(name=name, date=date, defaults={'recurring': recurring})
+                messages.success(request, f'Holiday "{name}" added.')
+            except ValueError:
+                messages.error(request, 'Invalid date format.')
+        else:
+            messages.error(request, 'Name and date are required.')
+    return redirect('leaves:public_holidays')
+
+
+@login_required
+def public_holiday_delete(request, pk):
+    emp = request.user.employee
+    if not (emp.is_hr() or request.user.is_superuser):
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard:index')
+    from .models import PublicHoliday
+    holiday = get_object_or_404(PublicHoliday, pk=pk)
+    name = holiday.name
+    holiday.delete()
+    messages.success(request, f'Holiday "{name}" removed.')
+    return redirect('leaves:public_holidays')

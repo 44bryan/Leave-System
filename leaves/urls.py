@@ -48,4 +48,8 @@ urlpatterns = [
     path('plan/hr/', views.plan_hr_overview, name='plan_hr'),
     # Team Leave Calendar
     path('calendar/', views.team_calendar, name='team_calendar'),
+    # Public Holidays management (HR)
+    path('holidays/', views.public_holidays, name='public_holidays'),
+    path('holidays/add/', views.public_holiday_add, name='public_holiday_add'),
+    path('holidays/<int:pk>/delete/', views.public_holiday_delete, name='public_holiday_delete'),
 ]
