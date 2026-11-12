@@ -1653,6 +1653,21 @@ def health_insurance_edit(request, pk):
                 full_name=name, date_of_birth=dob,
             )
 
+        # Recalculate leave entitlement based on updated children count
+        from leaves.seniority import seniority_entitlement
+        from leaves.models import LeaveBalance
+        from datetime import date as _dt
+        year = _dt.today().year
+        bal, created = LeaveBalance.objects.get_or_create(
+            employee=target, year=year,
+            defaults={'total_entitlement': seniority_entitlement(target)}
+        )
+        if not created:
+            new_ent = seniority_entitlement(target)
+            if bal.total_entitlement != new_ent:
+                bal.total_entitlement = new_ent
+                bal.save(update_fields=['total_entitlement'])
+
         messages.success(request, "Health insurance information saved.")
         return redirect('accounts:health_insurance_edit', pk=pk)
 
@@ -1728,6 +1743,21 @@ def my_children_edit(request):
                 employee=employee, relation=HealthDependant.CHILD_OTHER,
                 full_name=name, date_of_birth=dob,
             )
+
+        # Recalculate leave entitlement based on updated children count
+        from leaves.seniority import seniority_entitlement
+        from leaves.models import LeaveBalance
+        from datetime import date as _dt
+        year = _dt.today().year
+        bal, created = LeaveBalance.objects.get_or_create(
+            employee=employee, year=year,
+            defaults={'total_entitlement': seniority_entitlement(employee)}
+        )
+        if not created:
+            new_ent = seniority_entitlement(employee)
+            if bal.total_entitlement != new_ent:
+                bal.total_entitlement = new_ent
+                bal.save(update_fields=['total_entitlement'])
 
         messages.success(request, "Children information updated successfully.")
         return redirect('accounts:my_children_edit')
