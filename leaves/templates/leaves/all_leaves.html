@@ -99,7 +99,7 @@
                     <td class="t-sm text-nowrap">{{ req.start_date }} → {{ req.end_date }}</td>
                     <td><strong>{{ req.total_days }}d</strong></td>
                     <td class="text-nowrap">
-                        <span class="badge bg-{{ req.get_status_badge }}">{{ req.get_status_display }}</span>
+                        <span class="badge bg-{{ req.get_status_badge }}">{{ req.get_status_label }}</span>
                     </td>
                     <td class="t-sm">
                         {% if req.status == 'pending' %}

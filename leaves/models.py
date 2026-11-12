@@ -56,7 +56,7 @@ class LeaveRequest(models.Model):
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Pending Approval'),
         (STATUS_UNIT_HEAD_APPROVED, 'Pending Manager Approval'),
-        (STATUS_MANAGER_APPROVED, 'Pending Nurse Superintendent / HR Approval'),
+        (STATUS_MANAGER_APPROVED, 'Pending HR Approval'),
         (STATUS_NURSE_SUPT_APPROVED, 'Pending HR Approval'),
         (STATUS_HR_APPROVED, 'Pending Director Approval'),
         (STATUS_APPROVED, 'Approved'),
@@ -180,6 +180,12 @@ class LeaveRequest(models.Model):
                     count += 1
             current += timedelta(days=1)
         return count
+
+    def get_status_label(self):
+        """Return a context-aware status label (e.g. show NS step only for clinical staff)."""
+        if self.status == self.STATUS_MANAGER_APPROVED and getattr(self.employee, 'requires_nurse_supt', False):
+            return 'Pending Nurse Superintendent Approval'
+        return self.get_status_display()
 
     def get_status_badge(self):
         badges = {

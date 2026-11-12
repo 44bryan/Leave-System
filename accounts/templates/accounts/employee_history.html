@@ -418,7 +418,7 @@
                             <td><span class="badge bg-info text-dark">{{ req.leave_type }}</span></td>
                             <td style="font-size:.82rem;">{{ req.start_date|date:"d M Y" }} → {{ req.end_date|date:"d M Y" }}</td>
                             <td><strong>{{ req.total_days }}d</strong></td>
-                            <td><span class="badge bg-{{ req.get_status_badge }}">{{ req.get_status_display }}</span></td>
+                            <td><span class="badge bg-{{ req.get_status_badge }}">{{ req.get_status_label }}</span></td>
                             <td style="font-size:.78rem;color:#6b7a8d;">{{ req.created_at|date:"d M Y" }}</td>
                             <td>
                                 <a href="{% url 'leaves:detail' req.pk %}" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:2px 8px;">

@@ -261,7 +261,7 @@
                     <td>
                         <span class="badge bg-{{ req.get_status_badge }}">
                             <i class="bi bi-{{ req.get_status_icon }} me-1"></i>
-                            {{ req.get_status_display }}
+                            {{ req.get_status_label }}
                         </span>
                     </td>
                     <td style="font-size:0.8rem; color:#6b7a8d;">{{ req.created_at|date:"M d, Y" }}</td>
