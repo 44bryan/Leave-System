@@ -237,7 +237,7 @@ def admin_dashboard(request):
         is_proposal=False,
     ).values('employee').distinct().count()
     discipline_suspended = DisciplineRecord.objects.filter(
-        action_type='suspension', suspension_end__gte=today, is_proposal=False,
+        action_type='suspension', is_proposal=False,
     ).values('employee').distinct().count()
     discipline_dismissed = DisciplineRecord.objects.filter(
         action_type='dismissal', is_proposal=False,
@@ -714,7 +714,7 @@ def director_dashboard(request, employee):
         is_proposal=False,
     ).values('employee').distinct().count()
     discipline_suspended = DisciplineRecord.objects.filter(
-        action_type='suspension', suspension_end__gte=today, is_proposal=False,
+        action_type='suspension', is_proposal=False,
     ).values('employee').distinct().count()
     discipline_dismissed = DisciplineRecord.objects.filter(
         action_type='dismissal', is_proposal=False,
@@ -837,7 +837,7 @@ def ceo_dashboard(request, employee):
         is_proposal=False,
     ).values('employee').distinct().count()
     discipline_suspended = DisciplineRecord.objects.filter(
-        action_type='suspension', suspension_end__gte=today, is_proposal=False,
+        action_type='suspension', is_proposal=False,
     ).values('employee').distinct().count()
     discipline_dismissed = DisciplineRecord.objects.filter(
         action_type='dismissal', is_proposal=False,
@@ -932,7 +932,7 @@ def hr_dashboard(request, employee):
         is_proposal=False,
     ).values('employee').distinct().count()
     discipline_suspended = DisciplineRecord.objects.filter(
-        action_type='suspension', suspension_end__gte=today, is_proposal=False,
+        action_type='suspension', is_proposal=False,
     ).values('employee').distinct().count()
     discipline_dismissed = DisciplineRecord.objects.filter(
         action_type='dismissal', is_proposal=False,
